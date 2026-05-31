@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run posts:index && npm run bytes:index && vite",
-    "build": "npm run posts:index && npm run bytes:index && vite build && cp dist/index.html dist/404.html",
+    "build": "npm run posts:index && npm run bytes:index && vite build && cp dist/index.html dist/404.html && cp dist/index.html dist/brain-bytes/index.html",
     "preview": "vite preview",
     "posts:index": "node scripts/generate-posts-index.js",
     "bytes:index": "node scripts/generate-bytes-index.js"
