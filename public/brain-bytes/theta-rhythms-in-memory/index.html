@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theta Rhythms in Memory：你的记忆力每秒闪烁七次</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
+  background: #fafafa;
+  color: #1a1a1a;
+  line-height: 1.8;
+  padding: 48px 24px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+}
+h1 span { color: #c0392b; }
+.meta {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid #c0392b;
+}
+.meta span { margin-right: 14px; }
+
+/* Section heads */
+.section-head {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 48px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #c0392b;
+  color: #1a1a1a;
+}
+.section-head-sub {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 36px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #1a1a1a;
+}
+h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 24px 0 8px;
+  color: #333;
+}
+
+/* Info block (left red border) */
+.info-block {
+  background: #f5f5f5;
+  padding: 14px 18px;
+  border-left: 3px solid #c0392b;
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.info-block .label {
+  font-weight: 700;
+  color: #c0392b;
+  margin-bottom: 4px;
+}
+
+/* Rec block (red border box) */
+.rec {
+  margin: 32px 0;
+  padding: 24px;
+  background: #fff;
+  border: 2px solid #c0392b;
+  border-radius: 4px;
+}
+.rec h3, .rec h2 {
+  font-size: 17px;
+  font-weight: 800;
+  color: #c0392b;
+  margin-bottom: 12px;
+}
+
+/* Paragraphs */
+p {
+  margin: 12px 0;
+  font-size: 15px;
+}
+
+/* Blockquote */
+blockquote {
+  margin: 16px 0;
+  padding: 12px 18px;
+  border-left: 3px solid #ddd;
+  background: #f9f9f9;
+  font-size: 14px;
+  color: #444;
+  font-family: "SF Mono", "Fira Code", "Menlo", monospace;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 16px 0 24px;
+}
+th {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 2px solid #333;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+td {
+  padding: 7px 6px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+tr:hover td { background: #fdf6f5; }
+td:first-child { font-weight: 600; color: #c0392b; }
+
+/* Bold term */
+.term { font-weight: 700; color: #c0392b; }
+
+/* Separator */
+.sep {
+  text-align: center;
+  color: #ccc;
+  margin: 36px 0;
+  font-size: 14px;
+  letter-spacing: 8px;
+}
+
+/* Lists */
+ul, ol {
+  padding-left: 20px;
+  margin: 10px 0;
+  font-size: 14px;
+}
+li { margin-bottom: 6px; }
+
+/* Strong emphasis in text */
+strong { font-weight: 700; }
+em { font-style: italic; }
+
+/* Footer */
+.footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 3px solid #c0392b;
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+
+/* Concept card grid */
+.concept-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+.concept-card {
+  background: #f5f5f5;
+  padding: 12px 16px;
+  border-left: 3px solid #c0392b;
+}
+.concept-card .cname {
+  font-weight: 700;
+  color: #c0392b;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.concept-card .cdesc {
+  font-size: 13px;
+  color: #444;
+}
+
+/* Inline code */
+code {
+  font-family: "SF Mono", "Fira Code", "Menlo", monospace;
+  font-size: 13px;
+  background: #f0f0f0;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+
+<h1>Theta Rhythms in Memory <span>×</span> 你的记忆力每秒闪烁七次</h1>
+
+<div class="meta">
+  <span>📄 Episodic memory encoding fluctuates at a theta rhythm from 3-10 Hz</span><br>
+  <span>✍️ Thomas M. Biba, Alexandra Decker, Björn Herrmann, Keisuke Fukuda, Chaim Katz, Taufik A. Valiante, Katherine Duncan</span><br>
+  <span>🏛️ University of Toronto · MIT · Washington University · Krembil Brain Institute</span><br>
+  <span>📅 OSF Preprint · 2026</span>
+</div>
+
+<!-- ═══════════════ 为什么值得深读 ═══════════════ -->
+
+<div class="rec">
+  <h3>为什么这篇论文值得深读</h3>
+  <p>什么时候是学东西的「最佳时刻」？你的直觉可能会说：喝完咖啡之后、睡了好觉的早晨。但大脑的节奏指向一个快到你根本意识不到的时间尺度——<strong>每秒钟七次</strong>。</p>
+  <p>海马体的 theta 振荡（3-10 Hz）是记忆研究的老朋友了。啮齿动物的研究早就表明，神经可塑性、神经抑制、感知输入都随 theta 相位起伏。一个有影响力的计算模型——SPEAR 模型——据此预测：人类形成记忆的能力应该也以 theta 节律波动，每秒闪烁数次。</p>
+  <p>但问题是：<strong>从来没有人在人类行为层面直接证明过这件事。</strong></p>
+  <p>原因很简单——测量记忆中的亚秒级波动极难。你不能让一个人「快速形成记忆然后马上报告」，因为记忆编码和提取是分开的过程，中间隔着分钟量级的延迟。</p>
+  <p>Biba 等人找到了一个聪明的方法：不测神经活动，测行为。通过精确操控刺激出现的时间（精度到 33 毫秒），他们在 125 人身上重建了记忆编码的毫秒级时间进程——发现它确实以 ~7 Hz 的 theta 节律波动。更关键的是，这个节律不是注意力波动的副产品，而且被乙酰胆碱相关因素调制。</p>
+  <p>这是 SPEAR 模型的第一个直接行为证据。</p>
+</div>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 概念工具箱 ═══════════════ -->
+
+<div class="section-head">概念工具箱</div>
+
+<p>这篇论文横跨认知心理学、神经振荡和精密心理物理学。在进入正文之前，先把所有承重术语翻译成人话。</p>
+
+<div class="concept-grid">
+
+  <div class="concept-card">
+    <div class="cname">Theta 振荡（θ 振荡，3-10 Hz）</div>
+    <div class="cdesc">大脑——尤其是海马体——产生的一种每秒约 3-10 次的节律性电活动。你可以把它想成大脑的「时钟信号」：不是处理信息本身，而是给信息处理打节拍。在啮齿动物中通常 4-12 Hz，在人类中通常更慢（3-10 Hz）。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">SPEAR 模型（编码-提取相位分离模型，Separate Phases for Encoding and Retrieval）</div>
+    <div class="cdesc">一个基于啮齿动物神经生理学的计算模型，核心主张是：海马体在 theta 振荡的不同相位交替执行「编码」（写入新记忆）和「提取」（读取旧记忆）。就像一扇旋转门，每个 theta 周期里，海马体先做一会儿写入、再做一会儿读取，每秒来回切换数次。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">Dense Sampling（密集采样法）</div>
+    <div class="cdesc">注意力研究中发展出的一种方法：用一个「重置线索」（比如一个闪烁的颜色块）把神经振荡的相位锚定到一个已知时间点，然后以极小的时间步长（本文用 33 ms）变化刺激出现的延迟。这样，即使不记录脑电，也能从行为数据中「逆向推出」振荡的节律性影响。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">SOA（刺激起始异步性，Stimulus Onset Asynchrony）</div>
+    <div class="cdesc">从「重置线索」出现到「目标刺激」出现之间的时间间隔。本文操控 SOA 从 200 ms 到 1100 ms，以 33 ms 为步长，共 28 个水平。SOA 不同 = 刺激落在推定 theta 相位的不同位置 = 记忆编码效率不同。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">乙酰胆碱（ACh）</div>
+    <div class="cdesc">一种关键的神经调质。在海马体中，ACh 调节 theta 振荡的幅度和相位一致性——ACh 高时 theta 更强更稳。论文用两个「代理指标」来间接测量 ACh 的影响：持续注意力状态（高注意 = 高 ACh）和日常尼古丁使用（长期使用尼古丁激动剂 → 对内源性 ACh 脱敏）。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">IES（反转效率分数，Inverse Efficiency Score）</div>
+    <div class="cdesc">一个联合度量，= 平均反应时 / 正确率。它把速度和准确性整合成一个指标：越小越好。好处是它比单看正确率或单看反应时更灵敏。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">AR1 控制（一阶自回归控制，First-order Autoregressive Control）</div>
+    <div class="cdesc">一种统计控制方法：生成与原始数据有相同自相关结构的替代数据，但没有周期性结构。如果真实数据的频谱功率超过 AR1 替代数据，说明观测到的振荡是真正的周期性节律，而不仅仅是时间序列中的自相关伪影。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">ISPC（跨被试相位一致性，Inter-Subject Phase Coherence）</div>
+    <div class="cdesc">跨被试相位一致性。检验不同人的行为振荡是否在同一个 SOA「对齐」——即所有人是否在同一个时间窗口内记忆力同步达到峰值和谷值。如果 ISPC 显著，说明这个节律不是个体噪声，而是反映了一个共享的神经机制。</div>
+  </div>
+
+</div>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 核心发现 ═══════════════ -->
+
+<div class="section-head">核心发现：记忆编码以 theta 节律波动</div>
+
+<div class="section-head-sub">实验设计——行为中的「虚拟脑电」</div>
+
+<p>实验的聪明之处在于：它不需要任何神经记录设备，却能检测到一个本应属于神经振荡的现象。</p>
+
+<p>125 名被试在线完成一个联想记忆任务：</p>
+
+<ol>
+  <li><strong>编码阶段</strong>：屏幕先闪一个颜色线索（蓝色 = 判断室内/室外；橙色 = 判断大/小），持续 100 ms。线索的作用是「重置」神经振荡的相位。然后，经过一个可变的延迟（SOA：200-1100 ms，33 ms 步长），呈现一张物体图片，被试做分类判断。</li>
+  <li><strong>提取阶段</strong>：几分钟后，被试看到同一张图片，需要回忆当时做的是哪个任务（室内/室外 还是 大/小）。</li>
+</ol>
+
+<p>关键操控：通过改变 SOA，图片落在了线索后不同的 theta 相位位置上。如果记忆编码确实受 theta 相位调制，那么不同 SOA 的记忆表现应该呈现周期性波动——而不是平坦的。</p>
+
+<!-- ══ 交互组件 1：实验流程动画 ══ -->
+<div id="trial-demo" style="margin:28px 0;padding:24px;background:#fff;border:2px solid #c0392b;border-radius:6px;">
+  <h4 style="color:#c0392b;margin:0 0 16px;font-size:15px;">交互演示：拖动滑块，看刺激落在 theta 波的哪个相位</h4>
+
+  <!-- theta wave canvas -->
+  <canvas id="thetaCanvas" width="660" height="180" style="width:100%;height:auto;display:block;"></canvas>
+
+  <!-- SOA slider -->
+  <div style="margin:16px 0 8px;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:13px;font-weight:600;color:#c0392b;white-space:nowrap;">SOA</span>
+    <input type="range" id="soaSlider" min="200" max="1100" step="33" value="500" style="flex:1;accent-color:#c0392b;">
+    <span id="soaValue" style="font-size:14px;font-weight:700;min-width:70px;text-align:right;">500 ms</span>
+  </div>
+
+  <!-- trial animation strip -->
+  <div id="trialStrip" style="position:relative;height:56px;margin:12px 0 8px;background:#f5f5f5;border-radius:4px;overflow:hidden;">
+    <div id="cueBlock" style="position:absolute;left:0;top:0;width:60px;height:100%;background:#3498db;display:flex;align-items:center;justify-content:center;">
+      <span style="color:#fff;font-size:11px;font-weight:700;">线索</span>
+    </div>
+    <div id="waitBlock" style="position:absolute;left:60px;top:0;height:100%;background:#eee;display:flex;align-items:center;justify-content:center;transition:width 0.2s;">
+      <span id="waitLabel" style="color:#999;font-size:11px;">等待 500 ms</span>
+    </div>
+    <div id="imgBlock" style="position:absolute;top:0;height:100%;width:80px;background:#2ecc71;display:flex;align-items:center;justify-content:center;transition:left 0.2s;">
+      <span style="color:#fff;font-size:11px;font-weight:700;">图片 500ms</span>
+    </div>
+  </div>
+
+  <div id="phaseLabel" style="font-size:13px;color:#666;text-align:center;margin-top:4px;">
+    图片落在 theta 波的 <strong id="phaseText" style="color:#c0392b;">上升段</strong>，推测编码效率：<strong id="effText" style="color:#c0392b;">中等</strong>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('thetaCanvas');
+  const ctx = canvas.getContext('2d');
+  const slider = document.getElementById('soaSlider');
+  const soaVal = document.getElementById('soaValue');
+  const waitBlock = document.getElementById('waitBlock');
+  const waitLabel = document.getElementById('waitLabel');
+  const imgBlock = document.getElementById('imgBlock');
+  const phaseText = document.getElementById('phaseText');
+  const effText = document.getElementById('effText');
+
+  const W = canvas.width, H = canvas.height;
+  const freq = 7; // Hz
+  const thetaPeriod = 1000 / freq; // ~143ms
+  const cueW = 60;
+  const totalStripW = 660; // conceptual
+
+  function draw(soa) {
+    ctx.clearRect(0, 0, W, H);
+    const padL = 50, padR = 20, padT = 20, padB = 30;
+    const plotW = W - padL - padR;
+    const plotH = H - padT - padB;
+    const midY = padT + plotH / 2;
+
+    // axes
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padL, midY);
+    ctx.lineTo(W - padR, midY);
+    ctx.stroke();
+
+    // y-axis label
+    ctx.fillStyle = '#999';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('theta', padL - 6, midY + 4);
+
+    // time labels
+    ctx.textAlign = 'center';
+    ctx.fillText('0 ms', padL, H - 8);
+    ctx.fillText('200', padL + plotW * 200/1200, H - 8);
+    ctx.fillText('500', padL + plotW * 500/1200, H - 8);
+    ctx.fillText('800', padL + plotW * 800/1200, H - 8);
+    ctx.fillText('1100', padL + plotW * 1100/1200, H - 8);
+
+    // cue marker
+    const cueX = padL;
+    ctx.fillStyle = '#3498db';
+    ctx.fillRect(cueX - 1, padT, 3, plotH);
+    ctx.fillStyle = '#3498db';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('线索', cueX, padT - 5);
+
+    // theta wave (starts at cue = time 0)
+    ctx.beginPath();
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2;
+    for (let px = 0; px <= plotW; px++) {
+      const t = (px / plotW) * 1200; // ms
+      const y = midY - Math.sin(2 * Math.PI * freq * t / 1000) * (plotH * 0.38);
+      if (px === 0) ctx.moveTo(padL + px, y); else ctx.lineTo(padL + px, y);
+    }
+    ctx.stroke();
+
+    // SOA marker (image onset)
+    const soaX = padL + (soa / 1200) * plotW;
+    const soaT = soa;
+    const soaPhase = Math.sin(2 * Math.PI * freq * soaT / 1000);
+    const soaY = midY - soaPhase * (plotH * 0.38);
+
+    // vertical dashed line
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = '#2ecc71';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(soaX, padT);
+    ctx.lineTo(soaX, padT + plotH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // dot on wave
+    ctx.beginPath();
+    ctx.arc(soaX, soaY, 7, 0, Math.PI * 2);
+    ctx.fillStyle = '#2ecc71';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // SOA label
+    ctx.fillStyle = '#2ecc71';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('图片出现', soaX, padT - 5);
+
+    // shaded region for image duration (500ms)
+    const imgEndX = Math.min(padL + ((soa + 500) / 1200) * plotW, W - padR);
+    ctx.fillStyle = 'rgba(46,204,113,0.1)';
+    ctx.fillRect(soaX, padT, imgEndX - soaX, plotH);
+
+    return soaPhase;
+  }
+
+  function updateAll() {
+    const soa = parseInt(slider.value);
+    soaVal.textContent = soa + ' ms';
+
+    // update trial strip
+    const stripScale = 0.5; // px per ms (approx)
+    const waitW = Math.max(30, soa * 0.28);
+    waitBlock.style.width = waitW + 'px';
+    waitLabel.textContent = '等待 ' + soa + ' ms';
+    imgBlock.style.left = (cueW + waitW) + 'px';
+
+    // draw theta and get phase
+    const phase = draw(soa);
+
+    // label phase position
+    const normPhase = Math.sin(2 * Math.PI * 7 * soa / 1000);
+    let pLabel, eLabel, eColor;
+    if (normPhase > 0.6) { pLabel = '波峰附近'; eLabel = '较高'; eColor = '#27ae60'; }
+    else if (normPhase > 0.2) { pLabel = '上升段'; eLabel = '中偏高'; eColor = '#2ecc71'; }
+    else if (normPhase > -0.2) { pLabel = '过零点'; eLabel = '中等'; eColor = '#f39c12'; }
+    else if (normPhase > -0.6) { pLabel = '下降段'; eLabel = '中偏低'; eColor = '#e67e22'; }
+    else { pLabel = '波谷附近'; eLabel = '较低'; eColor = '#c0392b'; }
+
+    phaseText.textContent = pLabel;
+    phaseText.style.color = eColor;
+    effText.textContent = eLabel;
+    effText.style.color = eColor;
+  }
+
+  slider.addEventListener('input', updateAll);
+  updateAll();
+})();
+</script>
+
+<div class="section-head-sub">发现 1：记忆准确率以 ~7 Hz 波动</div>
+
+<p>结果正是如此。把所有被试的联想记忆正确率按 SOA 平均后，时间进程呈现出清晰的节律性波动，峰谷差距达到 4 个百分点。</p>
+
+<p>预注册的频谱分析确认：联想记忆命中率（HR, Hit Rate）在 <strong>7 Hz</strong> 处有显著的 theta 峰（z = 2.64, p = 0.049）。IES（反转效率分数）同样在 7 Hz 有显著峰值（z = 2.69, p = 0.043）。反应时（RT, Reaction Time）在 13 Hz（alpha 范围）有边缘趋势。</p>
+
+<p>更严格的 AR1 控制分析排除了自相关伪影：在控制了非周期时间结构之后，记忆节律依然显著——HR 在 6-9 Hz（z = 6.10, p < 0.01），RT 在 5-9 Hz（z = 6.71, p < 0.05），IES 在 3 Hz 和 5-10 Hz（z = 12.84, p < 0.05）。</p>
+
+<div class="info-block">
+  <div class="label">数字直觉</div>
+  峰谷差距 4% 听起来不大，但记住这是 125 人平均后的结果。个体水平上的波动幅度更大，但因为峰谷的精确时间点因人而异，平均会把信号压平。7 Hz = 每 ~143 ms 一个周期。在这 143 ms 里，你的记忆编码效率从谷底到峰值走了一个来回。
+</div>
+
+<!-- ══ 交互组件 2：记忆 vs 注意力振荡对比 ══ -->
+<div id="osc-chart" style="margin:28px 0;padding:24px;background:#fff;border:2px solid #c0392b;border-radius:6px;">
+  <h4 style="color:#c0392b;margin:0 0 6px;font-size:15px;">交互图：记忆在振荡，注意力不振荡</h4>
+  <p style="font-size:12px;color:#888;margin:0 0 14px;">模拟数据基于论文报告的效应量和频率，展示核心发现的定性模式。点击切换指标。</p>
+
+  <!-- toggle buttons -->
+  <div id="oscBtns" style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="osc-btn active" data-metric="hr" style="padding:5px 14px;font-size:12px;font-weight:600;border:2px solid #c0392b;border-radius:3px;background:#c0392b;color:#fff;cursor:pointer;">命中率 HR</button>
+    <button class="osc-btn" data-metric="rt" style="padding:5px 14px;font-size:12px;font-weight:600;border:2px solid #c0392b;border-radius:3px;background:#fff;color:#c0392b;cursor:pointer;">反应时 RT</button>
+    <button class="osc-btn" data-metric="ies" style="padding:5px 14px;font-size:12px;font-weight:600;border:2px solid #c0392b;border-radius:3px;background:#fff;color:#c0392b;cursor:pointer;">效率分数 IES</button>
+  </div>
+
+  <canvas id="oscCanvas" width="660" height="280" style="width:100%;height:auto;display:block;"></canvas>
+
+  <div style="display:flex;gap:20px;justify-content:center;margin-top:10px;font-size:12px;">
+    <span><span style="display:inline-block;width:14px;height:3px;background:#c0392b;vertical-align:middle;margin-right:4px;"></span>记忆编码（theta 振荡）</span>
+    <span><span style="display:inline-block;width:14px;height:3px;background:#3498db;vertical-align:middle;margin-right:4px;"></span>分类判断（注意力，无振荡）</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('oscCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Simulated data parameters based on paper
+  // HR: ~0.52 baseline, ±0.02 oscillation at 7Hz for memory; flat for classification
+  // RT: ~1050ms baseline, ±15ms oscillation at 7Hz
+  // IES: ~2000 baseline, ±40 oscillation at 7Hz
+  const metrics = {
+    hr: {
+      label: '联想记忆命中率',
+      unit: '',
+      memBase: 0.52, memAmp: 0.02, memFreq: 7,
+      clsBase: 0.78, clsAmp: 0.002, clsFreq: 5,
+      yMin: 0.44, yMax: 0.60,
+      yFormat: v => (v*100).toFixed(0) + '%',
+      higherBetter: true
+    },
+    rt: {
+      label: '反应时 (ms)',
+      unit: 'ms',
+      memBase: 1050, memAmp: 18, memFreq: 7,
+      clsBase: 850, clsAmp: 2, clsFreq: 4,
+      yMin: 1010, yMax: 1090,
+      yFormat: v => v.toFixed(0),
+      higherBetter: false
+    },
+    ies: {
+      label: '反转效率分数 IES',
+      unit: '',
+      memBase: 2020, memAmp: 45, memFreq: 7,
+      clsBase: 1090, clsAmp: 3, clsFreq: 6,
+      yMin: 1930, yMax: 2110,
+      yFormat: v => v.toFixed(0),
+      higherBetter: false
+    }
+  };
+
+  let currentMetric = 'hr';
+
+  // SOA points: 200 to 1100 in 33ms steps
+  const soas = [];
+  for (let s = 200; s <= 1100; s += 33) soas.push(s);
+
+  // seeded pseudo-random noise
+  function noise(seed) {
+    let x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+    return (x - Math.floor(x)) * 2 - 1;
+  }
+
+  function genData(base, amp, freq, noiseLevel) {
+    return soas.map((s, i) => {
+      const signal = base + amp * Math.sin(2 * Math.PI * freq * s / 1000 + 0.5);
+      return signal + noise(i * 7 + freq * 13) * noiseLevel;
+    });
+  }
+
+  function drawChart(metric) {
+    const m = metrics[metric];
+    ctx.clearRect(0, 0, W, H);
+    const padL = 60, padR = 20, padT = 30, padB = 36;
+    const plotW = W - padL - padR;
+    const plotH = H - padT - padB;
+
+    // generate data
+    const memData = genData(m.memBase, m.memAmp, m.memFreq, m.memAmp * 0.3);
+    const clsNoise = m.memAmp * 0.25;
+    const clsData = soas.map((s, i) => m.memBase + noise(i * 3 + 99) * clsNoise);
+
+    const allVals = [...memData, ...clsData];
+    const dataMin = Math.min(...allVals);
+    const dataMax = Math.max(...allVals);
+    const margin = (dataMax - dataMin) * 0.25;
+    const yMin = dataMin - margin;
+    const yMax = dataMax + margin;
+
+    function toX(soa) { return padL + ((soa - 200) / 900) * plotW; }
+    function toY(val) { return padT + plotH - ((val - yMin) / (yMax - yMin)) * plotH; }
+
+    // grid
+    ctx.strokeStyle = '#f0f0f0';
+    ctx.lineWidth = 1;
+    const yTicks = 5;
+    for (let i = 0; i <= yTicks; i++) {
+      const y = padT + (plotH / yTicks) * i;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+      const val = yMax - (i / yTicks) * (yMax - yMin);
+      ctx.fillStyle = '#999'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(m.yFormat(val), padL - 6, y + 4);
+    }
+
+    // x-axis labels
+    ctx.fillStyle = '#999'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    [200, 400, 600, 800, 1000, 1100].forEach(s => {
+      ctx.fillText(s + '', toX(s), H - 10);
+    });
+    ctx.fillText('SOA (ms)', padL + plotW / 2, H - 0);
+
+    // title
+    ctx.fillStyle = '#333'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(m.label, padL, padT - 12);
+
+    // classification line (flat-ish)
+    ctx.beginPath();
+    ctx.strokeStyle = '#3498db';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    clsData.forEach((v, i) => {
+      const x = toX(soas[i]), y = toY(v);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // memory line (oscillating)
+    ctx.beginPath();
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2.5;
+    memData.forEach((v, i) => {
+      const x = toX(soas[i]), y = toY(v);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // SEM ribbon for memory
+    ctx.fillStyle = 'rgba(192,57,43,0.1)';
+    ctx.beginPath();
+    const sem = m.memAmp * 0.5;
+    memData.forEach((v, i) => {
+      const x = toX(soas[i]);
+      ctx.lineTo(x, toY(v + sem));
+    });
+    for (let i = memData.length - 1; i >= 0; i--) {
+      ctx.lineTo(toX(soas[i]), toY(memData[i] - sem));
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // dots on memory peaks
+    memData.forEach((v, i) => {
+      if (i > 0 && i < memData.length - 1 && memData[i] > memData[i-1] && memData[i] > memData[i+1]) {
+        ctx.beginPath();
+        ctx.arc(toX(soas[i]), toY(v), 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#c0392b';
+        ctx.fill();
+      }
+    });
+  }
+
+  // button handling
+  document.querySelectorAll('.osc-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.osc-btn').forEach(b => {
+        b.style.background = '#fff'; b.style.color = '#c0392b';
+        b.classList.remove('active');
+      });
+      this.style.background = '#c0392b'; this.style.color = '#fff';
+      this.classList.add('active');
+      currentMetric = this.dataset.metric;
+      drawChart(currentMetric);
+    });
+  });
+
+  drawChart('hr');
+})();
+</script>
+
+<div class="section-head-sub">发现 2：相位跨被试同步</div>
+
+<p>如果每个人的 theta 峰值出现在不同的 SOA，那平均后什么也看不到。但论文不仅在平均水平上看到了振荡，还发现了跨被试相位一致性（ISPC, Inter-Subject Phase Coherence）：在 200-900 ms、6-14 Hz 的时频窗口有显著的相位聚类（p = 0），在 933-1100 ms、8-13 Hz 也有。</p>
+
+<p>这意味着：不同人的最佳和最差记忆窗口大致落在同一个时间段。「重置线索」成功地把所有人的 theta 相位对齐了。</p>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 不是注意力的副产品 ═══════════════ -->
+
+<div class="section-head">记忆节律 ≠ 注意力节律</div>
+
+<p>这是论文最关键的控制分析。注意力也有 theta 节律性——之前的 dense sampling 研究已经充分证明了这一点。而记忆编码依赖注意力。那么一个天然的怀疑就是：你看到的记忆节律，只不过是注意力节律的倒影？</p>
+
+<p>论文用了一个精巧的设计来回答这个问题：编码阶段的分类判断（室内/室外、大/小）本身就提供了一个「注意力指标」。如果记忆节律只是注意力节律的副产品，那么分类表现也应该以 theta 频率波动，而且跟记忆节律同步。</p>
+
+<p>结果：</p>
+
+<ul>
+  <li><strong>分类表现完全没有 theta 振荡</strong>：HR 在 3-10 Hz 范围 p > 0.77；RT p > 0.99；IES p > 0.99。平坦如镜。</li>
+  <li><strong>记忆的 theta 功率显著高于分类的 theta 功率</strong>：IES 的功率差异在 6-8 Hz 显著（p = 0），而且这个差异在 FDR（错误发现率，False Discovery Rate）校正后依然成立。</li>
+  <li><strong>个体水平上，记忆和分类的 theta 功率不相关</strong>：Spearman's ρ = -0.11, p = 0.24, BF₁₀ = 0.22（贝叶斯因子，Bayes Factor，此处支持零假设）。</li>
+  <li><strong>记忆和分类的 theta 相位不对齐</strong>：最佳记忆时刻不是最佳分类时刻。</li>
+</ul>
+
+<div class="rec">
+  <h3>这说明了什么？</h3>
+  <p>记忆节律和注意力节律是可以分离的。在毫秒尺度上，最适合「看清」一个物体的时刻，不一定是最适合「记住」它的时刻。这两个过程可能受到不同的神经振荡驱动——或者受同一个 theta 振荡的不同相位驱动，这正是 SPEAR 模型的预测。</p>
+</div>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 乙酰胆碱调制 ═══════════════ -->
+
+<div class="section-head">乙酰胆碱：记忆节律的化学调节器</div>
+
+<p>SPEAR 模型的一个核心预测是：theta 节律在记忆中的作用应该受乙酰胆碱（ACh）调制。ACh 在海马体中调控 theta 振荡的幅度和一致性——这在啮齿动物和人类中都有大量证据。论文从两个角度检验了这个预测。</p>
+
+<div class="section-head-sub">角度 1：持续注意力 → ACh → 记忆节律</div>
+
+<p>论文借鉴了一个成熟的范式：用反应时的变异性把每个试次标记为「在状态中」（in the zone，RT 稳定 = 持续注意力好 = ACh 高）或「不在状态中」（out of the zone，RT 波动大 = 注意力漂移 = ACh 低）。</p>
+
+<p>结果：「在状态中」时，记忆 RT 的 theta 功率显著更高（5-6 Hz, p < 0.05）。也就是说，当你注意力集中——推测 ACh 水平更高——的时候，记忆编码的节律性更强。</p>
+
+<div class="section-head-sub">角度 2：尼古丁使用者 → ACh 脱敏 → 记忆节律减弱</div>
+
+<p>尼古丁是一种强效 ACh 激动剂。长期使用者对内源性 ACh 脱敏。如果 ACh 确实调制记忆节律，那么经常使用尼古丁的人应该有更弱的记忆振荡。</p>
+
+<p>样本中有 24 人（19.5%）报告经常使用尼古丁。在控制了性别、大麻使用、心理健康状况、测试时间等协变量后，尼古丁使用者的记忆正确率 theta 振荡确实显著更弱（b = -5.79, t(113) = -2.64, p = 0.03）。</p>
+
+<div class="info-block">
+  <div class="label">注意事项</div>
+  这是探索性分析，不是预注册的确认性检验。而且尼古丁使用者样本量只有 24 人，是自我报告的，没有控制使用量和使用方式。论文自己也说：未来需要直接操控 ACh 来确立因果关系。但方向与模型预测一致。
+</div>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 实验方法的精妙之处 ═══════════════ -->
+
+<div class="section-head">方法论的精妙与严谨</div>
+
+<p>这篇论文在方法上的用心程度值得专门拆解。</p>
+
+<table>
+  <tr>
+    <th>设计选择</th>
+    <th>为什么这么做</th>
+  </tr>
+  <tr>
+    <td>预注册</td>
+    <td>2022 年 3 月在 OSF 预注册了分析计划，包括频率范围（3-10 Hz）、样本量（N ≥ 120）、分析方法。这不是事后挑结果。</td>
+  </tr>
+  <tr>
+    <td>两个先导实验 + 一个确认实验</td>
+    <td>先导 1（n=80）和先导 2（n=42）用来发展方法和探索，确认实验（n=125）用预注册计划做假设检验。三个实验结果一致。</td>
+  </tr>
+  <tr>
+    <td>33 ms 时间步长</td>
+    <td>= 1 帧 @ 30 Hz 刷新率。用 Inquisit 在被试本地计算机运行，逐帧记录实际呈现时间，跳帧会被检测和校正。</td>
+  </tr>
+  <tr>
+    <td>AR1 替代数据控制</td>
+    <td>标准排列检验假设时间点独立，但行为时间序列有自相关。AR1 控制生成有匹配自相关结构但无周期性的替代数据，更保守。</td>
+  </tr>
+  <tr>
+    <td>回归掉试次序号效应</td>
+    <td>发现 SOA 与试次号存在非随机关联后，用 GLM（广义线性模型，Generalized Linear Model）回归掉了试次号、任务类型、任务切换等混淆因素，再用残差做分析。</td>
+  </tr>
+  <tr>
+    <td>分类表现作为注意力对照</td>
+    <td>同一个试次的同一个刺激，分类判断索引注意力，记忆提取索引编码。完美的被试内、试次内对照。</td>
+  </tr>
+</table>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 与已有框架的关系 ═══════════════ -->
+
+<div class="section-head">与已有研究的关系</div>
+
+<div class="section-head-sub">vs SPEAR 模型——直接的行为支持</div>
+
+<p>SPEAR 模型预测海马体在 theta 周期内交替做编码和提取，信息流的 gate 由 CA1 的中间神经元控制，而这些中间神经元恰好受 ACh 的烟碱受体强烈调节。论文的三个核心发现——记忆编码的 theta 节律性、与注意力节律的分离、ACh 相关因素的调制——都与 SPEAR 模型的预测一致。</p>
+
+<p>但论文谨慎地没有说「证明了 SPEAR」。一个行为层面的 theta 节律不等于海马体 CA1 的相位切换。行为节律可能有多种神经机制来源。</p>
+
+<div class="section-head-sub">vs 注意力的 theta 节律——分离，不是统一</div>
+
+<p>此前的 dense sampling 研究发现注意力以 theta 频率采样空间位置和物体特征。本文的范式与那些研究有一个关键区别：注意力研究用简短呈现（33-100 ms）的几何刺激在阈限附近检测，本文用完整呈现（500 ms）的自然物体图片做语义判断。记忆节律在后一种条件下出现，注意力节律没有——这暗示节律性注意力采样可能对复杂刺激的感知不那么重要，或者注意力在长时间呈现时更连续。</p>
+
+<div class="section-head-sub">vs 低 theta 和高 theta 之争</div>
+
+<p>啮齿动物文献把 theta 分为低（4-7 Hz）和高（7-12 Hz），人类文献分为低（3-5 Hz）和高（5-10 Hz）。有影响力的观点认为低 theta 功率与记忆编码关系更强。但本文的峰值在 7 Hz——属于人类的高 theta。论文引用了新证据表明高 theta 的相位一致性和海马-前额皮层的相位锁定也预测后续记忆，并且 ACh 同时调制两个子频段。但也提醒 7 Hz 这个精确值要谨慎解读，因为先导实验的峰值频率有变异（~5-6 Hz 和 ~4-10 Hz）。</p>
+
+<div class="section-head-sub">vs 节律性编码的功能意义</div>
+
+<p>论文在讨论中提出了一个引人入胜的观点：theta 节律性编码可能不仅仅是「防干扰」（SPEAR 模型的原始动机），还可能服务于<strong>基于预测误差的学习</strong>。近期研究提出，海马体在 theta 频率上快速交替感知输入和记忆预测，实现高效的比较和更新——类似于一种快速的 Hebbian-error-driven 混合学习。</p>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 跨领域启示 ═══════════════ -->
+
+<div class="section-head">跨领域的启示</div>
+
+<h4>教育与学习</h4>
+<p>如果记忆编码确实在亚秒级别闪烁，那么信息呈现的精确时间可能比我们以为的更重要。不是说要把课件调成 7 Hz 的节拍（那太粗暴了），而是说：连续不间断的信息流可能不是最优的编码条件。短暂的停顿、节奏感、注意力的自然重置——这些可能在无意中帮助大脑找到了 theta 的「窗口」。</p>
+
+<h4>人机交互</h4>
+<p>VR/AR 环境中的信息呈现频率可能需要考虑 theta 节律。如果视觉刺激的更新恰好与海马 theta 的不利相位对齐，可能系统性地降低记忆编码效率。</p>
+
+<h4>临床</h4>
+<p>海马 theta 异常与多种记忆障碍相关（阿尔茨海默病、癫痫、创伤后应激）。如果行为层面的 theta 记忆节律可以无创检测（只需要一个精确计时的行为任务），它可能成为一个简便的认知生物标志物——不需要 EEG 或 fMRI。</p>
+
+<h4>AI 与序列学习</h4>
+<p>Transformer 的注意力机制是一次性全局的——所有 token 同时被关注。但大脑选择了一种「分时复用」策略：在 theta 的不同相位做不同的事。这提示：在序列学习中，把「写入」和「读取」在时间上交错，可能比同时进行更高效——至少对避免干扰而言。</p>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 边界和未解问题 ═══════════════ -->
+
+<div class="section-head">边界和未解问题</div>
+
+<div class="section-head-sub">它做到了什么</div>
+
+<ul>
+  <li><strong>首次从行为层面直接证明</strong>：人类情景记忆编码以 theta 节律波动，不是注意力节律的副产品。</li>
+  <li><strong>三个独立实验一致</strong>：两个先导 + 一个大样本确认，结果方向一致。</li>
+  <li><strong>预注册</strong>：核心分析是预注册的，降低了后验选择偏差。</li>
+  <li><strong>ACh 调制的初步证据</strong>：持续注意力和尼古丁使用两条线索都指向 ACh 的参与。</li>
+  <li><strong>方法创新</strong>：把 dense sampling 从注意力领域成功移植到长时记忆领域。</li>
+</ul>
+
+<div class="section-head-sub">它还没做到什么</div>
+
+<ul>
+  <li><strong>没有神经记录</strong>：这是一项纯行为研究。论文推断行为节律反映了海马 theta，但没有直接的神经证据。行为节律可能来自其他振荡源。</li>
+  <li><strong>在线实验的计时精度有限</strong>：虽然用了本地运行和逐帧校正，但网页浏览器的计时精度仍然远不如实验室级设备。33 ms 的步长意味着 ~30 Hz 的采样率，奈奎斯特极限（Nyquist limit）是 15 Hz——只能刚好覆盖 theta 范围。</li>
+  <li><strong>效应量不大</strong>：平均 4% 的峰谷差距、r<sub>e</sub> = 0.24 的效应量——统计上显著，但实际影响温和。</li>
+  <li><strong>ACh 证据是间接的</strong>：没有直接操控 ACh。尼古丁分析是探索性的，样本量小，自我报告。持续注意力只是 ACh 的「推测性标记」。</li>
+  <li><strong>峰值频率有变异</strong>：先导 1 是 ~5-6 Hz，先导 2 是 ~4-10 Hz，确认实验是 7 Hz。这种变异可能反映个体差异、任务难度或样本量效应。7 Hz 这个精确数字不应被过度解读。</li>
+  <li><strong>只有一种记忆任务</strong>：物体-任务联想记忆。是否推广到其他类型的情景记忆（时间序列、空间导航、自传体记忆）未知。</li>
+  <li><strong>未检验编码-提取的交替</strong>：SPEAR 模型的核心预测是编码和提取在 theta 的不同相位交替。本文只测了编码，没有测提取是否也有 theta 节律、以及两者是否反相。</li>
+</ul>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 判断 ═══════════════ -->
+
+<div class="section-head">判断</div>
+
+<p>这篇论文有两个层次的价值：</p>
+
+<h4>方法论价值（高）</h4>
+<p>把 dense sampling 从注意力推广到长时记忆，是一个真正的方法论创新。它开辟了一条不需要神经记录就能检测记忆中振荡效应的路径。这个方法本身——独立于具体结果——对记忆研究领域是一个有价值的工具。</p>
+
+<h4>理论价值（中等偏高，但有条件）</h4>
+<p>作为 SPEAR 模型的行为证据，这是目前最直接的。但它是必要条件而非充分条件——观测到行为层面的 theta 节律与 SPEAR 模型一致，但不排除其他机制（比如 theta 节律影响感知加工深度而非直接门控编码/提取切换）。理论价值要在有 theta 相位的同步神经记录后才能真正兑现。</p>
+
+<p>总体判断：这是一篇设计精巧、分析严谨、结论克制的好论文。它没有过度宣称，每一步推断都清楚标注了是确认性还是探索性、效应量多大、替代解释是什么。在当前「可重复性危机」的背景下，这种研究风格值得肯定。核心发现——记忆编码在 theta 频率波动——大概率经得起重复。</p>
+
+<div class="rec">
+  <h3>一句话总结</h3>
+  <p>你的大脑每秒打开记忆的「写入窗口」约七次。这篇论文第一次用纯行为方法捕捉到了这个闪烁——它不是注意力在闪，是记忆本身在闪，而且闪的强度受乙酰胆碱调控。</p>
+</div>
+
+<div class="footer">
+  论文：Biba, T. M., Decker, A., Herrmann, B., Fukuda, K., Katz, C., Valiante, T. A., &amp; Duncan, K. Episodic memory encoding fluctuates at a theta rhythm from 3-10 Hz. OSF Preprint.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>丘脑背内侧核与精神分裂症信念更新</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
+  background: #fafafa;
+  color: #1a1a1a;
+  line-height: 1.8;
+  padding: 48px 24px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; color: #1a1a1a; }
+h1 span { color: #c0392b; }
+.meta { font-size: 13px; color: #888; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #c0392b; }
+.meta span { margin-right: 14px; }
+.section-head { font-size: 20px; font-weight: 700; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #c0392b; color: #1a1a1a; }
+.section-head-sub { font-size: 17px; font-weight: 700; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e0e0e0; color: #1a1a1a; }
+h4 { font-size: 15px; font-weight: 700; margin: 24px 0 8px; color: #333; }
+.info-block { background: #f5f5f5; padding: 14px 18px; border-left: 3px solid #c0392b; margin: 16px 0; font-size: 14px; line-height: 1.7; }
+.info-block .label { font-weight: 700; color: #c0392b; margin-bottom: 4px; }
+.rec { margin: 32px 0; padding: 24px; background: #fff; border: 2px solid #c0392b; border-radius: 4px; }
+.rec h3, .rec h2 { font-size: 17px; font-weight: 800; color: #c0392b; margin-bottom: 12px; }
+p { margin: 12px 0; font-size: 15px; }
+blockquote { margin: 16px 0; padding: 12px 18px; border-left: 3px solid #ddd; background: #f9f9f9; font-size: 14px; color: #444; font-family: "SF Mono", "Fira Code", "Menlo", monospace; line-height: 1.7; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 24px; }
+th { text-align: left; padding: 8px 6px; border-bottom: 2px solid #333; font-weight: 700; font-size: 12px; letter-spacing: 0.3px; }
+td { padding: 7px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+tr:hover td { background: #fdf6f5; }
+td:first-child { font-weight: 600; color: #c0392b; }
+.term { font-weight: 700; color: #c0392b; }
+.sep { text-align: center; color: #ccc; margin: 36px 0; font-size: 14px; letter-spacing: 8px; }
+ul, ol { padding-left: 20px; margin: 10px 0; font-size: 14px; }
+li { margin-bottom: 6px; }
+strong { font-weight: 700; }
+em { font-style: italic; }
+.footer { margin-top: 48px; padding-top: 20px; border-top: 3px solid #c0392b; font-size: 12px; color: #999; text-align: center; }
+.concept-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 16px 0; }
+.concept-card { background: #f5f5f5; padding: 12px 16px; border-left: 3px solid #c0392b; }
+.concept-card .cname { font-weight: 700; color: #c0392b; font-size: 14px; margin-bottom: 4px; }
+.concept-card .cdesc { font-size: 13px; color: #444; }
+code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px; background: #f0f0f0; padding: 1px 5px; border-radius: 2px; }
+.interactive-widget { margin: 28px 0; padding: 24px; background: #fff; border: 2px solid #c0392b; border-radius: 6px; }
+.interactive-widget h4 { color: #c0392b; margin: 0 0 6px; font-size: 15px; }
+.interactive-widget .widget-note { font-size: 12px; color: #888; margin: 0 0 14px; }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+
+<h1>Mediodorsal Thalamus <span>×</span> 精神分裂症小鼠「不会改主意」，激活丘脑就好了</h1>
+
+<div class="meta">
+  <span>📄 Enhancement of mediodorsal thalamus rescues aberrant belief dynamics in a mouse model with schizophrenia-associated mutation</span><br>
+  <span>✍️ Tingting Zhou*, Yi-Yun Ho*, Ray X. Lee, Amanda B. Fath, Kathleen He, Jonathan Scott, Navdeep Bajwa, Nolan D. Hartley, Jonathan Wilde, Xian Gao, Cui Li, Evan Hong, Matthew R. Nassar, Ralf D. Wimmer, Tarjinder Singh, Michael M. Halassa#, Guoping Feng#</span><br>
+  <span>🏛️ MIT McGovern Institute · MIT Brain and Cognitive Sciences · Broad Institute / Harvard · Tufts University · Brown University</span><br>
+  <span>📅 bioRxiv 预印本 · 2024</span>
+</div>
+
+<!-- ═══════════════ 为什么值得深读 ═══════════════ -->
+
+<div class="rec">
+  <h3>为什么这篇论文值得深读</h3>
+  <p>精神分裂症（Schizophrenia）的妄想症状，长期以来被视为一种「信念更新异常」——患者面对新证据时无法恰当地修正自己的信念。但这个理论虽然优雅，却缺乏动物模型的神经环路验证。这篇论文同时做了两件难事：第一，用 SCHEMA 联盟发现的高风险基因 Grin2a 的患者突变造了一只精准的小鼠模型；第二，设计了一个能让小鼠不断面对「该不该改主意」的决策任务，用贝叶斯计算模型量化信念更新速率。</p>
+  <p>结果指向了一个意想不到的关键节点——<strong>丘脑背内侧核（MD，Mediodorsal Thalamus）</strong>。这个常被忽视的「中继站」实际上在编码环境变化、维持行为状态方面起着核心作用。更重要的是，激活 MD 能拯救突变小鼠的认知缺陷——这为精神分裂症的治疗指出了一个全新的靶点。</p>
+</div>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 概念工具箱 ═══════════════ -->
+
+<div class="section-head">概念工具箱</div>
+
+<p>这篇论文横跨遗传学、行为学、计算建模、脑成像和光遗传学，术语密度很高。先过一遍核心概念。</p>
+
+<div class="concept-grid">
+  <div class="concept-card">
+    <div class="cname">Grin2a^Y700X+/-（Grin2a Y700X 杂合突变小鼠）</div>
+    <div class="cdesc">Grin2a 基因编码 NMDA 受体（NMDAR，N-甲基-D-天冬氨酸受体，N-methyl-D-aspartate receptor）的 NR2A 亚基。Y700X 是一个终止密码子突变（stop codon mutation），导致蛋白质被截断。这个突变来自 SCHEMA 联盟（精神分裂症外显子组测序荟萃分析，Schizophrenia Exome Sequencing Meta-analysis）在约 25,000 名精神分裂症患者中发现的真实患者变异，携带 Grin2a 编码区变异的人精神分裂症风险增加 >20 倍。杂合（+/-）是因为人类患者也是杂合携带。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">信念更新（Belief Updating）</div>
+    <div class="cdesc">根据新证据修正先前判断的过程。想象你在一家常去的餐厅，以前每次去都很好吃。但最近连续三次菜品质量下降——你的「这家店好吃」的信念会逐渐被更新为「这家店变差了」。更新太慢，你会一直吃难吃的菜；更新太快，你可能因为一次偶然失误就放弃好店。精神分裂症患者被认为在这个平衡上出了问题。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">杠杆按压觅食任务（Lever-Pressing Foraging Task）</div>
+    <div class="cdesc">论文的核心行为范式。小鼠面前有两个杠杆：HR 杠杆（高奖励杠杆，High Reward lever）每次给 3 滴奶但按压次数不断增加（越来越累），LR 杠杆（低奖励杠杆，Low Reward lever）每次只给 1 滴奶但按压次数固定（恒定 6 次）。最优策略是：HR 还划算时选 HR，当 HR 成本超过等价点（每滴奶需要 18 次按压 = LR 的 6 次/滴）时切换到 LR。这个任务巧妙之处在于环境是渐变的，不是突变的——你必须持续追踪成本变化并决定何时「改主意」。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">MD（丘脑背内侧核，Mediodorsal Thalamus）</div>
+    <div class="cdesc">丘脑中连接前额叶皮层（PFC，前额叶皮层，Prefrontal Cortex）的关键核团。传统观点把它看作简单的「信号中继站」，但越来越多证据表明它在工作记忆、注意力切换、不确定性下决策中有独立作用。可以把它想成大脑决策系统中的「信号放大器+稳定器」——当前额叶需要维持一个决策状态时，MD 提供持续的增益支持。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">HMM（隐马尔可夫模型，Hidden Markov Model）</div>
+    <div class="cdesc">一种无监督学习算法，能从小鼠的选择序列中自动识别出潜在的「行为状态」。论文发现了三种状态：HR 坚持状态（一直选高奖励）、LR 坚持状态（一直选低奖励）、探索状态（来回切换）。就像你观察一个人走路的轨迹，能推断出他是在「通勤」（目的明确）还是在「闲逛」（到处看看）。关键发现是突变小鼠在 LR 坚持状态极不稳定，几乎立刻滑回探索状态。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">fUS（功能超声成像，functional Ultrasound Imaging）</div>
+    <div class="cdesc">一种新兴的全脑功能成像技术，比 fMRI（功能磁共振成像，functional Magnetic Resonance Imaging）分辨率更高，适合小鼠头部尺寸。通过检测血流变化（与神经活动相关）来绘制脑区活动图谱。论文用它发现突变小鼠的 MD 局部功能连接度显著降低。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">SSFO（稳定化阶跃功能视蛋白，Stabilized Step-Function Opsin）</div>
+    <div class="cdesc">一种特殊的光敏蛋白 ChR2(C12S/D156A)。普通 ChR2 只在蓝光照射时激活神经元（毫秒级），SSFO 被蓝光激活后能持续保持神经元亚阈值去极化数分钟到数小时，直到橙光将其关闭。这对于需要在整个行为会话中持续增强 MD 活性的实验来说至关重要——你不需要一直照光。</div>
+  </div>
+
+  <div class="concept-card">
+    <div class="cname">贝叶斯信念更新模型（Bayesian Belief Updating Model）</div>
+    <div class="cdesc">论文用来量化小鼠信念更新过程的数学模型。核心参数是信念更新率 α（alpha）：α 越大，新证据的权重越高（更新越快）；α 越小，先验信念的权重越高（更新越慢）。模型拟合结果表明，突变小鼠的 α 显著更低——面对成本变化时更「固执」。</div>
+  </div>
+</div>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 核心发现 ═══════════════ -->
+
+<div class="section-head">核心发现</div>
+
+<div class="section-head-sub">发现一：Grin2a 突变小鼠信念更新更慢、行为状态更不稳定</div>
+
+<p>在杠杆按压任务中，WT（野生型，Wild-Type）小鼠和突变小鼠都能学会基本策略——先选 HR 杠杆，再切换到 LR 杠杆。但差异在于<strong>何时切换</strong>和<strong>切换之后的稳定性</strong>。</p>
+
+<p>WT 小鼠的切换点平均在 HR 按压次数达到 22 次时（略晚于最优点 18 次，但已很接近），且 >99% 的 block 在 HR 达到 50 次之前完成切换。突变小鼠则明显更慢：48% 的 block 成功切换到 LR，但 52% 的 block 中 p(HR) 始终没有降到 0。突变小鼠的 block 长度显著更长（约 65 试次 vs WT 约 45 试次，p < 0.001），最优性（Optimality）更低（约 0.65 vs WT 约 0.8，p < 0.0001）。</p>
+
+<p>关键的是，对照实验排除了两个简单解释：当奖励比固定不变时（静态环境），两组小鼠表现相当；当成本固定但不同时，两组同样能区分。所以<strong>突变小鼠的问题不是感知不了奖励或成本，而是在动态环境中无法及时更新策略</strong>。</p>
+
+<!-- ═══ 交互组件1：杠杆任务成本-收益演示 ═══ -->
+<div class="interactive-widget">
+  <h4>交互演示：什么时候该「改主意」？</h4>
+  <p class="widget-note">拖动滑块改变 HR 杠杆的按压次数，观察两个杠杆的「每滴奶成本」变化。当 HR 的成本超过 LR 时，理性的选择就是切换。</p>
+  <canvas id="leverCanvas" width="660" height="300" style="width:100%;height:auto;cursor:pointer;"></canvas>
+  <div style="text-align:center;margin-top:12px;">
+    <label style="font-size:13px;color:#666;">HR 需要按压次数：<strong id="hrLabel" style="color:#c0392b;">1</strong></label><br>
+    <input type="range" id="hrSlider" min="1" max="50" value="1" style="width:80%;margin-top:6px;accent-color:#c0392b;">
+  </div>
+</div>
+<script>
+(function(){
+  var canvas = document.getElementById('leverCanvas');
+  var ctx = canvas.getContext('2d');
+  var slider = document.getElementById('hrSlider');
+  var label = document.getElementById('hrLabel');
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = 660 * dpr; canvas.height = 300 * dpr;
+  ctx.scale(dpr, dpr);
+
+  function draw(hrPresses) {
+    ctx.clearRect(0,0,660,300);
+    var hrCostPerDrop = hrPresses / 3;
+    var lrCostPerDrop = 6 / 1;
+    var equalPoint = 18;
+    var maxCost = 18;
+
+    // Background
+    ctx.fillStyle = '#fafafa'; ctx.fillRect(0,0,660,300);
+
+    // Axes
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(60,20); ctx.lineTo(60,240); ctx.lineTo(640,240); ctx.stroke();
+
+    // Y axis label
+    ctx.save(); ctx.translate(15,140); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle = '#666'; ctx.font = '12px -apple-system, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('每滴奶的按压成本', 0, 0); ctx.restore();
+
+    // X axis label
+    ctx.fillStyle = '#666'; ctx.font = '12px -apple-system, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('HR 需要按压次数', 350, 275);
+
+    // Grid lines and x ticks
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 0.5;
+    for(var i=0;i<=50;i+=5){
+      var x = 60 + (i/50)*580;
+      ctx.beginPath(); ctx.moveTo(x,20); ctx.lineTo(x,240); ctx.stroke();
+      ctx.fillStyle = '#999'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(i, x, 255);
+    }
+    // Y ticks
+    for(var j=0;j<=maxCost;j+=3){
+      var y = 240 - (j/maxCost)*220;
+      ctx.beginPath(); ctx.moveTo(55,y); ctx.lineTo(640,y); ctx.stroke();
+      ctx.fillStyle = '#999'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(j, 52, y+4);
+    }
+
+    // LR line (constant 6 presses / 1 drop = 6)
+    ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
+    var lrY = 240 - (6/maxCost)*220;
+    ctx.beginPath(); ctx.moveTo(60,lrY); ctx.lineTo(640,lrY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#3498db'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('LR 成本 = 6 次/滴（固定）', 460, lrY - 8);
+
+    // HR curve
+    ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for(var p=1;p<=50;p++){
+      var cost = p/3;
+      var px = 60 + (p/50)*580;
+      var py = 240 - (Math.min(cost,maxCost)/maxCost)*220;
+      if(p===1) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#c0392b'; ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('HR 成本（递增）', 520, 240 - (50/3/maxCost)*220 + 16);
+
+    // Equal value point marker
+    var eqX = 60 + (equalPoint/50)*580;
+    ctx.strokeStyle = '#888'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(eqX,20); ctx.lineTo(eqX,240); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#888'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('等价点 (18次)', eqX, 15);
+
+    // Current position indicator
+    var curX = 60 + (hrPresses/50)*580;
+    var curCost = hrPresses/3;
+    var curY = 240 - (Math.min(curCost,maxCost)/maxCost)*220;
+
+    // Highlight circle
+    ctx.beginPath(); ctx.arc(curX, curY, 8, 0, Math.PI*2);
+    ctx.fillStyle = hrPresses <= equalPoint ? 'rgba(192,57,43,0.2)' : 'rgba(231,76,60,0.4)';
+    ctx.fill();
+    ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(curX, curY, 8, 0, Math.PI*2); ctx.stroke();
+
+    // Decision text
+    ctx.font = 'bold 14px -apple-system, sans-serif'; ctx.textAlign = 'center';
+    if(hrPresses < equalPoint){
+      ctx.fillStyle = '#27ae60';
+      ctx.fillText('✓ 选 HR 更划算（' + curCost.toFixed(1) + ' < 6 次/滴）', 350, 290);
+    } else if(hrPresses === equalPoint){
+      ctx.fillStyle = '#f39c12';
+      ctx.fillText('⚖ 两边一样划算（都是 6 次/滴）', 350, 290);
+    } else {
+      ctx.fillStyle = '#c0392b';
+      ctx.fillText('✗ 该换 LR 了！（' + curCost.toFixed(1) + ' > 6 次/滴）', 350, 290);
+    }
+
+    // Shading
+    if(hrPresses <= equalPoint){
+      ctx.fillStyle = 'rgba(46,204,113,0.08)';
+      ctx.fillRect(60,20, curX-60, 220);
+    } else {
+      ctx.fillStyle = 'rgba(46,204,113,0.08)';
+      ctx.fillRect(60,20, eqX-60, 220);
+      ctx.fillStyle = 'rgba(231,76,60,0.08)';
+      ctx.fillRect(eqX,20, curX-eqX, 220);
+    }
+  }
+
+  slider.addEventListener('input', function(){
+    var v = parseInt(this.value);
+    label.textContent = v;
+    draw(v);
+  });
+  draw(1);
+})();
+</script>
+
+<div class="info-block">
+  <div class="label">计算建模的补充</div>
+  贝叶斯模型拟合结果显示，突变小鼠的信念更新率 α 显著低于 WT，而感知噪声参数 δ（delta，感知噪声参数）和信念不确定性参数 σ（sigma，信念不确定性参数）没有显著差异。这精确定位了认知缺陷的计算层面：不是「看不清」，而是「改不了主意」。
+</div>
+
+<div class="sep">· · ·</div>
+
+<div class="section-head-sub">发现二：HMM 揭示突变小鼠的行为状态不稳定</div>
+
+<p>HMM 分析把每个试次分类为三种隐藏状态之一：HR 坚持、LR 坚持、探索。两组小鼠的大致轨迹相似——从 HR 坚持出发，经过探索，最终到达 LR 坚持。但状态间的转移概率天差地别。</p>
+
+<p>WT 小鼠的每个状态都很「粘」——一旦进入某个状态，倾向于留在原地（高自转移概率）。但突变小鼠有一个致命弱点：<strong>一旦进入 LR 坚持状态，几乎 100% 的概率会立刻弹回探索状态</strong>。它们无法稳定地维持「我现在应该选 LR」这个决策，反复在探索和 LR 坚持之间跳来跳去。从探索转入 LR 坚持的概率也偏高（18% vs WT 的 4%），说明它们过早地跳到 LR，但又立刻反悔。</p>
+
+<p>这导致了更长的探索期（突变小鼠的探索状态持续时间显著更长），也直接解释了为什么整个 block 更长、最优性更低。</p>
+
+<!-- ═══ 交互组件2：HMM 状态转移对比 ═══ -->
+<div class="interactive-widget">
+  <h4>交互演示：行为状态的「粘性」——WT vs 突变小鼠</h4>
+  <p class="widget-note">点击切换 WT 和突变小鼠，观察三种行为状态之间的转移概率变化。箭头粗细代表转移概率。注意突变小鼠 LR 坚持状态的自环几乎消失。模拟数据基于论文报告的定性模式。</p>
+  <div style="text-align:center;margin-bottom:14px;">
+    <button id="btnWT" style="padding:6px 20px;margin:0 6px;border:2px solid #c0392b;background:#c0392b;color:#fff;border-radius:4px;cursor:pointer;font-weight:700;font-size:13px;">WT 野生型</button>
+    <button id="btnMut" style="padding:6px 20px;margin:0 6px;border:2px solid #c0392b;background:#fff;color:#c0392b;border-radius:4px;cursor:pointer;font-weight:700;font-size:13px;">Grin2a 突变</button>
+  </div>
+  <canvas id="hmmCanvas" width="660" height="320" style="width:100%;height:auto;"></canvas>
+</div>
+<script>
+(function(){
+  var canvas = document.getElementById('hmmCanvas');
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = 660 * dpr; canvas.height = 320 * dpr;
+  ctx.scale(dpr, dpr);
+
+  var btnWT = document.getElementById('btnWT');
+  var btnMut = document.getElementById('btnMut');
+  var isWT = true;
+
+  // State positions
+  var states = [
+    {name:'HR 坚持', x:165, y:80, color:'#c0392b'},
+    {name:'探索',    x:330, y:240, color:'#f39c12'},
+    {name:'LR 坚持', x:495, y:80, color:'#3498db'}
+  ];
+
+  // Transition probabilities [from][to] - approximate from paper
+  var wtTrans = [
+    [0.90, 0.08, 0.02],  // HR→HR, HR→Explore, HR→LR
+    [0.02, 0.94, 0.04],  // Explore→HR, Explore→Explore, Explore→LR
+    [0.00, 0.02, 0.98]   // LR→HR, LR→Explore, LR→LR
+  ];
+  var mutTrans = [
+    [0.88, 0.10, 0.02],  // HR→HR, HR→Explore, HR→LR
+    [0.02, 0.80, 0.18],  // Explore→HR, Explore→Explore, Explore→LR (jump to LR too early)
+    [0.00, 0.97, 0.03]   // LR→HR, LR→Explore, LR→LR (LR state collapses!)
+  ];
+
+  function drawArrow(fromX, fromY, toX, toY, prob, color) {
+    if(prob < 0.01) return;
+    var lineWidth = Math.max(1, prob * 8);
+    var headLen = 10 + prob * 5;
+
+    // Offset to avoid overlapping with reverse arrow
+    var dx = toX - fromX, dy = toY - fromY;
+    var len = Math.sqrt(dx*dx+dy*dy);
+    var nx = -dy/len * 12, ny = dx/len * 12;
+
+    var fx = fromX + nx, fy = fromY + ny;
+    var tx = toX + nx, ty = toY + ny;
+
+    // Shorten to not overlap with circles
+    var r = 35;
+    var ddx = tx-fx, ddy = ty-fy;
+    var dl = Math.sqrt(ddx*ddx+ddy*ddy);
+    var sx = fx + ddx/dl*r, sy = fy + ddy/dl*r;
+    var ex = tx - ddx/dl*r, ey = ty - ddy/dl*r;
+
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.globalAlpha = 0.7;
+
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+
+    // Arrowhead
+    var angle = Math.atan2(ey-sy, ex-sx);
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - headLen*Math.cos(angle-0.4), ey - headLen*Math.sin(angle-0.4));
+    ctx.lineTo(ex - headLen*Math.cos(angle+0.4), ey - headLen*Math.sin(angle+0.4));
+    ctx.closePath();
+    ctx.fill();
+
+    // Label
+    ctx.globalAlpha = 1;
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    var mx = (sx+ex)/2 + nx*0.8, my = (sy+ey)/2 + ny*0.8;
+    ctx.fillText((prob*100).toFixed(0)+'%', mx, my);
+  }
+
+  function drawSelfLoop(x, y, prob, color, side) {
+    if(prob < 0.01) return;
+    var lineWidth = Math.max(1, prob * 6);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.globalAlpha = 0.6;
+
+    var loopR = 25 + prob * 10;
+    var cx, cy;
+    if(side === 'top') { cx = x; cy = y - 35 - loopR; }
+    else if(side === 'bottom') { cx = x; cy = y + 35 + loopR; }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, loopR, 0, Math.PI*2);
+    ctx.stroke();
+
+    // Arrow tip on loop
+    ctx.globalAlpha = 1;
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = color;
+    if(side === 'top') ctx.fillText((prob*100).toFixed(0)+'%', cx, cy - loopR - 6);
+    else ctx.fillText((prob*100).toFixed(0)+'%', cx, cy + loopR + 14);
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,660,320);
+    ctx.fillStyle = '#fafafa'; ctx.fillRect(0,0,660,320);
+    ctx.globalAlpha = 1;
+
+    var trans = isWT ? wtTrans : mutTrans;
+    var titleText = isWT ? 'WT 野生型小鼠' : 'Grin2a^Y700X+/- 突变小鼠';
+
+    // Title
+    ctx.font = 'bold 14px -apple-system, sans-serif';
+    ctx.fillStyle = '#333'; ctx.textAlign = 'center';
+    ctx.fillText(titleText, 330, 20);
+
+    // Draw transition arrows (off-diagonal)
+    for(var i=0;i<3;i++){
+      for(var j=0;j<3;j++){
+        if(i===j) continue;
+        drawArrow(states[i].x, states[i].y, states[j].x, states[j].y, trans[i][j], '#666');
+      }
+    }
+
+    // Draw self-loops
+    drawSelfLoop(states[0].x, states[0].y, trans[0][0], states[0].color, 'top');
+    drawSelfLoop(states[1].x, states[1].y, trans[1][1], states[1].color, 'bottom');
+    drawSelfLoop(states[2].x, states[2].y, trans[2][2], states[2].color, 'top');
+
+    // Draw state circles
+    ctx.globalAlpha = 1;
+    for(var k=0;k<3;k++){
+      var s = states[k];
+      ctx.beginPath(); ctx.arc(s.x, s.y, 35, 0, Math.PI*2);
+      ctx.fillStyle = '#fff'; ctx.fill();
+      ctx.strokeStyle = s.color; ctx.lineWidth = 3; ctx.stroke();
+
+      ctx.fillStyle = s.color;
+      ctx.font = 'bold 13px -apple-system, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(s.name, s.x, s.y);
+    }
+
+    // Highlight the key difference for mutant
+    if(!isWT){
+      ctx.font = '12px -apple-system, sans-serif';
+      ctx.fillStyle = '#e74c3c'; ctx.textAlign = 'center';
+      ctx.fillText('⚠ LR 坚持状态几乎立刻崩塌回探索！', 330, 310);
+    }
+  }
+
+  btnWT.addEventListener('click', function(){
+    isWT = true;
+    btnWT.style.background = '#c0392b'; btnWT.style.color = '#fff';
+    btnMut.style.background = '#fff'; btnMut.style.color = '#c0392b';
+    draw();
+  });
+  btnMut.addEventListener('click', function(){
+    isWT = false;
+    btnMut.style.background = '#c0392b'; btnMut.style.color = '#fff';
+    btnWT.style.background = '#fff'; btnWT.style.color = '#c0392b';
+    draw();
+  });
+
+  draw();
+})();
+</script>
+
+<div class="sep">· · ·</div>
+
+<div class="section-head-sub">发现三：MD 是突变小鼠脑功能异常的关键节点</div>
+
+<p>fUS 全脑成像比较了 WT（n=9）和突变小鼠（n=10）的静息态脑活动。像素级分析发现，WT 和突变小鼠之间差异最大的脑区集中在三个区域：前额叶皮层背侧前部（dorsal anterior PFC，前额叶皮层背侧前部）、MD 和腹侧纹状体（vStr，腹侧纹状体，ventral Striatum）。进一步的 ROI（感兴趣区，Region of Interest）种子分析确认：</p>
+
+<ul>
+  <li><strong>MD 的局部功能连接度</strong>显著低于 WT（P < 0.01），意味着 MD 内部的神经活动协调性降低</li>
+  <li><strong>MD-PL（前边缘皮层，Prelimbic Cortex）功能连接</strong>呈下降趋势（P < 0.05 校正前，P < 0.1 校正后）</li>
+  <li>以 vStr 或 PL 为种子的分析没有发现显著差异——异常主要集中在 MD</li>
+</ul>
+
+<p>这个发现与人类精神分裂症患者的 MD 体积减小、神经元数量减少、代谢异常高度一致。</p>
+
+<div class="sep">· · ·</div>
+
+<div class="section-head-sub">发现四：MD 神经元编码环境价值和行为状态</div>
+
+<p>在 4 只 WT 小鼠中植入多通道电极，记录了 109 个 MD 神经元在杠杆按压任务中的活动。线性回归分析发现：</p>
+
+<ul>
+  <li><strong>82.6%</strong> 的 MD 神经元编码了当前 HR 按压需求（即环境的动态变化）</li>
+  <li><strong>44%</strong> 编码了即将到来的选择</li>
+  <li><strong>41%</strong> 编码了刚刚做出的选择</li>
+  <li>编码活性在奖励收集后持续上升，在试次启动前 2 秒达到峰值——正好是小鼠「做决定」的时间窗口</li>
+</ul>
+
+<p>用 HMM 将试次分类为不同行为状态后发现，<strong>75.2% 的 MD 神经元在不同状态下有不同的放电率</strong>。MD 群体活动能以 >60% 的准确率（随机水平 50%）解码当前行为状态，以 >70% 的准确率解码 HR 需求的高低。</p>
+
+<div class="info-block">
+  <div class="label">为什么这很重要</div>
+  MD 不仅「知道」环境在变（编码 HR 需求），还「知道」动物当前的决策模式是什么（编码行为状态）。这超出了简单中继站的角色——它更像是一个整合环境信息和内部状态的计算节点。
+</div>
+
+<div class="sep">· · ·</div>
+
+<div class="section-head-sub">发现五：抑制 WT 小鼠的 MD 复现突变表型</div>
+
+<p>如果 MD 功能下降是突变小鼠行为缺陷的原因，那么人为抑制 WT 小鼠的 MD 应该能模拟出类似的表现。研究者用 iC++（抑制性光敏蛋白）在 WT 小鼠执行任务时光遗传抑制 MD（光照 ON/OFF 交替 block 设计）。结果：</p>
+
+<ul>
+  <li>MD 抑制组的 p(HR) 下降更慢，block 长度增加，最优性下降</li>
+  <li>HMM 显示：HR 坚持状态仍然稳定，但从探索状态转入 LR 坚持的概率从 4% 升到 50%，而 LR 坚持状态 → 探索的转移概率从 ~0% 升到 90%</li>
+  <li>探索时间显著增长</li>
+</ul>
+
+<p>这与突变小鼠的行为模式几乎一模一样：<strong>能正常维持 HR 选择，但一旦需要切换策略，就陷入探索-LR 的反复摇摆中</strong>。</p>
+
+<div class="sep">· · ·</div>
+
+<div class="section-head-sub">发现六：激活 MD 拯救突变小鼠的行为缺陷</div>
+
+<p>最激动人心的结果。研究者在突变小鼠的 MD 中表达 SSFO（稳定化阶跃功能视蛋白），在行为会话开始时用蓝光激活（提供持续的亚阈值去极化），会话结束后用橙光关闭。对照组是同一只小鼠的 OFF 会话（53 个 block OFF vs 45 个 block ON）。</p>
+
+<p>结果：MD 激活后，突变小鼠的行为显著改善：</p>
+
+<ul>
+  <li>从 HR 到 LR 的切换更快（p(HR) 下降曲线左移）</li>
+  <li>Block 长度显著缩短</li>
+  <li>最优性显著提高</li>
+  <li>HMM 显示行为状态稳定化——LR 坚持状态不再立即崩塌回探索状态</li>
+  <li>探索时间缩短</li>
+</ul>
+
+<p>关键的是，OFF 会话中的突变小鼠行为模式与没有病毒注射的突变小鼠一致（排除了手术本身的影响），而 ON 会话中的行为接近 WT 水平。<strong>这是一个双向因果证明：抑制 WT-MD → 产生突变表型；激活突变-MD → 拯救为 WT 表型。</strong></p>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 方法论 ═══════════════ -->
+
+<div class="section-head">方法论的精妙与严谨</div>
+
+<table>
+  <tr>
+    <th>设计选择</th>
+    <th>为什么这么做</th>
+  </tr>
+  <tr>
+    <td>患者来源的点突变</td>
+    <td>不是随机敲除基因，而是用 CRISPR/Cas9 精确引入 SCHEMA 联盟在真实患者中发现的 Y700X 突变。杂合状态模拟人类携带者。比起 22q11.2 缺失等大片段 CNV（拷贝数变异，Copy Number Variation）模型，点突变提供了更清晰的基因-表型对应。</td>
+  </tr>
+  <tr>
+    <td>渐变环境而非突变环境</td>
+    <td>HR 成本逐步增加，不是突然翻转。这模拟了现实中信念更新的常见场景——证据是慢慢积累的，不是一锤定音。传统的反转学习范式（突然改规则）可能测试的是「惊讶检测」而非「信念更新」。</td>
+  </tr>
+  <tr>
+    <td>贝叶斯模型 + HMM 双重分析</td>
+    <td>贝叶斯模型定位了计算层面的缺陷（更新率 α 低），HMM 定位了策略层面的缺陷（状态不稳定）。两种分析互补：前者问「参数哪里出了问题」，后者问「行为模式哪里出了问题」。</td>
+  </tr>
+  <tr>
+    <td>静态环境对照</td>
+    <td>固定奖励比和固定成本对照排除了感知缺陷，证明突变小鼠的问题是动态适应特异性的——不是「看不见差别」，而是「跟不上变化」。</td>
+  </tr>
+  <tr>
+    <td>SSFO 而非常规 ChR2</td>
+    <td>用 SSFO 实现会话级别的持续激活（而非试次级别的瞬时激活），更接近「整体增强 MD 功能」的治疗逻辑，也避免了光照本身对行为的干扰。</td>
+  </tr>
+  <tr>
+    <td>同一动物 ON/OFF 设计</td>
+    <td>拯救实验中每只突变小鼠既做 ON 也做 OFF 会话，消除了个体差异的混淆。比跨组比较更有说服力。</td>
+  </tr>
+</table>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 与已有研究 ═══════════════ -->
+
+<div class="section-head">与已有研究的关系</div>
+
+<div class="section-head-sub">vs 谷氨酸假说（Glutamate Hypothesis of Schizophrenia）</div>
+
+<p>精神分裂症的谷氨酸假说认为 NMDAR 功能低下是核心病理。Grin2a^Y700X 直接在 NMDAR 的 NR2A 亚基上引入功能丧失突变，是目前最直接验证该假说的遗传模型之一。论文证明这个突变确实导致了认知缺陷（信念更新异常），且缺陷定位在了 MD 丘脑——而非以往研究更关注的前额叶皮层本身。</p>
+
+<div class="section-head-sub">vs 丘脑皮层回路理论（Thalamocortical Circuit Theory）</div>
+
+<p>Halassa 实验室（本文通讯作者之一）的系列工作一直关注丘脑对皮层功能的主动调控。2017 年 Schmitt 等人证明 MD 的丘脑皮层投射维持注意力控制，2018 年 Rikhye 等人证明 MD 调控皮层表征切换。本文在这条线上更进一步：MD 不仅维持注意力，还在信念更新和策略切换中扮演核心角色。</p>
+
+<div class="section-head-sub">vs 计算精神病学的贝叶斯框架（Bayesian Framework in Computational Psychiatry）</div>
+
+<p>Adams et al. (2018) 提出精神分裂症中的信念更新呈现「吸引子动力学」（attractor-like dynamics），Fletcher & Frith (2009) 提出精神分裂症的阳性症状可以用贝叶斯推断失调来解释。本文首次在动物模型中将这些计算理论与具体的脑区（MD）和基因（Grin2a）联系起来——从「计算层面的描述」推进到了「神经环路层面的机制」。</p>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 跨领域启示 ═══════════════ -->
+
+<div class="section-head">跨领域的启示</div>
+
+<h4>精神分裂症药物开发</h4>
+<p>现有抗精神病药主要靶向多巴胺 D2 受体，对认知症状几乎无效（40% 的患者完全治疗抵抗）。本文提示 MD 丘脑可能是一个有前景的治疗靶点——如果能通过药物或神经调控（如 DBS，深部脑刺激，Deep Brain Stimulation）增强 MD 活性，可能改善认知灵活性。</p>
+
+<h4>认知灵活性的计算原理</h4>
+<p>「稳定性-灵活性困境」是认知科学的经典问题：决策系统需要足够稳定以抵抗噪声，又需要足够灵活以适应变化。本文提示 MD 丘脑可能在这个权衡中充当「稳定器」——它帮助维持已形成的行为状态（比如 LR 坚持），防止系统在噪声面前过早崩溃。</p>
+
+<h4>AI 与强化学习</h4>
+<p>突变小鼠的行为模式——明明知道该切换但就是切不干净、在探索和利用之间反复跳跃——与强化学习中的「探索-利用困境」（Exploration-Exploitation Tradeoff）高度相关。生物系统中 MD 充当的「状态稳定器」角色，可能启发新的元学习（Meta-learning）架构设计。</p>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 边界和未解问题 ═══════════════ -->
+
+<div class="section-head">边界和未解问题</div>
+
+<div class="section-head-sub">它做到了什么</div>
+<ul>
+  <li><strong>从基因到行为到环路的完整因果链</strong>：Grin2a 突变 → MD 功能低下 → 信念更新缓慢 + 状态不稳定 → 行为次优。且通过光遗传双向验证了 MD 的因果角色</li>
+  <li><strong>计算层面的精确定位</strong>：不是模糊的「认知缺陷」，而是定量地指出信念更新率 α 降低、LR 坚持状态的自转移概率崩塌</li>
+  <li><strong>临床一致性</strong>：MD 的功能连接异常与人类精神分裂症患者的丘脑异常高度一致</li>
+</ul>
+
+<div class="section-head-sub">它还没做到什么</div>
+<ul>
+  <li><strong>Grin2a 如何影响 MD</strong>：Grin2a（NR2A）并非 MD 特异性表达，它在皮层和海马也大量表达。论文证明了 MD 功能低下，但没有解释为什么这个全脑表达的基因突变偏偏在 MD 产生了最显著的功能后果。作者在讨论中提到可能是 PFC → MD 投射的发育异常，但没有实验验证</li>
+  <li><strong>电生理只做了 WT</strong>：109 个 MD 神经元全部来自 WT 小鼠。我们知道 WT 的 MD 编码了价值和状态信息，但不知道突变小鼠的 MD 编码是否减弱——这是因果链中缺失的一环</li>
+  <li><strong>单一行为范式</strong>：所有行为结论基于杠杆按压觅食任务。精神分裂症的认知缺陷涉及工作记忆、注意力、社交认知等多个维度，信念更新只是其中之一。MD 激活能否改善其他认知维度？</li>
+  <li><strong>只有一个基因</strong>：精神分裂症是高度多基因的疾病。SCHEMA 联盟鉴定了 10 个高风险基因，Grin2a 只是其中之一。不同风险基因是否都汇聚到 MD，还是各有不同的环路靶点？</li>
+  <li><strong>预印本状态</strong>：论文尚未通过同行评审</li>
+  <li><strong>fUS 校正后显著性下降</strong>：MD-PL 连接异常在多重比较校正后 P 从 <0.05 降到 <0.1，不够稳健</li>
+</ul>
+
+<div class="sep">· · ·</div>
+
+<!-- ═══════════════ 判断 ═══════════════ -->
+
+<div class="section-head">判断</div>
+
+<h4>研究框架（★★★★★）</h4>
+<p>从患者基因变异出发建模 → 设计计算可追踪的行为范式 → 全脑成像定位 → 单神经元记录验证 → 光遗传双向因果验证。这条逻辑链几乎是转化精神病学的教科书式路径。每一步都为下一步提供理据，没有跳跃。</p>
+
+<h4>行为任务设计（★★★★★）</h4>
+<p>渐变环境、成本-奖励分离、静态对照——这个任务设计解决了精神分裂症动物行为研究的一个长期痛点：如何量化「信念更新」而不仅仅是「学会规则」。HMM 对行为状态的无监督分类也非常优雅。</p>
+
+<h4>神经环路证据（★★★★☆）</h4>
+<p>fUS + 电生理 + 光遗传三管齐下，逻辑完整。扣一颗星的原因是：电生理只在 WT 做了（缺少突变小鼠的对照），fUS 的 MD-PL 连接结果在校正后不够稳健。</p>
+
+<h4>临床转化潜力（★★★☆☆）</h4>
+<p>MD 作为治疗靶点是很有吸引力的概念，但从光遗传激活到实际的药物或 DBS 方案还有很长的路。更重要的是，论文只测试了一个基因、一种认知维度、一种行为范式——泛化性是未知数。</p>
+
+<div class="rec">
+  <h3>一句话总结</h3>
+  <p>精神分裂症风险基因 Grin2a 的患者突变导致小鼠在动态环境中「不会改主意」，而这个缺陷的神经环路瓶颈不在前额叶皮层，而在长期被低估的丘脑背内侧核——激活它就能拯救认知灵活性。</p>
+</div>
+
+<!-- ═══════════════ 页脚 ═══════════════ -->
+
+<div class="footer">
+  论文：Zhou, T.*, Ho, Y.-Y.*, Lee, R.X., Fath, A.B., He, K., Scott, J., Bajwa, N., Hartley, N.D., Wilde, J., Gao, X., Li, C., Hong, E., Nassar, M.R., Wimmer, R.D., Singh, T., Halassa, M.M.#, & Feng, G.# (2024). Enhancement of mediodorsal thalamus rescues aberrant belief dynamics in a mouse model with schizophrenia-associated mutation. bioRxiv. https://doi.org/10.1101/2024.01.08.574745
+</div>
+
+</body>
+</html>

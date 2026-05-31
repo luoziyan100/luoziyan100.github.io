@@ -1,0 +1,128 @@
+/*
+ * [INPUT]: 被 BrainBytesPage.jsx 引入
+ * [OUTPUT]: Brain & Bytes 站中站的「红色学术风」专属样式（全部 scoped 于 .bb-root）
+ * [POS]: pages/ 的品牌局部样式，刻意脱离主站 shadcn 设计系统（站中站独立视觉，经用户授权的豁免）
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+
+.bb-root {
+  --bb-accent: #c0392b;
+  --bb-ink: #1a1a1a;
+  --bb-sub: #888;
+  font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
+  background: #fafafa;
+  color: var(--bb-ink);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+.bb-container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+
+/* 顶部小导航：回主站 */
+.bb-topnav {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  margin-bottom: 40px;
+}
+.bb-topnav a {
+  color: var(--bb-sub);
+  text-decoration: none;
+}
+.bb-topnav a:hover { color: var(--bb-accent); }
+
+/* 品牌头 */
+.bb-brand {
+  border-bottom: 3px solid var(--bb-accent);
+  padding-bottom: 24px;
+  margin-bottom: 8px;
+}
+.bb-brand h1 {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.bb-brand h1 span { color: var(--bb-accent); }
+.bb-brand .bb-cn {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--bb-ink);
+  margin-top: 4px;
+}
+.bb-brand .bb-tag {
+  font-size: 13px;
+  color: var(--bb-sub);
+  margin-top: 10px;
+}
+
+.bb-count {
+  font-size: 12px;
+  color: var(--bb-sub);
+  letter-spacing: 0.5px;
+  margin: 28px 0 16px;
+  text-transform: uppercase;
+}
+
+/* 文章卡片 */
+.bb-list { display: flex; flex-direction: column; gap: 20px; }
+.bb-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #eee;
+  border-left: 3px solid var(--bb-accent);
+  border-radius: 4px;
+  padding: 20px 22px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+.bb-card:hover {
+  box-shadow: 0 6px 20px rgba(192, 57, 43, 0.08);
+  transform: translateY(-1px);
+}
+.bb-card .bb-title {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--bb-ink);
+}
+.bb-card .bb-paper {
+  font-size: 13px;
+  font-style: italic;
+  color: #555;
+  margin-top: 8px;
+}
+.bb-card .bb-authors {
+  font-size: 12px;
+  color: var(--bb-sub);
+  margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bb-card .bb-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12px;
+  color: var(--bb-sub);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+.bb-card .bb-source { color: var(--bb-accent); font-weight: 600; }
+
+/* 页脚 */
+.bb-footer {
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 3px solid var(--bb-accent);
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}

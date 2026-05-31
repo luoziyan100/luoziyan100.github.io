@@ -1,0 +1,42 @@
+[
+  {
+    "slug": "theta-rhythms-in-memory",
+    "title": "Theta Rhythms in Memory × 你的记忆力每秒闪烁七次",
+    "paper": "Episodic memory encoding fluctuates at a theta rhythm from 3-10 Hz",
+    "authors": "Thomas M. Biba, Alexandra Decker, Björn Herrmann, Keisuke Fukuda, Chaim Katz, Taufik A. Valiante, Katherine Duncan",
+    "institutions": "University of Toronto · MIT · Washington University · Krembil Brain Institute",
+    "source": "OSF Preprint · 2026",
+    "path": "/brain-bytes/theta-rhythms-in-memory/",
+    "date": "2026-05-31T10:48:49.137Z"
+  },
+  {
+    "slug": "md-thalamus-belief-updating",
+    "title": "Mediodorsal Thalamus × 精神分裂症小鼠「不会改主意」，激活丘脑就好了",
+    "paper": "Enhancement of mediodorsal thalamus rescues aberrant belief dynamics in a mouse model with schizophrenia-associated mutation",
+    "authors": "Tingting Zhou*, Yi-Yun Ho*, Ray X. Lee, Amanda B. Fath, Kathleen He, Jonathan Scott, Navdeep Bajwa, Nolan D. Hartley, Jonathan Wilde, Xian Gao, Cui Li, Evan Hong, Matthew R. Nassar, Ralf D. Wimmer, Tarjinder Singh, Michael M. Halassa#, Guoping Feng#",
+    "institutions": "MIT McGovern Institute · MIT Brain and Cognitive Sciences · Broad Institute / Harvard · Tufts University · Brown University",
+    "source": "bioRxiv 预印本 · 2024",
+    "path": "/brain-bytes/md-thalamus-belief-updating/",
+    "date": "2026-05-31T10:48:49.129Z"
+  },
+  {
+    "slug": "engram-deconstruction",
+    "title": "Memory Engram × 记忆印迹不是铁板一块，而是由不同时刻招募的「子集群」拼成的",
+    "paper": "Deconstruction of a memory engram reveals distinct ensembles recruited at learning",
+    "authors": "Clément Pouget, Noémie Morier, Nathan Treiber, Marta Fernández García, Romain Mazza, Ruixuan Zhang, Amelia M.B. Reeves, Sophia Winston, Marshall Brimble, Christina K. Kim, Gisella Vetere",
+    "institutions": "ESPCI Paris / PSL University / CNRS · UC Davis · St Jude Children's Research Hospital",
+    "source": "bioRxiv 预印本 · 2024",
+    "path": "/brain-bytes/engram-deconstruction/",
+    "date": "2026-05-31T10:48:49.128Z"
+  },
+  {
+    "slug": "bayesian-object-perception",
+    "title": "Bayesian Perception × 你的大脑是一台贝叶斯推理机",
+    "paper": "Object Perception as Bayesian Inference",
+    "authors": "Daniel Kersten, Pascal Mamassian, Alan Yuille",
+    "institutions": "University of Minnesota · University of Glasgow · UCLA",
+    "source": "Annual Review of Psychology · 2004",
+    "path": "/brain-bytes/bayesian-object-perception/",
+    "date": "2026-05-31T10:48:49.126Z"
+  }
+]
