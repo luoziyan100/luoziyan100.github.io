@@ -14,7 +14,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
-import { Code2, Home, BookOpen, Palette, Brain } from 'lucide-react'
+import { Code2, Home, BookOpen, Brain } from 'lucide-react'
 
 export function Header() {
   return (
@@ -57,24 +57,15 @@ export function Header() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                <Link to="/design-system">
-                  <Palette className="mr-2 h-4 w-4" />
-                  设计系统
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
 
         {/* Mobile Menu Placeholder */}
         <div className="flex flex-1 items-center justify-end space-x-2 md:hidden">
           <Button variant="ghost" size="icon" asChild>
-            <Link to="/design-system">
-              <Palette className="h-5 w-5" />
-              <span className="sr-only">设计系统</span>
+            <Link to="/brain-bytes">
+              <Brain className="h-5 w-5" />
+              <span className="sr-only">Brain & Bytes</span>
             </Link>
           </Button>
         </div>

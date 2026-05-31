@@ -13,7 +13,6 @@ import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import { Calendar, User, ArrowLeft } from 'lucide-react'
 import { Header } from '@/components/layouts/Header'
-import { Footer } from '@/components/layouts/Footer'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { pageTransition, fadeInUp } from '@/lib/motion'
@@ -53,7 +52,6 @@ export function BlogPostPage() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-lg">加载中...</div>
         </main>
-        <Footer />
       </div>
     )
   }
@@ -71,7 +69,6 @@ export function BlogPostPage() {
             </Button>
           </div>
         </main>
-        <Footer />
       </div>
     )
   }
@@ -153,7 +150,6 @@ export function BlogPostPage() {
           </motion.div>
         </article>
       </main>
-      <Footer />
     </motion.div>
   )
 }

@@ -10,7 +10,6 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Calendar, User } from 'lucide-react'
 import { Header } from '@/components/layouts/Header'
-import { Footer } from '@/components/layouts/Footer'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { pageTransition, staggerContainer, staggerItem } from '@/lib/motion'
@@ -51,7 +50,6 @@ export function BlogListPage() {
             ))}
           </div>
         </main>
-        <Footer />
       </div>
     )
   }
@@ -112,7 +110,6 @@ export function BlogListPage() {
           ))}
         </motion.div>
       </main>
-      <Footer />
     </motion.div>
   )
 }
