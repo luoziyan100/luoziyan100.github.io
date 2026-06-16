@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>亥姆霍兹机 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Wake-Sleep <span>×</span> 让神经网络白天认东西、晚上做梦，醒梦互相教学就学会了世界</h1>
+    <div class="meta">
+      <span>📄 The Helmholtz Machine</span><br>
+      <span>✍️ Peter Dayan、Geoffrey E. Hinton、Radford M. Neal、Richard S. Zemel</span><br>
+      <span>🏛️ 多伦多大学计算机系；The Salk Institute 计算神经生物学实验室（CNL，Computational Neurobiology Laboratory）</span><br>
+      <span>📅 Neural Computation, 7(5), 889–904 · 1995（手稿日期 1994 年 12 月）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-problem">核心问题：解释的组合爆炸</a></li>
+        <li><a href="#sec-bound">核心招数一：用下界换可算</a></li>
+        <li><a href="#sec-arch">核心招数二：两套权重的机器</a></li>
+        <li><a href="#sec-wakesleep">核心招数三：醒-睡算法</a></li>
+        <li><a href="#sec-viz">交互：醒相与睡相如何互相教</a></li>
+        <li><a href="#sec-results">实验：移位问题里学到了什么</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是一篇“小而硬”的论文：正文只有 8 页，却同时回答了两个看似无关的大问题。<strong>机器学习的问题</strong>是——怎样让一个网络<strong>没有老师、没有标签</strong>，仅凭看一堆数据就自己发现数据里的层级结构（谁导致了谁）？<strong>脑科学的问题</strong>是——大脑皮层为什么到处是<strong>自下而上和自上而下两条对穿的通路</strong>，它们各自在算什么？</p>
+        <p>作者的答案是一台叫 <span class="term">亥姆霍兹机（Helmholtz Machine）</span>的网络，它的核心是一个反直觉的训练法 <span class="term">醒-睡算法（wake-sleep）</span>：白天（醒相）自下而上地“认”真实数据，借此训练自上而下的“想象力”；夜里（睡相）自上而下地“做梦”造假数据，借此训练自下而上的“识别力”。两套权重轮流当对方的老师，谁也不需要外部标签。这篇论文为后来的<strong>变分推断（variational inference）、变分自编码器（VAE，Variational Autoencoder）、乃至现代深度生成模型</strong>埋下了直接的思想种子——“最大化一个易算的下界来代替难算的真目标”这一招，今天仍是生成模型的主梁。读它，等于回到这条主梁被浇筑的现场。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文术语密度高、且很多词被作者赋予了精确的技术含义。先把九个关键概念用“人话”讲清，后面正文就顺了。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">生成模型（generative model）</div>
+          <div class="cdesc">一台“造数据的机器”：先在脑子里掷骰子定下一些隐藏原因，再由这些原因生成你看到的表面数据。学习的目标，就是把这台机器的“骰子概率”调到——它自己造出来的数据，跟真实世界的数据长得几乎一样。在本文里它是自上而下的连接，记作权重 θ。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">识别模型（recognition model）</div>
+          <div class="cdesc">生成模型的“逆向工程师”：给它一张表面数据，它反推出背后最可能的隐藏原因。本文里它是<strong>另一套独立的</strong>自下而上连接，记作权重 φ。关键创新就在“独立”二字——它不是临时把生成模型倒过来算，而是被单独训练、能一步前馈给出答案。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">解释 / explanation（α）</div>
+          <div class="cdesc">对一个数据 d，隐藏单元的<strong>一整套取值</strong>就叫它的一个“解释”——即“这张图是由这些原因造成的”这一假说。麻烦在于：复杂生成模型下，同一张图可以有<strong>指数级多种</strong>解释，挨个考虑算不过来。这就是全篇要绕开的拦路虎。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">后验分布（posterior，P）</div>
+          <div class="cdesc">看到数据 d 之后，“各种解释 α 各自有多大概率”的那张概率表。它是识别真正想要的答案，却也是最难算的东西——因为要在指数级多的解释上做归一化。本文用一个简单的近似分布 Q 来顶替它。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">亥姆霍兹自由能（Helmholtz free energy，F）</div>
+          <div class="cdesc">借自统计物理的量：F =（解释的）平均能量 − 熵。本文把“数据的对数概率”改写成自由能的形式（公式 4）。它同时是信息论里的<strong>描述长度</strong>——把数据编码所需的比特数。最小化 F = 用最短的码描述数据 = 学到好模型。名字里的“亥姆霍兹”既指这个物理量，也呼应了 19 世纪 Helmholtz 把知觉看作“无意识推理”的思想。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">KL 散度（KL divergence，Kullback-Leibler Divergence）</div>
+          <div class="cdesc">衡量“近似分布 Q 离真实分布 P 有多远”的非对称距离，恒 ≥ 0，相等时才为 0。本文的灵魂等式：真目标 = 想要的下界 + KL。因为 KL 永远拉高一点点，<strong>扔掉它就得到一个稳稳低于真目标的下界</strong>——抬高这个下界，既逼近真目标，又顺手把 Q 逼近 P。这正是后来“变分”一词的全部精髓。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">因子化假设（factorial / 可分解）</div>
+          <div class="cdesc">让难题变可算的关键简化：假设同一层里各隐藏单元的取值<strong>互相独立</strong>。这样近似后验 Q 只需为每层的 h 个单元各报一个概率，而不必报指数级（2ʰ−1）个联合概率。代价是真实后验通常并不独立，省下的算力以“低估了一点真目标（差额恰是那个 KL 散度）”买单。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">醒-睡算法（wake-sleep）</div>
+          <div class="cdesc">本文的训练法。<strong>醒相</strong>：钳住真实数据，用识别权重 φ 自下而上采样出各层活动，再调生成权重 θ 让它更会“生成你刚认出的东西”。<strong>睡相</strong>：关掉识别，用生成权重 θ 从顶层自上而下“做梦”造一个假样本（其原因已知），再调识别权重 φ 让它更会“认出梦里的原因”。两相用同一条局部规则。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">δ 规则（delta rule）</div>
+          <div class="cdesc">最朴素的局部学习规则：按“目标值 − 当前输出”的误差，正比地微调权重。本文的优雅之处在于：只要上下两套激活函数都用 S 型函数（sigmoid），醒相和睡相用的<strong>竟是同一条 δ 规则</strong>，且只依赖一个突触两端的局部信息——这正是它在生物上看着可信的原因。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">期望最大化（EM，Expectation-Maximisation）算法</div>
+          <div class="cdesc">统计学里学习含隐变量模型的经典两步法：E 步算后验、M 步调参数，交替上升。本文证明自己的做法是 EM 的一个<strong>可处理近似</strong>：识别模型干的相当于一个“受约束的、只能在因子化分布里挑的 E 步”，生成模型的更新相当于 M 步。理解这层对应，就理解了它的数学地基。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-problem">核心问题：解释的组合爆炸</div>
+      <p>无监督学习的一个主流思路是：为数据建一个<strong>带参数的随机生成模型</strong>，让“从模型里独立采样”大概率能产出你观察到的那些样式，然后调参数去最大化“观察数据的概率” p(d|θ)。思路很美，但卡在一处：</p>
+      <p>对除最简单之外的所有生成模型，<strong>同一个表面样式可以由指数级多种隐藏原因组合生成</strong>。作者把每一种可能的原因组合叫一个 <span class="term">解释（explanation，α）</span>。要算出 p(d|θ)，按公式 1 得对所有解释求和：</p>
+      <blockquote>log p(d|θ) = log ( Σ_α  p(α|θ) · p(d|α,θ) )　…(1)</blockquote>
+      <p>这个和有指数级多项，且一般无法因子分解成简单分布的乘积，所以<strong>标准的最大似然方法（如 EM 算法，Dempster 等 1977）在这里是不可处理的（intractable）</strong>。换句话说：你想调参数让数据更可能，可你连“当前参数下数据有多可能”都算不出来。</p>
+      <p>作者用一个具体例子把这件事落地——<span class="term">移位问题（shifter problem，见后文图示）</span>：四行各 1×8 的二值像素，最下面一行是随机二值向量（每个像素以概率 <strong>0.2</strong> 点亮），最上面一行是它整体左移或右移一格的副本（左右等概率），中间两行是上下两行的拷贝。把上两行看作“左眼视网膜”、下两行看作“右眼视网膜”，那么<strong>判断移位方向，就等价于从一对简单立体图里提取深度（视差）</strong>。表面是 32 个像素，背后的真正原因只有两个——一个随机条纹模式，和一个左/右方向——但天真地看，网络面对的是天文数字般的像素组合。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：因子化省下多少</span>
+        <p>若某层有 h 个二值单元，真实后验需要 <strong>2ʰ−1</strong> 个概率才能完整描述（所有联合取值各一个）。本文的因子化识别模型只报 <strong>h</strong> 个概率。h=20 时，前者是约一百万，后者是二十——差六个数量级。<strong>可算性正是这样被买来的</strong>，账单是“低估真目标，差额 = KL 散度”。</p>
+      </div>
+
+      <div class="section-head" id="sec-bound">核心招数一：用一个能算的下界，换掉算不动的真目标</div>
+      <p>既然 p(d|θ) 算不动，作者不去硬算它，而是去<strong>抬高它的一个下界</strong>。推导只有几步，但每步都关键。先借统计物理的语言，定义解释 α 的<strong>能量</strong>（公式 2）：E_α = −log[ p(α|θ) p(d|α,θ) ]。于是“看到 d 后各解释的真实后验”恰好服从玻尔兹曼分布（公式 3，温度取 1）：P_α = e^(−E_α) / Σ e^(−E_α′)。把公式 1 改写一下，数据的对数概率就等于负的自由能（公式 4）：</p>
+      <blockquote>log p(d|θ) = − [ Σ_α P_α E_α − ( − Σ_α P_α log P_α ) ]　…(4)
+即：对数概率 = 熵 − 平均能量 = −F</blockquote>
+      <p>到这里还没占到便宜，因为算 P 依旧要在指数级多的解释上归一化。<strong>真正的转折</strong>：不用真后验 P 去对解释求平均，而是换一个“方便算的”分布 <span class="term">Q</span>。这样改写后（公式 5）：</p>
+      <blockquote>log p(d|θ) = −F(d; θ, Q) + Σ_α Q_α log[ Q_α / P_α ]</blockquote>
+      <p>那个尾巴项，正是 Q 与真后验 P 之间的 <span class="term">KL 散度（Kullback-Leibler 散度）</span>。它有一条铁律：<strong>恒 ≥ 0</strong>。所以——<strong>把它直接扔掉，剩下的 −F 必定 ≤ 真正的 log p(d|θ)，是一个货真价实的下界。</strong>这一招在本文里是字面意义的“点石成金”：算不动的真目标，被替换成一个用近似分布 Q 就能算的 −F；而最大化 −F，等价于“最大化对数概率，同时减去 Q 偏离 P 的惩罚”。</p>
+      <div class="info-block">
+        <span class="ib-title">一句话抓住灵魂等式</span>
+        <p><strong>真目标 = 能算的下界（−F） + KL散度[Q‖P]。</strong>因为 KL ≥ 0，下界永远不会超过真目标；抬高下界，就同时干了两件事：把数据概率往上推，把识别模型 Q 往真后验 P 上拽。更妙的是它<strong>双向用力</strong>——这个惩罚不仅逼 Q 去逼近 P，反过来也鼓励<strong>生成模型 θ 去改变自己</strong>，让真后验 P 变得更接近“识别模型那种简单形状能表示”的样子。学习因此是双人协同，而非单方逼近。这正是六七年后被命名为<strong>证据下界（ELBO，Evidence Lower BOund）</strong>的东西的雏形。</p>
+      </div>
+
+      <div class="section-head" id="sec-arch">核心招数二：一台长着两套权重的机器</div>
+      <p>谁来充当那个方便算的 Q？作者的回答是本文的结构性创新：<strong>专门再造一个有自己参数 φ 的识别网络</strong>，让它直接前馈地吐出 Q(φ, d)。于是一台 <span class="term">亥姆霍兹机</span>是这样的连接主义系统——多层“类神经元”的二值随机单元，按层级排列，被<strong>两套独立的权重</strong>缝合在一起：</p>
+      <ul>
+        <li><strong>自上而下的生成连接 θ</strong>：实现生成模型。第 ℓ+1 层的活动决定第 ℓ 层各单元被点亮的概率（公式 8 用 sigmoid，但实际用了更复杂的成像模型，见后）。最顶层只接收“生成偏置”。</li>
+        <li><strong>自下而上的识别连接 φ</strong>：实现识别模型。第 ℓ−1 层的活动 s，经 sigmoid 决定第 ℓ 层单元被点亮的概率（公式 6）：q = σ( Σ s·φ )。<strong>识别网络里绝不能有反馈连接</strong>——保证认一次只需一遍前馈、没有迭代。</li>
+      </ul>
+      <p>关键的简化假设是：识别分布在<strong>每一层内是因子化（可分解）的</strong>——给定下层活动，本层各单元彼此独立（公式 7 是各单元概率的连乘）。这把需要报告的概率从 2ʰ−1 个压到 h 个，让自由能 F 可以被高效求值；代价前面算过，就是那个 KL 散度的低估。作者也坦诚指出一处张力：<strong>“因子化的生成模型，其真实后验几乎从不恰好是因子化的”</strong>——所以识别模型注定只是近似，这不是 bug 而是这套方法的固有结构。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么“另起一套权重”是神来之笔</span>
+        <p>老派的“分析-合成（analysis-by-synthesis）”思路认为：识别就是<strong>实时把生成模型倒过来求逆</strong>。但对随机生成模型，求逆通常要跑<strong>马尔可夫链蒙特卡洛（MCMC，Markov Chain Monte Carlo）</strong>这类反复采样的方法，又慢又不像大脑干得出来的事。亥姆霍兹机干脆<strong>把“逆”预先编译进一套独立权重 φ</strong>：识别从此只是一遍自下而上的前馈，没有迭代采样。这既让学习可处理，也让“皮层如何在严苛的时间约束下实现生成模型”这个生物学难题，一下子有了可信的答案。</p>
+      </div>
+      <p>论文给了两个版本。<strong>确定性亥姆霍兹机（§3）</strong>用平均场（mean-field）近似：把二值随机活动 s 换成识别模型下的<strong>平均活动 q</strong>（公式 15），整体自由能写成对“数据 × 层 × 单元”三重求和的一串 KL 散度（公式 16），由于生成权重 θ 不改变实际活动、网络无环，导数可用链式法则闭式算出（附录 B），用共轭梯度（conjugate gradient）优化：</p>
+      <blockquote>−F(θ, φ) = Σ_d Σ_ℓ Σ_j  KL[ q_j(φ), p_j(θ) ]　…(16)</blockquote>
+      <p>而<strong>随机亥姆霍兹机（§4）</strong>则保留二值随机单元，用下面这条更简单、更像大脑的算法来近似上述梯度——这就是醒-睡。</p>
+
+      <div class="section-head" id="sec-wakesleep">核心招数三：醒-睡算法——白天认东西、晚上做梦</div>
+      <p>确定性版本的导数很复杂，因为改一个单元会牵动它上面所有层。作者从<strong>玻尔兹曼机（Boltzmann machine，Hinton &amp; Sejnowski 1986；Ackley 等 1985）</strong>借来一招，得到一个对层级随机二值网络极其简单的学习方案。学习被切成两个交替的相：</p>
+
+      <div class="section-head-sub">醒相（wake phase）：自下而上认，调“生成力”</div>
+      <p>把真实数据 d 钳在最底层。沿<strong>识别权重 φ</strong> 自下而上，按各层的识别概率 q 逐层<strong>采样出二值活动</strong>——相当于网络“认出”了这张图背后可能的各级原因。然后，调整从上一层到下一层的<strong>生成权重 θ</strong>，去缩小“实际采到的活动”与“生成模型本会预测的活动 p”之间的 KL 散度。一句话：<strong>让生成模型学会去生成你刚刚认出来的东西。</strong></p>
+
+      <div class="section-head-sub">睡相（sleep phase）：自上而下梦，调“识别力”</div>
+      <p>把识别权重<strong>关掉</strong>。从顶层开始，沿<strong>生成权重 θ</strong> 自上而下逐层生成活动，造出一个<strong>“梦”——一个来自模型自己的随机样本（fantasy）</strong>。因为这个样本是网络亲手造的，它<strong>确知背后真正的隐藏原因</strong>，于是这些原因正好可以当作训练识别权重的“标准答案”（target）。然后调整<strong>识别权重 φ</strong>，让它更准地从梦的表面反推出这些已知原因。一句话：<strong>让识别模型学会认出你自己做的梦。</strong></p>
+
+      <div class="info-block">
+        <span class="ib-title">最优雅的那一笔：同一条 δ 规则</span>
+        <p>如果自下而上和自上而下的激活函数<strong>都是 sigmoid（公式 6 与 8）</strong>，那么醒相和睡相用的<strong>是字面意义上完全相同的学习规则——纯局部的 δ 规则（Widrow &amp; Stearns 1985）</strong>。每次权重更新只需要一个突触两端的信息：本地的目标值、本地的输出。没有反向传播那种需要把误差长程传递回去的全局机制。<strong>正是这种“两相同规则、且严格局部”的性质，让它在生物神经回路上看起来是可实现的</strong>——这也是这篇论文敢在标题里碰“皮层通路”的底气。</p>
+      </div>
+      <p>必须诚实地补一句作者自己的承认：<strong>这两个过程并不在最小化任何单一的代价函数</strong>。原因有二：其一，睡相是用“按生成模型分布、而非按真实数据分布”的输入去训练识别模型；其二，睡相的学习并不沿着正确的梯度走。好消息是：<strong>若能到达那个最优终点，则 Q_α = P_α 成立</strong>（近似在最优处变精确）。作者称当时（Brendan Frey 的初步结果）该算法在一些非平凡任务上“工作良好”，但措辞是审慎的“preliminary（初步）”。</p>
+
+      <div class="section-head" id="sec-viz">交互：醒相与睡相如何互相教</div>
+      <p>下面这个组件把醒-睡的核心动态做成了可点的动画。左边是一台三层小机器（输入层在下、两层隐藏在上），中间两条通道分别是<strong>红色的识别权重 φ（向上）</strong>和<strong>蓝色的生成权重 θ（向下）</strong>。点“醒相”看数据如何自下而上被认出、并回头训练生成箭头；点“睡相”看顶层如何自上而下做梦、并回头训练识别箭头。右边两条曲线是定性示意：随着两相反复交替，<strong>自由能 F（≈描述长度）下降，下界 −F 上升，两套权重的“配合度”升高</strong>。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">醒-睡：两套权重互相当老师</div>
+        <div class="viz-note">交互示意。机器结构按图 3（三层、两套权重）；右侧自由能曲线为<strong>定性模拟</strong>，用于展示“两相交替→下界单调抬升、F 单调下降”的趋势，非论文原始数值。</div>
+        <div class="viz-controls">
+          <button id="btnWake">▶ 跑一次「醒相」（自下而上认）</button>
+          <button id="btnSleep" class="alt">🌙 跑一次「睡相」（自上而下梦）</button>
+          <button id="btnAuto" class="alt">⟳ 自动交替</button>
+          <button id="btnReset" class="alt">↺ 重置</button>
+        </div>
+        <div class="viz-controls">
+          <label>训练步进速度</label>
+          <input type="range" id="spd" min="1" max="10" value="5" style="width:160px">
+          <span id="phaseTag" style="font-weight:700;color:#6b7280;">当前：待机</span>
+        </div>
+        <canvas id="wsCanvas" width="960" height="430"></canvas>
+        <div id="wsReadout" style="margin-top:12px;font-size:0.9rem;color:#3a4048;line-height:1.7;"></div>
+      </div>
+
+      <div class="section-head" id="sec-results">实验：移位问题里到底学到了什么</div>
+      <p>作者用一台三层亥姆霍兹机去解前面说的<strong>移位问题</strong>（图 4）：输入层是 32 个二值像素，往上是两层隐藏单元，要它自己发现“随机条纹 + 左/右移位方向”这套生成结构。结果定性上很漂亮，且有具体的权重幅度可看：</p>
+      <ul>
+        <li><strong>第 2 层单元变成了“移位对的探测器”</strong>：每个要么沉默，要么对一两对“被恰当移位过的像素对”作出响应。</li>
+        <li><strong>识别权重长出了抑制性的“侧叶（side-lobes）”</strong>：在它偏好的移位周围带负权重，用来阻止单元在不该响应时乱响应——这正是<strong>识别权重 φ 与生成权重 θ 明显不同</strong>的地方（生成权重没有这些负侧叶）。这条观察很关键：它说明识别不是简单地把生成倒过来，而是要额外“防误认”。</li>
+        <li><strong>第 3 层单元变成了“移位方向调谐”单元</strong>：分别响应各自方向（左 / 右）的第 2 层单元。</li>
+      </ul>
+      <p>图 4 标注的最大权重幅度给了量化的手感（白=正、黑=负；生成权重显示的是实际所用值取自然对数后的结果）：第 1→2 层识别权重最大幅度约 <strong>11.7</strong>，第 2→1 层生成权重约 <strong>13.3</strong>，第 2→3 层识别权重约 <strong>3.7</strong>，第 3→2 层生成权重约 <strong>13.3</strong>；到第 2 层的偏置幅度，识别侧高达 <strong>38.4</strong>、生成侧仅 <strong>3.0</strong>（两者量级差很大，故在图中分开画）。</p>
+      <div class="info-block">
+        <span class="ib-title">训练的两个工程细节，暴露了它有多难训</span>
+        <p>其一，<strong>为防止第 2、3 层单元在学习早期被永久关死</strong>，作者给它们设了固定但极小的生成偏置 <strong>θ = 0.05</strong>。其二，论文明说“找到图中这样的权重很难，需要共轭梯度算法迭代很多次”。这两点合起来诚实地告诉你：原理优雅，但<strong>这台机器在实践中相当难训、易陷局部极小</strong>——这是后文“边界”一节要展开的伏笔。</p>
+      </div>
+      <p>作者还点出一处<strong>没被正确捕捉的结构</strong>：在所用的成像模型（公式 18/19）下，第 3 层的一个单元<strong>无法指定</strong>“某个第 2 层单元应当关闭”，结果被迫用两个第 3 层单元来凑——“生成模型的某一方面因此没有被正确表示”。难得一见地把自己模型的表达力短板写在了正文里。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>把这篇论文真正“硬”的几处设计列表对照，便于一眼看清它每一步在权衡什么。</p>
+      <table>
+        <thead>
+          <tr><th>设计选择</th><th>解决了什么</th><th>代价 / 张力</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>最大化下界 −F 而非真目标 p(d)</td>
+            <td>把指数级求和的不可算目标，换成用近似分布 Q 就能算的量；下界因 KL≥0 而成立</td>
+            <td>系统性低估真目标，差额恰为 KL 散度[Q‖P]</td>
+          </tr>
+          <tr>
+            <td>独立的识别网络 φ（而非实时求逆）</td>
+            <td>识别变成一遍前馈，免去 MCMC 反复采样；生物上更可信</td>
+            <td>多养一套权重；且 φ 注定只是真后验的近似</td>
+          </tr>
+          <tr>
+            <td>层内因子化假设</td>
+            <td>概率数从 2ʰ−1 压到 h，自由能可高效求值</td>
+            <td>真后验通常不可分解，近似有不可消除的缺口</td>
+          </tr>
+          <tr>
+            <td>醒-睡两相 + 同一条 δ 规则</td>
+            <td>避开复杂的跨层导数；更新严格局部、两相同形，像大脑</td>
+            <td>不最小化任何单一代价函数；睡相梯度不正确、且用模型分布而非真数据训识别</td>
+          </tr>
+          <tr>
+            <td>确定性版：平均场 + 共轭梯度</td>
+            <td>无环→导数闭式可解，优化更稳</td>
+            <td>忽略了“高层活动依赖低层实际取值而非其均值”带来的相关性</td>
+          </tr>
+          <tr>
+            <td>成像模型用噪声-或（noisy-OR，Pearl 1986）/ 几率规则替代纯 sigmoid（附录 A）</td>
+            <td>纯 sigmoid 生成模型几乎必陷局部极小；几率规则（公式 18/19）更具竞争力</td>
+            <td>规则变复杂；仍易陷局部极小；某些结构（如“要求某单元关闭”）表达不了</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p><strong>向上承接物理与统计学。</strong>整套自由能语言直接搬自统计物理（玻尔兹曼分布、温度、熵）。它与<strong>期望最大化（EM，Expectation-Maximisation）算法（Dempster 等 1977）</strong>的关系被讲得很透：按 Neal &amp; Hinton（1994）对 EM 的新解读，识别模型相当于一个<strong>受约束的 E 步</strong>（只能在因子化分布里挑 Q），生成模型更新相当于 M 步——图 2 用一张“在 −F(θ,Q) 曲面上交替爬升”的示意图把这层对应画了出来。它也直接长在 Hinton &amp; Zemel（1994）的<strong>“自编码器、最小描述长度（MDL，Minimum Description Length）与亥姆霍兹自由能”</strong>这条线上，可视为 Zemel（1994）与 Hinton &amp; Zemel（1994）那类学习过程的<strong>层级化推广</strong>——把每层隐藏单元固定的独立先验，换成“由上一层活动动态导出”的更灵活先验。</p>
+      <p><strong>横向区别于同代的“带反馈的自监督”模型。</strong>论文把自己摆进一组用了反馈+前馈权重的方案里逐一划清界线：与<strong>自适应共振理论（ART，Adaptive Resonance Theory；Carpenter &amp; Grossberg 1987）</strong>和 Ullman（1994）的<strong>逆流（Counter-Streams）模型</strong>相比，亥姆霍兹机把自监督学习当成一个<strong>统计问题</strong>（找一个准确刻画输入结构的生成模型）；与 Luttrell（1992；1994）的多层矢量量化相比，后者目标是“抗噪的忠实量化”、用的是<strong>局部（单因）</strong>表示，而本文要的是<strong>分布式（多因）</strong>表示，正因如此才被迫做那些近似；与 Kawato 等（1993）的前向-逆向光学模型相比，本文多了概率视角，且识别权重<strong>不只是把生成权重求逆</strong>，还要计入上层的先验活动。最后它被安放进 <strong>Grenander 的模式理论（Pattern Theory，1976）</strong>框架，对应 Mumford（1994）把它映射到大脑的提议。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p><strong>给机器学习的：</strong>“别去算那个算不动的真目标，去抬高它的一个能算的下界”——这条在本文里被锤实的策略，正是日后整个<strong>变分推断（variational inference）</strong>家族的发动机。把本文的识别模型 φ 换成神经网络编码器、把那个下界正式写成<strong>证据下界（ELBO，Evidence Lower BOund）</strong>、用重参数化技巧让梯度能穿过采样，就得到了 2013 年的<strong>变分自编码器（VAE，Variational Autoencoder）</strong>。可以说本文是 VAE 的直系祖先：两套权重 = 编码器 + 解码器，自由能 = 负 ELBO，醒-睡 = 当年还没有重参数化技巧时的替代训练法。</p>
+      <p><strong>给神经科学的：</strong>它为皮层无处不在的<strong>自下而上 / 自上而下双向通路</strong>给出了一个干净的计算角色分工——上行通路做<strong>识别（推断原因）</strong>，下行通路做<strong>生成（预测/想象）</strong>，二者通过“感知真实输入”与“离线做梦”互相校准。这是后来<strong>预测编码（predictive coding）</strong>与“皮层是层级生成模型”这一大叙事的早期奠基性陈述之一。它甚至给“睡眠为什么可能对学习有用”提供了一个挑逗性的计算隐喻：睡相需要离线生成样本来训练识别通路（虽然作者并未声称这对应真实睡眠的功能，读者宜把它当类比而非结论）。</p>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文的可贵之处，是它把自己的软肋大多写在了明面上；下面把作者承认的、与解读者补充的，分开列。</p>
+      <ul>
+        <li><strong>没有单一代价函数（作者明说）。</strong>醒-睡两相不共同最小化任何一个目标函数，睡相还沿着不正确的梯度走、且用模型自造的分布而非真实数据来训识别模型。理论保证仅止于“<strong>若</strong>能到达最优终点，则近似变精确”——而“能否到达”本身没有保证。</li>
+        <li><strong>因子化近似的缺口不可消除（作者明说）。</strong>层内独立假设让真后验注定无法被精确表示，对数概率被系统性低估，低估量正是那个 KL 散度。对真实世界中原因高度相关的数据，这个缺口可能很大。</li>
+        <li><strong>表达力有硬伤（作者明说）。</strong>所用成像模型下，高层单元无法表达“要求某个低层单元关闭”，导致移位问题里某一结构没被正确捕捉、需多用单元来凑。</li>
+        <li><strong>难训、易陷局部极小（作者明说 + 解读者强调）。</strong>纯 sigmoid 生成模型“几乎无一例外地”陷入局部极小，逼得作者改用更复杂的几率成像规则、还得加固定小偏置 θ=0.05 防单元被关死、并“迭代很多次”共轭梯度。原理的优雅与训练的脆弱形成鲜明反差。</li>
+        <li><strong>实证证据单薄（解读者观点，有据）。</strong>全文只展示了移位问题这一个玩具任务的定性权重图，随机版的效果被作者自己限定为“preliminary（初步）”、且来自“个人通讯”。论文是一份强有力的<strong>概念证明</strong>，而非充分的经验验证。</li>
+        <li><strong>识别是纯前馈、层内无交互（作者点出方向但未实现）。</strong>真实知觉里自上而下的影响、以及同层单元的相互作用（如皮层柱内的局部兴奋/长程抑制）都很重要，本文为追求“一遍前馈”牺牲了这些；作者把“迭代式识别”“层内成簇交互”列为未来方向，但本文未做。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下为解读者评价，每条都尽量挂靠文中证据。</p>
+      <p><strong>它的历史重要性，高于它当时的实验说服力。</strong>就经验结果论，本文只有一个玩具级的移位问题、且随机版效果自陈“初步”（见 §4 与 §5）——单看这个，它是一篇“有趣但未被充分验证”的论文。但它<strong>把一条方法论主梁浇筑成型</strong>：用 KL≥0 这一铁律，把不可算的最大似然换成可算的下界最大化（公式 5），并配上“独立识别网络 + 两套权重”的结构。这条主梁日后撑起了整个变分推断与 VAE 家族——以“是否塑造了后续领域”为尺，它的分量极重。</p>
+      <p><strong>醒-睡的优雅与脆弱是一体两面，作者诚实地两面都给了。</strong>“两相共用同一条严格局部的 δ 规则”是真的漂亮（§4），也是它在生物上可信的根基；但“不最小化任何单一代价函数、睡相梯度不正确”同样是作者亲口承认的硬伤。把这两点放在一起读，才是公允的——它不是一个收敛性有保证的算法，而是一个<strong>用生物可实现性换数学整洁性</strong>的大胆赌注。</p>
+      <p><strong>把机器学习与皮层解剖学锚在同一个机制上，是它最大的智识野心，但这一锚点仍是假说而非证据。</strong>“上行=识别、下行=生成”的分工很有解释力（§5），也确实启发了后来的预测编码叙事；可本文并未提供任何神经数据来支持这台机器对应真实皮层。读者应把它的脑科学主张当作<strong>有生产力的纲领性类比</strong>，而非已被检验的结论——这也正是作者用词谨慎（“may relate to”“may relate to the function of …pathways”）的原因。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>亥姆霍兹机用<strong>两套权重</strong>（自上而下的生成 θ、自下而上的识别 φ）和<strong>醒-睡算法</strong>——白天自下而上认真数据来训练生成力、夜里自上而下做梦造假数据来训练识别力，两相共用同一条局部 δ 规则——把“无监督发现层级结构”这件本来要在指数级多解释上算不动的难题，转化为“最大化一个因 KL≥0 而成立的可算下界（≈最小化描述长度 / 亥姆霍兹自由能）”。它在移位问题这一玩具任务上定性成功（识别权重长出抑制侧叶、高层单元变成移位方向调谐，最大权重幅度约 11.7–13.3），却也坦承自己不最小化任何单一代价函数、易陷局部极小、证据尚属初步——但正是它锤实的“下界替真目标”这一招，成了二十年后变分自编码器与整个变分推断家族的直系源头。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Dayan, P., Hinton, G. E., Neal, R. M., &amp; Zemel, R. S. (1995). The Helmholtz Machine. <em>Neural Computation, 7</em>(5), 889–904.<br>
+    <strong>说明：</strong>本文为基于原文的中文深度解读，交互组件中的自由能曲线为定性模拟（用于展示“两相交替→下界抬升”的趋势），权重幅度等数字引自论文图 4。解读中标注「解读者观点」处为本文作者评价，非原文结论。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var cv = document.getElementById('wsCanvas');
+  if(!cv) return;
+  var ctx = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+
+  // ---- 网络几何：三层，左侧绘制 ----
+  var netX = 40, netW = 470;            // 左侧网络区域
+  var curveX = netX + netW + 40;        // 右侧曲线区域起点
+  var curveW = W - curveX - 30;
+
+  // 各层单元中心坐标（y 越小越高层）
+  var layers = [
+    {y: 70,  n: 3, label:'第3层 隐藏'},   // top
+    {y: 200, n: 5, label:'第2层 隐藏'},
+    {y: 330, n: 8, label:'第1层 输入'}    // bottom
+  ];
+  function unitX(li, ui){
+    var L = layers[li];
+    var span = netW - 80;
+    var step = span / (L.n - 1);
+    return netX + 40 + step * ui;
+  }
+
+  // ---- 训练状态 ----
+  var state = {
+    F: 1.0,        // 归一化自由能（描述长度），从高往低降
+    bound: 0.0,    // 下界 -F（0→1 上升）
+    align: 0.05,   // 两套权重“配合度”
+    steps: 0,
+    phase: 'idle', // 'wake' | 'sleep' | 'idle'
+    anim: 0,       // 0..1 相内动画进度
+    autoflag: false,
+    hist: []       // 自由能历史
+  };
+
+  // 活动值（用于动画显示哪个单元被点亮）
+  var act = [ new Array(3).fill(0), new Array(5).fill(0), new Array(8).fill(0) ];
+
+  function rand(n){ var a=[]; for(var i=0;i<n;i++) a.push(Math.random()<0.45?1:0); return a; }
+
+  function drawArrow(x1,y1,x2,y2,color,wgt,up){
+    ctx.strokeStyle = color;
+    ctx.lineWidth = wgt;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+    ctx.stroke();
+    // 箭头头
+    var ang = Math.atan2(y2-y1, x2-x1);
+    var ah = 7;
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2 - ah*Math.cos(ang - 0.4), y2 - ah*Math.sin(ang - 0.4));
+    ctx.lineTo(x2 - ah*Math.cos(ang + 0.4), y2 - ah*Math.sin(ang + 0.4));
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // 区域标题
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('一台三层亥姆霍兹机（结构按图3）', netX, 26);
+    ctx.fillText('学习进度（定性模拟）', curveX, 26);
+
+    // ---- 连接：先画生成(蓝,向下)与识别(红,向上) ----
+    var ph = state.phase, pr = state.anim;
+    for(var li=0; li<2; li++){
+      var upper = li, lower = li+1;
+      for(var u=0; u<layers[upper].n; u++){
+        for(var v=0; v<layers[lower].n; v++){
+          // 稀疏地画，避免太密：只画部分连接
+          if((u+v)%2!==0 && layers[lower].n>4) continue;
+          var ux = unitX(upper,u), uy = layers[upper].y+0;
+          var vx = unitX(lower,v), vy = layers[lower].y+0;
+          // 识别 φ：向上（蓝→红用红）
+          var recActive = (ph==='wake');
+          var genActive = (ph==='sleep');
+          // 识别权重（红，向上）
+          drawArrow(vx, vy-14, ux, uy+14, recActive?'#c0392b':'#f0b8b2',
+                    recActive?(1.2+state.align*2.5):0.8, true);
+          // 生成权重（蓝，向下）
+          drawArrow(ux, uy+14, vx, vy-14, genActive?'#2d6cdf':'#bcd0f5',
+                    genActive?(1.2+state.align*2.5):0.8, false);
+        }
+      }
+    }
+
+    // ---- 画单元 ----
+    for(var L=0; L<3; L++){
+      for(var i=0; i<layers[L].n; i++){
+        var x = unitX(L,i), y = layers[L].y;
+        var on = act[L][i] > 0.5;
+        ctx.beginPath();
+        ctx.arc(x,y,13,0,Math.PI*2);
+        ctx.fillStyle = on ? '#c0392b' : '#ffffff';
+        ctx.strokeStyle = '#3a4048';
+        ctx.lineWidth = 1.4;
+        ctx.fill(); ctx.stroke();
+      }
+      // 层标签
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '12px -apple-system,sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(layers[L].label, netX+34, layers[L].y+4);
+    }
+    ctx.textAlign = 'left';
+
+    // 图例
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.fillStyle = '#c0392b';
+    ctx.fillText('■ 识别权重 φ（自下而上 / 醒相主导）', netX, H-34);
+    ctx.fillStyle = '#2d6cdf';
+    ctx.fillText('■ 生成权重 θ（自上而下 / 睡相主导）', netX, H-16);
+
+    // 相位提示（数据/梦从哪进）
+    ctx.font = 'bold 12px -apple-system,sans-serif';
+    if(ph==='wake'){
+      ctx.fillStyle = '#c0392b';
+      ctx.fillText('↑ 醒相：真实数据钳在底层，识别权重自下而上认 → 回头训练生成权重', netX, 50);
+    } else if(ph==='sleep'){
+      ctx.fillStyle = '#2d6cdf';
+      ctx.fillText('↓ 睡相：顶层自上而下做梦造假样本 → 回头训练识别权重', netX, 50);
+    }
+
+    // ---- 右侧曲线 ----
+    drawCurves();
+  }
+
+  function drawCurves(){
+    var x0 = curveX, y0 = 60, cw = curveW, ch = 300;
+    // 坐标框
+    ctx.strokeStyle = '#e6e8eb';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x0, y0, cw, ch);
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('高', x0-22, y0+10);
+    ctx.fillText('低', x0-22, y0+ch);
+    ctx.fillText('训练步数 →', x0+cw-70, y0+ch+18);
+
+    var hist = state.hist;
+    if(hist.length>1){
+      // 自由能 F 曲线（蓝）下降
+      drawSeries(hist.map(function(h){return h.F;}), x0,y0,cw,ch,'#2d6cdf');
+      // 下界 -F（红）上升
+      drawSeries(hist.map(function(h){return h.bound;}), x0,y0,cw,ch,'#c0392b');
+      // 配合度（灰）
+      drawSeries(hist.map(function(h){return h.align;}), x0,y0,cw,ch,'#9aa1ab');
+    }
+    // 当前值标注
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.fillStyle = '#2d6cdf';
+    ctx.fillText('自由能 F ↓ (≈描述长度): ' + state.F.toFixed(3), x0+8, y0+ch+34);
+    ctx.fillStyle = '#c0392b';
+    ctx.fillText('下界 −F ↑: ' + state.bound.toFixed(3), x0+8, y0+ch+50);
+    ctx.fillStyle = '#6b7280';
+    ctx.fillText('两套权重配合度 ↑: ' + state.align.toFixed(3) + '    步数: ' + state.steps, x0+8, y0+ch+66);
+  }
+
+  function drawSeries(arr, x0,y0,cw,ch,color){
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    var n = arr.length;
+    for(var i=0;i<n;i++){
+      var px = x0 + (cw) * (i/(Math.max(1,n-1)));
+      var py = y0 + ch - ch*Math.max(0,Math.min(1,arr[i]));
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  }
+
+  function recordHist(){
+    state.hist.push({F:state.F, bound:state.bound, align:state.align});
+    if(state.hist.length>240) state.hist.shift();
+  }
+
+  // ---- 一步训练对状态的影响（定性）----
+  function applyStep(phase){
+    state.steps++;
+    // 两相都让 F 下降、bound 上升、align 升高，但形状略不同
+    var rate = 0.012 * (phase==='wake'?1.0:0.85);
+    state.F = Math.max(0.02, state.F - rate*(0.4+state.F));
+    state.bound = 1 - state.F;
+    state.align = Math.min(0.98, state.align + 0.010*(phase==='wake'?1.1:0.9)*(1-state.align));
+    recordHist();
+  }
+
+  // ---- 运行一个相（带动画）----
+  var raf = null;
+  function runPhase(phase, done){
+    state.phase = phase;
+    state.anim = 0;
+    setTag(phase);
+    // 设定活动：醒相数据从底层；睡相梦从顶层
+    if(phase==='wake'){
+      act[2] = rand(8);                  // 输入层=数据
+      act[1] = new Array(5).fill(0);
+      act[0] = new Array(3).fill(0);
+    } else {
+      act[0] = rand(3);                  // 顶层=梦的种子
+      act[1] = new Array(5).fill(0);
+      act[2] = new Array(8).fill(0);
+    }
+    var speed = +document.getElementById('spd').value;
+    var dur = 900 - speed*70;            // ms
+    var t0 = performance.now();
+    cancelAnimationFrame(raf);
+    function frame(now){
+      var p = Math.min(1,(now-t0)/dur);
+      state.anim = p;
+      // 逐层点亮：醒相自下而上，睡相自上而下
+      if(phase==='wake'){
+        if(p>0.33 && act[1].every(function(v){return v===0;})) act[1] = rand(5);
+        if(p>0.66 && act[0].every(function(v){return v===0;})) act[0] = rand(3);
+      } else {
+        if(p>0.33 && act[1].every(function(v){return v===0;})) act[1] = rand(5);
+        if(p>0.66 && act[2].every(function(v){return v===0;})) act[2] = rand(8);
+      }
+      draw();
+      if(p<1){ raf = requestAnimationFrame(frame); }
+      else {
+        applyStep(phase);
+        updateReadout(phase);
+        draw();
+        if(done) done();
+      }
+    }
+    raf = requestAnimationFrame(frame);
+  }
+
+  function setTag(phase){
+    var el = document.getElementById('phaseTag');
+    if(phase==='wake'){ el.textContent='当前：醒相（自下而上认）'; el.style.color='#c0392b'; }
+    else if(phase==='sleep'){ el.textContent='当前：睡相（自上而下梦）'; el.style.color='#2d6cdf'; }
+    else { el.textContent='当前：待机'; el.style.color='#6b7280'; }
+  }
+
+  function updateReadout(phase){
+    var el = document.getElementById('wsReadout');
+    var msg;
+    if(phase==='wake'){
+      msg = '<strong style="color:#c0392b">醒相完成。</strong>真实数据被钳在输入层，识别权重 φ 自下而上采样出各层活动（“认出”原因）；随后<strong>生成权重 θ</strong> 被调整，去缩小“实际活动”与“生成模型预测”的 KL 散度——让生成模型学会生成你刚认出的东西。';
+    } else {
+      msg = '<strong style="color:#2d6cdf">睡相完成。</strong>识别权重关闭，顶层自上而下“做梦”造出一个样本（其隐藏原因已知）；随后<strong>识别权重 φ</strong> 被调整，去更准地从梦的表面反推这些已知原因——让识别模型学会认出自己做的梦。';
+    }
+    el.innerHTML = msg + ' <span style="color:#6b7280">两相共用同一条局部 δ 规则；反复交替，自由能 F（≈描述长度）下降、下界 −F 上升。</span>';
+  }
+
+  // ---- 按钮 ----
+  document.getElementById('btnWake').onclick = function(){ state.autoflag=false; runPhase('wake'); };
+  document.getElementById('btnSleep').onclick = function(){ state.autoflag=false; runPhase('sleep'); };
+  document.getElementById('btnAuto').onclick = function(){
+    state.autoflag = !state.autoflag;
+    this.textContent = state.autoflag ? '⏸ 暂停自动' : '⟳ 自动交替';
+    if(state.autoflag) autoLoop('wake');
+  };
+  document.getElementById('btnReset').onclick = function(){
+    state.autoflag=false; cancelAnimationFrame(raf);
+    document.getElementById('btnAuto').textContent='⟳ 自动交替';
+    state.F=1.0; state.bound=0.0; state.align=0.05; state.steps=0; state.phase='idle'; state.hist=[];
+    act=[new Array(3).fill(0),new Array(5).fill(0),new Array(8).fill(0)];
+    setTag('idle');
+    document.getElementById('wsReadout').innerHTML='点上面的按钮，看“醒相认数据→训练生成”与“睡相做梦→训练识别”如何交替；右侧曲线展示下界被逐步抬升的定性趋势。';
+    draw();
+  };
+
+  function autoLoop(phase){
+    if(!state.autoflag) return;
+    runPhase(phase, function(){
+      if(!state.autoflag) return;
+      setTimeout(function(){ autoLoop(phase==='wake'?'sleep':'wake'); }, 180);
+    });
+  }
+
+  // 初始
+  document.getElementById('wsReadout').innerHTML='点上面的按钮，看“醒相认数据→训练生成”与“睡相做梦→训练识别”如何交替；右侧曲线展示下界被逐步抬升的定性趋势。';
+  draw();
+})();
+</script>
+
+</body>
+</html>

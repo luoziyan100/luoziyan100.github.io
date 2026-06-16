@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Human Connectome — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+
+  /* ---------- 交互组件内部专用（沿用红色主题，无外部资源） ---------- */
+  .viz-stat-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:14px 0 4px;
+  }
+  .viz-stat{
+    flex:1 1 130px;
+    border:1px solid var(--line);
+    border-left:3px solid var(--red);
+    border-radius:0 6px 6px 0;
+    background:var(--red-soft);
+    padding:8px 12px;
+  }
+  .viz-stat .vs-num{
+    font-weight:800;
+    color:var(--red);
+    font-size:1.18rem;
+    line-height:1.2;
+  }
+  .viz-stat .vs-lab{
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .viz-legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    font-size:0.8rem;
+    color:var(--ink-soft);
+    margin-top:10px;
+  }
+  .viz-legend .lg{display:flex;align-items:center;gap:6px;}
+  .viz-legend .sw{width:13px;height:13px;border-radius:3px;display:inline-block;}
+  .viz-readout{
+    font-size:0.85rem;
+    color:var(--ink-soft);
+    background:var(--code-bg);
+    border-radius:6px;
+    padding:8px 12px;
+    margin-top:12px;
+    min-height:1.5em;
+    line-height:1.55;
+  }
+  .viz-readout strong{color:var(--red);}
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>The Human Connectome <span>×</span> 给大脑画一张完整的"接线图"</h1>
+    <div class="meta">
+      <span>📄 The Human Connectome: A Structural Description of the Human Brain</span><br>
+      <span>✍️ Olaf Sporns、Giulio Tononi、Rolf Kötter</span><br>
+      <span>🏛️ 印第安纳大学心理与脑科学系 · 威斯康星大学精神病学系 · 杜塞尔多夫海因里希·海涅大学（Vogt 脑研究所）</span><br>
+      <span>📅 PLoS Computational Biology · 2005 年 · 第 1 卷第 4 期 · e42</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-idea">核心主张一：给大脑造一张"连接矩阵"</a></li>
+        <li><a href="#sec-scale">核心主张二：选对"放大倍数"</a></li>
+        <li><a href="#sec-network">核心主张三：连接组是一张可分析的网络</a></li>
+        <li><a href="#sec-viz">交互：玩转脑网络</a></li>
+        <li><a href="#sec-variability">核心主张四：个体差异不是绊脚石</a></li>
+        <li><a href="#sec-method">方法论精妙之处：五步走</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是一篇"造词"的论文——它把 <span class="term">connectome（连接组）</span> 这个词送进了神经科学的词典。2005 年之前，神经科学已经测了无数局部数据：这块脑区在算术任务里会亮、那条纤维束连着丘脑；但谁也说不清整个大脑到底是怎么"接线"的，更没有一份公共的、标准格式的全脑连接图谱可查。本文借用基因组（genome）的成功类比，提出一个野心勃勃的纲领：<strong>像测序基因组那样，系统地把人脑所有神经元件之间的连接全测出来、存起来、公开共享</strong>，并论证为什么这件事在概念上、技术上都既必要又可行。</p>
+        <p>它值得读，不是因为它报告了什么新实验数据——<strong>它一个新实验都没做</strong>，而是因为它给整整一代研究者立了一面旗。今天火热的"脑网络""小世界大脑""枢纽节点""人脑连接组计划（HCP，Human Connectome Project）"，源头都能追到这篇 7 页的提案。读它，等于读一个大科学项目立项时的"创世说明书"。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的难点不在数学，而在于一连串容易混淆的"尺度"和"网络"术语。先把它们用人话讲清楚，后面就顺了。</p>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">连接组（connectome）</div>
+          <div class="cdesc">本文造的词。指一个大脑里"谁连着谁"的<strong>完整清单</strong>，类比 genome（基因组）是"所有基因的完整清单"。它描述的是结构（接线图），不是功能（信号此刻怎么跑）。一句话：大脑的<strong>全套电路布线图</strong>。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">连接矩阵（connection matrix）</div>
+          <div class="cdesc">把连接组写成数学形式：一张 N×N 的大表格，行是"信号从哪出发"、列是"到哪去"。格子 <code>a_ij</code> 记录元件 i 到 j 的连接。最简版只填 0/1（没连/连了），高级版再往格子里塞上强度、方向、正负（兴奋/抑制）、传导延迟等。像一张超大的"航班时刻表"。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">三种尺度（micro / meso / macro-scale）</div>
+          <div class="cdesc">看大脑的三档"放大倍数"。<strong>微观</strong>＝单个神经元和突触（约 10<sup>11</sup> 个神经元）；<strong>宏观</strong>＝脑区和它们之间的大纤维束（约 100+ 个脑区）；<strong>介观</strong>＝介于两者之间的神经元小群体（如皮层微柱）。本文主张第一版连接组从宏观入手。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">脑区划分（parcellation）</div>
+          <div class="cdesc">把连成一片的大脑皮层切成一块块"脑区"的工作。麻烦在于——<strong>没有公认的切法</strong>。本文估计皮层大概能切出 100 块上下，但人言人殊。这是画宏观连接组的头号障碍：节点都没数清，怎么连线？</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">弥散张量成像（DTI，Diffusion Tensor Imaging）</div>
+          <div class="cdesc">一种磁共振技术，靠追踪水分子在脑组织里"顺着纤维方向更容易扩散"的现象，<strong>无创地</strong>推断出白质纤维束的走向。配合"纤维追踪（tractography）"算法，能在活人脑里画出大致的接线。本文寄望它是绘制宏观连接组的主力工具。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">皮层微柱（cortical minicolumn）</div>
+          <div class="cdesc">Mountcastle 提出的皮层基本功能单元：一根垂直贯穿皮层各层的细柱，约含 80–100 个神经元，直径约 30–50 微米。本文把它选作"介观"尺度的基本元件——比单个神经元省事，又比整块脑区精细。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">小世界网络（small-world network）</div>
+          <div class="cdesc">一种网络结构：绝大多数连接是"近邻局部连接"，但夹杂少量"远程捷径"，于是任意两点都能很快到达（六度分隔那种感觉）。动物脑连接数据分析显示大脑就是这种结构——既经济（省布线）又高效（信息传得快）。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">枢纽节点（hub）与度（degree）</div>
+          <div class="cdesc">"度"＝一个节点连出/连入的边数，相当于一个人的"人脉数"。"枢纽"＝度特别高的少数节点，像机场网里的北京、上海大枢纽。少数枢纽承担了网络里大量流量，因此既关键又脆弱。本文交互组件会让你直观看到它们。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">模块化（modularity）与功能流（functional streams）</div>
+          <div class="cdesc">网络里"内部连得密、彼此连得疏"的节点小团伙叫模块。大脑的模块往往对应功能子系统（如视觉里的"是什么"腹侧流 vs "在哪/怎么动"背侧流）。<strong>功能分离</strong>（各模块各管一摊）与<strong>功能整合</strong>（模块间又能协同）是本文反复强调的两大组织原则。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">退化性 / 简并（degeneracy）</div>
+          <div class="cdesc">借自生物学：<strong>结构不同的元件可以实现同一个功能</strong>（像一个意思有好几种说法）。本文用它来解释一个关键难点——为什么光有结构连接图，并不能直接读出功能：同一张接线图，在不同输入或状态下能跑出完全不同的认知。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-idea">核心主张一：给大脑造一张"连接矩阵"</div>
+      <p>论文的起点是一句听上去像废话、其实很有分量的话：<strong>要理解一个网络如何运作，你必须先知道它的元件和它们之间的连接。</strong>作者指出，到 2005 年，关于人脑"接线"的精细信息几乎为零——连接密度、皮层各层的投射模式、跨区还是区内……这些都没有系统数据，更糟的是，已有的零散数据"<strong>既没有统一的标准格式，也无法通过公共数据库访问</strong>"。这正是基因组学早年也遇到、后来靠"统一存档 + 公开共享"破解的局面。</p>
+      <p>于是作者提出把全脑连接写成一张 <span class="term">连接矩阵 A</span>。它的定义很干净：</p>
+      <blockquote>
+        <p>设大脑有 N 个元件。连接矩阵 A 是一张 N×N 的表，</p>
+        <p>行 = 信号源（source），列 = 信号靶（target）；</p>
+        <p>a_ij = 0  →  确认 i 与 j 之间<strong>没有</strong>连接；</p>
+        <p>a_ij = 1  →  确认存在连接（不管强弱）；</p>
+        <p>一旦某连接被确认，该格子再附加：强度、方向、正负号（兴奋/抑制）、传导延迟、密度、电压依赖性……</p>
+      </blockquote>
+      <p>这样，"二值的拓扑骨架"（谁连谁）和"连接各自的生理参数"（连得怎样）就被装进同一个对象里。作者特意区分两种"0"——<strong>"确认没连"（真 0）</strong>和<strong>"还没测"（缺失）</strong>是两回事，这个区分在后来的连接组学里非常重要：早期连接组里大量的空白其实是"未知"，而非"无连接"。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：矩阵到底多大？</span>
+        <p>如果以单个神经元为元件，N ≈ 10<sup>11</sup>（一千亿），矩阵格子数是 N 的平方，约 10<sup>22</sup> 量级，要记录的连接约 10<sup>15</sup>（一千万亿条突触）。作者点出：这比整个人类基因组（3×10<sup>9</sup> 个碱基对、约 2–3 万个基因）还要大<strong>好几个数量级</strong>。基因组都已经测完了，但神经元级的连接组在"近期内仍不现实、且将一直不可行"。</p>
+      </div>
+      <p>这一段的潜台词是：连接组不是"测不测得起"的钱包问题，而是<strong>"该选哪一档分辨率才既有意义又做得出来"</strong>的策略问题。这就引出第二个主张。</p>
+
+      <div class="section-head" id="sec-scale">核心主张二：选对"放大倍数"——为什么第一版从宏观切入</div>
+      <p>作者把大脑结构描述摊成三档放大倍数，并逐一掂量可行性。这是全文最关键的工程判断。</p>
+
+      <div class="section-head-sub">微观：单神经元与突触——放弃</div>
+      <p>诱人之处在于：神经元这种"元件"边界清楚、定义明确，不像脑区那样难划。但作者列出三条致命伤，主张它<strong>不适合做第一版连接组的元件</strong>：</p>
+      <ul>
+        <li><strong>数量爆炸</strong>：约 10<sup>11</sup> 个神经元、10<sup>15</sup> 条连接，记录工程量天文级。</li>
+        <li><strong>个体差异极大</strong>：单个突触或细胞层面的差异，并没有证据显示会带来稳定可比的宏观后果——而基因组里"单个碱基突变"却可能后果剧烈。换句话说，神经元级的连接<strong>太"私人化"</strong>，难以谈"人类的连接组"。</li>
+        <li><strong>变得太快</strong>：突触权重和结构都在快速可塑地重塑——树突棘和突触前终扣不断长出、缩回，潜在突触位点甚至会被"切换"。今天测的图，明天就变了。</li>
+      </ul>
+      <p>作者的判断是：人类认知依赖的是"<strong>分布式网络里大群神经元的协同活动</strong>"（尤其是皮层–丘脑系统），而不是单个突触的精确身份。所以把第一版押在单神经元上，性价比极低。</p>
+
+      <div class="section-head-sub">宏观：脑区与纤维束——主攻方向</div>
+      <p>这是作者推荐的第一版落点。元件＝解剖上可区分的脑区，连接＝区间的大纤维束。证据是：猕猴（macaque）、猫、大鼠的大尺度连接数据库<strong>已经存在</strong>，对它们做网络分析也<strong>已经发现了丰富结构</strong>（详见下一节）。可行的技术路线是把<span class="term">弥散加权成像</span>（即 DTI 及其变体）+ 纤维追踪 + 功能成像组合起来，在<strong>同一个被试身上</strong>同时拿到结构与功能数据。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：宏观第一版的体量</span>
+        <p>作者给出一个具体设想：以体素（voxel）为基本单位、嵌入标准坐标系的"全脑逐体素概率连接图"，大约包含 <strong>10<sup>4</sup>–10<sup>5</sup> 个元件</strong>、<strong>10<sup>5</sup>–10<sup>7</sup> 条结构连接</strong>。比起神经元级的 10<sup>15</sup>，整整小了八到十个数量级——这才是"做得出来"的体量。先做皮层–丘脑系统，再扩展到纹状体、小脑等。</p>
+      </div>
+      <p>宏观路线的<strong>头号障碍是脑区划分</strong>：皮层是连成一片的，到底切成几块、怎么切，没有公认方案，作者估计皮层"约 100 块或更多"。脑干、丘脑、皮层各自可能需要不同的划分标准。这个"节点都没数清"的问题，本文没解决，只是指出可以用"连接模式本身"来界定边界——同一脑区内部的细胞共享高度相似的远程连接指纹，不同脑区之间则不同。</p>
+
+      <div class="section-head-sub">介观：微柱——折中的"中间层"</div>
+      <p>宏观图虽可行，但它把每个脑区当成一个不可分的黑箱，<strong>看不到脑区内部的功能子回路</strong>。要理解信息处理，还得往下钻一层到 <span class="term">皮层微柱</span>（Mountcastle 的概念）：每根微柱约 80–100 个神经元、直径 30–50 微米、贯穿皮层各层，内部处理相对刻板、对外保持通用的输入输出模式。近年研究还发现单根柱内存在"精确布线的功能子网络"。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：介观版有多大？</span>
+        <p>把微柱当元件，作者估计介观连接矩阵可能有 <strong>10<sup>7</sup>–10<sup>8</sup> 个结构元件</strong>——作者打了个生动的比方：这个规模"<strong>与 2005 年的万维网相当</strong>"。每个微柱元件还要能直接对应回宏观图里的体素，从而把"局部精细布线"与"全局空间位置"两套信息缝合起来。</p>
+      </div>
+      <p>三档的关系可以这样记：<strong>宏观图给出"哪块连哪块 + 空间位置"，介观图补上"每块内部怎么精细布线"，二者交叉引用，拼成一个跨尺度的连接组。</strong>微观图则留给遥远的未来。</p>
+
+      <div class="section-head" id="sec-network">核心主张三：连接组不是死表，而是一张可被网络科学解剖的"活地图"</div>
+      <p>这是本文最有前瞻性、也最影响后世的部分。作者强调：连接组一旦建好，它就是一个<strong>数学对象——图（graph）</strong>，可以用网络科学的整套工具去拆解。他们援引对猕猴、猫、大鼠已有连接数据的分析，列出已经被挖出来的网络特征：</p>
+      <ul>
+        <li><strong>脑区聚成簇（clusters）</strong>——节点自发抱团成模块；</li>
+        <li><strong>层级组织（hierarchical organization）</strong>——模块里还套着子模块；</li>
+        <li><strong>小世界属性（small-world attributes）</strong>——局部密集 + 少量远程捷径；</li>
+        <li><strong>独立的功能流（distinct functional streams）</strong>——如视觉的腹侧/背侧通路；</li>
+        <li><strong>网络基序（motifs）</strong>——反复出现的几节点小连接模式，像电路里的标准件；</li>
+        <li><strong>各脑区对全局指标的不同贡献</strong>——有的脑区是枢纽，牵一发动全身。</li>
+      </ul>
+      <p>这背后是作者贯穿全文的两大组织原则：<span class="term">功能分离（functional segregation）</span>——大脑把不同任务分给专门的模块；与 <span class="term">功能整合（functional integration）</span>——这些模块又能灵活协同。新兴的认知理论进一步强调认知是<strong>情境性的、分布式的、动态的、且具简并性的</strong>。连接组正是用来量化"分离"与"整合"如何在同一张图上共存的底座。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么这一节是"种子"</span>
+        <p>把大脑当网络来量化，在 2005 年还是新鲜事。本文把这些零散发现汇成纲领后，"脑网络（brain network）/连接组学（connectomics）"才真正成为一个子领域。后来功能磁共振成像（fMRI，functional Magnetic Resonance Imaging）静息态、图论分析、富人俱乐部枢纽、网络精神病学……都可以看作在执行这一节埋下的研究议程。下面这个交互组件，就是想让你亲手"摸"一下这些抽象的网络属性。</p>
+      </div>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-viz">交互：玩转一张脑网络</div>
+      <p>论文用文字描述了"枢纽、度分布、模块、小世界"等概念，但这些东西<strong>必须看见才有感觉</strong>。下面这张图是一个示意性的脑网络：节点是脑区，边是它们之间的连接。你可以切换不同的着色/布局方式，把同一张网络的不同"性格"逼出来——把鼠标悬在任意节点上，能看到它的"度"（人脉数）。</p>
+      <div class="viz-box">
+        <div class="viz-title">脑网络解剖台：节点 · 边 · 枢纽 · 模块 · 度分布</div>
+        <div class="viz-note">示意网络（48 个节点 / 6 个模块），结构按论文描述的"模块化 + 小世界 + 枢纽"定性生成，非真实连接组数据，仅用于建立网络属性的直觉。</div>
+
+        <div class="viz-controls">
+          <button id="btnModule" class="">① 按模块着色</button>
+          <button id="btnHub" class="alt">② 高亮枢纽节点</button>
+          <button id="btnDegMap" class="alt">③ 度→冷暖色</button>
+          <label style="margin-left:6px;">连接阈值
+            <input type="range" id="thr" min="0" max="100" value="0" style="vertical-align:middle;width:120px;">
+            <span id="thrVal">显示全部边</span>
+          </label>
+        </div>
+
+        <canvas id="netCanvas" width="640" height="380"></canvas>
+
+        <div class="viz-legend" id="legend"></div>
+
+        <div class="viz-stat-row">
+          <div class="viz-stat"><div class="vs-num" id="stN">—</div><div class="vs-lab">节点数（脑区）</div></div>
+          <div class="viz-stat"><div class="vs-num" id="stE">—</div><div class="vs-lab">当前可见边数</div></div>
+          <div class="viz-stat"><div class="vs-num" id="stK">—</div><div class="vs-lab">平均度（人均人脉）</div></div>
+          <div class="viz-stat"><div class="vs-num" id="stHub">—</div><div class="vs-lab">枢纽节点（度≥前 10%）</div></div>
+        </div>
+
+        <canvas id="histCanvas" width="640" height="150" style="margin-top:14px;"></canvas>
+        <div class="viz-readout" id="readout">把鼠标悬停在节点上查看它的"度"。拖动上方滑块可逐步删掉最弱的连接，观察网络如何"碎裂"——枢纽通常是最后才被孤立的。</div>
+      </div>
+
+      <div class="section-head" id="sec-variability">核心主张四：个体差异不是绊脚石，而是要专门测的一层</div>
+      <p>一个显而易见的质疑是：每个人的大脑都不一样，画一张"人脑连接组"有意义吗？作者用基因组类比正面回应，分两层来说。</p>
+      <p>第一层，<strong>突触以上的大尺度连接结构，是相当稳定的物种特征</strong>。作者甚至说，一旦把一个人的连接组记录下来，它"本质上会永远保持稳定"（相对而言）——就像基因组虽因人而异，但人类基因组的基本组织是共通的。所以"先用少数人做出一版草稿"是完全成立的，正如人类基因组第一版也只来自少数几个人的脱氧核糖核酸（DNA，Deoxyribonucleic Acid），照样极大推进了对基因组通则的理解。</p>
+      <p>第二层，作者<strong>不回避个体差异之大</strong>，并举了具体证据：</p>
+      <ul>
+        <li><strong>Broca 区</strong>：十例尸检脑的解剖研究显示，其大小及与脑沟标志的关系存在显著个体差异；</li>
+        <li><strong>颞平面（planum temporale）</strong>：用结构磁共振测 50 个个体，其大小和位置差异显著；</li>
+        <li><strong>视觉区 MT/V5</strong>：功能成像显示其位置和范围在个体间显著不同。</li>
+      </ul>
+      <p>作者的结论很关键：个体差异<strong>不是对"连接组"这个目标的否定，而是连接组应当系统刻画的一个维度</strong>。第一版可以先不管差异、给出通则，之后再加一层"个体变异图"。这正是后来"个体化连接组""连接组指纹"研究的思想源头。</p>
+      <div class="info-block">
+        <span class="ib-title">一个隐含的张力</span>
+        <p>作者承认：连接组数据"<strong>本质上是概率性的</strong>"——尤其是 DTI 推断出来的连接，本来就带不确定性。有人会说这是该提案的根本弱点。但作者反驳：基因组也是从概率/统计意义上的"参考序列"起步的，这不妨碍它有用。这场关于"概率性连接是否算数"的争论，本文里只是埋了个伏笔，真正解决要等更好的解剖–弥散–功能成像交叉验证。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处：一套可执行的"五步走"（+ 三步验证）</div>
+      <p>本文不只喊口号，还给出了一份具体到可以照着干的<strong>八步施工图</strong>，全部围绕宏观尺度展开。这是它区别于一般"展望文章"的硬核之处——把宏大愿景拆成了可立项的工序。</p>
+      <table>
+        <thead>
+          <tr><th>步骤</th><th>做什么</th><th>产出 / 用意</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>第 1 步</td><td>做弥散加权成像 + 概率纤维追踪（丘脑–皮层束 & 皮层间束），并用连接指纹辅助划分脑区</td><td>一张逐体素的"全对全"<strong>结构</strong>连接矩阵</td></tr>
+          <tr><td>第 2 步</td><td>对同一人的静息态/多任务激活数据（fMRI 和/或脑磁图 MEG，Magnetoencephalography）做相关分析，强调跨任务一致的强功能联系</td><td>一张逐体素的"全对全"<strong>功能</strong>连接矩阵</td></tr>
+          <tr><td>第 3 步</td><td>对第 1、2 步矩阵的对应关系做聚类分析</td><td>找出结构–功能一致的脑区（可能含间接通路）</td></tr>
+          <tr><td>第 4 步</td><td>把聚类结果与<strong>猕猴</strong>数据对照</td><td>找出对应（如视觉运动通路）与偏差（如弓状束 fasciculus arcuatus）</td></tr>
+          <tr><td>第 5 步</td><td>用定制刺激 + <strong>经颅磁刺激（TMS，Transcranial Magnetic Stimulation）</strong>等扰动手段验证最强的预测</td><td>把"结构–功能"关系从相关推向<strong>因果</strong>验证</td></tr>
+          <tr><td>第 6 步</td><td>对健康人群做群体分析、空间配准到标准坐标</td><td>对第 1–5 步结果做概率化的群体陈述</td></tr>
+          <tr><td>第 7 步</td><td>把群体聚类脑区与组织学已界定区域、概率脑图谱对照</td><td>评估一致性，做交叉验证</td></tr>
+          <tr><td>第 8 步</td><td>对比健康人群与特定病症患者群</td><td>定位"连接差异"，把疾病当作连接组的特定变体</td></tr>
+        </tbody>
+      </table>
+      <p>这套设计有三处精妙：</p>
+      <ul>
+        <li><strong>结构与功能在同一个人身上测</strong>（第 1–2 步），避免了拿张三的结构去配李四的功能这种张冠李戴——这是当时多数研究的通病。</li>
+        <li><strong>用跨物种数据当"地面真值"</strong>（第 4 步）：猕猴有侵入式示踪得到的可靠连接矩阵，可用来校准无创人脑成像这种"间接证据"。</li>
+        <li><strong>用扰动把相关变因果</strong>（第 5 步）：单凭成像只能说"结构和功能相关"，加上 TMS 这种"敲一下看哪里塌"的因果探针，才能验证"是这条连接在起作用"。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">解读者观点</span>
+        <p>这张"八步图"在 2005 年更像一份<strong>愿望路线图</strong>而非已验证流程——其中多数步骤（尤其全脑逐体素结构–功能交叉聚类 + TMS 系统验证）当时根本没人完整做过。它的价值不在"已被证明可行"，而在<strong>把一个模糊愿景翻译成了具体、可批评、可立项的工序</strong>，让后来者有靶子可打。这是好的纲领性论文的标志。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>把本文放回 2005 年的坐标系，它的位置很清晰：</p>
+      <ul>
+        <li><strong>站在动物连接组学的肩膀上</strong>。猕猴（如 Felleman & Van Essen 的视觉皮层层级）、猫、大鼠的大尺度连接数据库及其网络分析（聚类、层级、小世界、基序）已经存在；本文把"对动物管用的网络方法"投射到人脑这个尚属空白的目标上。</li>
+        <li><strong>呼应'功能分离 vs 功能整合'的理论传统</strong>。作者之一 Tononi 与 Edelman 长期主张：认知既要分工又要整合，这正是连接组要量化的核心张力。本文是这一理论关切的"结构化身"。</li>
+        <li><strong>把基因组学当方法论范本</strong>。"统一格式 + 公开数据库 + 先做少数人的草稿 + 之后补个体差异层"——这整套打法几乎是照搬人类基因组计划的成功经验。这个类比既是修辞，也是战略。</li>
+        <li><strong>正面回应'神经解剖学的落后'</strong>。作者引用 Crick & Jones（1993）"神经解剖学的落后（the backwardness of human neuroanatomy）"之叹——人脑的精细连接数据严重匮乏。本文等于给这个老问题开了一张系统性的"药方"。</li>
+        <li><strong>顺势而生于神经信息学（neuroinformatics）的兴起</strong>。作者 Kötter 本人深耕脑连接数据库（如 CoCoMac）。本文把"数据库 + 标准化"的信息学诉求，提升成了一个有名字、有纲领的大科学目标。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇论文的影响远超神经科学本身：</p>
+      <ul>
+        <li><strong>对认知科学</strong>：它把"认知如何从结构涌现"这个老问题，落到了一个可计算的底座上——结构连接对动力学施加约束，从而塑造认知的运作。这为"用网络解释心智"提供了切实抓手。</li>
+        <li><strong>对计算神经科学与建模</strong>：连接组可作为大尺度脑模型的<strong>结构输入</strong>和共同基准，让原本各说各话的模型有了可比较、可整合的"标准接线"。后来的全脑动力学仿真（如把连接组喂给神经场模型）正是这条路。</li>
+        <li><strong>对临床医学</strong>：作者明确预言，发育异常、脑外伤、神经退行性病都可视为"连接组的特定变体"。理解疾病的网络成因，可能开出靠"激发大脑自身的鲁棒性与代偿机制"来治疗/预防的新路——这正是今天"网络精神病学/连接组病变学"的雏形。</li>
+        <li><strong>对大科学的组织方式</strong>：本文实质上是在论证神经科学也需要一个"基因组计划式"的协作范式——大规模协作、协调采集、统一标准、受控验证与质控。几年后真正立项的"人脑连接组计划（HCP）"就是这一倡议的兑现。</li>
+        <li><strong>对一般复杂系统科学</strong>：作者把基因网络、连接网络并列为"功能尚未被完全理解的复杂网络"，提示一个更普适的教训——<strong>把元件清单测全，并不等于就懂了系统</strong>。这对任何"组学"都是清醒剂。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>本文最诚实之处，是作者自己列出了连接组<strong>不包含</strong>什么；但有些更深的局限，作者点到为止或没明说，这里一并指出。</p>
+      <p><strong>作者自己承认的（显式局限）：</strong></p>
+      <ul>
+        <li>第一版连接组<strong>不刻画</strong>：神经元形态的丰富多样性、各类神经元亚型、胶质细胞（glial cells）、脑血管系统；也不含突触可塑性与重塑、非突触通信、神经调质调节、退行性过程。作者把这些定性为"开放、待补"，而非"致命缺陷"。</li>
+        <li><strong>结构 ≠ 功能</strong>：作者坦言"结构–功能关系并不能从连接数据本身直接读出"，必须靠大量后续实验与计算。同一张接线图，在不同输入/状态/学习下能跑出大相径庭的认知（简并性）。这是整篇提案最大的认识论缺口。</li>
+        <li><strong>脑区划分悬而未决</strong>：节点怎么定都没共识，连接组的"节点定义"本身就是变量，不同划分会得到不同的网络——这会动摇结论的稳健性。</li>
+        <li><strong>连接的概率性</strong>：DTI 反推的连接天生不确定，且与真实纤维束、神经连接的关系"仍有争议"，需靠组织学/示踪法交叉验证。</li>
+      </ul>
+      <p><strong>作者没明说、但读者应警惕的（隐式局限）：</strong></p>
+      <ul>
+        <li><strong>DTI 的方向盲点</strong>：弥散成像基本给出的是<strong>无方向</strong>的连接（A 连 B，但不知是 A→B 还是 B→A），而真实大脑的连接是有方向的。把无向的体素连接升级成有向的功能连接，作者承认是"关键任务"，但在 2005 年并无成熟解法——这意味着第一版连接组在"方向"这个核心属性上很可能是残缺的。</li>
+        <li><strong>"先做草稿、个体差异后补"的赌注</strong>：这套打法假定"大尺度结构是稳定物种特征"，但作者自己列的 Broca 区、颞平面、MT/V5 的巨大个体差异，恰恰说明在中等尺度上"通则"可能比预期更脆弱。基因组类比是否真能成立，本文是<strong>诉诸信念</strong>而非证明。</li>
+        <li><strong>跨尺度缝合的可行性未验证</strong>：把宏观体素图与介观微柱图"交叉引用"拼成一张跨尺度连接组，听上去优雅，但当时连介观尺度的全脑测量都做不到，这层缝合在本文里纯属设想。</li>
+        <li><strong>"测全就懂了"的隐患</strong>：连接组给的是<strong>静态的、时间不变的</strong>结构快照，而大脑是高度动态、可塑、受神经调质实时调控的系统。一张再完整的接线图，也未必能预测系统的实时行为——这正是作者用基因组类比时不愿多谈的那一面（基因组测完，生命也远未被读懂）。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都尽量落到文中证据上。</p>
+      <p><strong>它是一篇"框架性论文"，价值在概念而非数据。</strong>全文没有任何原创实验或新数据（本文性质是 Review/提案），所以不能用"结论是否被验证"来评判它。它的贡献是<strong>提供了一个词、一个对象、一份施工图</strong>——把散落的直觉收束成一个有名字、可协作、可批评的研究纲领。从这个标准看，它极为成功：connectome 一词已成基础词汇。【依据：全文为纲领性论述 + 八步策略，无 Results 章节】</p>
+      <p><strong>它的工程判断经受住了时间检验。</strong>"放弃神经元级、第一版押宏观、用 DTI+功能成像+猕猴校准"这套取舍，被后来真实立项的人脑连接组计划大体采纳。作者对量级的估算（宏观 10<sup>4</sup>–10<sup>5</sup> 元件 vs 微观 10<sup>15</sup> 连接）清楚地解释了"为什么必须先做宏观"，这个性价比论证至今站得住。【依据：第 1–5 步策略 + 三档尺度的体量对比】</p>
+      <p><strong>它最大的诚实，也是它最大的软肋：结构推不出功能。</strong>作者反复声明"结构–功能关系无法从连接数据直接得出"，并用简并性解释为何如此。这等于自己承认：哪怕连接组完美建成，离"理解大脑如何工作"仍有一道很宽的鸿沟。把这道鸿沟讲清楚是诚实，但也暴露了"造一张图就能懂大脑"这一期待的天真——而论文的修辞（基因组类比）有时在淡化这一点。【依据：Conclusions 段明言 structure–function 不直接可读 + 简并性论述】</p>
+      <p><strong>基因组类比是双刃剑。</strong>它一方面给了纲领强大的说服力和战略蓝本（标准化、公开、先草稿后补差异）；另一方面也埋了暗坑——基因组测完，生命科学并未"完结"，同理连接组测完，认知之谜也不会自动解开。作者用类比来论证"个体差异可后补""概率数据仍有用"是有力的，但用它来暗示"测全＝读懂"则是过度承诺。【依据：全文反复以 genome 类比论证可行性，而 Conclusions 又自承结构≠功能】</p>
+      <p>综合：<strong>这是系统神经科学过去二十年最有影响力的纲领性论文之一</strong>，作为"立项书"几乎无可挑剔；但读者要清醒——它许诺的是一张<strong>地图</strong>，不是对<strong>领土如何运作</strong>的解释。地图极其重要，但读地图的人不该把它当成已经走通的路。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>这篇论文造了 <span class="term">connectome（连接组）</span> 这个词，主张像测序基因组那样、用 DTI + 功能成像 + 猕猴校准，<strong>先在宏观尺度（约 10<sup>4</sup>–10<sup>5</sup> 个元件、远小于神经元级的 10<sup>15</sup> 条连接）画出人脑的全套接线图</strong>，并把它当成一张可用网络科学解剖（小世界、枢纽、模块）的活地图；它给后世留下了一份野心勃勃、可执行的八步施工图，但也坦诚地留下一道未填的鸿沟——<strong>有了接线图，未必就懂了大脑如何思考</strong>。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Sporns O, Tononi G, Kötter R (2005). The Human Connectome: A Structural Description of the Human Brain. <em>PLoS Computational Biology</em>, 1(4), e42. DOI: 10.1371/journal.pcbi.0010042.
+    <br><strong>说明：</strong>本文为深度解读，非原论文。文中"交互：玩转脑网络"组件使用的是按论文定性描述生成的<strong>示意网络</strong>（48 节点 / 6 模块），并非真实连接组数据，仅用于建立网络属性直觉。带"解读者观点"标注处为本文作者评价。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+/* ============================================================
+   交互：脑网络解剖台（纯 Canvas / JS，无外部依赖）
+   生成一个 48 节点 / 6 模块的示意脑网络，定性体现：
+   模块化 + 小世界（局部密 + 少量远程捷径）+ 枢纽（少数高度节点）
+   功能：①按模块着色 ②高亮枢纽 ③度→冷暖色 + 连接阈值滑块 + 度分布直方图 + 悬停读出
+   ============================================================ */
+(function(){
+  var RED = '#c0392b';
+  var canvas = document.getElementById('netCanvas');
+  var ctx = canvas.getContext('2d');
+  var hist = document.getElementById('histCanvas');
+  var hctx = hist.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 6 个模块的代表色（与红色主题协调的低饱和配色）
+  var MOD_COLORS = ['#c0392b','#2c7fb8','#31a354','#d9822b','#756bb1','#e377c2'];
+  var MOD_NAMES  = ['视觉','听觉/语言','运动','体感','前额叶','边缘/丘脑'];
+
+  // ---- 用确定性伪随机，保证每次加载布局一致 ----
+  var seed = 1234567;
+  function rnd(){ seed = (seed*1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+
+  var NMOD = 6, PER = 8, N = NMOD*PER; // 48 节点
+  var nodes = [];
+  // 6 个模块中心，沿一个椭圆排布，营造"脑轮廓"感
+  var modCenters = [];
+  for(var m=0;m<NMOD;m++){
+    var a = -Math.PI/2 + m*(2*Math.PI/NMOD);
+    modCenters.push({x: W/2 + Math.cos(a)*W*0.30, y: H/2 + Math.sin(a)*H*0.30});
+  }
+  for(var m=0;m<NMOD;m++){
+    for(var k=0;k<PER;k++){
+      var c = modCenters[m];
+      var ang = rnd()*Math.PI*2, r = 18 + rnd()*46;
+      nodes.push({
+        id: nodes.length, mod: m,
+        x: c.x + Math.cos(ang)*r, y: c.y + Math.sin(ang)*r,
+        deg: 0
+      });
+    }
+  }
+
+  // ---- 生成边：模块内密集（局部） + 少量跨模块远程捷径（小世界） ----
+  var edges = [];
+  function addEdge(i,j,w){ if(i===j) return; edges.push({a:i,b:j,w:w}); }
+  // 模块内连接
+  for(var m=0;m<NMOD;m++){
+    for(var i=0;i<PER;i++){
+      for(var j=i+1;j<PER;j++){
+        if(rnd()<0.55){ // 模块内高密度
+          addEdge(m*PER+i, m*PER+j, 0.5 + rnd()*0.5);
+        }
+      }
+    }
+  }
+  // 跨模块远程捷径（少而强，制造小世界 + 枢纽）
+  // 指定每个模块里第 0 号为"枢纽候选"，让它们多接远程边
+  for(var m=0;m<NMOD;m++){
+    var hub = m*PER + 0;
+    var targets = 2 + Math.floor(rnd()*2);
+    for(var t=0;t<targets;t++){
+      var m2 = Math.floor(rnd()*NMOD);
+      if(m2===m) m2=(m2+1)%NMOD;
+      var other = m2*PER + Math.floor(rnd()*PER);
+      addEdge(hub, other, 0.4 + rnd()*0.6);
+    }
+  }
+  // 再撒几条普通跨模块边
+  for(var e=0;e<10;e++){
+    var i = Math.floor(rnd()*N), j = Math.floor(rnd()*N);
+    if(nodes[i].mod!==nodes[j].mod) addEdge(i,j,0.3 + rnd()*0.4);
+  }
+
+  // ---- 计算度 ----
+  function computeDeg(){
+    for(var n=0;n<N;n++) nodes[n].deg = 0;
+    edges.forEach(function(ed){ nodes[ed.a].deg++; nodes[ed.b].deg++; });
+  }
+  computeDeg();
+  var maxDeg = Math.max.apply(null, nodes.map(function(n){return n.deg;}));
+  var degs = nodes.map(function(n){return n.deg;}).slice().sort(function(a,b){return b-a;});
+  var hubThreshold = degs[Math.max(0,Math.floor(N*0.10)-1)]; // 前10%的度阈值
+
+  // ---- 状态 ----
+  var mode = 'module';     // module | hub | degmap
+  var threshold = 0;       // 0..1 边权阈值
+  var hoverNode = -1;
+
+  // ---- 工具：度 → 冷暖色 ----
+  function degColor(d){
+    var t = maxDeg? d/maxDeg : 0;       // 0..1
+    // 蓝(低) → 黄 → 红(高)
+    var r,g,b;
+    if(t<0.5){ var u=t/0.5; r=Math.round(43+u*(247-43)); g=Math.round(131+u*(214-131)); b=Math.round(186+u*(50-186)); }
+    else{ var u=(t-0.5)/0.5; r=Math.round(247+u*(192-247)); g=Math.round(214+u*(57-214)); b=Math.round(50+u*(43-50)); }
+    return 'rgb('+r+','+g+','+b+')';
+  }
+
+  function nodeColor(n){
+    if(mode==='module') return MOD_COLORS[n.mod];
+    if(mode==='degmap') return degColor(n.deg);
+    if(mode==='hub') return (n.deg>=hubThreshold)? RED : '#c9ccd1';
+    return RED;
+  }
+  function nodeRadius(n){
+    return 4 + (maxDeg? (n.deg/maxDeg) : 0)*7; // 度越大，点越大
+  }
+
+  function visibleEdges(){
+    return edges.filter(function(ed){ return ed.w >= threshold; });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    var ve = visibleEdges();
+
+    // 边
+    ctx.lineWidth = 1;
+    ve.forEach(function(ed){
+      var na=nodes[ed.a], nb=nodes[ed.b];
+      var cross = na.mod!==nb.mod;
+      var isHover = (hoverNode>=0 && (ed.a===hoverNode||ed.b===hoverNode));
+      if(isHover){ ctx.strokeStyle='rgba(192,57,43,0.9)'; ctx.lineWidth=2; }
+      else if(mode==='hub' && cross){ ctx.strokeStyle='rgba(192,57,43,0.28)'; ctx.lineWidth=1.4; }
+      else if(cross){ ctx.strokeStyle='rgba(120,120,130,0.30)'; ctx.lineWidth=1; }
+      else{ ctx.strokeStyle='rgba(120,120,130,0.16)'; ctx.lineWidth=1; }
+      ctx.beginPath(); ctx.moveTo(na.x,na.y); ctx.lineTo(nb.x,nb.y); ctx.stroke();
+    });
+
+    // 节点
+    nodes.forEach(function(n){
+      var r = nodeRadius(n);
+      ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2);
+      ctx.fillStyle = nodeColor(n);
+      ctx.globalAlpha = (hoverNode>=0 && hoverNode!==n.id && !isNeighbor(hoverNode,n.id))? 0.30 : 1;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      if(n.id===hoverNode){ ctx.lineWidth=2; ctx.strokeStyle='#1f2328'; ctx.stroke(); }
+    });
+  }
+
+  function isNeighbor(a,b){
+    for(var i=0;i<edges.length;i++){
+      var ed=edges[i];
+      if((ed.a===a&&ed.b===b)||(ed.a===b&&ed.b===a)) return true;
+    }
+    return false;
+  }
+
+  // ---- 度分布直方图 ----
+  function drawHist(){
+    var HW=hist.width, HH=hist.height;
+    hctx.clearRect(0,0,HW,HH);
+    // 统计可见度（按阈值后的度）
+    var vis = visibleEdges();
+    var d = new Array(N).fill(0);
+    vis.forEach(function(ed){ d[ed.a]++; d[ed.b]++; });
+    var mx = Math.max(1, Math.max.apply(null,d));
+    // 直方分箱
+    var bins = mx+1, counts=new Array(bins).fill(0);
+    d.forEach(function(v){ counts[v]++; });
+    var maxCount = Math.max.apply(null,counts);
+    var padL=34, padB=22, padT=14, padR=10;
+    var plotW=HW-padL-padR, plotH=HH-padB-padT;
+    // 轴
+    hctx.strokeStyle='#d5d8dc'; hctx.lineWidth=1;
+    hctx.beginPath(); hctx.moveTo(padL,padT); hctx.lineTo(padL,padT+plotH); hctx.lineTo(padL+plotW,padT+plotH); hctx.stroke();
+    // 柱
+    var bw = plotW/bins;
+    for(var i=0;i<bins;i++){
+      var h = maxCount? (counts[i]/maxCount)*plotH : 0;
+      hctx.fillStyle = degColor(i);
+      hctx.fillRect(padL + i*bw + 1, padT+plotH - h, Math.max(1,bw-2), h);
+    }
+    // 标签
+    hctx.fillStyle='#6b7280'; hctx.font='11px -apple-system,sans-serif';
+    hctx.fillText('节点数', 2, padT+8);
+    hctx.fillText('度（连接数）→', padL+plotW-86, HH-6);
+    hctx.fillText('0', padL-10, padT+plotH+4);
+    hctx.fillText(String(mx), padL+plotW-6, padT+plotH+14);
+    // 标注长尾说明
+    hctx.fillStyle=RED; hctx.font='bold 11px -apple-system,sans-serif';
+    hctx.fillText('← 多数节点度低', padL+4, padT+10);
+    hctx.fillText('少数枢纽度高 →', padL+plotW-118, padT+24);
+  }
+
+  // ---- 统计面板 ----
+  function updateStats(){
+    var ve = visibleEdges();
+    document.getElementById('stN').textContent = N;
+    document.getElementById('stE').textContent = ve.length;
+    var d=new Array(N).fill(0); ve.forEach(function(ed){d[ed.a]++;d[ed.b]++;});
+    var avg = d.reduce(function(a,b){return a+b;},0)/N;
+    document.getElementById('stK').textContent = avg.toFixed(1);
+    var hubCount = nodes.filter(function(n){return n.deg>=hubThreshold;}).length;
+    document.getElementById('stHub').textContent = hubCount;
+  }
+
+  // ---- 图例 ----
+  function renderLegend(){
+    var el = document.getElementById('legend');
+    var html='';
+    if(mode==='module'){
+      for(var m=0;m<NMOD;m++){
+        html += '<span class="lg"><span class="sw" style="background:'+MOD_COLORS[m]+'"></span>'+MOD_NAMES[m]+'</span>';
+      }
+    } else if(mode==='hub'){
+      html = '<span class="lg"><span class="sw" style="background:'+RED+'"></span>枢纽节点（度≥前10%，'+hubThreshold+'）</span>'
+           + '<span class="lg"><span class="sw" style="background:#c9ccd1"></span>普通节点</span>'
+           + '<span class="lg" style="color:#6b7280;">点的大小 = 度的高低</span>';
+    } else {
+      html = '<span class="lg"><span class="sw" style="background:rgb(43,131,186)"></span>低度（冷）</span>'
+           + '<span class="lg"><span class="sw" style="background:rgb(247,214,50)"></span>中等</span>'
+           + '<span class="lg"><span class="sw" style="background:rgb(192,57,43)"></span>高度（暖，枢纽）</span>';
+    }
+    el.innerHTML = html;
+  }
+
+  function refresh(){ draw(); drawHist(); updateStats(); renderLegend(); }
+
+  // ---- 按钮 ----
+  var btns = {
+    module: document.getElementById('btnModule'),
+    hub: document.getElementById('btnHub'),
+    degmap: document.getElementById('btnDegMap')
+  };
+  function setMode(m){
+    mode = m;
+    for(var k in btns){ btns[k].className = (k===m)? '' : 'alt'; }
+    var msg = {
+      module:'<strong>模块视图</strong>：节点按所属功能模块着色。注意——同色节点彼此连得密（模块内），跨色的连线稀疏但存在，这正是论文说的"功能分离 + 功能整合"。',
+      hub:'<strong>枢纽视图</strong>：红色＝度处于前 10% 的枢纽节点（它们承担了大量跨模块的远程连接）。点越大度越高。少数枢纽像机场网里的大枢纽，关键且脆弱。',
+      degmap:'<strong>度→冷暖色</strong>：蓝（低度）→ 黄 → 红（高度）。配合下方直方图看，你会发现"多数节点度低、少数节点度奇高"的长尾——这是真实脑网络的典型特征。'
+    };
+    document.getElementById('readout').innerHTML = msg[m];
+    refresh();
+  }
+  btns.module.addEventListener('click', function(){ setMode('module'); });
+  btns.hub.addEventListener('click', function(){ setMode('hub'); });
+  btns.degmap.addEventListener('click', function(){ setMode('degmap'); });
+
+  // ---- 阈值滑块 ----
+  var thr = document.getElementById('thr');
+  var thrVal = document.getElementById('thrVal');
+  thr.addEventListener('input', function(){
+    threshold = (+thr.value)/100;
+    thrVal.textContent = (threshold<=0)? '显示全部边' : ('只保留权重 ≥ '+threshold.toFixed(2)+' 的连接');
+    refresh();
+    if(threshold>0){
+      var ve = visibleEdges();
+      document.getElementById('readout').innerHTML =
+        '正在删掉较弱的连接：当前可见 <strong>'+ve.length+'</strong> 条边。'
+        + '随着阈值升高，普通节点先被孤立，<strong>枢纽节点往往最后才掉队</strong>——这说明网络的连通性高度依赖少数枢纽。';
+    }
+  });
+
+  // ---- 悬停 ----
+  function pick(mx,my){
+    var best=-1, bestD=1e9;
+    for(var n=0;n<N;n++){
+      var dx=nodes[n].x-mx, dy=nodes[n].y-my, dd=dx*dx+dy*dy;
+      var r=nodeRadius(nodes[n])+3;
+      if(dd<r*r && dd<bestD){ bestD=dd; best=n; }
+    }
+    return best;
+  }
+  canvas.addEventListener('mousemove', function(ev){
+    var rect = canvas.getBoundingClientRect();
+    var sx = canvas.width/rect.width, sy = canvas.height/rect.height;
+    var mx=(ev.clientX-rect.left)*sx, my=(ev.clientY-rect.top)*sy;
+    var p = pick(mx,my);
+    if(p!==hoverNode){
+      hoverNode = p; draw();
+      if(p>=0){
+        var n=nodes[p];
+        var isHub = n.deg>=hubThreshold;
+        document.getElementById('readout').innerHTML =
+          '节点 #'+p+'（模块：<strong>'+MOD_NAMES[n.mod]+'</strong>）的度 = <strong>'+n.deg+'</strong>'
+          + (isHub? '，它是一个<strong>枢纽</strong>（度排进前 10%）。注意它伸出的红色长程连线——枢纽就是这样把不同模块缝在一起的。'
+                  : '，属于普通节点（度低于枢纽阈值 '+hubThreshold+'）。它的连接主要落在自己所属的模块内部。');
+      }
+    }
+  });
+  canvas.addEventListener('mouseleave', function(){ hoverNode=-1; draw(); });
+
+  // ---- 初始化 ----
+  setMode('module');
+})();
+</script>
+</body>
+</html>

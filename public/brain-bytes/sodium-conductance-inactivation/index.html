@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>钠电导的双重效应 · 深度解读（Hodgkin & Huxley 1952）</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Dual Effect <span>×</span> 同一个去极化，既打开钠通道又把它关上</h1>
+    <div class="meta">
+      <span>📄 The Dual Effect of Membrane Potential on Sodium Conductance in the Giant Axon of <em>Loligo</em></span><br>
+      <span>✍️ A. L. Hodgkin &amp; A. F. Huxley</span><br>
+      <span>🏛️ Marine Biological Association（普利茅斯海洋生物实验室）· University of Cambridge 生理学实验室</span><br>
+      <span>📅 The Journal of Physiology · 116卷 · 497–506页 · 1952年</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-bg">背景：上一篇留下的谜</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-f1">① 小小预脉冲，巨大反差</a></li>
+        <li><a href="#sec-f2">② 变量 h 与那条 S 形曲线</a></li>
+        <li><a href="#sec-f3">③ 失活有多快：时间常数 τₕ</a></li>
+        <li><a href="#sec-f4">④ 双脉冲：两种"变小"的分家</a></li>
+        <li><a href="#sec-viz">交互：玩一玩条件预脉冲</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是 Hodgkin 与 Huxley 1952 年那套传奇系列（共四篇，本篇是第三篇）里专门解决一个"反直觉"现象的一篇：<strong>把神经细胞膜电位拉得更正（去极化），居然对钠离子通道同时干了两件方向相反的事</strong>——一边在毫秒内把钠通道"哗"地打开（激活），一边又在稍慢的尺度上把它们一个个关死、并且短时间内打不开了（失活，inactivation）。</p>
+        <p>这件事的重要性怎么强调都不过分：神经冲动为什么是一个"尖峰"而不是持续电流、为什么有<strong>不应期</strong>、为什么不能无限快地连发——答案的一半就藏在这篇论文揭示的"失活"里。本篇最漂亮的地方是它用<strong>条件电压预脉冲（conditioning pulse）</strong>这个极简却致命的实验设计，把"激活"和"失活"这两个搅在一起的过程<strong>在时间轴上拆开</strong>，并给出了一个后来写进所有教科书的变量 <span class="term">h</span> 和它的稳态 S 形曲线。读它，你会看到一流实验生理学是怎么"用一根电极逼问一个分子机制"的。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>先把后文要反复用到的"黑话"翻成人话。这篇论文术语不多但每个都关键，建议读正文前先扫一遍。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">膜电位 / 去极化 / 复极化（Membrane Potential / Depolarization / Repolarization）</div>
+          <div class="cdesc">细胞膜内外的电压差。静息时膜内偏负。<strong>去极化</strong>＝把这个负电压往正的方向推（变"不那么负"）；<strong>复极化</strong>＝再拉回静息的负值。论文里用 <em>V</em> 表示"相对静息值的偏移量"，注意它的符号约定和今天教科书相反：<strong>V 为负代表去极化</strong>（往正走），V 为正代表超极化。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">钠电导（g_Na，Sodium Conductance）</div>
+          <div class="cdesc">膜对钠离子"放行"的能力，本质是此刻有多少钠通道开着。电导大＝钠离子容易涌进来（产生<strong>内向电流</strong>，记录上是向上的偏转）。神经放电的上升相就是钠电导骤增、钠离子内流造成的。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">激活（Activation）</div>
+          <div class="cdesc">去极化的"快效应"：膜一旦变正，钠通道在不到 1 毫秒内迅速打开，钠电导陡升。这是本系列其它论文的主角；本篇只把它当"被测信号"，主角让位给它的对头——失活。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">失活（Inactivation）</div>
+          <div class="cdesc">本篇的真正主角，去极化的"慢效应"：持续去极化会让已经打开（或本可打开）的钠通道逐渐进入一种<strong>"暂时罢工"</strong>状态——既不导电，也无法被再次去极化打开。像门栓落下，光按门把手没用，得先把电压拉回去、等一会儿门栓才慢慢复位。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">变量 h（可用分数，Availability）</div>
+          <div class="cdesc">论文发明的核心记号：<strong>钠系统中"随时能用"的比例</strong>，取值 0~1。h=1 表示全部钠通道蓄势待发，h=0 表示全军覆没（全失活）。<strong>(1−h) 就是失活的程度</strong>。后来 h 成了 HH 方程（即 Hodgkin–Huxley 方程，以两位作者姓氏首字母命名）里那个著名的"失活门控变量"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">稳态可用分数 h_∞（Steady-state h）</div>
+          <div class="cdesc">在某个固定膜电位下停留足够久后，h 最终稳定到的值。它随电压画出一条平滑的 S 形曲线（本篇 Fig. 5）：膜越负（超极化），h 越接近 1；膜越正（去极化），h 越接近 0。静息时 h≈0.6。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">时间常数 τₕ（Time Constant of Inactivation）</div>
+          <div class="cdesc">h 朝着它的稳态值"靠拢"的快慢，单位毫秒。τₕ 小＝失活/恢复都快，τₕ 大＝慢。论文发现 τₕ 本身也随电压变：在 6°C 下，V=0 时约 10 ms，强去极化（V=−30 mV）时约 1.5 ms，超极化（V=+30 mV）时约 5 ms。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">条件（预）脉冲（Conditioning Pulse）</div>
+          <div class="cdesc">本篇的实验利器：先给一个时长可调的"调理性"电压台阶（第一步），把膜预设到某种失活状态，再紧跟一个固定的<strong>测试脉冲（test voltage）</strong>去量此刻还剩多少钠电流。用第一步"喂"不同历史，看第二步的应答，就能反推失活的进程。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">双脉冲实验（Two-pulse Experiment）</div>
+          <div class="cdesc">两个一模一样的短促去极化脉冲，间隔可调。第一个脉冲触发钠电流并造成失活，第二个脉冲探测"恢复了多少"。它的精妙在于能把<strong>"复极化导致的快速关闭"</strong>和<strong>"维持去极化导致的失活"</strong>这两种都让电流变小、却机制不同的过程区分开。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">电压钳与巨轴突（Voltage Clamp &amp; <em>Loligo</em> Giant Axon）</div>
+          <div class="cdesc">研究对象是枪乌贼（<em>Loligo</em>）的巨大神经纤维，直径可达半毫米，粗到能塞进电极。<strong>电压钳</strong>技术能把膜电位强行"摁"在任意设定值并直接读出膜电流——这是把电压当自变量、电流当因变量来做实验的前提。Hodgkin 是人名，不译。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-bg">背景：上一篇留下的谜</div>
+      <p>在本系列前两篇里（Hodgkin &amp; Huxley, 1952a, b），两位作者已经用电压钳证明：去极化会让<strong>钠电导先猛升、然后即便电压一直维持着，电导也会自己往下掉</strong>。这个"自己掉下去"的过程，他们叫它 <span class="term">inactivation（失活）</span>。但前两篇留下两个没回答的问题：</p>
+      <ul>
+        <li><strong>复极化（把电压拉回静息）能多快地"复原"这套系统</strong>，让膜重新具备产生钠电导陡增的能力？</li>
+        <li><strong>膜电位本身如何定量地控制失活</strong>这个过程——是只在去极化时才有，还是任何电压都在悄悄调节它？</li>
+      </ul>
+      <p>本篇就冲着这两个问题去。方法上不需要任何新东西，沿用前文同款电压钳（Hodgkin, Huxley &amp; Katz, 1952；Hodgkin &amp; Huxley, 1952b），实验温度多在 3–7°C。下面按论文的逻辑链，把四个关键发现逐个拆开。</p>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>整篇论文其实在论证一句话：<strong>膜电位对钠电导有"双重效应"——既快速激活、又缓慢失活；而失活的程度与速度，都被膜电位连续地、可定量地操控着。</strong>四个发现层层递进地把这句话钉死。</p>
+
+      <div class="section-head-sub" id="sec-f1">发现①：一个 8 毫伏的小预脉冲，就能让后续钠电流相差一倍多</div>
+      <p>这是全篇的"开胃实验"（Fig. 1 与 Fig. 2），设计极简：膜电位分两步走。第一步是<strong>条件电压 V₁</strong>（幅度很小，仅 −8 mV，即轻微去极化），时长从 0 连续调到 50 ms；第二步是固定的<strong>测试电压 V₂＝−44 mV</strong>（一个标准的强去极化，用来"问"此刻还能召唤出多少钠内流）。</p>
+      <p>结果分两个方向，对称得漂亮：</p>
+      <ul>
+        <li><strong>预脉冲是去极化（−8 mV）</strong>：第一步拖得越久，第二步的内向钠电流越小。当条件去极化持续超过 20 ms，测试脉冲的内向电流<strong>被压低了约 40%</strong>。中间时长上，电流沿一条平滑指数曲线衰减，时间常数约 7 ms。——轻轻"暖"一下，钠系统就钝化了一截。</li>
+        <li><strong>预脉冲反过来是超极化（+31 mV，把膜拉得更负）</strong>：完全相反。当第一步持续超过 15 ms，第二步的内向电流<strong>反而增大了约 70%</strong>。——预先把膜"养"得更负，等于解除了它身上原本就背着的一部分失活，让它更精神。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：静息态本来就"半失活"</span>
+        <p>超极化能让钠电流暴增 70% 这个事实有点出乎意料，但它泄露了一个深刻信息：<strong>在静息电位下，钠系统并非满血，而是早已有相当一部分处于失活状态。</strong>所以你"往负里拉"才有提升空间。这正好对应后文 h≈0.6 的结论——静息时失活已 40% 完成。一个 −8 mV 与一个 +31 mV，就把"去极化加重失活、超极化解除失活"这对镜像关系演示得清清楚楚。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f2">发现②：把"可用分数"命名为 h，并给出那条载入史册的 S 形曲线</div>
+      <p>有了①的双向证据，作者让条件脉冲<strong>持续足够久</strong>（让失活在每个电压下都达到最终稳态），再系统地改变条件电压（从 +46 mV 一路扫到 −29 mV），测量各自对应的测试脉冲钠电流。把"测试钠电流相对正常值的比例"对"条件电压"作图（Fig. 5），得到一条<strong>平滑、对称、两端各自压平</strong>的 S 形曲线。</p>
+      <p>正是在这里，作者引入了那个流芳后世的记号。他们把"神经产生钠电导变化的能力"定义为变量 <span class="term">h</span>，范围 0 到 1，正比于 Fig. 5 的纵坐标；于是 <strong>(1−h) 就是失活的量度</strong>。这条稳态曲线被拟合成一个简洁公式：</p>
+      <blockquote>
+        <p>(h)_steady state = 1 / ( 1 + exp[ (V_h − V) / 7 ] )　……（论文公式 1）</p>
+        <p>其中 V 以毫伏计，V_h 是 h 恰好等于 ½ 时的电压，约 −2.5 mV。</p>
+      </blockquote>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：一条曲线就是一个"开关的软硬程度"</span>
+        <p>这条曲线读起来非常直观：当 <strong>V &lt; −20 mV（强去极化）时 h≈0，失活几乎完全</strong>；当 <strong>V &gt; +30 mV（强超极化）时 h≈1，失活几乎消失</strong>。在静息电位附近 <strong>h≈0.6，意味着失活已完成 40%</strong>。分母里那个"除以 7"是<strong>陡度参数</strong>——它定量了这个开关有多"硬"：电压每变化约 7 mV 量级，h 就显著移动一格。五次新鲜纤维实验给出静息 h 在 0.55–0.62 之间，相当稳健；而一根用久了、状态变差的纤维静息 h 掉到约 0.25，作者归因于其静息电位偏低（去极化）了，并非 h 与绝对电位的关系本身改变——一个很克制、很负责任的对照解读。</p>
+      </div>
+      <p>这个"用一个 0~1 的门控变量 + 一条 S 形稳态曲线 + 一个时间常数"来刻画通道行为的范式，正是次年（1952c）那篇用 m、h、n 三个门控变量精确重建动作电位的传奇论文的直接地基。</p>
+
+      <div class="section-head-sub" id="sec-f3">发现③：失活有多快——时间常数 τₕ 本身也被电压调着</div>
+      <p>光知道失活最终稳定在哪儿（h_∞）还不够，得知道它"奔向"那个稳态有多快。作者用上面同款的条件脉冲家族（Fig. 1、2、3、4），观察失活随条件脉冲时长如何<strong>按指数规律</strong>发展或解除，从中拟合出时间常数 <span class="term">τₕ</span>（见论文 Table 1）。</p>
+      <p>关键结论是：τₕ <strong>不是常数，而是膜电位的函数</strong>，在 V=0 附近最大（最慢），向两侧都加快：</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：失活在 0 mV 附近"最磨蹭"（6°C 下）</span>
+        <p>论文给出三个锚点：<strong>V=0 时 τₕ≈10 ms；强去极化 V=−30 mV 时 τₕ≈1.5 ms；超极化 V=+30 mV 时 τₕ≈5 ms。</strong>也就是说，膜电位既决定失活"停在哪"（h_∞），又决定它"跑多快"（τₕ），是不折不扣的双重操控。温度也插一脚：作者在一次 10°C 实验中发现温度对 h 与 V 的<strong>平衡关系几乎没影响，但大幅改变达到平衡的速率</strong>，其速率常数的 Q₁₀（温度每升 10°C 速率变化倍数）虽不能精确给出，但"明显在 3 的量级"。这说明失活的"位置"由热力学平衡定，"快慢"由动力学（受温度强烈影响的速率过程）定，两者解耦——又一处优雅的物理洞察。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f4">发现④：双脉冲实验——把两种"电流变小"彻底分家</div>
+      <p>这是全篇思想最深的一节（Fig. 6、7），也是它配得上"dual effect（双重效应）"这个标题的关键。作者给膜连发两个<strong>完全相同</strong>的短脉冲：幅度 −44 mV、时长仅 1.8 ms，中间间隔可调。</p>
+      <p>观察到的现象链条是：</p>
+      <ul>
+        <li>单独的第二脉冲（记录 A）能召唤出峰值约 0.25 mA/cm² 的内向钠电流，但电流并不维持，而是因失活而下降。</li>
+        <li>两脉冲挨得很近时（记录 B），第二脉冲的内向电流<strong>被砍到约一半</strong>——因为第一脉冲刚造成的失活还没恢复。</li>
+        <li>随间隔拉长（记录 C–G），第二脉冲的电流<strong>逐步回升</strong>。把"第二脉冲钠电流占未受扰动值的比例"对间隔作图（Fig. 7），得到一条指数恢复曲线，时间常数 <strong>τₕ≈12 ms</strong>，与用弱条件电压法得到的同一量级一致，互相印证。</li>
+      </ul>
+      <p>真正画龙点睛的，是下面这个<strong>反证</strong>。一个 −44 mV、1.8 ms 的脉冲结束时，钠系统的可用分数被压到 <strong>h≈0.37</strong>（由 Fig. 7 外推到零间隔得到），对应失活时间常数约 1.8 ms，与强去极化下另一套方法测得的值吻合。作者据此严密论证：</p>
+      <div class="info-block">
+        <span class="ib-title">论证的钢钉：37% ≠ 0%，所以"两种变小"必是两套机制</span>
+        <p>设想一种"偷懒"的解释：会不会复极化（脉冲结束、电压跳回静息）本身就是靠"把活跃膜变成不应态"来关闭钠电导的？如果真是这样，那第一脉冲结束后膜应当进入不应期，<strong>紧跟着的第二脉冲在短间隔时应该得到接近 0 的电流</strong>。但实测是 <strong>37%，远不是 0</strong>。这个差值就是判决性证据：<strong>复极化带来的"快速、完全的关闭"</strong>（脉冲一停钠电流尾随骤降）与<strong>维持去极化带来的"缓慢、不完全的失活"</strong>（37% 这个残留就是它的指纹），是两个机制不同、却都让电流变小的过程。前者是把"激活态"翻回"静息态"，后者是把通道推进"不应/失活态"、且只在复极化后才以约 12 ms 的慢速度恢复。两种过程的分离，正是本文标题"双重效应"的实验落点。</p>
+      </div>
+
+      <!-- ========== 交互组件 ========== -->
+      <div class="section-head" id="sec-viz">交互：玩一玩"条件预脉冲"</div>
+      <p>下面这个小装置把发现①②③在你眼前合成一个可玩的实验。拖动滑块设定<strong>条件预脉冲的电压</strong>（左负右正，遵循论文符号：左侧=超极化、右侧=去极化）与<strong>持续时长</strong>，左图是给到膜的电压协议（先条件台阶、后固定 −44 mV 测试脉冲），右图是模型预测的测试脉冲钠电流波形——它的峰值大小由此刻的可用分数 h 决定。下方实时显示 h 与失活百分比。试着把预脉冲拉到很负且足够久（h→1，电流变大），再拉到很正（h→0，电流几近消失），亲手体会"同一个去极化既激活又失活"的张力。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">条件电压预脉冲 → 钠电流幅度演示器</div>
+        <div class="viz-note">模拟数据：曲线形状基于论文公式 1（h_∞，V_h=−2.5 mV，陡度 7 mV）与报告的 τₕ–电压关系（V=0 约 10 ms、−30 mV 约 1.5 ms、+30 mV 约 5 ms，6°C），仅展示定性模式，非论文原始波形。符号沿用论文约定：V 为负＝去极化。</div>
+        <div class="viz-controls">
+          <label>条件预脉冲电压 V₁：<strong><span id="vval">-8</span> mV</strong>　<span id="vtag" style="color:#c0392b;"></span></label>
+          <input type="range" id="vslider" min="-40" max="46" value="-8" step="1" style="flex:1;min-width:200px;">
+        </div>
+        <div class="viz-controls">
+          <label>预脉冲时长：<strong><span id="dval">25</span> ms</strong></label>
+          <input type="range" id="dslider" min="0" max="50" value="25" step="1" style="flex:1;min-width:200px;">
+        </div>
+        <div class="viz-controls">
+          <button id="btnReset" class="alt">复位到静息默认</button>
+          <button id="btnHyper">超极化样例 (+31)</button>
+          <button id="btnDepol">去极化样例 (−8)</button>
+        </div>
+        <canvas id="cv" width="860" height="340"></canvas>
+        <div class="viz-controls" style="margin-top:6px;">
+          <label>此刻可用分数 <strong>h = <span id="hval" style="color:#c0392b;">—</span></strong>　|　失活程度 (1−h) = <strong><span id="iaval" style="color:#c0392b;">—</span></strong>　|　测试脉冲峰值钠电流（相对静息100%）≈ <strong><span id="ipk" style="color:#c0392b;">—</span></strong></label>
+        </div>
+      </div>
+
+      <script>
+      (function(){
+        var cv = document.getElementById('cv');
+        var ctx = cv.getContext('2d');
+        var vs = document.getElementById('vslider');
+        var ds = document.getElementById('dslider');
+        var vval = document.getElementById('vval');
+        var dval = document.getElementById('dval');
+        var vtag = document.getElementById('vtag');
+        var hval = document.getElementById('hval');
+        var iaval = document.getElementById('iaval');
+        var ipk = document.getElementById('ipk');
+        var RED = '#c0392b', INK = '#1f2328', MUT = '#9aa1ab', BLUE='#2c6fbb';
+
+        // h_steady from paper eq.1 : 1/(1+exp((Vh - V)/7)), Vh=-2.5
+        function hSteady(V){ return 1/(1+Math.exp((-2.5 - V)/7)); }
+        // tau_h(V): rough piecewise from reported anchors (6C): V=0 ->10, V=-30 ->1.5, V=+30 ->5
+        function tauH(V){
+          if(V<=-30) return 1.5;
+          if(V<=0)   return 1.5 + (10-1.5)*((V+30)/30);   // -30..0 : 1.5 -> 10
+          if(V<=30)  return 10 + (5-10)*(V/30);           // 0..30 : 10 -> 5
+          return 5;
+        }
+        // resting baseline h at V=0 is hSteady(0)=~0.64; normalize "relative to resting (=100%)"
+        var H_REST = hSteady(0);
+
+        // h reached after holding at V1 for duration t, starting from resting H_REST
+        function hAfter(V1, t){
+          var hinf = hSteady(V1);
+          var tau = tauH(V1);
+          return hinf + (H_REST - hinf)*Math.exp(-t/tau);
+        }
+
+        function draw(){
+          var V1 = parseFloat(vs.value);
+          var dur = parseFloat(ds.value);
+          vval.textContent = V1;
+          dval.textContent = dur;
+          vtag.textContent = V1<0 ? '（去极化）' : (V1>0 ? '（超极化）' : '（静息）');
+
+          var h = hAfter(V1, dur);
+          var peakRel = h / H_REST; // relative to resting peak =1.0
+          hval.textContent = h.toFixed(2);
+          iaval.textContent = (1-h).toFixed(2);
+          ipk.textContent = Math.round(peakRel*100) + '%';
+
+          var W = cv.width, Hc = cv.height;
+          ctx.clearRect(0,0,W,Hc);
+
+          // ----- layout: two panels -----
+          var padL=54, padT=24, padB=40;
+          var gap=46;
+          var panelW = (W - padL - gap - 20)/2;
+          var leftX = padL, rightX = padL + panelW + gap;
+          var topY = padT, botY = Hc - padB;
+          var midY = (topY+botY)/2;
+
+          ctx.lineWidth = 1;
+          ctx.font = '12px -apple-system,Segoe UI,sans-serif';
+
+          // ===== LEFT panel: voltage protocol =====
+          // axes
+          ctx.strokeStyle = '#dfe2e6';
+          ctx.beginPath(); ctx.moveTo(leftX, topY); ctx.lineTo(leftX, botY); ctx.lineTo(leftX+panelW, botY); ctx.stroke();
+          ctx.fillStyle = MUT;
+          ctx.textAlign='left';
+          ctx.fillText('膜电位协议（V，mV）', leftX, topY-8);
+          // zero(resting) line
+          var restLineY = midY;
+          ctx.strokeStyle = '#eceef1';
+          ctx.setLineDash([4,4]);
+          ctx.beginPath(); ctx.moveTo(leftX, restLineY); ctx.lineTo(leftX+panelW, restLineY); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = MUT; ctx.textAlign='right';
+          ctx.fillText('静息(0)', leftX-4, restLineY+4);
+
+          // voltage mapping: V range -44..+46 -> y. negative(depol) goes DOWN visually to evoke "more positive membrane"?
+          // To avoid confusion we map: more depolarizing (V negative) -> upward bump; keep it intuitive as "stimulus up".
+          function vY(V){
+            // map V from [-50,50] to [botY-6, topY+18], but invert so depolarization(V<0) draws upward
+            var t = (V+50)/100;            // 0..1 with V=-50 ->0
+            // we want V negative (depol) to be UP => higher when V more negative
+            var up = 1 - t;                // V=-50 ->1 (top), V=+50 ->0 (bottom)
+            return botY - 6 - up*((botY-6)-(topY+18));
+          }
+          // timeline mapping for left: 0..(dur+ test 12ms) ms across panel
+          var totalT = dur + 16; if(totalT<20) totalT=20;
+          function tXL(t){ return leftX + (t/totalT)*panelW; }
+
+          // build protocol path: rest -> conditioning(V1,dur) -> test(-44,12) -> rest
+          var testV = -44, testDur = 12;
+          ctx.lineWidth = 2.4;
+          ctx.strokeStyle = RED;
+          ctx.beginPath();
+          ctx.moveTo(tXL(0), vY(0));
+          // up/down to V1
+          ctx.lineTo(tXL(0), vY(V1));
+          ctx.lineTo(tXL(dur), vY(V1));
+          // step to test
+          ctx.lineTo(tXL(dur), vY(testV));
+          ctx.lineTo(tXL(dur+testDur), vY(testV));
+          // back to rest
+          ctx.lineTo(tXL(dur+testDur), vY(0));
+          ctx.lineTo(tXL(totalT), vY(0));
+          ctx.stroke();
+
+          // labels on left protocol
+          ctx.font='11px -apple-system,Segoe UI,sans-serif';
+          ctx.fillStyle = RED; ctx.textAlign='center';
+          if(dur>3){ ctx.fillText('条件 '+V1+'mV', tXL(dur/2), vY(V1) + (V1<0? -6 : 14)); }
+          ctx.fillText('测试 -44mV', tXL(dur+testDur/2), vY(testV)-6);
+          // brace for test pulse position
+          ctx.fillStyle = MUT; ctx.textAlign='left';
+          ctx.fillText('时间 →', leftX+panelW-46, botY+18);
+
+          // ===== RIGHT panel: Na current of the test pulse =====
+          ctx.strokeStyle = '#dfe2e6'; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(rightX, topY); ctx.lineTo(rightX, botY); ctx.lineTo(rightX+panelW, botY); ctx.stroke();
+          ctx.fillStyle = MUT; ctx.textAlign='left';
+          ctx.fillText('测试脉冲钠电流（内向为上）', rightX, topY-8);
+          // baseline (zero current) near bottom
+          var baseY = botY - 4;
+          ctx.strokeStyle = '#eceef1'; ctx.setLineDash([4,4]);
+          ctx.beginPath(); ctx.moveTo(rightX, baseY); ctx.lineTo(rightX+panelW, baseY); ctx.stroke();
+          ctx.setLineDash([]);
+
+          // reference (resting, h=H_REST -> peakRel=1) trace in gray, and current trace in red
+          var maxAmpPix = (baseY - (topY+20)); // pixels for amplitude=1.0 (resting peak)
+          function naTrace(amp, color, dash){
+            // transient inward current: rises fast, decays (inactivation during test). amp scales peak.
+            ctx.strokeStyle=color; ctx.lineWidth = dash? 1.4:2.4;
+            if(dash) ctx.setLineDash([5,4]); else ctx.setLineDash([]);
+            ctx.beginPath();
+            var N=160;
+            for(var i=0;i<=N;i++){
+              var tt = i/N;                  // 0..1 across panel
+              var ms = tt* (testDur+4);      // a bit of time
+              // shape: I(t) ~ (1-exp(-t/0.4)) * exp(-t/2.0)  normalized to its own peak, then *amp
+              var rise = 1-Math.exp(-ms/0.45);
+              var dec  = Math.exp(-ms/2.2);
+              var shape = rise*dec;
+              // normalize by peak of shape (~ at ms small)
+              var val = shape/0.52;          // 0.52 ~ peak of shape
+              var x = rightX + tt*panelW;
+              var y = baseY - val*amp*maxAmpPix;
+              if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+          // resting reference (peakRel=1)
+          naTrace(1.0, '#c9ccd1', true);
+          // actual
+          naTrace(peakRel, RED, false);
+
+          // annotate peak
+          ctx.fillStyle=RED; ctx.font='12px -apple-system,Segoe UI,sans-serif'; ctx.textAlign='left';
+          ctx.fillText('峰值 ≈ '+Math.round(peakRel*100)+'%（相对静息）', rightX+8, topY+18);
+          ctx.fillStyle=MUT; ctx.font='11px -apple-system,Segoe UI,sans-serif';
+          ctx.fillText('灰虚线 = 静息基准 (100%)', rightX+8, topY+34);
+
+          // h bar at bottom of right panel
+          ctx.fillStyle = INK; ctx.font='11px -apple-system,Segoe UI,sans-serif'; ctx.textAlign='left';
+        }
+
+        vs.addEventListener('input', draw);
+        ds.addEventListener('input', draw);
+        document.getElementById('btnReset').addEventListener('click', function(){ vs.value=0; ds.value=0; draw(); });
+        document.getElementById('btnHyper').addEventListener('click', function(){ vs.value=31; ds.value=30; draw(); });
+        document.getElementById('btnDepol').addEventListener('click', function(){ vs.value=-8; ds.value=25; draw(); });
+        draw();
+      })();
+      </script>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文之所以经典，七成在于实验设计的干净。它的精巧不在仪器多炫，而在于<strong>每一个测量都被设计成只回答一个问题、并预先堵死了替代解释</strong>。下表把它的几招拆开看。</p>
+      <table>
+        <thead>
+          <tr><th>招法</th><th>怎么做的</th><th>为什么聪明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>条件—测试两步法</td>
+            <td>第一步用可调时长/幅度的"条件电压"预设失活状态，第二步用固定的 −44 mV 测试脉冲读出剩余钠电流。</td>
+            <td>把"激活（快）"和"失活（慢）"在<strong>时间轴上解耦</strong>：测试脉冲每次都一样，所以电流差异只能来自第一步留下的失活历史。</td>
+          </tr>
+          <tr>
+            <td>双向对照（去极化 vs 超极化预脉冲）</td>
+            <td>条件电压一会儿设负（−8 mV，去极化）、一会儿设正（+31 mV，超极化）。</td>
+            <td>去极化压低 40%、超极化抬高 70%，一对镜像直接证明"失活是连续受电压调控的"，并意外揭示静息态已 40% 失活。</td>
+          </tr>
+          <tr>
+            <td>用小去极化避开钾电导污染</td>
+            <td>测量"测试脉冲钠电流"时采用 Fig. 3 内插的简化测法；并指出此法对 V &gt; −15 mV 才可靠。</td>
+            <td>明确承认：大去极化下条件期内会有可观钠电流、且钾电导（K conductance）变化会干扰测量，于是把定量结论限制在可信区间——<strong>主动标注方法的有效边界</strong>。</td>
+          </tr>
+          <tr>
+            <td>双脉冲反证</td>
+            <td>两个相同短脉冲连发，测第二个相对第一个恢复了多少（Fig. 6、7）。</td>
+            <td>用"短间隔时第二脉冲仍有 37% 而非 0%"这一<strong>定量反差</strong>，排除"复极化＝制造不应期"的偷懒假说，把两种关闭机制钉死为不同过程。</td>
+          </tr>
+          <tr>
+            <td>多法交叉验证时间常数</td>
+            <td>τₕ 分别由弱条件电压法、强去极化法、双脉冲恢复法独立估计。</td>
+            <td>三种独立方法给出同一量级（如 −44 mV 下约 1.8 ms、恢复约 12 ms），结论的可信度来自<strong>方法间的相互印证</strong>而非单一拟合。</td>
+          </tr>
+          <tr>
+            <td>温度对照分离"平衡"与"速率"</td>
+            <td>多数实验在 3–7°C，另在 10°C 做一次对照。</td>
+            <td>发现温度几乎不改 h–V 平衡关系、却大幅改速率（Q₁₀ 约 3），干净地把<strong>热力学（停在哪）与动力学（多快到）分离</strong>。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文不是孤立的，它是一座桥的中间一跨，前后都接得很紧：</p>
+      <ul>
+        <li><strong>向前承接 1952a、1952b：</strong>前两篇用电压钳确立了"去极化使钠电导先升后自降"，并首次命名失活；本篇专门把"失活的电压依赖性与时间进程"量化，回答了前文明说未解的两个问题（复极化的恢复速度、电位对失活的定量控制）。</li>
+        <li><strong>呼应钠浓度实验（1952a）的小插曲：</strong>之前发现钠缺乏溶液里实测电流比"独立性原理（independence principle）"预测的偏大 20–60%，作者当时归因于"用胆碱（choline）替代钠会让静息电位略升约 4 mV"。本篇用 h–V 曲线给这个解释补了一刀定量证据：静息电位升 4 mV，会把 h 从 0.6 抬到 0.73（新鲜纤维）——失活解除、电流自然偏大，前后自洽。</li>
+        <li><strong>区分于"钾电导"那条线（1952a）：</strong>论文小心地把钠的"瞬态失活"和钾电导的"持续升高"分开——后者在维持去极化时是<strong>维持不掉</strong>的（Fig. 1 里那个与条件时长无关的外向电流尾巴就是证据），两者机制不同，不能混为一谈。</li>
+        <li><strong>向后铺垫 1952c（系列收官作）：</strong>本篇产出的 h_∞(V) 曲线、公式 1、以及 τₕ(V) 关系，正是次年那篇用 m、h、n 三变量数值重建动作电位的<strong>直接输入参数</strong>。作者在讨论结尾明确写道：失活与"钾电导持续升高"二者对不应期/适应的相对贡献，"只能靠本系列最后一篇那种数值分析来判断"——本篇是为终章备料。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇 1952 年的论文，影响力远远溢出了乌贼神经。</p>
+      <ul>
+        <li><strong>"门控变量"成了离子通道研究的通用语言。</strong>用一个 0~1 的可用分数 h、一条稳态 S 形曲线、一个电压依赖的时间常数来描述一种状态转换——这套范式后来被搬到几乎所有电压门控通道（钾、钙、各种亚型），是计算神经科学里 HH 型模型的核心积木。</li>
+        <li><strong>"双重/相反效应被同一变量驱动"是生物学反复出现的母题。</strong>同一个去极化既激活又失活，提醒我们：一个信号常常同时启动加速器和刹车，系统行为是两者竞速的结果。这个思路在受体脱敏、酶的别构调节、基因的快激活—慢负反馈里处处可见。</li>
+        <li><strong>不应期的分子根源在此奠基。</strong>"失活后需约 12 ms 慢恢复"直接解释了神经为何有绝对/相对不应期、为何放电频率有上限——这是从分子动力学推出系统级行为（编码带宽）的早期典范。</li>
+        <li><strong>"先用对照堵死替代解释，再下结论"的科学方法论范本。</strong>双脉冲那个 37%≠0% 的反证，至今是教方法论时的经典案例：好的实验不是去"证明你想要的"，而是去"杀死与你竞争的解释"。</li>
+        <li><strong>药理意义：钠通道失活态是许多药物的靶点。</strong>后世发现局部麻醉药、抗癫痫药、抗心律失常药很多是<strong>优先结合失活态钠通道</strong>来起效的——理解失活的电压依赖性，是这类"状态依赖阻断"药理学的根基。（此条为解读者补充的下游意义，非论文本身内容。）</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>以懂行朋友的眼光，指出几处论文自己没大声说、或受时代所限的边界。</p>
+      <ul>
+        <li><strong>大去极化区间的数据本就"将就"。</strong>作者自己坦承：V &gt; −15 mV 时测法和解释才稳；更大去极化下条件期内有可观钠电流、又有钾电导干扰，测量"变得相当可疑（somewhat doubtful）"。所以 h_∞ 曲线在强去极化端（h→0 那截）的精度，是被作者打了折扣的。</li>
+        <li><strong>这是唯象（现象学）描述，不是机制。</strong>变量 h、公式 1 都是对曲线的<strong>拟合</strong>，"除以 7"的陡度、V_h≈−2.5 mV 都是经验参数。论文完全没有、也不可能（1952 年）说出失活在分子上到底是什么——今天我们知道那是钠通道的失活粒/球链结构在堵孔，但这要等几十年后的分子生物学。</li>
+        <li><strong>τₕ(V) 关系是粗描的。</strong>Table 1 的时间常数在不同方法、不同轴突间有可观散布（同一条件下能见到 7–11 ms 这样的范围），论文给的"V=0 约 10 ms"等是量级估计而非精测；Q₁₀"明显在 3 的量级"这句也明说"不能确切给出"。</li>
+        <li><strong>个体纤维状态漂移带来的不确定。</strong>静息 h 在新鲜纤维 0.55–0.62、用久的纤维掉到 0.25，作者把差异归因于静息电位下降——这个归因虽合理，但本篇并未独立测每根纤维的绝对静息电位来直接坐实，属于"最合理的推断"。</li>
+        <li><strong>低温、离体、单一物种的外推问题。</strong>实验在 3–10°C 的离体乌贼巨轴突上做。作者甚至提到离体乌贼轴突的静息电位<strong>本就低于活体动物</strong>。把这些定量值（尤其绝对时间常数）外推到哺乳动物体温下的有髓神经，需要相当的谨慎——这是时代和材料的客观限制，非论文之过，但读者须记在心里。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都尽量挂回文中证据。</p>
+      <p><strong>它解决了它声称要解决的问题吗？——是，而且超额。</strong>论文开篇立的两个靶子（复极化恢复有多快、电位如何定量控制失活）都被正面击中：恢复时间常数 τₕ≈12 ms（Fig. 7）、稳态由公式 1 的 S 形曲线精确刻画（Fig. 5）。它还附赠了一个超纲收获——双脉冲实验把"复极化关闭"与"去极化失活"判为两套机制（37%≠0%），这是标题"双重效应"真正的分量所在。</p>
+      <p><strong>证据强度如何？——强，且自我设防严密。</strong>核心结论由多条独立证据线交叉支撑：去极化/超极化双向预脉冲（40% vs 70%）、稳态曲线拟合、τₕ 的三种独立测法相互印证、温度对照分离平衡与速率。作者反复主动标注方法的失效边界（如 V&gt;−15 mV 才可信），这种"自曝其短"恰恰提高了可信度。</p>
+      <p><strong>哪里要打折扣？——精度而非方向。</strong>如"边界"一节所列，强去极化端的数据偏软、τₕ(V) 是粗描、分子机制全然未触及。但这些都属于<strong>定量精度与机制深度</strong>层面的保留，不动摇任何定性结论。论文从不把拟合参数说成物理实在，分寸把握得很好。</p>
+      <p><strong>历史地位（解读者观点）。</strong>把它单独看，是一篇设计极干净、结论极稳的实验生理学佳作；把它放进 1952 系列看，它是<strong>承上启下的关键一跨</strong>——没有本篇产出的 h_∞(V) 与 τₕ(V)，就没有次年（1952c）那场用方程重建动作电位、最终通向 1963 年诺贝尔奖的封神演出。变量 h 这个记号本身，就是它留给整个领域的通用词汇。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Hodgkin 与 Huxley 用"条件预脉冲＋固定测试脉冲"和"双脉冲恢复"两套极简实验证明：<strong>膜电位对钠电导有方向相反的双重效应——去极化既在毫秒内激活钠通道、又缓慢地使其失活</strong>；失活的稳态由可用分数 <span class="term">h</span> 沿一条 S 形曲线（h_∞=1/(1+exp[(V_h−V)/7])，V_h≈−2.5 mV）精确刻画（静息 h≈0.6，即已失活 40%），其速率由电压依赖的时间常数 τₕ 控制（6°C 下 V=0 约 10 ms、强去极化约 1.5 ms、恢复约 12 ms）；而双脉冲实验中第二脉冲在短间隔仍保留 37%（≠0%）这一判决性数字，证明"复极化的快速关闭"与"维持去极化的缓慢失活"是两套不同机制——这条结论与变量 h，成了次年用方程重建动作电位的直接地基。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Hodgkin, A. L., &amp; Huxley, A. F. (1952). The dual effect of membrane potential on sodium conductance in the giant axon of <em>Loligo</em>. <em>The Journal of Physiology</em>, 116(4), 497–506.<br>
+    <strong>说明：</strong>本页为该论文的中文深度解读，交互组件中的数据为依据论文报告的公式与时间常数生成的模拟，仅用于展示定性模式；所有结论与数字均出自原文。文中"解读者观点"已就地标注。
+  </div>
+
+</div><!-- /.page -->
+</body>
+</html>

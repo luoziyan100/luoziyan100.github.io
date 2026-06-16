@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>表征相似性分析 RSA — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>RSA <span>×</span> 给大脑、模型、行为找一种共同的「相似性几何」语言</h1>
+    <div class="meta">
+      <span>📄 Representational similarity analysis – connecting the branches of systems neuroscience</span><br>
+      <span>✍️ Nikolaus Kriegeskorte, Marieke Mur, Peter Bandettini</span><br>
+      <span>🏛️ 美国国立精神卫生研究所（NIMH，National Institute of Mental Health）/ 美国国立卫生研究院（NIH）· 马斯特里赫特大学（Maastricht University，荷兰）</span><br>
+      <span>📅 Frontiers in Systems Neuroscience · 2008（第 2 卷，第 4 篇）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-problem">它要解决的真问题</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-viz">交互：同一组刺激，两种几何</a></li>
+        <li><a href="#sec-stats">关键统计与控制分析</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>系统神经科学有三条几乎各说各话的「支流」：测大脑活动的（单细胞记录、<span class="term">功能性磁共振成像（fMRI，functional Magnetic Resonance Imaging）</span>）、测行为的（反应时、错误率、相似性判断）、做计算建模的（符号模型、神经网络）。三者长期无法<strong>定量</strong>对接，卡在一个很笨但很硬的问题上——「模型里的第 7 号单元，到底对应大脑里哪一个体素、哪一个神经元？」这种一一映射几乎永远找不到。</p>
+        <p>这篇论文给出一个绕过去的办法，简单到让人拍大腿：<strong>别去对齐单元，去对齐「关系」</strong>。对每一对刺激，量一下它们在某个表征里激活模式有多不一样，把所有两两不相似度排成一张矩阵——<span class="term">表征不相似矩阵（RDM，Representational Dissimilarity Matrix）</span>。这张矩阵是按「刺激条件」编号的，不再按空间位置编号，于是大脑某区、某个模型、某种行为度量产出的 RDM 可以<strong>直接放在一起比</strong>，用一个相关系数就能回答「这两种表征是不是在用同一种方式组织世界」。它把整篇论文要立的方法命名为 <span class="term">表征相似性分析（RSA，Representational Similarity Analysis）</span>。</p>
+        <p>值得深读的原因有三：其一，它是一个奠基性的方法论，今天 fMRI 与神经网络对照、跨物种比较、脑机表征研究里到处是它的影子；其二，它背后那个「<strong>二阶同构</strong>」的哲学根（Shepard & Chipman 1970）非常优雅，把「相似性的相似性」抬成核心对象；其三，它顺手做了一个 96 张图的真实实验，给出了可检验的数字证据，而不只是讲方法。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">表征相似性分析（RSA，Representational Similarity Analysis）</div>
+          <div class="cdesc">本文主角方法。不直接比「激活模式」，而是先把每个表征压成一张「谁和谁像」的不相似矩阵，再去比这些矩阵。类比：不去逐个对比两座城市的每栋楼，而是比两张「城市内部各区之间距离」的地图。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">表征不相似矩阵（RDM，Representational Dissimilarity Matrix）</div>
+          <div class="cdesc">RSA 的核心物件。行列都是实验条件（刺激），每格填「这两个刺激引发的活动模式有多不一样」。对角线必为 0（自己跟自己最像），且关于对角线对称。它是一个表征的「指纹」。96 个条件的 RDM 有 (96²−96)/2 = 4560 个独立数字。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">一阶同构 vs 二阶同构（first-/second-order isomorphism）</div>
+          <div class="cdesc">一阶：刺激本身和它在脑中的表征「直接对得上」（如视网膜地图）。二阶（Shepard & Chipman 1970）：不要求直接对上，只要求「刺激之间的关系」和「表征之间的关系」对得上。RSA 比的就是二阶——相似性的相似性。类比：两个人长得不一样（无一阶对应），但他们各自的「亲戚关系网」可以高度一致（二阶对应）。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">相关距离（correlation distance，1 − r）</div>
+          <div class="cdesc">本文首选的「不相似度」量法：两个激活模式的皮尔逊相关系数 r 越高越像，用 1 − r 当距离（完全相关=0，无关=1，完全反相关=2）。妙处：它同时对「整体激活高低」和「激活的变异幅度」做了归一化，只看模式的「形状」，不被整体强弱带偏。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">早期视觉皮层（EVC，Early Visual Cortex）</div>
+          <div class="cdesc">视觉信息进入大脑后最早处理的区域（含初级视觉皮层（V1，Primary Visual Cortex / Visual area 1）一带），保留视网膜式的空间地图，主要编码图像的低层特征——边缘、朝向、被刺激区域的形状轮廓。本文的两个示范脑区之一。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">梭状回面孔区（FFA，Fusiform Face Area）</div>
+          <div class="cdesc">腹侧颞叶一个对面孔强烈响应的区域。本文另一示范脑区，用来展示高层、范畴化的表征——面孔会聚成一类，与物体明显分开。属下颞叶皮层（IT，Inferotemporal Cortex）这条「物体识别通路」的高级站点。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">条件丰富设计（condition-rich design）</div>
+          <div class="cdesc">RSA 最契合的实验范式：一次实验里塞进很多个不同条件（如 96 张各不相同的图），每个图单独成「一类」，而不是传统那样把同范畴的图块状平均掉。好处：事后可任意分组、探索表征的精细结构。代价：每个条件数据量变少。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">多维标度法（MDS，Multidimensional Scaling）</div>
+          <div class="cdesc">把高维的「谁和谁有多远」关系压到 2D 平面上画成点图，让像的挨近、不像的分开。本文用它把 RDM 可视化成直觉图，但作者反复强调：降到 2D 必然失真，只能当「鸟瞰预览」，不能当定量结论。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">斯皮尔曼秩相关（Spearman rank correlation）</div>
+          <div class="cdesc">比较两张 RDM 是否一致时本文用的相关法。只看「不相似度的排序」是否一致，不要求数值线性匹配。理由：模型给的不相似度和大脑的不相似度未必成线性关系，只能假定单调关系，所以用基于排序的相关更稳。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">条件标签随机化检验（randomization test）</div>
+          <div class="cdesc">判断两张 RDM 的相关是否「显著高于碰巧」的方法：反复随机打乱条件标签（如 10000 次）重算相关，得到一个「无关时」的零分布；真实相关若落在最高的 α×100% 里就拒绝零假设。10000 次重排能给出的最小 p 值是 10⁻⁴。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-problem">它要解决的真问题</div>
+      <p>先把痛点讲透，后面的方法才有重量。要用大脑数据去检验一个计算模型，最自然的想法是把模型单元和大脑测量通道一一对上，然后逐个比对。对单个神经元的模型，这条路走得通——拿电生理记录去拟合调谐曲线，已有成功先例（如 Rieke 等 1999）。可一旦模型大到要模拟整个区域、成千上万个功能各异的单元，这条路就崩了，崩在三处：</p>
+      <ul>
+        <li><strong>空间对应崩了。</strong>哪个神经元/体素对应模型里哪个单元？要定义一一映射，得提前把仿真神经元和真实神经元的功能都刻画清楚——这本身就是个未解难题。退一步用线性变换去配，又要拟合「模型单元数 × 数据通道数」量级的权重，参数爆炸。</li>
+        <li><strong>测量手段之间也对不上。</strong>侵入式电生理、头皮电生理、fMRI 各采样神经活动的不同侧面：电生理测电活动，fMRI 测血流动力学，而血流动力学信号在时空上被位移、平滑、扭曲过。一个高分辨率 fMRI 体素反映的是数万个神经元的联合活动，头皮记录甚至是数百万个。两种手段测同一片活动，重叠但绝不等同。</li>
+        <li><strong>被试之间、物种之间更对不上。</strong>把不同被试对到 Talairach 标准空间或皮层对齐空间，精度不足以匹配高分辨率体素；跨物种（人和猴）就更别提一一对应了。</li>
+      </ul>
+      <p>这三道墙有一个共同形状：都卡在「找直接对应」上。论文的破题非常干脆——<strong>需要一种与具体测量手段无关、能刻画一个脑区「表征了什么信息」的方式</strong>。它的答案是：放弃刻画「激活模式本身」，转而刻画「激活模式之间的两两关系」，也就是 RDM。一旦表征被压成 RDM，它就和空间布局脱钩了——RDM 的行列是按刺激条件编号的，你换一种手段、换一个被试、换一个物种、换成一个模型，只要面对的是同一组刺激，产出的 RDM 就站在同一个坐标系里，可以直接比。墙就这么被绕过去了。</p>
+
+      <div class="info-block">
+        <span class="ib-title">一句话抓住直觉</span>
+        <p>传统做法想证明「刺激 ↔ 表征」直接对应（一阶同构）；RSA 改证「刺激之间的关系 ↔ 表征之间的关系」对应（二阶同构）。前者要求你认得每一栋楼，后者只要求你认得这座城市的「区与区距离地图」——而后者恰恰是跨手段、跨个体、跨物种唯一还能共享的东西。</p>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>这是一篇方法论论文，但作者用一个真实的 96 张图 fMRI 实验把方法跑通了，给出可检验的结论。下面分四个发现拆解。</p>
+
+      <div class="section-head-sub">发现一：RDM 能区分脑区，并和「对的模型」对上号</div>
+      <p>实验让 4 名被试观看 96 张物体图（含人和动物的身体、面孔，自然与人造物体），对两个脑区——早期视觉皮层（EVC）与右侧梭状回面孔区（FFA）——各算出一张 96×96 的 RDM，再拿一大批模型（V1 模型、层级最大池化模型（HMAX，Hierarchical Model and X）的 C2 层即 HMAX-C2、轮廓模型、亮度图、国际照明委员会 Lab 色彩空间（Lab，CIE L*a*b* color space，CIE 即国际照明委员会，一种贴近人眼感知的色彩坐标）、拉东变换（Radon transform），以及若干概念模型）各自的 RDM 去比对，用「1 − 斯皮尔曼相关」当偏差（越小越拟合）。结果干净利落：</p>
+      <ul>
+        <li><strong>早期视觉皮层（EVC）的最佳拟合是「轮廓图模型」（silhouette model）。</strong>这非常合理——EVC 保留视网膜地图，而本实验背景是均匀灰底，于是 fMRI 模式主要反映「被刺激区域（图形）的形状」。值得注意，连传统的 V1 Gabor 模型都不如轮廓模型拟合得好，提示在这套数据里朝向信息没有形状信息那么强地体现在 RDM 中（与 Kay 等 2008 的发现一致：朝向信息因其精细的空间组织在 fMRI 里被衰减）。</li>
+        <li><strong>右侧 FFA 的最佳拟合是一个概念模型——「面孔-动物-原型模型」（face-animal-prototype model）。</strong>这个模型假设所有面孔都引发一个「原型」响应模式（即不同面孔之间不相似度很小），动物这一更大类别也有较弱的同样倾向。它拟合得最好，意味着 FFA 大致上把面孔当成一类、聚成一团。</li>
+        <li><strong>跨复杂计算模型里，基于自然图像块的 HMAX-C2 表征对右侧 FFA 拟合最好</strong>，可能反映 FFA 表征的「更高层」性质。同时右侧 FFA 比起 V1/轮廓等模型，更像早期视觉皮层（EVC）——这或许反映从 FFA 到 EVC 的反馈，或 FFA 含有简单模型没抓住的早期视觉成分。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>这套对比之所以能说事，靠的是数据量足：96 张图、每张在每个 run 里只出现一次、试次起始异步时间（TOA，Trial-Onset Asynchrony）4 秒、每张呈现约 300 毫秒、25% 空试次、每名被试约 50 分钟 fMRI、4 名被试合计 49 个 run（约 7 小时 24 分的 fMRI 数据），用 3 特斯拉（3T）扫描仪、1.95×1.95×2 毫米的体素分辨率采集。条件丰富设计带来的「事后可任意分组」，正是从这堆数据里换来的。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：度量怎么选，决定你能不能看见范畴结构</div>
+      <p>论文用三种不相似度量法并排对照同一组活动模式：<strong>相关距离（1 − r）</strong>、<strong>欧氏距离（Euclidean distance）</strong>、<strong>绝对激活差（absolute activation difference，即两条件区域平均激活的差的绝对值）</strong>。结论是「度量不是中性的」：</p>
+      <ul>
+        <li>在右侧 FFA，<strong>相关距离矩阵清楚显示出范畴聚类</strong>——面孔（人或动物）彼此高度相关聚成一团，动物整体也较相关；而早期视觉皮层（EVC）不显示这种聚类。这与「FFA 做范畴化、EVC 做低层视觉」的图景一致。</li>
+        <li><strong>绝对激活差只对「整体激活高低」敏感</strong>：它主要捕捉「面孔 vs 无生命物体」的整体激活差、以及较弱的「有生命 vs 无生命」差。它之所以被纳入，仅因为传统 fMRI 分析习惯盯着区域平均激活——但它会把分布式模式信息丢掉。</li>
+        <li><strong>欧氏距离两头沾</strong>：既对模式形状敏感，也对空间平均激活水平和激活变异度敏感，得到的 RDM 兼有相关距离和绝对激活差两者的影子。</li>
+      </ul>
+      <p>作者由此主张：除非另有说明，分析应以<strong>相关距离</strong>为准，因为它把整体激活水平归一化掉，专门检测分布式表征，而不被全局激活强弱牵着走（全局强弱可能只是注意力之类的混杂）。这是一个看似技术、实则决定成败的选择——选错度量，FFA 的范畴结构就「看不见」了。</p>
+
+      <div class="section-head-sub">发现三：跨物种、跨手段，物体信息竟然对得上</div>
+      <p>这是全文最有冲击力的实证亮点，藏在讨论部分。作者把猴子下颞叶皮层（IT）的<strong>单细胞记录</strong>（Kiani 等 2007，用 92 张图）所得的 RDM，与人类下颞叶皮层（IT）的<strong>高分辨率 fMRI</strong> 对同一组图所得的 RDM 相比：</p>
+      <blockquote>
+        <p>两张不相似矩阵的线性相关 r（相关系数，correlation coefficient）= 0.49，p（p 值，p-value，越小越不可能是碰巧）&lt; 0.0001</p>
+      </blockquote>
+      <p>这一个数字同时跨过了两道鸿沟：<strong>跨物种</strong>（猴 ↔ 人）和<strong>跨测量手段</strong>（单细胞放电 ↔ fMRI 血氧信号）。它说明：(1) 猴和人的下颞叶皮层在用相似的方式表征物体图像；(2) 这份物体信息，无论用海量多变量信息分析去读单细胞记录还是去读高分辨率 fMRI，都被相似地反映出来。作者措辞克制地说这「令人鼓舞」，但承认这是首次在「模式信息」层面把 fMRI 与神经元记录的趋同关系摆出来——而能把这两种本来根本无法直接比较的数据放到一张可比的几何里，正是 RSA 的本事。</p>
+
+      <div class="section-head-sub">发现四：RDM 是一个「枢纽」，能把所有表征两两串起来</div>
+      <p>论文把 RDM 定位成一个<strong>中心枢纽（hub）</strong>：计算模型、脑活动数据（细胞记录、fMRI、脑电图 EEG、脑磁图 MEG）、行为数据（反应时、错误、相似性判断）——三大支流各自能产出 RDM，于是任意两者都可经由 RDM 比较。作者进一步用第二轮 MDS（先把所有 RDM 两两比成一张「不相似矩阵的不相似矩阵」，再 MDS 到 2D）把全部模型和脑区一次性铺在一张图上鸟瞰，发现左右半球的 FFA 彼此最近、左右海马旁回位置区（PPA，Parahippocampal Place Area）也彼此最近，五个脑区整体都有些关联但没有任何模型落在它们正中——暗示这些脑区共享着某种现有模型尚未捕捉的成分。由此引出几条新分析的可能：<strong>表征连接（representational connectivity）</strong>（比同一被试不同脑区的 RDM）、<strong>相似性探照灯（similarity searchlight）</strong>（拿一个球形邻域在全脑滑动，找哪里的局部表征最像某个模型）。</p>
+
+      <div class="section-head" id="sec-viz">交互：同一组刺激，两种几何</div>
+      <p>RSA 的全部精髓压在一句话里：<strong>同一组刺激，放进不同的表征空间，会得到不同的 RDM；两张 RDM 的相关系数，量化了这两个空间是不是在用同一种方式组织世界。</strong>下面这个交互件就让你亲手验证这件事。选一个表征空间看它的 RDM 热图，再选「对比空间」，下方会算出两张 RDM 在斯皮尔曼秩相关下的一致度，并把那张「相似性图标」（similarity-graph icon）画出来——这正是论文 Figure 1/2 里那种「像的连粗红线、不像的拉远」的小图。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">RDM 切换器：六个表征空间 × 同一组 8 类刺激</div>
+        <div class="viz-note">模拟数据：依论文报告的定性模式构造（FFA 把面孔聚成一类、EVC/V1 按低层形状组织、概念模型给出块状结构），用于展示「不同表征→不同 RDM→相关系数衡量一致性」的机制，非论文原始数值。</div>
+
+        <div class="viz-controls">
+          <label style="font-weight:700;color:#c0392b;">主表征空间：</label>
+          <button id="btn-evc" class="alt" data-space="evc">早期视觉皮层 EVC</button>
+          <button id="btn-ffa" class="alt" data-space="ffa">右侧梭状回面孔区 FFA</button>
+          <button id="btn-v1" class="alt" data-space="v1">V1 模型</button>
+          <button id="btn-sil" class="alt" data-space="sil">轮廓图模型</button>
+          <button id="btn-proto" class="alt" data-space="proto">面孔-动物-原型模型</button>
+          <button id="btn-anim" class="alt" data-space="anim">有生命-无生命模型</button>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start;margin-top:8px;">
+          <div style="text-align:center;">
+            <div style="font-size:0.85rem;color:#3a4048;margin-bottom:6px;font-weight:700;">RDM 热图（蓝=像，红=不像）</div>
+            <canvas id="rdmCanvas" width="340" height="340"></canvas>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:0.85rem;color:#3a4048;margin-bottom:6px;font-weight:700;">相似性图标（红线越粗越像）</div>
+            <canvas id="graphCanvas" width="300" height="300"></canvas>
+          </div>
+        </div>
+
+        <div class="viz-controls" style="margin-top:18px;border-top:1px dashed #f3c9c4;padding-top:16px;">
+          <label style="font-weight:700;color:#c0392b;">对比空间：</label>
+          <select id="cmpSelect" style="padding:6px 10px;border:1.5px solid #c0392b;border-radius:5px;font-family:inherit;font-size:0.88rem;color:#1f2328;">
+            <option value="evc">早期视觉皮层 EVC</option>
+            <option value="ffa">右侧梭状回面孔区 FFA</option>
+            <option value="v1">V1 模型</option>
+            <option value="sil">轮廓图模型</option>
+            <option value="proto" selected>面孔-动物-原型模型</option>
+            <option value="anim">有生命-无生命模型</option>
+          </select>
+        </div>
+        <div id="corrReadout" style="margin-top:8px;font-size:0.95rem;line-height:1.7;color:#1f2328;"></div>
+      </div>
+
+      <p>玩几下你会立刻摸到三件事：(1) 选「右侧 FFA」或「面孔-动物-原型模型」，左上角 4 类面孔（人脸/动物脸）会塌成一片深蓝大块——面孔被当成「一类」；(2) 选「EVC」或「V1 模型」，深蓝块沿对角线散开，按低层形状相似度组织，没有干净的范畴边界；(3) 把 FFA 和「原型模型」两两对比，秩相关会明显偏高（论文里 FFA 的最佳拟合正是这个概念模型），而 FFA 和 EVC 对比则中等——这就是 RSA 给「两个表征空间是否一致」下的定量判决。<strong>纯文字描述不出这种「几何重排」，但热图里一眼可见。</strong></p>
+
+      <div class="section-head" id="sec-stats">关键统计与控制分析</div>
+      <p>方法论论文最容易被诟病「只会自圆其说」，所以 RSA 把统计推断写得很实在。这里把几个关键控制单列出来，因为它们决定了「RDM 相关高」到底算不算数。</p>
+      <ul>
+        <li><strong>为什么用秩相关而非线性相关。</strong>比较两张 RDM 时，作者主张用斯皮尔曼秩相关而非皮尔逊线性相关或欧氏距离。理由有二：其一，模型与大脑的不相似度未必线性匹配，只能假定单调关系；其二（附录里的精彩论证），在高维响应空间里，活动模式噪声对不相似度的影响近似是一个<strong>单调变换</strong>（把所有不相似度整体放大并上移），秩相关恰好对这种单调形变免疫。</li>
+        <li><strong>关联性检验：随机化。</strong>判断两张 RDM 是否相关，不能套用经典相关检验——因为 RDM 各格不独立（每个相似度都依赖两个响应模式，而这些模式又共同决定了矩阵里其他所有格）。解法是随机打乱条件标签 10000 次，构造「无关时」的零分布，真实相关落在最高 α 区间才算显著；10000 次重排给出的最小可能 p 值是 10⁻⁴（图 8 里每个模型柱下标注的就是这个 p）。</li>
+        <li><strong>误差棒：自助重采样。</strong>对「模型偏差」的稳定性，用 bootstrap——把 96 个条件有放回地抽样、重算偏差 100 次，得到标准误。它的好处是只需 RDM 当输入、计算量小，并把结论从「这 96 个条件」推广到「条件总体」。论文也坦白这套 bootstrap 有个技术副作用：重采样时若某条件被抽中多次，会把对角线的 0 挪到非对角位置、人为压低偏差估计，所以他们在算偏差前先移除这些非对角 0。</li>
+        <li><strong>信噪比基准线。</strong>图 8 给出每个参照脑区的「不相似度信噪比（SNR，Signal-to-Noise Ratio）」：早期视觉皮层 = 0.61，右侧 FFA = 0.72。黑线标「噪声地板」（含噪 RDM 与真实 RDM 之间的期望偏差），红线标「重测偏差」（换一批被试重做实验的期望偏差）——有了这两条参照线，才能判断某个模型「拟合得好」是真的接近大脑，还是只是没差过噪声。</li>
+        <li><strong>感兴趣区（ROI，Region of Interest）的独立定义。</strong>所有 ROI 都用<strong>独立数据</strong>定义：右侧 FFA 由单独的「面孔减物体」定位实验（block 设计）划定，早期视觉皮层由解剖+视觉响应性（用每个 session 三分之一 run 评估、其余 run 做 RSA）划定。用与主分析正交的数据来圈 ROI，避免了「用同一批数据既圈区又分析」的循环论证。</li>
+      </ul>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>把这套方法里几个真正聪明的设计抽出来列成表，每一条都对应一个「本可以做错、但他们做对了」的决策点。</p>
+      <table>
+        <thead>
+          <tr><th>设计</th><th>怎么做</th><th>为什么这么做（精妙在哪）</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>抽掉空间布局</td>
+            <td>用 RDM（按条件编号）替代激活模式（按空间编号）</td>
+            <td>一举回避空间对应问题；让脑/模型/行为/跨物种的表征落进同一坐标系，可直接比。</td>
+          </tr>
+          <tr>
+            <td>二阶同构</td>
+            <td>比「相似性的相似性」而非「刺激-表征直接对应」</td>
+            <td>给出一个比一阶更普适的功能视角；即使无法建立直接对应，仍能定量关联两种表征。</td>
+          </tr>
+          <tr>
+            <td>相关距离当度量</td>
+            <td>不相似度 = 1 − 跨空间皮尔逊相关</td>
+            <td>同时归一化整体激活水平与激活变异度，专测分布式模式形状，不被全局强弱（如注意力）误导。</td>
+          </tr>
+          <tr>
+            <td>秩相关比矩阵</td>
+            <td>用斯皮尔曼秩相关比两张 RDM</td>
+            <td>不假定线性匹配；且对「噪声引起的单调形变」免疫——附录给了高维空间下的几何论证。</td>
+          </tr>
+          <tr>
+            <td>条件丰富 + 未分组事件设计</td>
+            <td>96 张图各自成一类、随机序列、TOA=4s、单试次可分离</td>
+            <td>把信号的时间容量用满、不预先块状平均；事后可任意分组、做探索性分析，一套数据回答多个问题（作者称之为「证据的晚组合」）。</td>
+          </tr>
+          <tr>
+            <td>晚承诺 / 晚组合证据</td>
+            <td>实验设计阶段尽量少塞理论假设，把平均、分组推迟到分析阶段</td>
+            <td>一个能回答 100 个问题的通用设计，胜过一个只答 1 个问题、效率略高的专用设计；也利于跨研究组共享数据。</td>
+          </tr>
+          <tr>
+            <td>双重统计护栏</td>
+            <td>关联性用标签随机化检验、拟合稳定性用 bootstrap 误差棒</td>
+            <td>针对 RDM 各格不独立、条件是总体抽样这两个特性分别设计推断，避免误用经典相关检验。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>RSA 不是凭空冒出来的，它把心理学、数学、神经科学里几股线索拧成了一束。理清它「站在谁的肩上、又往前迈了哪一步」，能更准确地估它的分量。</p>
+      <ul>
+        <li><strong>哲学/心理学根：二阶同构。</strong>核心概念直接取自 Shepard & Chipman（1970）的「内部表征的二阶同构」，并接续 Shepard、Torgerson、Kruskal & Wish 等人关于相似性结构与 MDS 的传统。Edelman（1998）更早把相似性分析的思路引入 fMRI 并用 MDS——本文坦承 Edelman 是先行者，自己是把这条路「系统化、定量化、并配上统计推断」。</li>
+        <li><strong>方法谱系：多变量模式信息分析。</strong>2000 年代 fMRI 与电生理的「模式信息分析」（pattern-information analysis，如解码/分类）正在兴起（Haxby 等 2001、Haynes & Rees、Norman 等 2006、Kamitani & Tong 2005 等一长串）。RSA 与它们共享「关注分布式模式、跨时空整合信息」的内核，但有个关键分野：<strong>分类法做的是一阶同构</strong>（证明每个条件有独特模式、能被解码），<strong>RSA 做的是二阶同构</strong>（看模式间不相似度结构是否匹配模型预测）。作者把分类视为 RSA 的一个特例（用二元模型 RDM 时即退化为「两条件能否区分」）。</li>
+        <li><strong>与解码/分类的取舍。</strong>论文诚实地指出：相比分类法，这个 RSA 简版在处理结构化噪声、非线性表征几何上更朴素、理论偏差更小（不预设要区分的维度），但代价是估计非线性关系需要大量数据。两者各擅其场。</li>
+        <li><strong>实验设计谱系。</strong>条件丰富/未分组事件设计接续事件相关 fMRI（Buckner 1998）与快速事件相关设计，并把它推到极端——单一事件设计、时间连续实验（如看电影，Hasson 等 2004）。设计效率的权衡借助经典广义线性模型框架（Boynton 等 1996；Worsley & Friston）来分析。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇论文真正的「射程」远超它示范的视觉实验。把它的思想抽象出来，会发现它给好几个领域递了把钥匙。</p>
+      <ul>
+        <li><strong>给「类脑模型评测」一个公共标尺。</strong>任何能接受同一组刺激、产出分层内部表征的计算模型（包括今天的深度神经网络），都能算出每层的 RDM，与各脑区 RDM 比对。这正是后来「用 RSA 比较卷积神经网络各层与腹侧视觉通路各区」一整支研究的方法基石——本文写在 2008 年，预埋了这条路。</li>
+        <li><strong>给跨学科数据共享一个接口。</strong>论文用相当篇幅论证：若各实验室都采用「通用设计 + 公开刺激图与响应模式 + 可处理任意刺激的计算模型」，就能围绕某个子领域（如物体视觉 fMRI）建一个协作门户，让理论组和实验组经由「信息丰富的定量接口」对接。这是把 RSA 从一个分析法上升成一种<strong>科研组织方式</strong>的设想。</li>
+        <li><strong>给「时间连续的自然实验」松绑。</strong>RSA 能处理唯一事件设计乃至时间连续实验（每个采集体积当一个条件，算出 time² 不相似矩阵）。这对研究自然刺激（电影、玩游戏、虚拟现实交互）这类「无法重复、生态效度高」的范式特别友好——传统块设计在这里几乎失效。</li>
+        <li><strong>方法层面的可迁移性。</strong>「别对齐元件，去对齐元件间的关系结构」这个动作，本质上是个领域无关的招法。任何两个高维系统，只要能定义「内部状态之间的距离」，就能用二阶同构去比较——这也是为何 RSA 的思路后来溢出神经科学，被借去比较不同模型、不同模态的表征。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>作者自己留了不少诚实的口子，也有一些是论文没明说、但读者应当警惕的。分开列。</p>
+      <p><strong>论文自己承认的局限：</strong></p>
+      <ul>
+        <li><strong>fMRI 到底反映了多少神经元模式信息，不确定。</strong>fMRI 体素经由复杂的时空血流动力学变换采样神经活动；若 fMRI 只反映「时空局部平均」，那么高空间/时间频率上的神经元模式差异会被衰减甚至抹掉。作者说 fMRI 的敏感度「出人意料地高」（令人鼓舞），但这也意味着「神经元→fMRI」的变换比想象的更复杂，更难预测 fMRI 模式到底保留了哪些神经元信息。</li>
+        <li><strong>这个简版 RSA 在结构化噪声和非线性几何上偏弱。</strong>论文明说当前实现「不如分类法精细」，因为它没显式建模结构化噪声，也没刻画非线性表征几何；要上更复杂的不相似度度量、估计非线性关系，需要大量数据，对条件丰富实验里「每个条件对数据量很小」是个现实压力。</li>
+        <li><strong>统计推断仍不完整。</strong>作者反复用「这些方法尚待发展（yet to be developed）」收尾：两张 RDM「是否不同」（而非是否相关）的检验、两个模型拟合优劣的正式比较、从「实验用的条件样本」推广到「条件总体」的形式化推断——这些都列为「激动人心的待研究方向」，即当时还没有成熟工具。</li>
+        <li><strong>缺乏信息论量化。</strong>RDM 直觉上「封装了条件的模式信息」，但论文承认还做不到不依赖编码假设的、形式化的互信息量化——高维分布的互信息估计在 fMRI 这种「数据点远少于维度」的情形下对噪声极敏感。</li>
+        <li><strong>设计选择带主观性。</strong>条件丰富设计里 TOA 选多少（本文选 4 秒）依赖「在保证血流动力学近似线性的前提下尽量短」的<strong>有据猜测</strong>——靠近线性极限能提效率，但太短事件会在神经元和血流动力学层面非线性地相互作用，破坏线性系统假设。这个权衡需要人为判断，没有客观最优。</li>
+      </ul>
+      <p><strong>论文没明说、但值得追问的：</strong></p>
+      <ul>
+        <li><strong>4 名被试、单一刺激集，结论的稳健性有限。</strong>96 图实验只有 4 名被试，且刺激集（Kiani 等 2007 的那 96 张）的具体构成会影响哪些图「在朝向上相似但在整体不相似度上中等」——换一套刺激（如光栅刺激），EVC 的「轮廓模型最佳」结论可能就变。作者在脚注里点了这层依赖，但正文把它当成稳健发现来叙述，读者宜留一分保留。</li>
+        <li><strong>「模型拟合最好」不等于「模型是对的机制」。</strong>轮廓模型拟合 EVC 最好、原型模型拟合 FFA 最好，是相关性陈述，不能反推这些模型刻画了真实的神经计算机制——尤其概念模型（如原型模型）本身是「奇迹般地」给出假想相似性结构、不指定信息如何被计算出来的。RDM 的匹配是必要线索，不是机制证明。</li>
+        <li><strong>跨物种 r = 0.49 的解读边界。</strong>这个相关令人振奋，但它同时混入了物种差异、手段差异、刺激集差异（猴用 92 图、人用 96 图、二者非完全相同），r = 0.49 也只能说「中等」一致，剩下一半以上方差去哪了、是噪声还是真实差异，论文没拆开。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每一条都尽量绑回文中证据。</p>
+      <p><strong>这是一篇被时间证明了的奠基性论文，分量主要在「框架」而非「实验」。</strong>它最大的贡献是把一个旧哲学概念（Shepard & Chipman 1970 的二阶同构）锻造成一套<strong>可操作、可统计推断、可跨手段使用</strong>的分析框架，并给它起了个传播力极强的名字（RSA/RDM）。判断依据是：论文本身大半篇幅在讲方法、设计哲学（晚承诺、晚组合证据、数据共享门户），实验只是「证明这套方法跑得通」的演示——这是典型的「立范式」而非「报结果」的论文，而它后来确实成了 fMRI 模式分析与类脑模型评测的通用语言。</p>
+      <p><strong>核心招法（抽掉空间布局、改比关系）是真正的洞见，不是包装。</strong>依据是它一举解决了三道独立的墙（跨手段、跨被试、跨物种），而这三道墙共享「找直接对应」这个病根——一个动作同时拔掉三处病根，说明抓到了问题的结构本质，而非个案技巧。跨物种 r = 0.49、p < 0.0001 这个原本「根本无法比较」的对照能被做出来，是这招威力的硬证据。</p>
+      <p><strong>统计上的自觉程度高于同期同类工作。</strong>依据：论文没有满足于「RDM 看起来像」，而是针对 RDM 各格不独立设计了标签随机化检验、针对条件抽样设计了 bootstrap 误差棒、给出信噪比基准线（EVC=0.61、FFA=0.72）与噪声地板/重测两条参照线，并在附录从高维几何论证「为何该用秩相关」。这种把「显著」拆成具体机制的克制，是可信度的来源。</p>
+      <p><strong>但要警惕把它的实验结论当强证据。</strong>依据：4 名被试、单一刺激集、且作者自己在脚注承认 EVC 结论依赖刺激构成；「模型拟合最好」是相关而非机制。把「轮廓模型最佳拟合 EVC」读成「EVC 就是在算轮廓」会过度。论文的可信内核是<strong>方法本身</strong>，实验是恰当但有限的示范。</p>
+      <p><strong>诚实度加分。</strong>依据：论文反复用「方法尚待发展」标注自己的空白（RDM 差异检验、模型比较、条件总体推断、互信息量化全部明确列为未解），没有把演示包装成定论。这种把局限写在明处的姿态，反而提高了整篇的可信权重。</p>
+      <p><strong>解读者总评：</strong>作为「方法论文」它接近满分——抓住真问题、给出优雅且普适的解、配上克制的统计与诚实的边界；作为「实证论文」它是合格的演示而非强结论。它的历史地位（成为一个领域的通用语言）回头看是名副其实的，而这恰恰来自它把劲用在了「框架」而非「结果」上的判断。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>当你无法把模型的零件和大脑的零件一一对上时，就别比零件、改比「零件之间的关系」——Kriegeskorte 等人把每个表征压成一张「谁和谁有多不像」的不相似矩阵（RDM），让大脑某区、计算模型、行为度量乃至猴脑的表征都落进同一种相似性几何里直接相关（猴-人下颞叶皮层跨物种跨手段相关 r = 0.49，p < 0.0001；右侧 FFA 信噪比 0.72，最佳拟合是「面孔聚成一类」的概念模型，早期视觉皮层最佳拟合是轮廓模型），由此用一个相关系数定量回答「这两种表征是不是在用同一种方式组织世界」——这套叫 RSA 的框架，成了连接系统神经科学三大支流的通用语言。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity analysis – connecting the branches of systems neuroscience. <em>Frontiers in Systems Neuroscience</em>, 2:4. doi:10.3389/neuro.06.004.2008（开放获取）。<br>
+    <strong>说明：</strong>本文为基于原文的中文深度解读，交互组件为依论文报告的定性模式构造的模拟数据，仅用于演示 RSA 机制，非论文原始数值；统计数字（r、p、信噪比、样本量、参数数）均引自原文。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  // ===== 8 类示意刺激（对应论文的范畴轴：人/动物 × 面孔/身体，自然物/人造物） =====
+  var labels = ["人脸","动物脸","人体","动物体","自然物A","自然物B","人造物A","人造物B"];
+  var N = labels.length;
+
+  // 每个表征空间：给每个刺激一个低维"特征向量"，再由向量算两两相关距离(1-r)得到 RDM。
+  // 这样不同空间天然产生不同 RDM，且能算空间之间的一致性，机制与论文一致。
+  // 向量维度任意，仅需体现该空间"如何组织世界"的定性结构。
+  function vec(arr){return arr;}
+  var spaces = {
+    // FFA: 面孔（前4类里的两张脸）高度相似聚成一团；身体次之；物体分散
+    ffa: {name:"右侧梭状回面孔区 FFA", v:[
+      vec([9,9,1,0, 0,0, 0,0]),   // 人脸
+      vec([9,8,1,1, 0,0, 0,0]),   // 动物脸  —— 与人脸高度相关
+      vec([2,2,6,5, 1,1, 1,0]),   // 人体
+      vec([1,2,5,6, 1,1, 0,1]),   // 动物体
+      vec([0,0,1,1, 6,3, 2,2]),   // 自然物A
+      vec([0,0,1,1, 3,6, 2,2]),   // 自然物B
+      vec([0,0,1,0, 2,2, 7,4]),   // 人造物A
+      vec([0,0,0,1, 2,2, 4,7])    // 人造物B
+    ]},
+    // 原型模型: 面孔全部塌成同一原型(彼此几乎0距离)，动物类弱原型
+    proto: {name:"面孔-动物-原型模型", v:[
+      vec([10,10,0,0, 0,0, 0,0]),
+      vec([10,10,0,0, 0,0, 0,0]),   // 与人脸几乎相同 → 距离≈0
+      vec([3,3,7,7, 0,0, 0,0]),     // 动物身体弱原型
+      vec([3,3,7,7, 0,0, 0,0]),
+      vec([0,0,0,0, 5,3, 3,3]),
+      vec([0,0,0,0, 3,5, 3,3]),
+      vec([0,0,0,0, 3,3, 5,3]),
+      vec([0,0,0,0, 3,3, 3,5])
+    ]},
+    // 有生命-无生命: 严格块状——前4(有生命)一团，后4(无生命)一团
+    anim: {name:"有生命-无生命模型", v:[
+      vec([8,8,8,8, 0,0,0,0]),
+      vec([8,8,8,8, 0,0,0,0]),
+      vec([8,8,8,8, 0,0,0,0]),
+      vec([8,8,8,8, 0,0,0,0]),
+      vec([0,0,0,0, 8,8,8,8]),
+      vec([0,0,0,0, 8,8,8,8]),
+      vec([0,0,0,0, 8,8,8,8]),
+      vec([0,0,0,0, 8,8,8,8])
+    ]},
+    // EVC: 按低层"形状/轮廓"组织——无干净范畴边界，沿对角线渐变，面孔不聚团
+    evc: {name:"早期视觉皮层 EVC", v:[
+      vec([5,4,3,2, 2,1, 1,1]),
+      vec([4,5,4,3, 2,2, 1,1]),
+      vec([3,4,5,4, 3,2, 2,1]),
+      vec([2,3,4,5, 4,3, 2,2]),
+      vec([2,2,3,4, 5,4, 3,2]),
+      vec([1,2,2,3, 4,5, 4,3]),
+      vec([1,1,2,2, 3,4, 5,4]),
+      vec([1,1,1,2, 2,3, 4,5])
+    ]},
+    // V1 模型: 与 EVC 同族(低层形状)，略有不同的渐变，制造与 EVC 的高相关但非完全一致
+    v1: {name:"V1 模型", v:[
+      vec([5,4,2,2, 2,1, 1,0]),
+      vec([4,5,3,2, 2,2, 1,1]),
+      vec([2,3,5,4, 3,2, 1,1]),
+      vec([2,2,4,5, 4,3, 2,1]),
+      vec([2,2,3,4, 5,4, 3,2]),
+      vec([1,2,2,3, 4,5, 4,3]),
+      vec([1,1,1,2, 3,4, 5,4]),
+      vec([0,1,1,1, 2,3, 4,5])
+    ]},
+    // 轮廓图模型: 偏向"被刺激区域形状"，身体/物体按轮廓相似，与 EVC 较接近
+    sil: {name:"轮廓图模型", v:[
+      vec([5,4,4,3, 2,2, 1,1]),
+      vec([4,5,4,4, 2,2, 1,1]),
+      vec([4,4,5,4, 3,2, 2,2]),
+      vec([3,4,4,5, 3,3, 2,2]),
+      vec([2,2,3,3, 5,4, 3,3]),
+      vec([2,2,2,3, 4,5, 4,3]),
+      vec([1,1,2,2, 3,4, 5,4]),
+      vec([1,1,2,2, 3,3, 4,5])
+    ]}
+  };
+
+  // ---- 相关距离 1 - pearson(a,b) ----
+  function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length;}
+  function pearson(a,b){
+    var ma=mean(a), mb=mean(b), num=0, da=0, db=0;
+    for(var i=0;i<a.length;i++){var x=a[i]-ma, y=b[i]-mb; num+=x*y; da+=x*x; db+=y*y;}
+    if(da===0||db===0) return 0;
+    return num/Math.sqrt(da*db);
+  }
+  function buildRDM(space){
+    var v=spaces[space].v, R=[];
+    for(var i=0;i<N;i++){R[i]=[];for(var j=0;j<N;j++){R[i][j]= (i===j)?0:(1-pearson(v[i],v[j]));}}
+    return R;
+  }
+  // RDM 缓存
+  var RDMs={};
+  for(var k in spaces){ RDMs[k]=buildRDM(k); }
+
+  // ---- 取上三角向量(不含对角线) ----
+  function upper(R){var out=[];for(var i=0;i<N;i++)for(var j=i+1;j<N;j++)out.push(R[i][j]);return out;}
+  // ---- 斯皮尔曼秩相关 = 对秩做皮尔逊 ----
+  function ranks(arr){
+    var idx=arr.map(function(v,i){return [v,i];});
+    idx.sort(function(a,b){return a[0]-b[0];});
+    var r=new Array(arr.length);
+    var i=0;
+    while(i<idx.length){
+      var j=i; while(j+1<idx.length && idx[j+1][0]===idx[i][0]) j++;
+      var avg=(i+j)/2 + 1;
+      for(var k2=i;k2<=j;k2++) r[idx[k2][1]]=avg;
+      i=j+1;
+    }
+    return r;
+  }
+  function spearman(a,b){ return pearson(ranks(a),ranks(b)); }
+
+  // ---- 颜色映射: jet-ish 蓝(像/小)→红(不像/大) ----
+  function jet(t){
+    t=Math.max(0,Math.min(1,t));
+    var r,g,b;
+    if(t<0.25){r=0;g=Math.round(t/0.25*255);b=255;}
+    else if(t<0.5){r=0;g=255;b=Math.round((1-(t-0.25)/0.25)*255);}
+    else if(t<0.75){r=Math.round((t-0.5)/0.25*255);g=255;b=0;}
+    else{r=255;g=Math.round((1-(t-0.75)/0.25)*255);b=0;}
+    return "rgb("+r+","+g+","+b+")";
+  }
+
+  var current="evc";
+  var rdmCanvas=document.getElementById("rdmCanvas");
+  var graphCanvas=document.getElementById("graphCanvas");
+  var rctx=rdmCanvas.getContext("2d");
+  var gctx=graphCanvas.getContext("2d");
+
+  function drawRDM(space){
+    var R=RDMs[space];
+    // 找该矩阵最大值做归一化(让色彩铺满)
+    var maxv=0; for(var i=0;i<N;i++)for(var j=0;j<N;j++) if(R[i][j]>maxv) maxv=R[i][j];
+    if(maxv===0) maxv=1;
+    var pad=70, size=rdmCanvas.width-pad-8, cell=size/N, ox=pad, oy=6;
+    rctx.clearRect(0,0,rdmCanvas.width,rdmCanvas.height);
+    // 画格
+    for(var i=0;i<N;i++){
+      for(var j=0;j<N;j++){
+        rctx.fillStyle=jet(R[i][j]/maxv);
+        rctx.fillRect(ox+j*cell, oy+i*cell, cell-0.5, cell-0.5);
+        if(i===j){
+          // 对角线标 0
+          rctx.fillStyle="#fff";
+          rctx.font="10px sans-serif";rctx.textAlign="center";rctx.textBaseline="middle";
+          rctx.fillText("0", ox+j*cell+cell/2, oy+i*cell+cell/2);
+        }
+      }
+    }
+    // 行标签
+    rctx.fillStyle="#3a4048";rctx.font="10px sans-serif";rctx.textBaseline="middle";
+    for(var i2=0;i2<N;i2++){
+      rctx.textAlign="right";
+      rctx.fillText(labels[i2], ox-4, oy+i2*cell+cell/2);
+    }
+    // 顶部小标
+    rctx.textAlign="left";rctx.fillStyle="#6b7280";rctx.font="11px sans-serif";
+  }
+
+  function drawGraph(space){
+    var R=RDMs[space];
+    var maxv=0; for(var i=0;i<N;i++)for(var j=0;j<N;j++) if(R[i][j]>maxv) maxv=R[i][j];
+    if(maxv===0) maxv=1;
+    var cx=graphCanvas.width/2, cy=graphCanvas.height/2, rad=110;
+    gctx.clearRect(0,0,graphCanvas.width,graphCanvas.height);
+    // 节点位置(圆周均布)
+    var pos=[];
+    for(var i=0;i<N;i++){
+      var ang=-Math.PI/2 + i/N*2*Math.PI;
+      pos.push([cx+rad*Math.cos(ang), cy+rad*Math.sin(ang)]);
+    }
+    // 连线: 越像(距离越小)红线越粗
+    for(var i=0;i<N;i++){
+      for(var j=i+1;j<N;j++){
+        var sim = 1 - R[i][j]/maxv; // 0..1, 1=最像
+        if(sim<0.12) continue; // 太不像不画
+        var w = 0.4 + sim*sim*5.0;
+        gctx.strokeStyle = "rgba(192,57,43,"+(0.15+sim*0.85)+")";
+        gctx.lineWidth = w;
+        gctx.beginPath();
+        gctx.moveTo(pos[i][0],pos[i][1]);
+        gctx.lineTo(pos[j][0],pos[j][1]);
+        gctx.stroke();
+      }
+    }
+    // 节点
+    for(var i=0;i<N;i++){
+      gctx.fillStyle="#1f2328";
+      gctx.beginPath();gctx.arc(pos[i][0],pos[i][1],5,0,2*Math.PI);gctx.fill();
+      gctx.fillStyle="#3a4048";gctx.font="10px sans-serif";
+      var lx=pos[i][0], ly=pos[i][1];
+      gctx.textAlign = (lx<cx-10)?"right":((lx>cx+10)?"left":"center");
+      gctx.textBaseline = (ly<cy)?"bottom":"top";
+      var dx = (lx<cx-10)?-7:((lx>cx+10)?7:0);
+      var dy = (ly<cy)?-7:7;
+      gctx.fillText(labels[i], lx+dx, ly+dy);
+    }
+  }
+
+  function updateCorr(){
+    var cmp=document.getElementById("cmpSelect").value;
+    var rho=spearman(upper(RDMs[current]), upper(RDMs[cmp]));
+    var box=document.getElementById("corrReadout");
+    var verdict;
+    if(current===cmp){ verdict="（同一空间与自己比，必然完全一致）"; }
+    else if(rho>=0.8){ verdict="——高度一致：这两个空间几乎在用同一种方式组织这组刺激。"; }
+    else if(rho>=0.5){ verdict="——中等一致：组织方式有明显共性，但也有实质差异。"; }
+    else if(rho>=0.2){ verdict="——弱一致：只共享少量结构。"; }
+    else { verdict="——几乎无关：两个空间对这组刺激的组织方式很不一样。"; }
+    box.innerHTML = "主空间 <strong style='color:#c0392b'>"+spaces[current].name+"</strong> 与对比空间 <strong style='color:#c0392b'>"+spaces[cmp].name+
+      "</strong> 的两张 RDM，斯皮尔曼秩相关 ρ = <strong style='font-size:1.1rem;color:#c0392b'>"+rho.toFixed(2)+"</strong> "+verdict;
+  }
+
+  function refresh(){
+    drawRDM(current);
+    drawGraph(current);
+    updateCorr();
+    // 高亮当前主空间按钮
+    var btns=document.querySelectorAll(".viz-box button[data-space]");
+    btns.forEach(function(b){
+      if(b.getAttribute("data-space")===current){ b.className=""; }
+      else { b.className="alt"; }
+    });
+  }
+
+  // 事件绑定
+  document.querySelectorAll(".viz-box button[data-space]").forEach(function(b){
+    b.addEventListener("click",function(){ current=b.getAttribute("data-space"); refresh(); });
+  });
+  document.getElementById("cmpSelect").addEventListener("change", updateCorr);
+
+  refresh();
+})();
+</script>
+</body>
+</html>

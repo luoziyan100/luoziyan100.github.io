@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libet 1983 深度解读 · 准备电位与自由意志</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Libet 1983 <span>×</span> 当你"决定"动手时，大脑早在半秒前就已经动身了</h1>
+    <div class="meta">
+      <span>📄 Time of Conscious Intention to Act in Relation to Onset of Cerebral Activity (Readiness-Potential): The Unconscious Initiation of a Freely Voluntary Act</span><br>
+      <span>✍️ Benjamin Libet, Curtis A. Gleason, Elwood W. Wright, Dennis K. Pearl</span><br>
+      <span>🏛️ 美国加州大学旧金山分校（UCSF）生理系、Mount Zion 医院神经科学系、加州大学伯克利分校（UC Berkeley）统计系</span><br>
+      <span>📅 《Brain》（脑）期刊 · 1983 年 · 第 106 卷 · 623–642 页</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-clock">交互：经典 Libet 钟实验</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-f1">发现一：意愿来晚了约 350 毫秒</a></li>
+        <li><a href="#sec-f2">发现二：意愿确实早于动作</a></li>
+        <li><a href="#sec-f3">发现三：三类准备电位</a></li>
+        <li><a href="#sec-control">关键控制：意外的 M 与 S</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这篇论文用一台示波器、一个旋转的光点和几块电极，把"自由意志"这个两千年的哲学问题第一次塞进了实验室，并给出了一个让所有人不安的时间表：<strong>当你"自发地"决定弯一下手指时，你的大脑早在你意识到这个念头之前约 350 毫秒就已经开始为这个动作做准备了。</strong></p>
+        <p>核心数字一句话：在最干净的"凭空冒出念头"条件下，大脑的<span class="term">准备电位（RP，Readiness Potential）</span>平均在动作前约 <strong>550 毫秒</strong>启动，而你<strong>意识到"我想动"</strong>的那一刻（记为 W）只发生在动作前约 <strong>200 毫秒</strong>。也就是说，意识似乎不是发令枪，而是个迟到的旁观者——它在大脑已经发车之后才上车。</p>
+        <p>这个结果之所以四十年来被反复引用、争论、复现、攻击，是因为它把一个抽象命题变成了可测量的毫秒数：如果"决定"在意识之前由大脑无意识地启动，那"自由意志"还剩下什么？Libet 自己给出的答案——也是本文最被低估的部分——是一个精巧的让步：意识也许不能"发起"，但还有约 150–200 毫秒的窗口可以"否决"。这是<strong>"自由否决权"（free won't）</strong>的起源。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的难点不在统计，而在它造了一整套"测量主观瞬间"的词汇。下面 9 个概念吃透了，全文就通了。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">准备电位（RP，Readiness Potential；德语原称 Bereitschaftspotential）</div>
+          <div class="cdesc">头皮上记录到的一段缓慢的负向电压漂移，在一个自我发起的动作之前最多提前 1 秒以上就开始爬升。它由 Kornhuber 和 Deecke 于 1965 年发现，被视为"大脑正在酝酿一个动作"的电生理签名。打个比方：它像运动员起跑前肌肉里那股还没动、却已经绷紧的劲。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">W 时刻（W，awareness of Wanting / 想动的意识）</div>
+          <div class="cdesc">受试者第一次意识到"我想动了 / 我有动的冲动"的那个主观瞬间。这是全文的主角变量。注意它问的不是"我决定要不要动"，而是那股<strong>最早的冲动</strong>冒头的时刻。类比：你不是先开会投票才举手，而是手"自己想举"那一下的感觉。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">M 时刻（M，awareness of Moving / 动了的意识）</div>
+          <div class="cdesc">受试者意识到"我实际动了"的瞬间，作为 W 的对照。设计它是为了检验受试者能否区分"想动"和"动了"这两种内省体验——如果两者报出的时间不同，就说明 W 不是事后从"感觉到动"倒推的。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">S 时刻（S，awareness of Skin stimulus / 皮肤刺激的意识）</div>
+          <div class="cdesc">一个关键的客观对照条件：在随机未知的时刻给手背一个接近阈值的电脉冲，受试者报告"感觉到"的瞬间。因为刺激的真实时刻实验者完全知道，所以可以反推每个人报时的系统性"偏差"，用来校正 W。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">Libet 钟（阴极射线示波器旋转光点法）</div>
+          <div class="cdesc">本文的核心发明。在一台阴极射线示波器（CRO，Cathode Ray Oscilloscope）屏幕上，一个光点沿圆周旋转，转一圈只要 <strong>2.56 秒</strong>（不是钟表的 60 秒）；表盘相邻刻度间隔对应约 <strong>107 毫秒</strong>真实时间。受试者把"我想动"那一刻光点的位置记下来，事后报出，从而把一个主观瞬间换算成毫秒级的钟面读数。类比：像用秒表给"灵光一闪"打卡。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">肌电图（EMG，Electromyogram）与"零时刻"</div>
+          <div class="cdesc">贴在右前臂肌肉上的电极记录肌肉激活的电信号。肌肉开始放电的那一刻被定为<strong>"0 时刻"</strong>，即动作真正发生的基准点。文中所有负数（如 −200 毫秒）都表示"在 0 时刻之前这么多毫秒"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">脑电图（EEG，Electroencephalogram）与顶点记录</div>
+          <div class="cdesc">头皮电极记录的大脑电活动；准备电位就是从 EEG 里提取的。本研究主要在头顶<strong>顶点（vertex，即 Cz 位置）</strong>记录，因为该处的 RP 幅度最大。由于单次太微弱，需把 40 次试验<strong>叠加平均</strong>才能看清。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">主负偏移（MN，Main Negative shift）与 90% 面积法</div>
+          <div class="cdesc">如何客观界定"RP 从哪一刻开始"？本文用了两把尺子：（1）MN，肉眼判读主负向偏移的起点，并由第二位研究者独立复核；（2）RP90%，曲线下 90% 的面积所覆盖的起点。两套标准互为保险，避免"起点"成了主观划线。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">自由否决权（free won't / 意识否决）</div>
+          <div class="cdesc">本文结论的安全阀，由 Libet 在讨论中提出。既然意识到"想动"（约 −200 毫秒）仍然早于实际动作（0 毫秒）约 150–200 毫秒，那么这段窗口里意识或许无法"发起"动作，但还来得及"叫停"它。自由意志因此被重新表述为"自由不为"。</div>
+        </div>
+
+      </div>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-clock">交互：经典 Libet 钟实验</div>
+      <p>纯文字很难让人对"意识迟到 350 毫秒"产生身体感。下面这个组件复刻了 1983 年实验室里的那块示波器屏幕：一个光点在 2.56 秒里转一圈，三个关键时刻被标在时间线上。点"开始一次试验"，看着光点转，亲眼确认——当你"觉得自己想动"时，大脑早已动身大半秒。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">Libet 钟 · 一次"自发动作"的时间解剖</div>
+        <div class="viz-note">数字基于论文 Table 2 报告的 Type II（最干净的"自发"条件）平均值：RP 起始 ≈ −550 毫秒、W 有意识意愿 ≈ −200 毫秒、动作 EMG ≈ 0 毫秒。展示的是定性模式，非某一次原始记录。</div>
+
+        <canvas id="libetClock" width="760" height="430"></canvas>
+
+        <div class="viz-controls">
+          <button id="btnStart">▶ 开始一次试验</button>
+          <button id="btnReset" class="alt">重置</button>
+          <label style="margin-left:8px;">慢放：</label>
+          <label><input type="radio" name="spd" value="1" checked> 1×</label>
+          <label><input type="radio" name="spd" value="0.25"> 0.25× 慢动作</label>
+        </div>
+        <div class="viz-note" id="clockStatus" style="margin-top:4px;min-height:1.2em;">准备就绪。光点转一圈 = 2.56 秒；表盘整圈映射到动作前后约 ±1.28 秒。</div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">读这张图的关键</span>
+        <p>三个竖标记从左到右依次点亮，正是论文的核心叙事：<strong>红色 RP 起点（约 −550 毫秒）→ 蓝色 W 意识意愿（约 −200 毫秒）→ 黑色动作（0 毫秒）</strong>。红到蓝之间那段约 <strong>350 毫秒</strong>的空白，就是"大脑已经开动、而你还没意识到"的无意识窗口；蓝到黑之间那段约 <strong>200 毫秒</strong>，则是 Libet 留给"自由否决权"的最后窗口。</p>
+      </div>
+
+      <!-- ============ 核心发现 ============ -->
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>论文的逻辑是一条递进的证据链：先证明意识来得太晚（发现一），再排除"那是不是测错了"（发现二、三与控制条件），最后逼出那个让人不安的结论。下面逐节拆。</p>
+
+      <div class="section-head-sub" id="sec-f1">发现一：意愿（W）平均只比动作早 200 毫秒，却比大脑准备晚了约 350 毫秒</div>
+      <p>这是全文的核心数字。在所有可用序列里，受试者意识到"想动"的平均时刻 W ≈ <strong>−204 毫秒</strong>（n = 37 个序列，见 Table 2D）。乍看"动作前 200 毫秒就有意识"似乎挺早。但把它和大脑的准备电位放一起，故事就翻转了。</p>
+      <p>在 <strong>Type II（II 型）</strong>准备电位的序列里——这是最关键的条件，因为这些序列中全部 40 次动作都被受试者报告为"凭空冒出、毫无预谋"——准备电位的主负偏移起点（MN）平均在 <strong>−535 毫秒</strong>。两者相减：<strong>大脑的准备活动平均比有意识的意愿早了约 343 毫秒开始</strong>（论文取整后在摘要里写作"约 350 毫秒，最小约 150 毫秒"）。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：把 350 毫秒放进生活</span>
+        <p>350 毫秒大约是一次眨眼的时间，或你听到发令枪到迈出第一步的反应时长。换句话说，在你"感到自己想动"之前，大脑已经悄悄准备了相当于一次完整眨眼那么久。意识不是按下扳机的手，更像扳机已被扣动后，仪表盘上才亮起的那盏"正在开火"指示灯。</p>
+      </div>
+
+      <p>稳健性方面有两点值得记住。其一，方向高度一致：在 37 个 W 序列中有 <strong>36 个</strong>，平均 RP 起点都早于平均 W；甚至在 26 个序列里，连<strong>单次试验</strong>的 W 也几乎总是被平均 RP 起点抢先。其二，作者很诚实地承认无法给这个差值算一个严格的标准差（SD，Standard Deviation，即数据围绕均值的离散程度），因为单次 RP 太弱、必须 40 次叠加，只有"平均 RP"才有意义；但他们指出，这个差值远大于平均 W 的标准误（SE/SEM，Standard Error of the Mean，即均值估计的不确定度），因此差异在统计上是可靠的。</p>
+
+      <div class="section-head-sub" id="sec-f2">发现二：意愿（W）确实早于"动了"的意识（M），证明它不是事后倒推</div>
+      <p>一个致命的质疑是：会不会受试者其实是先感觉到手动了，再反推说"我刚才想动了"？如果是这样，W 就毫无意义。Libet 用 M 条件堵死了这条路。</p>
+      <p>结果是：在每个受试者的每个对应序列里，<strong>W 都一致地比 M 更负（更早）</strong>，平均早了 <strong>超过 100 毫秒</strong>（W ≈ −204 毫秒 vs M ≈ −86 毫秒，见 Table 1A、2D）。受试者能稳定地把"想动"和"动了"区分成两个不同的主观时刻——这说明 W 是一种真实的、独立的内省体验，而不是从"感觉到动"里派生出来的影子。</p>
+      <p>更有说服力的是"惊讶"试验：在 5 名受试者中有 3 名报告，40 次动作里有一小部分是在"完全没有任何事先冲动或意图"的情况下发生的，他们对此感到"惊讶"。这反过来证明，当受试者报告确实有 W 时，那是真实存在的内源体验，而非被指令暗示出来的。</p>
+
+      <div class="section-head-sub" id="sec-f3">发现三：准备电位分三类，但"自发"那一类（II 型）依然把意识甩在后面</div>
+      <p>论文把准备电位按形态和起点分成三类，这一步至关重要，因为它回应了"会不会是受试者偷偷预谋、才让 RP 显得那么早"的质疑。</p>
+
+      <table>
+        <thead>
+          <tr><th>RP 类型</th><th>受试者主观报告</th><th>MN 主负偏移起点（平均）</th><th>RP 比 W 提前量</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>I 型（Type I）</td><td>部分动作有"预先计划"感</td><td>≈ −1025 毫秒</td><td>约 −825 毫秒（或取 90% 面积约 −500 毫秒）</td></tr>
+          <tr><td>II 型（Type II）</td><td>全部 40 次"凭空、随意、无预谋"</td><td>≈ −535 毫秒</td><td>约 −343 毫秒（最小约 −150 毫秒）</td></tr>
+          <tr><td>III 型（Type III）</td><td>自发，但 RP 起得晚而陡</td><td>≈ −270 毫秒</td><td>约 −87 毫秒（取 90% 面积则约 −334 毫秒）</td></tr>
+        </tbody>
+      </table>
+
+      <p>读这张表的方式是：I 型 RP 起得最早（约 −1 秒），但那是因为掺进了一般性的"预备/意图"，不是纯粹的自发，所以反而<strong>不</strong>是最干净的证据。真正干净的是 <strong>II 型</strong>——全部动作都"凭空冒出"，没有任何预谋报告，而它的 RP 起点仍然稳稳地早于 W 约 350 毫秒。即使是起得最晚的 III 型，用 90% 面积这把更严格的尺子量，RP 也平均早于 W 超过 300 毫秒。结论站得住的核心，正是这个"最该没有提前量的条件，依然有提前量"。</p>
+
+      <div class="info-block">
+        <span class="ib-title">为什么 II 型才是王牌证据</span>
+        <p>I 型有"预谋"嫌疑，可能高估提前量；III 型起得太晚太陡，可能低估。II 型恰好是逻辑上最纯净的"自由意志"标本：受试者发誓念头是凭空冒出来的，可大脑还是先动了半秒。Libet 把论证的重心压在 II 型上，是这篇论文方法论上最关键的一步棋。</p>
+      </div>
+
+      <!-- ============ 控制分析 ============ -->
+      <div class="section-head" id="sec-control">关键控制：意外的 M 与作为标尺的 S</div>
+      <p>这篇论文最被忽视、却最体现功力的，是两个控制条件如何同时充当"标尺"和"陷阱探测器"。</p>
+
+      <p><strong>S 条件（皮肤刺激）当标尺。</strong>受试者报"想动"的时刻无法被客观验证——只有他自己知道。于是 Libet 用 S 来量每个人的报时"偏差"：既然皮肤电脉冲的真实时刻实验者知道，那么受试者报出的 S 时刻（平均 ≈ <strong>−47 毫秒</strong>）与真实时刻之差，就是这个人特有的系统偏差。用它去校正 W，W 从约 −200 毫秒变成约 <strong>−150 毫秒</strong>——提前量缩小了，但 RP 早于 W 的结论<strong>没有被推翻，反而在多数情况下被放大</strong>。这意味着结论不是测量偏差的产物。</p>
+
+      <p><strong>M 条件（动了的意识）爆出意外。</strong>原本只想拿 M 当 W 的陪衬，结果 M 的平均值 ≈ <strong>−86 毫秒</strong>——居然也是<strong>负的</strong>，即受试者报告"意识到动了"竟然发生在肌肉 EMG 真正放电（0 时刻）之前约 86 毫秒（校正后仍约 −40 毫秒）。这看似荒谬，Libet 的解释颇有洞见：M 反映的不是从肌肉传回大脑的本体感觉（那会迟到），而是大脑发出运动指令时<strong>同步产生</strong>的一种"我要动了"的觉知——所以它能抢在肌肉之前。这个意外恰好佐证了"觉知与脑活动同步、而非由外周感觉倒推"的整体图景。</p>
+
+      <div class="info-block">
+        <span class="ib-title">控制条件的三层用途</span>
+        <p>S 既校正了 W 的偏差（标尺），又证明结论不靠偏差成立（陷阱探测器）；M 既验证了 W 不是从"感觉到动"派生（区分度），又意外揭示了运动觉知早于肌肉激活（新现象）。一个对照变量干三件事，这是实验设计的高效率范例。</p>
+      </div>
+
+      <!-- ============ 方法论 ============ -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>整套实验是在 1980 年代初的设备条件下，硬把"主观瞬间"和"客观脑电"对齐到毫秒级。下面这些设计细节，是结论能否成立的真正承重墙。</p>
+
+      <table>
+        <thead>
+          <tr><th>设计要素</th><th>怎么做的</th><th>解决了什么问题</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>快转的钟（2.56 秒/圈）</td>
+            <td>光点 2.56 秒转一圈，刻度间隔 ≈ 107 毫秒，远快于普通钟表</td>
+            <td>普通钟太慢，分辨不出几十毫秒的差别；快钟才能把毫秒级瞬间钉在可报告的钟面位置上</td>
+          </tr>
+          <tr>
+            <td>EMG 定"0 时刻"</td>
+            <td>用前臂肌肉电信号的起点作为动作真实发生的基准</td>
+            <td>给"动作发生"一个客观、可重复的零点，让 W、M、RP 都能换算成相对它的毫秒数</td>
+          </tr>
+          <tr>
+            <td>40 次叠加平均提取 RP</td>
+            <td>单次 RP 太微弱，用平均瞬变计算机（CAT，Computer of Average Transients；型号 400B）把 40 次试验叠加</td>
+            <td>把淹没在噪声里的缓慢负电位"洗"出来；代价是失去单次的离散信息（作者诚实承认）</td>
+          </tr>
+          <tr>
+            <td>S 条件校偏差</td>
+            <td>在已知真实时刻给皮肤刺激，反推每人报时的系统偏差并校正 W</td>
+            <td>把"主观报时本身就不准"这一最大威胁量化并扣除，证明结论稳健</td>
+          </tr>
+          <tr>
+            <td>双重报时模式（A 与 O）</td>
+            <td>同时用"绝对位置（A，Absolute）"和"先后顺序（O，Order）"两种方式让受试者报时</td>
+            <td>两种独立方法得出基本一致的 W，说明结果不是某一种报告方式的人为产物</td>
+          </tr>
+          <tr>
+            <td>RP 起点双尺度（MN 与 90% 面积）</td>
+            <td>主负偏移肉眼判读（第二人复核）＋ 曲线下 90% 面积法</td>
+            <td>避免"RP 从哪开始"沦为主观划线；两把尺子都指向同一结论才采信</td>
+          </tr>
+          <tr>
+            <td>"惊讶"自我报告</td>
+            <td>询问受试者是否有动作完全没有事先冲动，是否为此"惊讶"</td>
+            <td>证明 W 报告是真实内源体验，而非被实验指令暗示出来的</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ============ 与已有研究 ============ -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文不是凭空起步，它站在两块基石上，又把它们推进到一个新问题。</p>
+      <p><strong>继承自 Kornhuber 与 Deecke（1965）。</strong>准备电位本身是这两位德国学者在 1965 年发现的：自发动作之前头皮上有一段缓慢负电位。但他们只证明了"动作前大脑有准备活动"，没有问"这准备活动和有意识的意图，谁先谁后"。Libet 的贡献正是补上了主观意识这条时间线，把脑电与现象学对齐。后续 Deecke 与 Kornhuber（1978）、Eccles（1982）进一步把 RP 的源头定位到<strong>辅助运动区（SMA，Supplementary Motor Area）</strong>，即大脑内侧面新皮层，这也是 Libet 推测 RP 真实起点可能更早的依据。</p>
+      <p><strong>延续自 Libet 自己的感觉时间研究。</strong>本文与作者团队此前关于"有意识感觉体验需要约 500 毫秒大脑活动才能达成（神经充分性，neuronal adequacy）"的发现（Libet 1965、1966、1973）一脉相承。早先发现感觉觉知需要长时程脑活动；本文把同一逻辑搬到运动意愿上：产生"我想动"的有意识体验，可能同样需要一段实质的脑活动积累。本文也直接建立在 Libet、Wright、Gleason（1982）那篇关于"自发 vs 预先计划动作的准备电位"的姊妹论文之上。</p>
+      <p><strong>与时间知觉文献对话。</strong>作者大量引用了关于"同时性判断"的经典工作（Boring 1957；Efron 1973；Sternberg 与 Knoll 1973），用以论证"先入效应（prior entry）"等报时偏差是可控的——这正是 S 条件存在的理论背景。</p>
+
+      <!-- ============ 跨领域启示 ============ -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p><strong>哲学（自由意志）。</strong>这是冲击最大的方向。如果"决定"在意识之前由大脑无意识启动，传统的"心灵作为第一推动者"图景就被动摇。但 Libet 的"自由否决权"提供了一条中间道路：意志的角色或许从"发起者"转为"把关者"——大脑抛出冲动，意识负责放行或叫停。这个区分至今是相容论（compatibilism）与道德责任讨论的核心素材。</p>
+      <p><strong>认知神经科学（意识研究）。</strong>本文确立了一个可操作的范式：用"主观时刻 vs 客观脑信号"的时间差来研究意识何时、如何介入行为。后来的 fMRI 研究（如 2008 年 Soon 等人用前额叶活动提前数秒预测选择）正是这条路线的延伸。</p>
+      <p><strong>法律与伦理。</strong>"无意识发起"的结论被反复引入关于刑事责任能力、冲动控制的讨论：如果动作可以在意识之前启动，那么"否决窗口"是否完好，可能比"是否有意发起"更接近责任的落点。</p>
+      <p><strong>对人工智能与决策科学的隐喻。</strong>本文描绘的"无意识快速启动 + 有意识慢速把关"两阶段结构，与现代关于直觉系统与反思系统的双过程框架不谋而合，也常被借来类比人工智能（AI，Artificial Intelligence）系统中"快速生成 + 后置审查"的分层。</p>
+
+      <!-- ============ 边界与未解 ============ -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文之所以经典，部分原因是 Libet 自己就把质疑摆在了桌面上。下面前几条是他在讨论中坦承的，后几条是解读者认为仍然悬而未决的。</p>
+      <ul>
+        <li><strong>叠加平均可能扭曲起点（作者承认）。</strong>40 次 RP 叠加才看得清，万一是少数几次起得极早的试验把平均"拉早"了呢？Libet 的反驳是：若如此，应有相当比例的序列里 RP 与 W 的先后被颠倒，但实际上 37 个序列里有 36 个 RP 都早于 W，且 II 型 RP 起点陡峭、不易被少数异常值带偏。这条质疑被回应得相当有力，但终究无法完全排除。</li>
+        <li><strong>内省报时的有效性（作者承认）。</strong>W 是纯主观的、无法被外部客观验证的（不像 S）。作者用 A/O 双模式一致、S 条件校偏差来加固，但承认存在一种"无法被排除却也无证据支持"的可能：也许存在一个更早、不可被短时记忆储存的"前觉知"阶段，受试者根本报不出来。若真如此，意识其实更早，结论甚至需要重估方向。</li>
+        <li><strong>只研究了一种极简动作（作者承认）。</strong>结论严格只适用于"简单、快速、无意义的弯指"这一种自发动作。Libet 明确指出，涉及<strong>有意识审议</strong>（要不要做、做哪个）的动作，本研究并不能排除其受意识发起和控制。把结论外推到"所有自由意志"是过度解读。</li>
+        <li><strong>RP 起点只是脑活动的下限（作者承认）。</strong>头皮记录到的 RP 可能只反映了大脑一小块区域（很可能是 SMA）的活动；真正的脑活动起点也许在别处更早就开始了。这反而让"无意识在先"的结论更强，但也意味着具体时间表并不精确。</li>
+        <li><strong>"否决窗口"本身未被实验直接检验（解读者观点）。</strong>"自由否决权"是 Libet 从"W 仍早于动作约 150–200 毫秒"推断出来的逻辑空间，本文并没有设计实验去证明意识真的能在那 200 毫秒里有效叫停一个已启动的动作。它是一个有吸引力的假说，而非本文的实证结论。</li>
+        <li><strong>样本极小、被试同质（解读者观点）。</strong>实际可用受试者仅 5 名（原本 6 名，1 名数据基本作废），全为同一所大学的右利手大学生。虽然每人做了大量序列、内部一致性高，但跨人群、跨动作类型的普适性尚待更大规模复现来支撑。</li>
+        <li><strong>"自发"是否可被指令制造（解读者观点）。</strong>受试者被要求"让冲动凭空出现、不要预先计划"。但"刻意保持不计划"本身是一种被指令塑造的心理状态，它和日常生活中真正不假思索的行为是否等价，仍是开放问题。</li>
+      </ul>
+
+      <!-- ============ 判断 ============ -->
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下为解读者综合全文证据后的独立评价，每条都尽量挂靠到文中事实。</p>
+      <p><strong>方法是真正的突破，配得上它的影响力。</strong>把"主观意愿的时刻"做成可测量的毫秒数，并用 EMG 零点、40 次叠加、S 校偏差、A/O 双模式、RP 双尺度层层加固——这套设计在 1983 年的技术条件下近乎极致。支撑：方法论章节列出的七道防线，每一道都对应一个具体威胁。</p>
+      <p><strong>核心数字结论稳健，方向几乎不可动摇。</strong>"在最干净的自发条件下，大脑准备早于有意识意愿约 350 毫秒"这一点，被 37 个序列里 36 个的方向一致性、II 型 RP 的纯净性、以及 S 校正后差异反而放大三重证据支撑，很难用"测量偏差"或"叠加伪影"轻易解释掉。</p>
+      <p><strong>但"自由意志被证伪"是被外界强加的过度解读，文本本身远更克制。</strong>Libet 反复强调结论只适用于简单自发动作，且明确为意识保留了"否决"和"审议型决策"两块领地。把这篇论文读成"科学宣告人没有自由意志"，是误读了作者的措辞。支撑：讨论末尾"Unconscious and Conscious Initiation or Control"一节的两个明确让步。</p>
+      <p><strong>最脆弱的环节是内省报时的根基。</strong>整座大厦的地基——W 是受试者诚实、准确地报出了"最早冲动"的时刻——本质上无法被客观验证，只能靠间接加固。作者自己也承认"不可报告的前觉知阶段"这一可能无法被实验排除。这是后续四十年争论（如对 Libet 钟测时偏差的批评）反复回到的战场。支撑：讨论中"Criteria for Time of Conscious Intention"整节的自我审查。</p>
+      <p><strong>总体定位：它是一个伟大的"提问者"，而非"终结者"。</strong>它的历史地位不在于解决了自由意志问题，而在于第一次把这个问题变成了实验科学的对象，并给出了一个具体到毫秒、足够顽固、值得所有人认真对待的初始证据。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Libet 等人（1983）用旋转光点的"钟"测出：当人"凭空"决定弯一下手指时，大脑的<strong>准备电位（RP）平均在动作前约 550 毫秒就启动</strong>，而<strong>意识到"想动"（W）只发生在动作前约 200 毫秒</strong>——意识比大脑的准备晚了约 <strong>350 毫秒</strong>（37 个序列里 36 个方向一致）。这把"自由意志"逼进了实验室，也催生了那个著名的退路：意识也许不能"发起"动作，但还来得及"否决"它。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Libet, B., Gleason, C. A., Wright, E. W., &amp; Pearl, D. K. (1983). Time of conscious intention to act in relation to onset of cerebral activity (readiness-potential): The unconscious initiation of a freely voluntary act. <em>Brain, 106</em>(3), 623–642.<br>
+    <strong>说明：</strong>本文为论文深度解读，交互组件中的数值基于论文 Table 2 报告的 Type II 平均值（RP ≈ −550 ms、W ≈ −200 ms、动作 = 0 ms），仅用于展示定性时间模式，非某一次原始记录。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById("libetClock");
+  if(!canvas) return;
+  var ctx = canvas.getContext("2d");
+
+  // ---- 论文锚点（毫秒，相对 EMG 0 时刻）----
+  var RP_MS = -550;   // 准备电位起始 (Type II MN)
+  var W_MS  = -200;   // 有意识意愿
+  var ACT_MS = 0;     // 动作 (EMG)
+
+  // 表盘整圈 = 2.56 s = 2560 ms。把"动作前后 ±1280 ms"映射到整圈。
+  // 取动作时刻(0)在表盘"12点"(顶端)，时间沿顺时针推进。
+  var FULL_MS = 2560;
+  var HALF = FULL_MS/2; // 1280
+
+  // 几何
+  var cx = 250, cy = 215, R = 150;       // 钟盘中心/半径
+  var tlX0 = 430, tlX1 = 720, tlY = 215; // 时间线 x 范围 + y
+  var tlMin = -650, tlMax = 120;          // 时间线显示范围(ms)
+
+  var rafId = null;
+  var startT = 0;
+  var running = false;
+  var speed = 1;
+  // 一次"试验"展示窗口：从 -700ms 到 +150ms，对应表盘转过的角度
+  var TRIAL_FROM = -700, TRIAL_TO = 150;
+  var DURATION_REAL = (TRIAL_TO - TRIAL_FROM); // 850 ms 真实
+
+  function msToAngle(ms){
+    // 0ms -> -90deg (顶端)，顺时针，每 FULL_MS 转 360°
+    return (-90 + (ms/FULL_MS)*360) * Math.PI/180;
+  }
+  function tlX(ms){
+    return tlX0 + (ms - tlMin)/(tlMax - tlMin)*(tlX1 - tlX0);
+  }
+
+  function drawDial(curMs){
+    // 表盘外圈
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI*2);
+    ctx.strokeStyle = "#d9dde2";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // 刻度（每 107ms 一格，对应 2.5 秒间隔；这里画 24 格示意）
+    for(var i=0;i<24;i++){
+      var a = (-90 + i/24*360)*Math.PI/180;
+      var r1 = R-6, r2 = R;
+      ctx.beginPath();
+      ctx.moveTo(cx+Math.cos(a)*r1, cy+Math.sin(a)*r1);
+      ctx.lineTo(cx+Math.cos(a)*r2, cy+Math.sin(a)*r2);
+      ctx.strokeStyle = "#c8ccd2";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    // 顶端"动作=0"标注
+    ctx.fillStyle = "#1f2328";
+    ctx.font = "600 12px -apple-system,sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("动作 0ms", cx, cy - R - 12);
+
+    // 三个事件在表盘上的弧标记
+    function arcMark(ms, color){
+      var a = msToAngle(ms);
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, a-0.012, a+0.012);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 10;
+      ctx.stroke();
+      // 小圆点
+      ctx.beginPath();
+      ctx.arc(cx+Math.cos(a)*R, cy+Math.sin(a)*R, 5, 0, Math.PI*2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+    arcMark(RP_MS, "#c0392b");
+    arcMark(W_MS,  "#2563c9");
+    arcMark(ACT_MS,"#1f2328");
+
+    // 旋转光点（当前时刻）
+    var ca = msToAngle(curMs);
+    var px = cx + Math.cos(ca)*R, py = cy + Math.sin(ca)*R;
+    // 指针线
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(px, py);
+    ctx.strokeStyle = "#9aa1ab";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // 光点
+    ctx.beginPath();
+    ctx.arc(px, py, 8, 0, Math.PI*2);
+    ctx.fillStyle = "#f59e0b";
+    ctx.shadowColor = "rgba(245,158,11,0.6)";
+    ctx.shadowBlur = 14;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // 中心标题
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "11px -apple-system,sans-serif";
+    ctx.fillText("2.56 秒 / 圈", cx, cy+4);
+  }
+
+  function drawTimeline(curMs){
+    // 轴线
+    ctx.beginPath();
+    ctx.moveTo(tlX0, tlY);
+    ctx.lineTo(tlX1, tlY);
+    ctx.strokeStyle = "#cfd4da";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // 刻度标签
+    ctx.font = "11px -apple-system,sans-serif";
+    ctx.fillStyle = "#9aa1ab";
+    ctx.textAlign = "center";
+    [-600,-400,-200,0].forEach(function(t){
+      var x = tlX(t);
+      ctx.beginPath();
+      ctx.moveTo(x, tlY-4); ctx.lineTo(x, tlY+4);
+      ctx.strokeStyle = "#cfd4da"; ctx.lineWidth=1; ctx.stroke();
+      ctx.fillStyle = "#9aa1ab";
+      ctx.fillText(t+"ms", x, tlY+20);
+    });
+
+    function evMark(ms, color, label, lit, up){
+      var x = tlX(ms);
+      var h = 52;
+      ctx.beginPath();
+      ctx.moveTo(x, tlY);
+      ctx.lineTo(x, up ? tlY-h : tlY+h);
+      ctx.strokeStyle = lit ? color : "#d9dde2";
+      ctx.lineWidth = lit ? 3 : 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x, up ? tlY-h : tlY+h, lit?5:3, 0, Math.PI*2);
+      ctx.fillStyle = lit ? color : "#d9dde2";
+      ctx.fill();
+      ctx.fillStyle = lit ? color : "#aab0b8";
+      ctx.font = (lit?"700 ":"")+"11px -apple-system,sans-serif";
+      ctx.textAlign = "center";
+      var ly = up ? (tlY-h-10) : (tlY+h+16);
+      ctx.fillText(label, x, ly);
+    }
+    // 是否点亮取决于光点已经走过该时刻
+    evMark(RP_MS, "#c0392b", "RP 起始 −550", curMs>=RP_MS, true);
+    evMark(W_MS,  "#2563c9", "W 意愿 −200", curMs>=W_MS, false);
+    evMark(ACT_MS,"#1f2328", "动作 0", curMs>=ACT_MS, true);
+
+    // 当前光点在时间线上的投影
+    if(curMs>=tlMin && curMs<=tlMax){
+      var x = tlX(curMs);
+      ctx.beginPath();
+      ctx.arc(x, tlY, 5, 0, Math.PI*2);
+      ctx.fillStyle = "#f59e0b";
+      ctx.fill();
+    }
+
+    // 两段窗口阴影标注
+    if(curMs>=ACT_MS){
+      // 无意识窗口 RP->W
+      ctx.fillStyle = "rgba(192,57,43,0.08)";
+      ctx.fillRect(tlX(RP_MS), tlY-2, tlX(W_MS)-tlX(RP_MS), 4);
+      // 否决窗口 W->0
+      ctx.fillStyle = "rgba(37,99,201,0.10)";
+      ctx.fillRect(tlX(W_MS), tlY-2, tlX(ACT_MS)-tlX(W_MS), 4);
+    }
+  }
+
+  function render(curMs){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // 顶部标题
+    ctx.fillStyle = "#3a4048";
+    ctx.font = "700 13px -apple-system,sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("旋转的钟（光点位置＝你看到的钟面位置）", 40, 30);
+    ctx.fillText("时间线（相对动作 0ms）", 430, 30);
+    drawDial(curMs);
+    drawTimeline(curMs);
+  }
+
+  function status(curMs){
+    var el = document.getElementById("clockStatus");
+    if(!el) return;
+    var msg;
+    if(curMs < RP_MS) msg = "试验进行中… 还没有任何动静。";
+    else if(curMs < W_MS) msg = "⚡ 大脑准备电位（RP）已启动（"+Math.round(curMs)+"ms）——但你还没意识到要动。";
+    else if(curMs < ACT_MS) msg = "🔵 现在你才意识到想动（W，约 −200ms）。大脑已经先走了约 350ms。这 200ms 是自由否决的最后窗口。";
+    else msg = "✅ 动作发生（0ms）。回看：RP −550 → W −200 → 动作 0。意识来晚了约 350 毫秒。";
+    el.textContent = msg;
+  }
+
+  function frame(ts){
+    if(!startT) startT = ts;
+    var elapsedReal = (ts - startT) * speed; // 受慢放影响
+    var curMs = TRIAL_FROM + elapsedReal;     // 1ms真实≈1ms钟面
+    if(curMs >= TRIAL_TO){
+      curMs = TRIAL_TO;
+      render(curMs);
+      status(ACT_MS);
+      running = false;
+      cancelAnimationFrame(rafId);
+      return;
+    }
+    render(curMs);
+    status(curMs);
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function start(){
+    if(running) return;
+    running = true;
+    startT = 0;
+    rafId = requestAnimationFrame(frame);
+  }
+  function reset(){
+    running = false;
+    if(rafId) cancelAnimationFrame(rafId);
+    render(TRIAL_FROM);
+    var el = document.getElementById("clockStatus");
+    if(el) el.textContent = "准备就绪。光点转一圈 = 2.56 秒；表盘整圈映射到动作前后约 ±1.28 秒。";
+  }
+
+  document.getElementById("btnStart").addEventListener("click", start);
+  document.getElementById("btnReset").addEventListener("click", reset);
+  var radios = document.getElementsByName("spd");
+  for(var i=0;i<radios.length;i++){
+    radios[i].addEventListener("change", function(e){
+      speed = parseFloat(e.target.value);
+    });
+  }
+
+  // 初始静态渲染
+  render(TRIAL_FROM);
+})();
+</script>
+</body>
+</html>

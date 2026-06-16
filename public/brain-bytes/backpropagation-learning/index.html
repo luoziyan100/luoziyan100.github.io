@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Back-Propagation × 让多层网络学会「自己长出概念」的那条链式法则 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Back-Propagation <span>×</span> 让多层网络学会「自己长出概念」的那条链式法则</h1>
+    <div class="meta">
+      <span>📄 Learning representations by back-propagating errors</span><br>
+      <span>✍️ David E. Rumelhart, Geoffrey E. Hinton &amp; Ronald J. Williams</span><br>
+      <span>🏛️ 加州大学圣地亚哥分校认知科学研究所（UCSD, University of California San Diego）／卡内基—梅隆大学计算机系（CMU, Carnegie-Mellon University）</span><br>
+      <span>📅 Nature · 第 323 卷 · 1986 年 10 月 9 日 · 第 533–536 页</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-play">亲手玩：让网络学会 XOR</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-find-chain">① 一条链式法则贯穿全网</a></li>
+        <li><a href="#sec-find-symmetry">② 自己长出「对称性探测器」</a></li>
+        <li><a href="#sec-find-family">③ 从家谱里学出语义维度</a></li>
+        <li><a href="#sec-find-minima">④ 局部极小：理论上的雷，实战里很少踩</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>1969 年，Minsky 与 Papert 在《感知机（Perceptrons）》一书里给单层网络判了「死缓」：像「异或（XOR，Exclusive OR：两输入不同才为真）」这种最朴素的逻辑，单层感知机根本学不会，因为它只能画一条直线。出路明摆着——往中间加一层<strong>隐藏单元（hidden units）</strong>就能画出弯曲的边界。可问题卡在：隐藏单元「应该」输出什么，任务并没有告诉你，于是没人知道该怎么调它们的权重。这一卡，就是近二十年的「连接主义寒冬」。</p>
+        <p>这篇只有 4 页的 Nature 短文，给出了那把钥匙。Rumelhart、Hinton 与 Williams 的核心招数朴素得近乎平凡：把网络输出与目标的<strong>误差</strong>，用微积分里的<strong>链式法则（chain rule）</strong>从输出层一层层「倒着」传回去，于是网络里<strong>每一根权重</strong>——包括那些深藏的隐藏单元的权重——都能算出「我该往哪个方向、改多少，才能让总误差下降」。论文用三个实验证明它真的管用：一个网络<strong>自己</strong>学会了检测输入的<strong>镜像对称性</strong>（仅用 1,425 次扫描、两个隐藏单元，权重还自发收敛成漂亮的 1∶2∶4 比例）；另一个网络从两棵家谱树的 <strong>104 条亲属关系</strong>里，让隐藏单元<strong>自发长出</strong>了「国籍」「辈分」「家族分支」这些任务从没明说过的语义维度。</p>
+        <p>这不只是一个算法。它是今天整个深度学习的<strong>发动机</strong>：从 ImageNet（大规模图像识别基准）到 AlphaGo（下围棋的人工智能 AI，Artificial Intelligence），再到大语言模型，训练循环的最内层跑的都还是这同一条反向传播。读这篇 1986 年的原文，等于回到一切的起点，看清「机器如何自己学出有用的表征」这件事，最初是怎么被想明白的。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的「数学」其实只有中学微积分的链式法则，但术语密度很高。先把全文反复出现的 9 个概念用「人话 + 生活类比」过一遍，看不懂公式没关系，看完这几张卡，后面就都能跟上。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">感知机（Perceptron）</div>
+          <div class="cdesc">最早的一类神经网络（Rosenblatt, 1961）：输入直接连到输出，中间没有「会学习」的隐藏层。它有一套保证收敛的学习规则（感知机收敛过程），但表达力被锁死——只能用一条直线/超平面把数据切两半，所以连「异或」都学不会。本文要突破的正是它的天花板。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">隐藏单元（Hidden Units）</div>
+          <div class="cdesc">夹在输入层和输出层之间、任务<strong>没有</strong>直接规定其取值的神经元。正因为任务不告诉它们「该输出什么」，它们才有自由去「自己发明」对解题有用的中间特征。论文的原话是：学习过程必须自己决定，这些隐藏单元在什么情况下该被激活——这正是难点所在，也是全文的主角。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">前向传播（Forward Pass）</div>
+          <div class="cdesc">把输入从底层逐层往上算到输出的过程：每个单元先按公式 (1) 把下层传来的信号加权求和得到总输入 x，再按公式 (2) 过一道非线性挤压成输出 y，一层算完算上一层。就像流水线：原料从底端进，逐站加工，顶端出成品。「网络此刻的答案」就是这样算出来的。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">逻辑斯蒂函数 / S 型挤压（Logistic / Sigmoid）</div>
+          <div class="cdesc">公式 (2) 用的非线性：<code>y = 1 / (1 + e^(−x))</code>，把任意实数挤进 (0, 1) 区间，画出来是一条平滑的 S 曲线。它有两个妙处：处处可导（链式法则才能用），且它的导数恰好是 <code>y·(1−y)</code>——一个只用输出自己就能算出的简洁式子。可以把它想成一个「软开关」：输入很负时近乎关（输出≈0），很正时近乎开（≈1），中间平滑过渡。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">误差函数 E（Error / Loss Function）</div>
+          <div class="cdesc">衡量「网络当前答案离正确答案有多远」的一个总分。论文用平方误差：公式 (3) 把每个输出单元的（实际值 − 目标值）平方，对所有输出单元、所有训练样本求和再乘 ½。可以理解成「全班所有题的扣分总和」。整个学习的目标，就是把这个 E 降到尽可能小。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">梯度下降（Gradient Descent）</div>
+          <div class="cdesc">一种找最低点的笨办法：站在误差地形的某点上，算出「哪个方向最陡下坡」（即负梯度 −∂E/∂w），然后沿这个方向迈一小步，反复迭代。就像在浓雾里下山，看不见全貌，只能用脚试出脚下最陡的下坡方向，一步步往低处挪。权重就是你脚下的坐标，E 就是海拔。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">反向传播（Back-Propagation，本文主角）</div>
+          <div class="cdesc">本文给出的算法，用来高效地为<strong>每一根权重</strong>算出梯度 ∂E/∂w。它不是新的学习原理，而是一个聪明的<strong>计算顺序</strong>：先前向算出答案，再用链式法则把误差信号从输出层<strong>逆着连接倒灌</strong>回每一层（公式 4→5→6→7），一次回灌就拿到全网所有权重的梯度。类比：考砸了之后，把「总扣分」沿着「哪步推导导致的」一路倒查到每个中间环节，给每个环节都派一份「你该负多少责」。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">权重与偏置（Weights &amp; Bias）</div>
+          <div class="cdesc">权重 w_ji 是连接「从单元 i 到单元 j」的强度，是网络里唯一会被学习改动的旋钮。偏置（bias）是给每个单元加的一个「总是输入 1」的特殊连接，等价于给这个单元设一个可调的阈值——好比开关的「灵敏度基准线」。论文特意点明：偏置可以当成普通权重一样处理，无需另写规则。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">动量项（Momentum，参数 α）</div>
+          <div class="cdesc">对纯梯度下降的一个实用加速：更新权重时，不只看当前坡度，还把<strong>上一步走的方向按比例 α 加进来</strong>（公式 9）。好比下山时带点惯性，在平缓地带能滚得更快，又能抚平来回抖动。本文两个实验都用 α=0.9，即「九成沿用上一步的冲劲」。</div>
+        </div>
+
+      </div>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-play">亲手玩：让网络学会 XOR</div>
+      <p>反向传播最反直觉的一点是：你只告诉网络「对了还是错了」，从不告诉中间的隐藏单元该干什么，它却能<strong>自己</strong>摸索出有用的内部表征。下面这个组件就是反向传播的<strong>真实实现</strong>——一个 <strong>2-2-1</strong> 的小网络（2 个输入、2 个隐藏单元、1 个输出），用论文的公式 (1)(2) 前向、公式 (4)–(7) 反向、公式 (9) 带动量更新，逐轮在浏览器里真算，不是播放预录动画。它要学的就是 Minsky 判过死刑的<strong>异或（XOR）</strong>：两个输入<strong>不同</strong>时输出 1，相同时输出 0。</p>
+      <p>点「训练 500 轮」，盯三样东西：左边的<strong>误差曲线</strong>会先卡在高位（这就是隐藏单元还没「开窍」的平台期），然后骤降；右边四个测试样例的输出会从一团灰色的「0.5」逐渐分裂成清晰的黑（≈1）与白（≈0）；最下面两个隐藏单元的<strong>决策边界</strong>会从随机斜线，慢慢转到两条恰好把 XOR 的四个点「夹」出来的位置——那一刻，网络<strong>自己</strong>发明了「这两个输入是不是一样」这个概念。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">反向传播实况：一个 2-2-1 网络从零学会 XOR</div>
+        <div class="viz-note">真实计算：前向用 yⱼ=σ(Σyᵢwⱼᵢ+bⱼ)，反向用 δ_out=(y−d)·y(1−y)、δ_hid=y(1−y)·Σδ_out·w，更新用 Δw=−ε·δ·yᵢ+α·Δw_prev（在线模式，逐样本更新）。学习率 ε、动量 α 可调。权重每次「重置」随机初始化于 [−1, 1]。这是论文算法在你浏览器里的真实运行，非示意动画。</div>
+
+        <div class="viz-controls">
+          <button id="bp-train">▶ 训练 500 轮</button>
+          <button id="bp-step" class="alt">单步 ×20</button>
+          <button id="bp-reset" class="alt">↻ 重置（重新随机）</button>
+          <span id="bp-status" style="font-size:0.85rem;color:var(--muted);"></span>
+        </div>
+
+        <canvas id="bp-canvas" width="940" height="380"></canvas>
+
+        <div class="viz-controls">
+          <label style="width:300px;">学习率 ε ＝<span id="bp-eps-val">0.5</span>
+            <input type="range" id="bp-eps" min="0.05" max="1.5" step="0.05" value="0.5" style="width:180px;vertical-align:middle;">
+          </label>
+          <label style="width:300px;">动量 α ＝<span id="bp-mom-val">0.9</span>
+            <input type="range" id="bp-mom" min="0" max="0.95" step="0.05" value="0.9" style="width:180px;vertical-align:middle;">
+          </label>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">玩的时候盯住这件事</span>
+        <p>多按几次「重置」再训练，你会发现两件事，都正是论文讲到的：其一，<strong>误差曲线常常先在高位卡很久才骤降</strong>——这段平台期就是网络在「试错」隐藏单元该编码什么，一旦找对方向就一泻而下；其二，<strong>偶尔会卡死在误差降不下去的位置</strong>（尤其把动量 α 调到 0、学习率调很小时），这就是论文坦承的<strong>局部极小（local minima）</strong>，重置一次重来往往就好了。把 α 拉回 0.9，你会明显感到收敛快得多、也更不容易卡住——这就是动量项的价值。</p>
+      </div>
+
+      <!-- ============ 核心发现 ============ -->
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>这篇论文不是一项「测量自然」的实验，而是一个<strong>算法 + 概念验证</strong>的工作：它先推出反向传播的数学，再用三个精心挑选的任务证明「多层网络确实能学出有用的内部表征」。下面把它拆成四个递进的发现。</p>
+
+      <div class="section-head-sub" id="sec-find-chain">发现一：一条链式法则，贯穿整张网络</div>
+      <p>全文的数学心脏，是把「总误差 E 对某根权重 w 的偏导」这件事，拆成可以<strong>逐层接力</strong>计算的小步骤。先看网络怎么算出答案（前向）：</p>
+      <blockquote>
+        <p>(1) 单元 j 的总输入：&nbsp; x_j = Σ_i y_i · w_ji &nbsp;&nbsp;（下层各单元输出的加权和）</p>
+        <p>(2) 单元 j 的输出：&nbsp;&nbsp;&nbsp; y_j = 1 / (1 + e^(−x_j)) &nbsp;&nbsp;（S 型挤压）</p>
+        <p>(3) 总误差：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E = ½ · Σ_c Σ_j (y_{j,c} − d_{j,c})²</p>
+      </blockquote>
+      <p>其中 c 是训练样本编号，j 是输出单元编号，d 是该单元的目标值。真正精彩的是「反向」这一段——它要回答：<strong>每根权重该往哪改</strong>？论文用链式法则一步步推：</p>
+      <blockquote>
+        <p>(4) 误差对输出的导数：&nbsp;&nbsp; ∂E/∂y_j = y_j − d_j &nbsp;&nbsp;（先从顶层输出算起）</p>
+        <p>(5) 穿过非线性回到总输入：∂E/∂x_j = ∂E/∂y_j · y_j·(1 − y_j)</p>
+        <p>(6) 落到具体一根权重：&nbsp;&nbsp; ∂E/∂w_ji = ∂E/∂x_j · y_i</p>
+        <p>(7) 再往下一层传：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ∂E/∂y_i = Σ_j ∂E/∂x_j · w_ji</p>
+      </blockquote>
+      <p>这套公式的<strong>逻辑闭环</strong>是全文最漂亮的地方：公式 (4) 给出顶层输出单元的误差导数；(5) 把它「穿过」S 型非线性（这里用到 S 型导数 = y(1−y) 的便利）；(6) 顺手就拿到了与该单元相连的每根权重的梯度；而 (7) 把误差信号<strong>沿连接反向汇聚</strong>到下一层的输出 y_i 上——于是又回到了公式 (4) 那种形态，可以对更下面一层<strong>原样再来一遍</strong>。如此从顶到底走一趟，全网每根权重的梯度就都拿到了。拿到梯度后，按梯度下降迈步：</p>
+      <blockquote>
+        <p>(8) 最朴素的更新：&nbsp; Δw = −ε · ∂E/∂w</p>
+        <p>(9) 加动量加速：&nbsp;&nbsp;&nbsp; Δw(t) = −ε · ∂E/∂w(t) + α · Δw(t−1)</p>
+      </blockquote>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：为什么「倒着传」是关键创新</span>
+        <p>反向传播真正省下的，是<strong>计算量</strong>。如果对每根权重单独去试「把它稍微动一下，E 变了多少」，一个有 W 根权重的网络要算 W 遍前向传播，深网络下贵到不可行。反向传播的洞见是：<strong>误差信号可以像前向信号一样被「复用」</strong>——只需<strong>一次</strong>反向回灌（其代价和一次前向传播同量级），就能同时拿到<strong>所有</strong>权重的梯度。把单元 j 的「责任量」∂E/∂x_j 算出来后，与它相连的所有下层权重的梯度（公式 6）和再下一层的责任（公式 7）都能顺手得出，无需重算。正是这个「一次回灌、全网受益」，让训练大型多层网络从「理论上可行」变成「工程上可做」。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-find-symmetry">发现二：网络自己长出了「对称性探测器」</div>
+      <p>论文的第一个硬核演示，是一个让单层感知机束手无策的任务：<strong>判断一串输入是不是左右镜像对称的</strong>。为什么这必须用隐藏层？论文给了直觉证明：单看任何<strong>一个</strong>输入单元的取值，对「整串是否对称」毫无信息可言，所以把各输入单元的证据简单相加（单层能做的全部）必然不够；必须有中间层去<strong>跨位置比较</strong>。（论文注明，「中间层是必需的」有更严格的证明，见参考文献 2。）</p>
+      <p>作者用一个只含 <strong>两个</strong>隐藏单元的网络来学这个任务。结果不仅学成了，那两个隐藏单元自发收敛出的权重，还呈现出一种<strong>极其优雅的结构</strong>：对每个隐藏单元，输入向量<strong>关于中点对称的两个位置</strong>的权重，大小相等、符号相反；而从中点往外，权重大小按 <strong>1∶2∶4</strong> 的比例递增（论文 Fig. 1 给出的具体权重为约 ±14.2、±7.2(±7.1)、±3.6 这几档，正是 1∶2∶4 的放大）。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：1∶2∶4 这个比例为什么是「聪明解」</span>
+        <p>这个 1∶2∶4 的权重比是论文最精巧的细节。它的作用是：对任何<strong>非</strong>对称的输入模式，左右两侧送给隐藏单元的「加权和」必然不相等（因为 1, 2, 4 这种倍增权重保证了每种「中点两侧不匹配」的情形都产生一个<strong>独一无二</strong>、无法相互抵消的净值）；于是两个隐藏单元里至少有一个会被激活，进而压制输出单元，正确地报告「不对称」。只有当输入<strong>恰好对称</strong>时，每对镜像位置的贡献因「等大反号」精确抵消为零，两个隐藏单元都保持关闭，输出单元才得以打开报告「对称」。换句话说，网络<strong>自己发明</strong>了一套用二进制权重做「对称性校验和」的算法——而程序员从没教过它这个思路。整个学习只用了 <strong>1,425 次</strong>遍历全部 64 个输入向量，学习率 ε=0.1、动量 α=0.9，初始权重随机取自 [−0.3, 0.3]。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-find-family">发现三：从家谱里，学出抽象的语义维度</div>
+      <p>如果说对称性实验证明了「能学出算法」，那么<strong>家谱实验</strong>证明的是更深刻的东西：网络能学出<strong>人类觉得有意义的概念维度</strong>。任务是这样的：给定两棵结构完全相同（同构）的家谱树——一棵英国人、一棵意大利人——把所有亲属关系表示成<strong>三元组</strong>〈人物1〉〈关系〉〈人物2〉，例如〈Colin〉〈has-aunt〉〈?〉。网络的输入是前两项（人物1 + 关系），要它输出第三项。两棵树一共有 <strong>104 条</strong>这样的关系三元组，论文用其中 <strong>100 条</strong>训练，留 <strong>4 条</strong>从没见过的来测它能否<strong>推理出</strong>正确答案。</p>
+      <p>网络结构是分层的：表示 24 个人物的输入单元，先各自连到第二层一组 <strong>6 个</strong>单元（论文 Fig. 4 重点分析的就是这 6 个），这层再汇入中央层、最后到输出。关键在于：这 6 个单元上学到的表征，被发现<strong>自发对应到了人类会用的语义特征</strong>——尽管训练时从没有人告诉过网络「国籍」「辈分」是什么。</p>
+      <table>
+        <thead>
+          <tr><th>第二层的某单元</th><th>它自发编码的语义维度</th><th>为什么网络会「想到」这个</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>单元 1</td><td>这个人是<strong>英国人还是意大利人</strong>（国籍/所属哪棵树）</td><td>因为两棵树同构，关系只在<strong>同一棵树内</strong>成立，区分国籍能大幅约束答案空间</td></tr>
+          <tr><td>单元 2</td><td>这个人属于<strong>家族的第几代</strong>（辈分/世代）</td><td>「父母」「祖辈」「子女」这类关系本质是<strong>跨代映射</strong>，编码辈分让网络能正确「上下查找」</td></tr>
+          <tr><td>单元 6</td><td>这个人来自<strong>家族的哪一支分支</strong></td><td>家谱有左右分支结构，编码分支有助于定位「往哪边找亲戚」</td></tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：泛化，是「学对了表征」的证据</span>
+        <p>最有说服力的一点：网络在 4 条<strong>从未训练过</strong>的三元组上也能给出正确答案。论文明确解释了原因——正因为隐藏单元捕捉到了任务的<strong>底层结构</strong>（国籍、辈分、分支这些抽象维度），而不是死记硬背了 100 条具体样例，它才能把规律<strong>迁移</strong>到没见过的情形。更巧的是，由于两棵家谱同构，网络学到的「英国人」表征与对应「意大利人」表征<strong>非常相似</strong>，于是它会利用这种同构性、把从一棵树学到的结构<strong>共享</strong>给另一棵树——这正是「合理泛化」的微观机制。这个实验因此成了「分布式表征（distributed representation）能自发编码语义」这一连接主义核心主张的奠基性证据。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-find-minima">发现四：局部极小——理论上的雷，实战里很少踩</div>
+      <p>诚实是这篇论文的一大优点。作者主动点出了梯度下降<strong>最明显的硬伤</strong>：误差地形可能坑坑洼洼，存在<strong>局部极小（local minima）</strong>——下山时可能掉进一个小坑，四周都是上坡，但它并不是全局最低点，于是梯度下降<strong>不保证</strong>找到最优解。这是个真问题，也是当年怀疑者攻击连接主义的主要火力点。</p>
+      <p>但论文紧接着给出了一个基于大量实验的经验观察，而且这个观察后来被反复验证、影响深远：<strong>在实际任务中，网络很少卡在比全局最小差很多的糟糕局部极小里</strong>。作者还给出了一条极有洞察力的解释——他们发现，这种卡死<strong>只在「网络连接刚好够用」时</strong>才偶尔发生；只要<strong>多加几条连接</strong>，就等于在权重空间里<strong>增加了额外维度</strong>，这些新维度提供了「绕过」低维空间里那些障壁的路径。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：多给点冗余，地形就「变平」了</span>
+        <p>这个「加维度绕开局部极小」的直觉，预言了今天深度学习一个被广泛接受的现象：<strong>适度过参数化（over-parameterization）反而让优化更容易</strong>。打个比方，二维地图上两座山之间也许真有一道无法翻越的山脊把你困在山谷；可一旦允许你「飞起来」进入三维，绕过那道山脊就轻而易举了。把权重数量加多，就相当于给优化器开了更多「飞行维度」。这一段只有寥寥数句，却精准命中了二十多年后才被理论界认真研究的现象——这正是为什么这篇论文常被称为「字字千金」。</p>
+      </div>
+
+      <!-- ============ 方法论 ============ -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇 4 页短文的「巧」，几乎全在一连串精准的<strong>设计与表述决策</strong>上。把它们逐条拆开看：</p>
+      <table>
+        <thead>
+          <tr><th>精妙之处</th><th>具体做法</th><th>为什么聪明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>选 S 型函数当非线性</td><td>用逻辑斯蒂函数 y=1/(1+e^(−x))，其导数恰为 y(1−y)</td><td>既处处可导（链式法则才成立），导数又只用输出本身就能算，把反向传播的实现简化到极致</td></tr>
+          <tr><td>把误差信号「复用」起来</td><td>先算出每个单元的「责任量」∂E/∂x，再一次性导出与它相连的所有权重梯度（公式 6）和下层责任（公式 7）</td><td>一次反向回灌（≈一次前向的代价）拿到全网梯度，避免对每根权重单独试探，是算法可扩展的根本</td></tr>
+          <tr><td>偏置当普通权重处理</td><td>给每个单元接一个「恒为 1」的额外输入，其权重即偏置/阈值</td><td>不必为阈值另写学习规则，统一框架，代码与推导都更干净</td></tr>
+          <tr><td>批量 vs. 在线两种更新都给</td><td>既可每个样本后即更新权重（在线），也可累加所有样本的 ∂E/∂w 再统一更新（批量，公式 8）</td><td>明确点出两种工程权衡：批量需额外内存存梯度，在线则免存——这正是今天「批大小」选择的雏形</td></tr>
+          <tr><td>引入动量项</td><td>更新时叠加上一步方向 ×α（公式 9），实验用 α=0.9</td><td>不牺牲「局部、简单、可并行」的优点，就显著加速收敛、抚平抖动；并坦言它不如用二阶导数的方法收敛快，但简单得多</td></tr>
+          <tr><td>用「权重衰减」逼出可解释表征</td><td>家谱实验中每次更新后把所有权重缩小 0.2%（weight-decay），由 ∂E/∂w 平衡</td><td>压低无用的大权重，让最终留下的大权重恰好标示「真正有用的连接」，使隐藏单元的语义更易解读</td></tr>
+          <tr><td>选「对称性」「家谱」当试金石</td><td>两个任务都<strong>必须</strong>用隐藏层、且都有可解读的「正确内部表征」</td><td>不是随便找数据集刷分，而是精选能<strong>同时</strong>证明「学得会」和「学出了有意义表征」的任务——叙事力极强</td></tr>
+        </tbody>
+      </table>
+
+      <!-- ============ 与已有研究的关系 ============ -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文站在三股力量的交汇点上，并明确表态要终结其中的僵局：</p>
+      <ul>
+        <li><strong>正面回应 Minsky &amp; Papert 的「死刑判决」。</strong>1969 年的《感知机》一书（参考文献 2）证明了单层网络的根本局限，几乎凭一己之力让神经网络研究停摆。本文开篇即承认：往中间加隐藏单元是出路，但<strong>怎么学</strong>这些隐藏单元一直没解决——它给出的正是这个缺失的答案，把被判死缓的连接主义重新救活。</li>
+        <li><strong>超越感知机收敛过程。</strong>论文摘要直接对标 Rosenblatt（参考文献 1）的<strong>感知机收敛过程（perceptron-convergence procedure）</strong>，指出反向传播的优势在于能<strong>创造出有用的新特征</strong>（即隐藏单元学出的表征），这是只能调整输入—输出直连权重的感知机做不到的。</li>
+        <li><strong>承认并非孤立的发现。</strong>难能可贵的是，作者在文中<strong>主动注明</strong>：David Parker（私人通讯）与 Yann Le Cun（参考文献 3）也<strong>独立</strong>发现了该学习过程的变体。这与今天追溯的「反向传播多源独立发现史」（如 Werbos 1974、Parker 1985）相吻合——本文之所以成为公认的奠基文献，靠的是<strong>清晰的表述 + 有说服力的实验演示</strong>，而非绝对首创。</li>
+        <li><strong>是更大著作的「预告片」。</strong>同年 Rumelhart、Hinton、Williams 在两卷本《并行分布式处理（PDP, Parallel Distributed Processing）》中（参考文献 4）给出了完整得多的论述。这篇 Nature 短文是把核心思想浓缩到 4 页、推向最广读者的「压缩版」。</li>
+      </ul>
+      <p>论文还顺手把适用范围从前馈网络推广到了<strong>循环网络（recurrent net）</strong>：它证明一个跑若干步的循环网络，等价于一个把每个时间步「摊开」成一层的分层网络（论文 Fig. 5），只要让对应层之间共享同一组权重（取各层梯度的平均），反向传播就能直接用于循环网络去学习「迭代搜索」或「序列结构」——这正是后来「沿时间反向传播」（BPTT，Backpropagation Through Time）的思想源头。</p>
+
+      <!-- ============ 跨领域启示 ============ -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>对整个深度学习：</strong>反向传播就是今天几乎所有神经网络训练的<strong>发动机</strong>。从卷积网络的图像识别、Transformer（一种主流深度网络架构）驱动的大语言模型，到强化学习里的策略网络，训练循环最内层跑的都还是这同一条「前向算损失、反向传梯度、按梯度更新」。读懂这 4 页，就读懂了现代人工智能（AI）训练的底层心跳。</li>
+        <li><strong>对「表征学习」这门学问：</strong>本文确立了一个范式——<strong>不必手工设计特征，让网络自己从数据里长出有用的内部表征</strong>。家谱实验里隐藏单元自发编码「国籍/辈分」，正是后来词向量（word embedding）、自监督预训练等一切「表征学习（representation learning）」的精神祖先。</li>
+        <li><strong>对自动微分（Auto-Differentiation）：</strong>反向传播本质是链式法则的<strong>反向模式自动微分</strong>在神经网络上的特例。今天 PyTorch、JAX（两套主流深度学习软件框架）的自动求导（autograd）引擎，就是把这篇论文里手推的 (4)–(7) 推广成「对任意计算图自动求导」的通用机器。</li>
+        <li><strong>对优化理论的预言：</strong>「多加连接、增维度以绕开局部极小」这一观察，预告了现代对<strong>过参数化网络损失地形</strong>的理解（如「宽网络的极小点几乎都一样好」「损失地形中存在连通的低损失通道」）。一句经验之谈，领先了理论二十余年。</li>
+        <li><strong>对认知科学的张力：</strong>论文坦言这<strong>不是</strong>大脑学习的可信模型（见下节），但它示范了「通过在权重空间做梯度下降，可以构造出有趣的内部表征」，并呼吁去寻找<strong>生物上更可信</strong>的梯度下降实现方式——这个开放问题（大脑是否、以及如何做类似反向传播的事）至今仍是计算神经科学的活跃前沿。</li>
+      </ul>
+
+      <!-- ============ 边界和未解问题 ============ -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文的伟大不妨碍它有清晰的边界。有些是作者亲口承认的，有些是站在今天回看才看清的：</p>
+      <ul>
+        <li><strong>作者亲口承认：生物上不可信。</strong>论文结尾明确写道，该学习过程「以目前的形式，不是一个可信的大脑学习模型」。反向传播要求误差信号<strong>精确地沿着前向连接反向回传</strong>，还要求每根突触「知道」下游的权重值——真实神经元并没有这种机制（这后来被称为「权重传输问题」weight transport problem）。作者把「寻找生物上可信的梯度下降方式」留成了公开问题。</li>
+        <li><strong>作者亲口承认：局部极小无保证。</strong>如发现四所述，梯度下降<strong>不保证</strong>收敛到全局最优。论文给的是「实践中很少出问题」的<strong>经验</strong>观察，不是理论保证——这在当年是个真实的软肋。</li>
+        <li><strong>规模极小，未触及深度难题。</strong>论文的网络以今天眼光看是<strong>玩具级</strong>：对称性任务 2 个隐藏单元、家谱任务第二层 6 个单元。S 型函数在深层网络会带来<strong>梯度消失（vanishing gradient）</strong>，导致很深的网络极难训练——这个会在十多年后绊住整个领域、直到修正线性单元（ReLU，Rectified Linear Unit）与更好初始化才缓解的问题，在这篇只有几层的论文里<strong>根本没有暴露</strong>。</li>
+        <li><strong>收敛速度未做严肃刻画。</strong>对称性任务用了 1,425 次扫描、家谱任务上千次扫描，论文承认纯梯度下降「不如用二阶导数的方法收敛快」，但<strong>没有</strong>给出系统的收敛速率分析，也没讨论学习率/动量该如何选——这些都留给了后人（以及今天仍在调参的工程师）。</li>
+        <li><strong>泛化为何有效，只给了直觉。</strong>家谱实验展示了漂亮的泛化（4 条未见样例），但「<strong>为什么</strong>梯度下降学到的表征恰好能泛化」并未被理论解释。这是个直到今天仍未完全回答的深刻问题（深度学习泛化理论至今活跃）。</li>
+        <li><strong>「隐藏单元 = 语义维度」是事后解读。</strong>说第二层某单元「编码国籍」，是研究者<strong>观察学成网络后</strong>归纳出的，并非网络被设计去这么做。这类<strong>事后探索性</strong>的可解释性结论很有启发，但也带有「人往结果上贴标签」的风险，需与「确认性证据（如泛化成功）」区分看待。</li>
+      </ul>
+
+      <!-- ============ 判断 ============ -->
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都标出文中依据。</p>
+      <p><strong>这是 20 世纪机器学习最重要的论文之一，名副其实。</strong>判断依据来自其影响的<strong>普适性</strong>：论文给出的反向传播，是今天几乎一切神经网络训练的内核（见跨领域启示）。它的历史地位不在「绝对首创」——作者自己就注明了 Parker 与 Le Cun 的独立发现——而在于<strong>第一次把这套方法讲清楚，并配上让人信服的实验</strong>，从而把停滞近二十年的连接主义重新点燃。</p>
+      <p><strong>它的论证是「概念验证」式的，强在叙事，而非统计严谨。</strong>这是个中性判断，需点明：论文没有今天意义上的统计检验、误差棒或多次随机重复的均值方差，它的说服力来自<strong>两个精选任务的定性成功</strong>——对称性网络自发收敛出 1∶2∶4 的优雅权重、家谱网络在 4 条未见样例上泛化成功。对一篇 1986 年「证明此路可通」的奠基论文，这种论证方式是恰当的；但若以今日实验标准苛求其严谨性，则会错判它的真正贡献所在。</p>
+      <p><strong>作者的学术诚实值得特别记一笔。</strong>依据是文中三处主动「自曝其短」：明说该算法<strong>不是</strong>可信的大脑模型、明说梯度下降<strong>不保证</strong>全局最优、主动<strong>注明他人的独立发现</strong>。在一个本可大肆宣告「我们解决了神经网络学习」的位置上，作者选择了克制与精确——这反而让论文更经得起时间检验。</p>
+      <p><strong>最被低估的，是那段关于局部极小的几句话。</strong>依据：论文用「多加连接 = 增维度 = 绕开障壁」解释了为何实践中很少卡死。这段几乎是顺带写下的经验直觉，精准预言了二十多年后才被理论界认真研究的「过参数化让优化更容易」现象。这是真正的洞见——它说明作者不只是发明了一个算法，更对「为什么它会管用」有着超越时代的直觉。</p>
+      <p><strong>一句话评级：</strong>这是一篇<strong>影响力远超其篇幅与当时严谨度</strong>的奠基性论文。它的价值不在数学新颖（链式法则人尽皆知），而在于<strong>把对的想法、在对的时间、用对的实验、讲给对的读者</strong>——这四件事齐备，才造就了一篇真正改变了一个领域走向的 4 页纸。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Rumelhart、Hinton 与 Williams 用 4 页 Nature 证明：把输出误差通过<strong>链式法则逐层反向传播</strong>，就能为多层网络里<strong>每一根权重</strong>（含深藏的隐藏单元）算出梯度——于是网络能<strong>自己长出有用的内部表征</strong>（对称性网络仅用 2 个隐藏单元、1,425 次扫描就自发收敛出 1∶2∶4 的「校验和」权重；家谱网络从 104 条关系里让隐藏单元自发编码出「国籍/辈分/分支」并在 4 条未见样例上成功泛化）。它复活了被《感知机》判死缓的连接主义，成了今天整个深度学习的训练发动机；作者同时坦承它生物上不可信、局部极小无保证——而那段「加维度绕开局部极小」的随手直觉，领先了优化理论二十余年。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Rumelhart, D. E., Hinton, G. E., &amp; Williams, R. J. (1986). Learning representations by back-propagating errors. <em>Nature</em>, 323(6088), 533–536.<br>
+    <strong>解读说明：</strong>本文为基于论文原文的深度解读，「判断」与「边界和未解问题」两节含解读者独立评价，已在文中逐处标注依据。交互组件为论文反向传播算法在浏览器中的真实实现（2-2-1 网络在线学习 XOR），用于直觉演示，非论文原始数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  // ====== 反向传播实况：2-2-1 网络学 XOR ======
+  // 真实计算：前向 sigmoid，反向链式法则，在线（逐样本）更新 + 动量。
+  var canvas = document.getElementById('bp-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 训练集：XOR
+  var DATA = [
+    {x:[0,0], t:0},
+    {x:[0,1], t:1},
+    {x:[1,0], t:1},
+    {x:[1,1], t:0}
+  ];
+
+  var eps = 0.5, mom = 0.9;
+  var net, history, epoch;
+
+  function sig(z){ return 1/(1+Math.exp(-z)); }
+  function rnd(){ return (Math.random()*2-1); } // [-1,1]
+
+  function initNet(){
+    // 2 input -> 2 hidden -> 1 output
+    net = {
+      // hidden weights: w[h][i]  (i in 0,1), bias bh[h]
+      w: [[rnd(),rnd()],[rnd(),rnd()]],
+      bh:[rnd(),rnd()],
+      // output weights: v[h] (h in 0,1), bias bo
+      v: [rnd(),rnd()],
+      bo: rnd(),
+      // momentum stores
+      dw: [[0,0],[0,0]],
+      dbh:[0,0],
+      dv: [0,0],
+      dbo: 0
+    };
+    history = [];
+    epoch = 0;
+  }
+
+  function forward(x){
+    var h = [0,0], hin=[0,0];
+    for(var k=0;k<2;k++){
+      hin[k] = net.w[k][0]*x[0] + net.w[k][1]*x[1] + net.bh[k];
+      h[k] = sig(hin[k]);
+    }
+    var oin = net.v[0]*h[0] + net.v[1]*h[1] + net.bo;
+    var o = sig(oin);
+    return {h:h, o:o};
+  }
+
+  // 一轮 = 遍历 4 个样本（在线更新），返回该轮总平方误差(×½求和)
+  function trainEpoch(){
+    var E = 0;
+    // 打乱顺序以更接近随机在线
+    var order = [0,1,2,3];
+    for(var s=order.length-1;s>0;s--){ var r=Math.floor(Math.random()*(s+1)); var tmp=order[s]; order[s]=order[r]; order[r]=tmp; }
+    for(var oi=0;oi<4;oi++){
+      var d = DATA[order[oi]];
+      var f = forward(d.x);
+      var o = f.o, h = f.h;
+      E += 0.5*(o - d.t)*(o - d.t);
+      // output delta: (o-t)*o*(1-o)   —— 论文公式(4)(5)
+      var dout = (o - d.t) * o * (1-o);
+      // hidden delta: h*(1-h)*dout*v  —— 论文公式(5)(7)
+      var dh = [0,0];
+      for(var k=0;k<2;k++){ dh[k] = h[k]*(1-h[k]) * dout * net.v[k]; }
+      // 更新输出层（公式 6 + 动量公式 9）
+      for(var k2=0;k2<2;k2++){
+        var grad = dout * h[k2];
+        net.dv[k2] = -eps*grad + mom*net.dv[k2];
+        net.v[k2] += net.dv[k2];
+      }
+      net.dbo = -eps*dout + mom*net.dbo;
+      net.bo += net.dbo;
+      // 更新隐藏层
+      for(var k3=0;k3<2;k3++){
+        for(var i=0;i<2;i++){
+          var g = dh[k3] * d.x[i];
+          net.dw[k3][i] = -eps*g + mom*net.dw[k3][i];
+          net.w[k3][i] += net.dw[k3][i];
+        }
+        net.dbh[k3] = -eps*dh[k3] + mom*net.dbh[k3];
+        net.bh[k3] += net.dbh[k3];
+      }
+    }
+    epoch++;
+    history.push(E);
+    if(history.length > 1200) history.shift();
+    return E;
+  }
+
+  // ====== 绘制 ======
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,W,H);
+
+    // 区域划分
+    // 左：误差曲线 (0..420 宽)；右上：四样例输出；右下：隐藏单元决策边界
+    drawErrorCurve(20, 20, 430, 340);
+    drawOutputs(490, 20, 430, 150);
+    drawDecision(490, 200, 430, 160);
+  }
+
+  function drawErrorCurve(x,y,w,h){
+    ctx.save();
+    ctx.strokeStyle = "#e6e8eb"; ctx.lineWidth=1;
+    ctx.strokeRect(x,y,w,h);
+    // 标题
+    ctx.fillStyle="#c0392b"; ctx.font="bold 13px -apple-system,sans-serif";
+    ctx.fillText("总误差 E 随训练轮数下降", x+8, y+18);
+    ctx.fillStyle="#9aa1ab"; ctx.font="11px -apple-system,sans-serif";
+    ctx.fillText("纵轴=每轮总平方误差(½Σ)，横轴=训练轮数", x+8, y+34);
+
+    var plotX = x+8, plotY = y+44, plotW = w-16, plotH = h-60;
+    // 坐标轴
+    ctx.strokeStyle="#cfd4da"; ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(plotX, plotY); ctx.lineTo(plotX, plotY+plotH); ctx.lineTo(plotX+plotW, plotY+plotH);
+    ctx.stroke();
+    var maxE = 1.0; // E 起点约 4*0.5*0.25 = 0.5，给点余量
+    // 找历史最大
+    for(var i=0;i<history.length;i++){ if(history[i]>maxE) maxE=history[i]; }
+    maxE = Math.max(maxE, 0.05);
+    // 网格线
+    ctx.fillStyle="#9aa1ab"; ctx.font="10px -apple-system,sans-serif";
+    for(var g=0;g<=4;g++){
+      var gy = plotY + plotH*(g/4);
+      ctx.strokeStyle="#f0f1f3"; ctx.beginPath(); ctx.moveTo(plotX, gy); ctx.lineTo(plotX+plotW, gy); ctx.stroke();
+      var val = maxE*(1-g/4);
+      ctx.fillText(val.toFixed(2), x+8+plotW-2-26, gy-2);
+    }
+    // 曲线
+    if(history.length>1){
+      ctx.strokeStyle="#c0392b"; ctx.lineWidth=2;
+      ctx.beginPath();
+      var n = history.length;
+      for(var k=0;k<n;k++){
+        var px = plotX + plotW*(k/(Math.max(n-1,1)));
+        var py = plotY + plotH*(1 - Math.min(history[k]/maxE,1));
+        if(k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      // 当前值
+      var last = history[history.length-1];
+      ctx.fillStyle="#c0392b"; ctx.font="bold 12px -apple-system,sans-serif";
+      ctx.fillText("E = "+last.toFixed(4), plotX+plotW-110, plotY+14);
+    } else {
+      ctx.fillStyle="#9aa1ab"; ctx.font="12px -apple-system,sans-serif";
+      ctx.fillText("点「训练」开始……", plotX+plotW/2-50, plotY+plotH/2);
+    }
+    ctx.restore();
+  }
+
+  function drawOutputs(x,y,w,h){
+    ctx.save();
+    ctx.strokeStyle="#e6e8eb"; ctx.strokeRect(x,y,w,h);
+    ctx.fillStyle="#c0392b"; ctx.font="bold 13px -apple-system,sans-serif";
+    ctx.fillText("四个测试样例：网络当前输出", x+8, y+18);
+    ctx.fillStyle="#9aa1ab"; ctx.font="11px -apple-system,sans-serif";
+    ctx.fillText("黑≈1，白≈0，灰≈未学会(0.5)；括号内为目标", x+8, y+34);
+
+    var cellW = (w-24)/4;
+    for(var i=0;i<4;i++){
+      var d = DATA[i];
+      var f = forward(d.x);
+      var o = f.o;
+      var cx = x+12 + i*cellW + cellW/2;
+      var cy = y+78;
+      var R = 26;
+      // 输出方块（灰度表示 output）
+      var shade = Math.round(255*(1-o)); // o=1 -> 黑
+      ctx.fillStyle = "rgb("+shade+","+shade+","+shade+")";
+      ctx.fillRect(cx-R, cy-R, R*2, R*2);
+      ctx.strokeStyle = (Math.round(o)===d.t && Math.abs(o-d.t)<0.35) ? "#2e7d32" : "#c0392b";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx-R, cy-R, R*2, R*2);
+      // 数值
+      ctx.fillStyle = o>0.5 ? "#ffffff" : "#1f2328";
+      ctx.font="bold 13px -apple-system,sans-serif";
+      ctx.textAlign="center";
+      ctx.fillText(o.toFixed(2), cx, cy+5);
+      ctx.textAlign="left";
+      // 输入标签
+      ctx.fillStyle="#3a4048"; ctx.font="11px -apple-system,sans-serif";
+      ctx.textAlign="center";
+      ctx.fillText("["+d.x[0]+","+d.x[1]+"]→("+d.t+")", cx, cy+R+18);
+      ctx.textAlign="left";
+    }
+    ctx.restore();
+  }
+
+  function drawDecision(x,y,w,h){
+    ctx.save();
+    ctx.strokeStyle="#e6e8eb"; ctx.strokeRect(x,y,w,h);
+    ctx.fillStyle="#c0392b"; ctx.font="bold 13px -apple-system,sans-serif";
+    ctx.fillText("两个隐藏单元各自学到的决策边界", x+8, y+18);
+    ctx.fillStyle="#9aa1ab"; ctx.font="11px -apple-system,sans-serif";
+    ctx.fillText("在输入平面[0,1]²上，两条线把四个角分开", x+8, y+34);
+
+    // 画输入平面
+    var pad = 16;
+    var sx = x+pad+18, sy = y+44;
+    var size = Math.min(w-2*pad-30, h-58);
+    // 平面边框
+    ctx.strokeStyle="#cfd4da"; ctx.lineWidth=1;
+    ctx.strokeRect(sx, sy, size, size);
+    // 坐标映射: input[0]=横(0左1右), input[1]=纵(0下1上)
+    function toPx(i0,i1){ return [sx + i0*size, sy + (1-i1)*size]; }
+    // 四个数据点
+    for(var i=0;i<4;i++){
+      var d = DATA[i];
+      var p = toPx(d.x[0], d.x[1]);
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], 7, 0, Math.PI*2);
+      ctx.fillStyle = d.t===1 ? "#c0392b" : "#ffffff";
+      ctx.fill();
+      ctx.strokeStyle = "#c0392b"; ctx.lineWidth=2; ctx.stroke();
+    }
+    // 两个隐藏单元的决策边界: w0*i0 + w1*i1 + b = 0
+    var colors = ["#1f6fb2","#e08a00"];
+    for(var k=0;k<2;k++){
+      var a0 = net.w[k][0], a1 = net.w[k][1], b = net.bh[k];
+      // 解 i1 = -(a0*i0 + b)/a1 ，在 i0∈[-0.2,1.2] 上画
+      ctx.strokeStyle = colors[k]; ctx.lineWidth=2;
+      ctx.beginPath();
+      var drawn=false;
+      if(Math.abs(a1) > 1e-6){
+        for(var t=-0.2;t<=1.2001;t+=0.05){
+          var i1 = -(a0*t + b)/a1;
+          var p2 = toPx(t, i1);
+          if(!drawn){ ctx.moveTo(p2[0],p2[1]); drawn=true; } else ctx.lineTo(p2[0],p2[1]);
+        }
+      } else if(Math.abs(a0) > 1e-6){
+        var i0v = -b/a0;
+        var pa = toPx(i0v,-0.2), pb = toPx(i0v,1.2);
+        ctx.moveTo(pa[0],pa[1]); ctx.lineTo(pb[0],pb[1]);
+      }
+      ctx.stroke();
+    }
+    // clip 提示：用裁剪让线不画出框太多
+    // 图例
+    ctx.font="11px -apple-system,sans-serif";
+    ctx.fillStyle=colors[0]; ctx.fillText("■ 隐藏单元1", sx+size+10, sy+20);
+    ctx.fillStyle=colors[1]; ctx.fillText("■ 隐藏单元2", sx+size+10, sy+40);
+    ctx.fillStyle="#c0392b"; ctx.fillText("● 目标=1", sx+size+10, sy+64);
+    ctx.fillStyle="#6b7280"; ctx.fillText("○ 目标=0", sx+size+10, sy+82);
+    ctx.restore();
+  }
+
+  function updateStatus(){
+    var st = document.getElementById('bp-status');
+    var last = history.length ? history[history.length-1] : null;
+    var solved = true;
+    for(var i=0;i<4;i++){ var f=forward(DATA[i].x); if(Math.abs(f.o - DATA[i].t) > 0.3){ solved=false; break; } }
+    st.textContent = "已训练 " + epoch + " 轮" + (last!==null ? "，当前 E=" + last.toFixed(4) : "") + (epoch>0 ? (solved ? "  ✓ 已学会 XOR" : "  …仍在学") : "");
+  }
+
+  // ====== 训练动画 ======
+  var animId = null;
+  function runTraining(targetEpochs){
+    if(animId){ cancelAnimationFrame(animId); animId=null; }
+    var done = 0;
+    function frame(){
+      var batch = 5; // 每帧训 5 轮，平滑动画
+      for(var b=0;b<batch && done<targetEpochs;b++){ trainEpoch(); done++; }
+      draw(); updateStatus();
+      if(done < targetEpochs){ animId = requestAnimationFrame(frame); }
+      else { animId=null; }
+    }
+    frame();
+  }
+
+  // ====== 控件 ======
+  document.getElementById('bp-train').addEventListener('click', function(){ runTraining(500); });
+  document.getElementById('bp-step').addEventListener('click', function(){
+    if(animId){ cancelAnimationFrame(animId); animId=null; }
+    for(var i=0;i<20;i++) trainEpoch();
+    draw(); updateStatus();
+  });
+  document.getElementById('bp-reset').addEventListener('click', function(){
+    if(animId){ cancelAnimationFrame(animId); animId=null; }
+    initNet(); draw(); updateStatus();
+  });
+  document.getElementById('bp-eps').addEventListener('input', function(e){
+    eps = parseFloat(e.target.value);
+    document.getElementById('bp-eps-val').textContent = eps.toFixed(2);
+  });
+  document.getElementById('bp-mom').addEventListener('input', function(e){
+    mom = parseFloat(e.target.value);
+    document.getElementById('bp-mom-val').textContent = mom.toFixed(2);
+  });
+
+  // 初始
+  initNet();
+  draw();
+  updateStatus();
+})();
+</script>
+
+</body>
+</html>

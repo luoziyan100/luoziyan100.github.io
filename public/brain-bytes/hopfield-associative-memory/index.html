@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hopfield 1982 · 联想记忆网络 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Content-Addressable Memory <span>×</span> 当一堆"傻"神经元自己学会了"凭一角想起全貌"</h1>
+    <div class="meta">
+      <span>📄 Neural networks and physical systems with emergent collective computational abilities</span><br>
+      <span>✍️ J. J. Hopfield</span><br>
+      <span>🏛️ California Institute of Technology（化学与生物学部）· Bell Laboratories（贝尔实验室）</span><br>
+      <span>📅 PNAS（美国国家科学院院刊）79(8): 2554–2558 · 1982 年 4 月</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-question">它到底想回答什么</a></li>
+        <li><a href="#sec-model">模型：六行规则</a></li>
+        <li><a href="#sec-energy">核心发现一·能量地形</a></li>
+        <li><a href="#sec-viz">🔴 交互：吸引子弛豫</a></li>
+        <li><a href="#sec-capacity">核心发现二·0.15N 容量</a></li>
+        <li><a href="#sec-emergent">核心发现三·涌现的副产品</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是一篇只有 5 页、却把"记忆"从生物学难题变成物理学问题的论文。它论证了一件反直觉的事：把大量极其简单、各自只会"开/关"的神经元连起来，<strong>记忆这种高级能力会作为整体的"涌现属性"自动冒出来</strong>，谁也没在单个元件里写过"记忆"的代码。Hopfield 的关键招数是给这个网络定义了一个<strong>能量函数</strong>，证明网络的每一步演化都只会让能量下降——于是"回忆"就等于"一个小球从山坡滚进最近的山谷"。这一个比喻把联想记忆、纠错、模式补全、范畴识别全部统一进了同一张"能量地形图"。</p>
+        <p>它的历史地位很硬：这篇文章直接点燃了 1980 年代的神经网络复兴，"Hopfield 网络"成了教科书词条，也是后来玻尔兹曼机、现代联想记忆、乃至 Transformer 注意力被重新诠释为"现代 Hopfield 网络"的源头。2024 年 Hopfield 凭借这条线的工作获得诺贝尔物理学奖。读它，等于读一个领域的创世故事；而且它的核心论证短到能在一杯咖啡的时间里完整跟下来。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文横跨物理、生物、计算机三界，术语来自不同方言。先把工具摆齐，后面读正文就不打结了。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">内容寻址记忆（CAM，Content-Addressable Memory）</div>
+          <div class="cdesc">和电脑"按地址取数"相反：你不给门牌号，而是给内容的<strong>一部分或一个走样的版本</strong>，系统帮你补全成完整内容。就像你哼半句跑调的旋律，朋友立刻接上整首歌——你寻址用的是"内容"本身，不是它存在哪。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">联想记忆（Associative Memory）</div>
+          <div class="cdesc">CAM 的别名，强调"由部分联想到整体"。论文开头的例子：只输入文献条目里的"&amp; Wannier, (1941)"甚至带错字的"Vannier, (1941)"，理想记忆也能取回完整的那条引用。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">状态空间与相空间流（State Space / Phase-Space Flow）</div>
+          <div class="cdesc">把网络此刻所有神经元的开关状态打包成一个点，所有可能状态就构成一个高维"地图"。网络随时间演化，就是这个点在地图上"流动"。Hopfield 要的是一种<strong>会流向若干稳定点</strong>的流，而不是乱窜的流。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">吸引子 / 稳定极小点（Attractor / Stable Limit Point）</div>
+          <div class="cdesc">地图上的"山谷盆地":周围一大片区域的点最终都会滚进同一个谷底。每个谷底对应一条被存储的记忆，谷底周围的整片流域就是这条记忆的"势力范围"。落在某流域内的任何起点，都会被吸引到那条记忆。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">能量函数（Energy Function，E）</div>
+          <div class="cdesc">给网络每个状态打一个"高度分"<code>E = −½ Σ Tij·Vi·Vj</code>。Hopfield 证明：只要连接对称，网络每翻转一个神经元都只会让 E 下降或不变。于是演化必然停在某个局部最低点——"回忆"在数学上就是"下山"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">伊辛模型 / 自旋玻璃（Ising Model / Spin Glass）</div>
+          <div class="cdesc">物理学里描述一堆磁针(自旋)相互作用的经典模型，每根针只有上/下两态。Hopfield 指出他的网络<strong>与伊辛模型在数学上同构</strong>:神经元=自旋，连接 Tij=交换耦合。这一句把整套统计物理工具直接借了过来。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">Hebb 学习规则（Hebbian Rule）</div>
+          <div class="cdesc">"一起激活的神经元，连接会增强"(fire together, wire together)。论文的存储公式 <code>Tij = Σ(2Vi−1)(2Vj−1)</code> 正是 Hebb 思想的数学版:在每条要记的模式里同时为 1 的两个神经元，它们之间的连线就加强。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">异步更新（Asynchronous Updating）</div>
+          <div class="cdesc">神经元不踩同一个节拍。每个神经元各自随机地、独立地检查自己该开还是该关。论文强调这点是和感知机的关键区别——真实大脑没有全局时钟，而异步恰恰是能量单调下降证明成立的前提。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">汉明距离（Hamming Distance）</div>
+          <div class="cdesc">两个等长 0/1 串有多少位不一样。它就是这张高维地图上的"步行距离":汉明距离越小越像、在地图上越近。论文用它量化"输入离哪条记忆最近"和"两条记忆离多远才不会混"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">软失效（Fail-Soft / Graceful Degradation）</div>
+          <div class="cdesc">坏掉一部分元件不会让系统当机，只是性能平缓变差。因为记忆是<strong>分布在全网</strong>的集体属性而非存在某个格子里，砍掉一些神经元或连接，记忆只是变模糊，不会整条丢失——这正是论文标题里"fail-soft devices"的承诺。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-question">它到底想回答什么</div>
+      <p>1982 年的背景是这样的:神经元单个看起来很"笨"——无非是把输入加权求和、过个阈值、决定开还是关。而大脑显然会做记忆、分类、联想这些"计算"。中间这道鸿沟怎么跨？</p>
+      <p>当时主流有两条路，Hopfield 都不满意。一条是<strong>感知机（Perceptron）</strong>路线:信号单向前传 A→B→C，像一条流水线;可一旦加入强反向耦合 A⇄B⇄C，分析就变得"难以处理"(intractable)，而 Hopfield 认为<strong>所有有趣的现象恰恰来自强反向耦合</strong>。另一条是<strong>线性联想网络</strong>:数学漂亮，但本质是线性叠加，遇到"0.6×刺激1 + 0.4×刺激3"这种混合输入，它只会吐出一个毫无意义的 0.6×输出1 + 0.4×输出3 的糊状物，必须外挂一个非线性逻辑处理器才能做真正的决策。</p>
+      <p>于是论文把问题精确化为一句追问:</p>
+      <div class="info-block">
+        <span class="ib-title">核心研究问题</span>
+        <p>大量简单神经元仅仅因为<strong>"数量大、互相连、各自非线性"</strong>，能不能<strong>自发地</strong>(spontaneously)涌现出有用的计算能力——尤其是一个能纠错、能补全、对元件损坏不敏感的内容寻址记忆？而且，这能力是否<strong>不依赖于</strong>神经生物学的精细细节，从而既可能真实存在于大脑，又能用集成电路造出来？</p>
+      </div>
+      <p>注意这里的雄心:Hopfield 要的不是"设计一个记忆电路"，而是证明记忆会<strong>作为副产品自己长出来</strong>。物理学里早有先例——大量简单原子一冷却就自发出现磁畴、涡旋这些集体现象，没人逐个原子去编程。论文要论证的是:神经元里也有这种"集体物理"。</p>
+
+      <div class="section-head" id="sec-model">模型：六行规则就够了</div>
+      <p>整个网络简单到可以一口气说完，这种简单本身就是论点的一部分。</p>
+      <p><strong>① 神经元只有两态。</strong>第 i 个神经元 <code>Vi = 0</code>(不放电)或 <code>Vi = 1</code>(以最大频率放电)，沿用 1943 年 McCulloch–Pitts（麦卡洛克-皮茨）的二值神经元。N 个神经元的状态就是一个 N 位 0/1 串。</p>
+      <p><strong>② 连接是一张对称的权重表。</strong>从神经元 j 到 i 的连接强度记作 <code>Tij</code>，自连接 <code>Tii = 0</code>。</p>
+      <p><strong>③ 更新规则:加权求和过阈值。</strong>每个神经元随机、异步地检查自己:</p>
+      <blockquote>
+        <p>Vi → 1  若  Σ(j≠i) Tij·Vj &gt; Ui</p>
+        <p>Vi → 0  若  Σ(j≠i) Tij·Vj &lt; Ui</p>
+        <p>（阈值 Ui 默认取 0；平均尝试频率为 W）</p>
+      </blockquote>
+      <p><strong>④ 存储:用 Hebb 规则把要记的模式"焊"进连接里。</strong>要记 n 条模式 V<sup>s</sup>（s=1…n），就令</p>
+      <blockquote>
+        <p>Tij = Σ(s=1..n) (2Vi<sup>s</sup> − 1)(2Vj<sup>s</sup> − 1)，  Tii = 0   〔公式 2〕</p>
+      </blockquote>
+      <p>这里 <code>(2V−1)</code> 把 0/1 重映射成 −1/+1。直觉是:在某条记忆里两个神经元状态相同(同为开或同为关)，就给它们的连线投一票"赞成"(+1);状态相反就投"反对"(−1)。把所有要记的模式投票累加，就得到 Tij。</p>
+      <p><strong>⑤ 为什么这样存就能取回？</strong>论文做了一步漂亮的"信噪分离"。把存好的某条记忆 V<sup>s'</sup> 当输入喂回去，神经元 i 收到的总输入是</p>
+      <blockquote>
+        <p>Σj Tij·Vj<sup>s'</sup> ≈ (2Vi<sup>s'</sup> − 1)·N/2  ＋  噪声  〔公式 3、4〕</p>
+      </blockquote>
+      <p>由于不同随机模式之间近似正交(pseudo-orthogonality)，来自"其他记忆"的交叉项平均抵消为 0，只剩下信号项 <code>(2Vi<sup>s'</sup>−1)·N/2</code>:它在 Vi 该为 1 时为正、该为 0 时为负——正好把神经元推向它在这条记忆里本该有的状态。<strong>于是记忆是网络的稳定态</strong>，除非噪声(其他记忆的残留)太大压过信号。这个"信号 vs 噪声"的拉锯，正是后面容量上限的来源。</p>
+      <p><strong>⑥ 还原了真实神经元的非线性。</strong>论文用 Fig. 1 说明:真实神经元的"输入→放电率"曲线是 S 形(sigmoid)——负电位时压到 0、正电位时饱和。论文明确指出，<strong>正是这条曲线的非线性</strong>(而非以往线性网络强调的中段近似直线区)，才让网络能做"选择、形成范畴、再生信息"这些真集体计算;纯线性的部分只是在搬运信号。</p>
+
+      <div class="section-head" id="sec-energy">核心发现一：一个能量函数，把"回忆"变成"下山"</div>
+      <p>这是全文的灵魂一步，也是 Hopfield 区别于所有前人的地方。他给对称网络(<code>Tij = Tji</code>)定义了一个量:</p>
+      <blockquote>
+        <p>E = − ½ Σ(i≠j) Tij·Vi·Vj   〔公式 7〕</p>
+      </blockquote>
+      <p>然后算:当某个神经元 i 翻转、状态变化 ΔVi 时，能量变化是</p>
+      <blockquote>
+        <p>ΔE = − ΔVi · Σ(j≠i) Tij·Vj   〔公式 8〕</p>
+      </blockquote>
+      <p>把更新规则代进去你会发现一个魔法般的事实:<strong>每一次合法的翻转，都让 ΔE ≤ 0</strong>。神经元要从 0 跳到 1，必须满足"加权输入 &gt; 阈值"，此时 ΔVi 与那个求和同号，ΔE 就一定是负的;反之亦然。换句话说——</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：为什么网络一定会"停下来"</span>
+        <p>能量 E 像一个只减不增的"高度计"。网络每动一步，要么下降要么持平，<strong>永远不会上升</strong>。由于状态数有限、E 有下界，网络必然在有限步内停在某个<strong>局部能量极小点</strong>不再动。这就证明了:网络一定收敛，而且收敛到的就是一个吸引子。论文一针见血——这与<strong>伊辛模型同构</strong>，Tij 扮演自旋间的交换耦合。一句话把半个世纪的统计物理工具搬进了神经科学。</p>
+      </div>
+      <p>这一步的威力在于"统一"。一旦"回忆 = 下山"，那么:</p>
+      <ul>
+        <li><strong>补全</strong>:给一个不完整的输入(地图上记忆山谷的半山腰)，下山自然滚回谷底=完整记忆。</li>
+        <li><strong>纠错</strong>:给一个带错的输入(被推离谷底一点)，下山把错误改回去。</li>
+        <li><strong>联想</strong>:落在某条记忆流域内的任何起点，都被吸到那条记忆。</li>
+        <li><strong>分类</strong>:一个模糊的、像几条记忆的输入，由它落在谁的流域决定归属——论文原话是"系统对一个有歧义的起始状态，靠<strong>统计选择</strong>归到它最像的那条记忆"。</li>
+      </ul>
+      <p>有两个诚实的细节论文也写了。其一，谷底是<strong>局部</strong>极小，不保证全局最优——自旋玻璃本就以"有许多个局部稳定态"著称，这既是容量的来源，也埋下了"伪记忆"的隐患。其二，对称性是这套证明的前提。但 Hopfield 指出，即便 Tij 不对称、甚至带随机性(更像真实大脑)，只要把更新看成"有限温度下的随机过程"，能量的下山趋势在统计意义上依然成立，稳定区只是从"点"变"小区域"。也就是说，<strong>这套机制对模型细节不敏感</strong>——这正是它敢声称能对应真实大脑的底气。</p>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-viz">🔴 交互：给记忆加噪声，看它如何"滚回谷底"</div>
+      <div class="viz-box">
+        <div class="viz-title">能量地形上的吸引子弛豫 — 内容寻址记忆的现场演示</div>
+        <div class="viz-note">这是一个真·64 神经元 Hopfield 网络(8×8 像素当作 V<sub>i</sub>∈{−1,+1})，按论文公式 2 存了下面 3 个模式，按公式 1 异步更新、公式 7 的能量必然单调下降。不是模拟动画——它在你眼前实时跑论文的算法。① 选一个记忆 → ② 拖滑块给它加噪声(随机翻转若干像素) → ③ 点"演化"，看网络沿能量下降一步步弛豫回最近的存储记忆。</div>
+
+        <div class="viz-controls">
+          <span style="font-size:0.85rem;color:#6b7280;">选记忆作种子：</span>
+          <button id="seedA" class="alt">记忆 A · 字母 H</button>
+          <button id="seedB" class="alt">记忆 B · 字母 T</button>
+          <button id="seedC" class="alt">记忆 C · 笑脸 ☺</button>
+        </div>
+        <div class="viz-controls">
+          <label>噪声强度 (翻转像素数)：<span id="noiseVal" style="color:#c0392b;font-weight:700;">14</span></label>
+          <input type="range" id="noise" min="0" max="40" value="14" style="flex:1;min-width:160px;">
+          <button id="addNoise" class="alt">重新加噪声</button>
+        </div>
+        <div class="viz-controls">
+          <button id="evolve">▶ 演化（弛豫到记忆）</button>
+          <button id="step" class="alt">单步</button>
+          <button id="reset" class="alt">复位</button>
+        </div>
+
+        <canvas id="hopCanvas" width="640" height="360"></canvas>
+
+        <div id="readout" style="text-align:center;font-size:0.9rem;color:#3a4048;margin-top:14px;line-height:1.7;"></div>
+        <div class="viz-note" style="margin-top:14px;margin-bottom:0;">读法:左格=网络当前状态，右格=它正在收敛到的目标记忆。下方"能量条"实时显示 E 一路下滑——这就是论文公式 7、8 说的"状态改变让 E 单调下降，直到落入局部极小"。把噪声拉到很大(接近一半像素)时，你会偶尔看到它<strong>收敛错记忆</strong>或停在一个谁也不像的"伪记忆"——这正对应论文里 n、噪声变大后"约一半模式跑偏"的实验现象。</div>
+      </div>
+
+      <div class="section-head" id="sec-capacity">核心发现二：能记多少？一个干净的 0.15N 上限</div>
+      <p>能量地形再优雅，也得回答工程师最关心的问题:N 个神经元到底能可靠存几条记忆？Hopfield 用模拟给了一个至今被反复引用的数字。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：0.15N 这道坎</span>
+        <p>对 N=30 和 N=100 的网络做计算机模拟:存入的记忆数 n 越多，相互干扰(那个"噪声项")越强。结果是——<strong>大约 0.15·N 条记忆能在出现严重回忆错误之前被同时记住</strong>。N=100 就是约 15 条。超过这条线，记忆质量断崖式下跌。论文给的实测刻度很具体:n=5(且 N=30)时模式"几乎总是稳定且精确可取回";到 n=15、N=100 时，大部分模式已经收敛到"和起点差很多"的错误态。</p>
+      </div>
+      <p>更细的数字也都摆了出来，这正是 brief 要的"不要只说显著":</p>
+      <ul>
+        <li><strong>稳定性随 n 退化</strong>:N=100 下，n=5 时几乎所有模式精确稳定;n=10 时约一半模式收敛后错误少于 5 位、另一半跑偏;n=15 时大多数跑偏。论文配的 Fig. 2 就是不同 n 下"稳定态错误位数"的概率分布直方图。</li>
+        <li><strong>单比特错误率有解析式</strong>:把噪声近似成高斯，单个比特出错的概率由公式 10 给出。代入 n=10、N=100，得 <code>P = 0.0091</code>;于是 100 位里"一位不错"的概率约 <code>e<sup>−0.91</sup> ≈ 0.40</code>，而模拟实测平均错误数约 0.6 位——理论与实验对上了。</li>
+        <li><strong>流域有多大</strong>:对 N=30、n=5，把"已知记忆随机改几位"当起点。当改动 ≤5 位(汉明距离≤5)时，<strong>超过 90% 的情况</strong>能回到最近的那条记忆;距离拉到 12 位，成功率平滑跌到约 0.2(只比纯随机猜的 2 倍稍好)。直觉:每个山谷的"汇水面积"是有限的，离谷底太远就翻进别的流域了。</li>
+        <li><strong>记忆别挨太近</strong>:N=100 时，两条记忆最好相距 50±5 个汉明单位(即差一半位，近乎正交)。论文实测 n=8 时，把第八条记忆故意放在离别人 30、20、10 位的地方:距 30 两条都稳;距 20 谷底虽在但被挪位;<strong>距 10 时两个谷底直接融合</strong>成一个——太像的记忆会被网络当成同一个。</li>
+      </ul>
+      <p>论文还测了几个"极端版本"来确认结论稳健:</p>
+      <ul>
+        <li><strong>把权重砍成 ±1（clipped Tij）</strong>:只保留 Tij 的正负号。代价是信噪比乘以 <code>(2/π)<sup>½</sup></code>、可存记忆数乘以 <code>2/π</code>(约掉到 0.64 倍);N=100 时最优 n≈13，存储的 Shannon（香农）信息约 <code>N·(N/8)</code> 比特。意义是:连接的精细数值并不关键，硬件可以很粗糙。</li>
+        <li><strong>只保留单向连接</strong>:真实突触常常只有 i→j 方向。模拟把一半连接随机置零(若 Tji≠0 则强制 Tij=0)，结论照旧成立，只是信噪比再乘 <code>1/√2</code>——网络<strong>软失效</strong>(graceful degradation)，错误率随损坏缓慢上升而不是崩溃。</li>
+      </ul>
+
+      <div class="section-head" id="sec-emergent">核心发现三：没刻意设计、却白送的几样能力</div>
+      <p>论文标题里的 "emergent"(涌现)不是修辞。同一个能量地形，没改一行规则，却顺带长出好几样本来要单独编程的能力。这是全文最有"哲学暴击感"的部分。</p>
+
+      <div class="section-head-sub">① 范畴化与"熟悉度"识别——会说"我不认识你"</div>
+      <p>有一个状态永远是稳定的:全 0 态 <code>00000…</code>。当把阈值统一抬高一点，相当于在能量上"垫高"所有存储记忆、让 0000 态变成一个能量很低的稳态。于是网络变成一个<strong>"强制分类器"</strong>:任何与已存记忆都不够像的输入，都会滚向 0000 态。Hopfield 把这解释为<strong>一种"陌生"信号</strong>——网络在说"这个我没见过"。这等于白送了一个"熟悉/陌生"判别器。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：严重过载时，"记不住内容"但还"认得脸熟"</span>
+        <p>论文做了个极端实验:N=100 存 n=500 条(过载 25 倍)。结果——<strong>没有任何一条记忆还稳定</strong>，内容全丢了。但!网络对一个起始状态的"初始处理速率"(单位时间内神经元改变状态的次数)，对<strong>熟悉的</strong>输入和<strong>陌生的</strong>输入<strong>仍然可区分</strong>:熟悉的处理得更快。也就是说，"我见过这个"这条信息比"它具体是什么"更耐过载——一种粗粒度的熟悉感，在精确记忆全部崩溃后依然幸存。这对理解"似曾相识"很有启发。</p>
+      </div>
+
+      <div class="section-head-sub">② 时间序列:记住"先 A 后 B 再 C"</div>
+      <p>把对称连接加上一点<strong>非对称项</strong>，就能存时间顺序。论文给了公式 13:额外加一项 <code>ΔTij = A·(2Vi<sup>s+1</sup>−1)(2Vj<sup>s</sup>−1)</code>，把"下一个模式"和"当前模式"挂钩。调好系数 A，网络会在 V<sub>s</sub> 附近停一会儿、再走向 V<sub>s+1</sub>，从而播放一段序列 A→B→C。<strong>诚实的局限</strong>:论文明说，超过四步的序列就难以生成，而且"即便生成也不够忠实"。这是个原理验证，不是可用方案。</p>
+
+      <div class="section-head-sub">③ 泛化、纠错、对损坏不敏感</div>
+      <p>这几样其实都是能量地形的同一句话的不同侧面:吸引子的存在天然带来纠错(把偏离改回谷底)和泛化(一族相似输入归到同一记忆)。而"对损坏不敏感"来自记忆是<strong>分布式</strong>的——它不在某个格子里，而摊在全部 Tij 上;砍掉部分元件只让谷变浅，不会让某条记忆整条消失。论文据此提出一个工程愿景:用集成电路造这种芯片，会比常规电路<strong>对元件失效与软失效远更不敏感</strong>，代价是要用多得多的门、面积更大，但能为某些问题提供快速的异步并行解。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文的"方法"不是某台仪器，而是一连串思想上的精确选择。把它们列出来，能看清为什么结论这么干净。</p>
+      <table>
+        <thead>
+          <tr><th>精妙的选择</th><th>它解决了什么 / 为什么关键</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>定义能量函数 E（公式 7）</td>
+            <td>把"网络会不会收敛"这种难证明的动力学问题，<strong>降维成一个标量只减不增的问题</strong>。一旦有了单调下降的 E，收敛性、吸引子的存在性立刻自动成立。这是整篇论文的支点。</td>
+          </tr>
+          <tr>
+            <td>挑明与伊辛模型/自旋玻璃同构</td>
+            <td>不必从零发明工具——半个世纪的统计物理(局部极小、相变、有限温度)可直接拿来用，也让物理学家立刻读懂、愿意入场。这步"翻译"本身就是贡献。</td>
+          </tr>
+          <tr>
+            <td>坚持异步更新</td>
+            <td>既更像真实大脑(没有全局时钟、神经信号有延迟)，又恰好是能量单调下降证明成立的前提。论文专门论证:大脑无法依赖全局同步，而异步反而带来好处。一举两得。</td>
+          </tr>
+          <tr>
+            <td>信号/噪声分解（公式 3、4、10）</td>
+            <td>把"记忆为什么稳定"拆成<strong>信号项(≈N/2)＋来自其他记忆的噪声项</strong>，再把噪声近似成高斯。这让容量极限 0.15N 和错误率有了<strong>解析预测</strong>，而不只是模拟出来的经验值——理论与 N=30/100 的模拟互相印证。</td>
+          </tr>
+          <tr>
+            <td>系统性的"消融实验"</td>
+            <td>砍权重到±1、删掉单向连接、随机化 Tij、故意放近的记忆——每一刀都在问"结论靠不靠这个假设"。结果都是"基本不变，只是缓慢退化"，从而把"对细节不敏感 / 软失效"从口号变成证据。</td>
+          </tr>
+          <tr>
+            <td>用随机模式当存储内容</td>
+            <td>论文论证:经神经系统预处理后的真实信息看起来就像随机串(如 DNA 编码序列的随机性)。所以"随机模式"既高效编码了真实信息、也代表"我们的无知"，是合理的测试材料——这让伪正交假设站得住。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>Hopfield 很清楚自己站在谁的肩膀上，也很清楚要和谁划清界限。</p>
+      <ul>
+        <li><strong>对 McCulloch–Pitts（1943）</strong>:直接沿用其二值神经元，但赋予它全新的集体动力学角色。</li>
+        <li><strong>对感知机 / Rosenblatt、Minsky &amp; Papert（1962、1969）</strong>:明确划界。三点不同——(1) 感知机主要是单向前传 A→B→C，而本文所有有趣结果都来自<strong>强反向耦合</strong>(感知机一加反向耦合就分析不动了);(2) 感知机直接对接真实世界做识别，没问"集体计算"这个抽象问题;(3) 感知机要求<strong>全局同步</strong>，而本文论证大脑做不到也不需要同步。</li>
+        <li><strong>对线性联想网络 / Kohonen、Anderson、Longuet-Higgins 等（1970s）</strong>:本文的非线性是关键升级。线性网遇到混合刺激只会输出无意义的线性混合，必须外挂非线性逻辑;本文靠神经元自身的非线性就能<strong>做选择、形成范畴、再生信息</strong>。</li>
+        <li><strong>对 Little、Shaw &amp; Roney（1974+）</strong>:他们也用"开/关"神经元研究集体功能，但用的是<strong>同步</strong>且强调动作电位的精确时序;Hopfield 自评二者"有有限的形式相似性，但在更深层次有联系"。</li>
+        <li><strong>对 Hebb（1949）与 Eccles</strong>:存储规则正是 Hebb"共同激活则增强"思想的数学化。论文还宽厚地补一句:Hebb 性质不必驻留在单个突触里，"一小群细胞产生的净效应"也算数。</li>
+      </ul>
+      <p>一句话:它把感知机的"非线性单元"、线性联想网的"分布式存储"、统计物理的"能量与稳定态"<strong>缝合</strong>成了一个能自洽运转、还能解析分析的整体。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇论文的影响半径远超它 5 页的篇幅，因为它提供的是一种<strong>看问题的方式</strong>。</p>
+      <ul>
+        <li><strong>对神经科学</strong>:给"记忆是分布式的、是网络整体的稳态"这个抽象观念一个可计算的载体。它把"回忆""似曾相识""模式补全"统一进"能量地形上的弛豫"，至今仍是理解海马、皮层吸引子动力学的基本隐喻。</li>
+        <li><strong>对人工智能</strong>:它是 1980 年代联结主义复兴的导火索之一。沿着"能量+随机性"这条线，紧接着诞生了玻尔兹曼机(给能量加温度去逃局部极小)。更晚近，2020 年后兴起的"<strong>现代 Hopfield 网络</strong>"把存储容量从 0.15N 提升到指数级，并被证明其更新规则在数学上与 <strong>Transformer 的注意力机制等价</strong>——也就是说，今天大模型里那层"注意力"，可以被读作一个高级联想记忆。这条根，正是这篇 1982 年的文章。</li>
+        <li><strong>对统计物理</strong>:反向也成立。神经网络成了自旋玻璃理论的一个绝佳应用场，催生了大量用物理方法分析网络容量、相变的研究(如 Amit–Gutfreund–Sompolinsky 对 0.138N 容量的严格推导)。</li>
+        <li><strong>对工程/硬件</strong>:论文亲自提出的愿景——造对元件失效不敏感、异步并行的"软失效"芯片——预言了后来的神经形态计算(neuromorphic computing)与忆阻器交叉阵列等方向。</li>
+        <li><strong>对认知科学的隐喻</strong>:"概念=吸引子盆地""理解=落入某个稳态"这套语言，被广泛借用来谈知觉、决策甚至精神病理(如把某些固着状态理解为"过深的吸引子")。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>论文本身相当坦诚，下面这些有的是它明说的局限，有的是它没点破、需要解读者补上的边界。后者会标注。</p>
+      <ul>
+        <li><strong>容量太小（论文明说）</strong>:0.15N 在工程上很奢侈——100 个神经元只换来约 15 条记忆。论文也承认 clipped/单向版本会进一步把这个数往下压。后续理论(Amit 等)把临界点钉在约 0.138N，并指出越过它会发生"记忆雪崩"式的相变。</li>
+        <li><strong>伪记忆/局部极小（论文部分提及）</strong>:能量地形里除了真记忆的谷，还会冒出一堆"没有明显意义"的稳态(论文报告 N=30、n=5 时约 5% 落到"无明显意义"的态)。这些<strong>伪吸引子</strong>(spurious attractor)是自旋玻璃多极小的副作用，论文没有给出系统的消除方案。</li>
+        <li><strong>对称连接是理想化（论文明说但轻描淡写）</strong>:干净的能量下降证明依赖 <code>Tij = Tji</code>，而真实突触几乎不对称。论文用"有限温度下统计上仍成立"来辩护，但<strong>解读者注</strong>:这只是定性安抚，非对称网络可能出现极限环、混沌等更复杂行为，论文里那段"混沌游荡"(N=30 时熵测度 M=25)其实已是这种复杂性的影子，文中未深入。</li>
+        <li><strong>记忆必须近正交（论文明说）</strong>:要求两条记忆相距约一半位(50±5 汉明)。<strong>解读者注</strong>:可现实世界的概念高度相关、彼此重叠(猫和老虎很像)，相距远小于一半位。基础 Hopfield 网络对这种"相关模式"会大量融合、表现糟糕，论文用"随机模式"测试恰好回避了这个最难的情形。</li>
+        <li><strong>时间序列不实用（论文明说）</strong>:序列存储超过 4 步就失败，且不忠实。仅是可行性演示。</li>
+        <li><strong>没有"如何遗忘"的好方案（论文明说）</strong>:不断写新记忆会过载致全盘瘫痪。论文提了一个"限制 Tij 取值范围(0,±1,±2,±3)从而自动遗忘旧记忆"的小技巧，但坦言它"要求微妙的平衡"，只是因为贴合硬件才被青睐，并非通用解。</li>
+        <li><strong>生物对应是类比而非证据（解读者注）</strong>:论文反复声明对应真实大脑，但全部证据来自数学与计算机模拟，<strong>没有任何动物实验或电生理数据</strong>。它论证的是"原理上可能"与"对细节不敏感"，而非"大脑确实这样运作"。读时要把"生物合理性"和"已被生物学证实"分清。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都尽量挂在文中证据上。</p>
+      <p><strong>它最大的贡献不是"造了个记忆网络"，而是"找到了正确的抽象"。</strong>能量函数这一步(公式 7、8)把一个棘手的动力学问题一次性降维成"标量单调下降"，从此收敛性、吸引子、纠错、补全全部免费跟来。一个好的抽象能让一整类问题同时变简单——这篇论文是这句话的教科书范例。这一判断的证据，就是后文那些"涌现"能力全都不需额外设计、直接从同一个 E 推出。</p>
+      <p><strong>它的诚实度值得敬佩。</strong>论文没有为了好看藏起弱点:容量只有 0.15N、序列超 4 步就崩、过载会全瘫、有约 5% 伪记忆——这些它都主动报了数。这种"把刀架在自己模型脖子上"的消融实验风格(砍权重、删连接、放近记忆)，让"对细节不敏感"从一句漂亮话变成可检验的结论。</p>
+      <p><strong>但要警惕把"生物合理"当成"生物为真"。</strong>如前一节所述，全文没有一个生物学实验数据，对称连接、近正交记忆都是为数学便利做的理想化，而真实大脑两者都不满足。它证明的是一个<strong>存在性命题</strong>——"简单元件能涌现出记忆，且不挑细节"——这已经足够伟大，但它不等于"大脑就是个 Hopfield 网络"。把模型的优雅误读成生物的真相，是这篇论文最容易被滥用的地方。</p>
+      <p><strong>从今天回看，它的"局限"恰恰标出了后续四十年的研究地图。</strong>容量小→催生了 0.138N 严格界与指数容量的现代 Hopfield 网络;相关模式处理差→推动了更强的编码与稀疏化方案;非对称难分析→连向更广的吸引子动力学;能量+随机性→玻尔兹曼机乃至整条能量基模型谱系;而它与注意力机制的等价，更让这条 1982 年的根一直长到了今天的大语言模型里。一篇论文的伟大程度，部分可以由"它留下的好问题有多肥沃"来衡量——按这把尺子，它几乎满分。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Hopfield 证明了:把一大群只会"开/关"的简单神经元用对称的 Hebb 连接接起来，会自动浮现出一个<strong>能量地形</strong>——回忆就是小球沿能量下山滚进最近的山谷(吸引子)，于是联想、纠错、补全、范畴识别作为<strong>涌现属性</strong>一并白送;它能可靠存约 <strong>0.15·N</strong> 条记忆、对元件损坏<strong>软失效</strong>、且不依赖神经生物学细节。这个把"记忆"翻译成"物理系统找能量极小点"的一步，点燃了现代神经网络，也一路连到了今天大模型的注意力机制。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Hopfield, J. J. (1982). Neural networks and physical systems with emergent collective computational abilities. <em>Proceedings of the National Academy of Sciences</em>, 79(8), 2554–2558. doi:10.1073/pnas.79.8.2554<br>
+    <strong>说明：</strong>本文为基于原论文的中文深度解读。交互组件为浏览器内实时运行的 64 神经元 Hopfield 网络，按论文公式 1、2、7 实现，用于直观展示"内容寻址记忆"与"能量极小点弛豫"的定性机制；存储模式为便于辨认而采用图形(H/T/笑脸)，非论文原始随机模式。标注「解读者注/观点」处为解读者独立判断。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  // ===== 64-neuron Hopfield network: 8x8 grid, states in {-1,+1} =====
+  var SIDE = 8, N = SIDE*SIDE;
+
+  // --- three stored patterns (8x8, '1' = on/+1, '.' = off/-1) ---
+  var PATTERNS = {
+    A: [ // letter H
+      "1......1",
+      "1......1",
+      "1......1",
+      "11111111",
+      "11111111",
+      "1......1",
+      "1......1",
+      "1......1"
+    ],
+    B: [ // letter T
+      "11111111",
+      "11111111",
+      "...11...",
+      "...11...",
+      "...11...",
+      "...11...",
+      "...11...",
+      "...11..."
+    ],
+    C: [ // smiley
+      "..1111..",
+      ".1....1.",
+      "1.1..1.1",
+      "1......1",
+      "1.1..1.1",
+      "1..11..1",
+      ".1....1.",
+      "..1111.."
+    ]
+  };
+
+  function patToVec(rows){
+    var v = new Int8Array(N), k=0;
+    for(var r=0;r<SIDE;r++){
+      var row = rows[r];
+      for(var c=0;c<SIDE;c++){
+        v[k++] = (row.charAt(c)==='1') ? 1 : -1;
+      }
+    }
+    return v;
+  }
+  var VEC = { A:patToVec(PATTERNS.A), B:patToVec(PATTERNS.B), C:patToVec(PATTERNS.C) };
+  var KEYS = ['A','B','C'];
+  var NAMES = { A:'记忆 A · 字母 H', B:'记忆 B · 字母 T', C:'记忆 C · 笑脸 ☺' };
+
+  // --- weight matrix via Hebb rule (Eq. 2), T_ii = 0 ---
+  var W = [];
+  (function buildW(){
+    for(var i=0;i<N;i++){ W.push(new Float32Array(N)); }
+    KEYS.forEach(function(key){
+      var v = VEC[key];
+      for(var i=0;i<N;i++){
+        for(var j=0;j<N;j++){
+          if(i!==j){ W[i][j] += v[i]*v[j]; }
+        }
+      }
+    });
+  })();
+
+  // --- energy: E = -1/2 sum_{i!=j} W_ij s_i s_j  (Eq. 7) ---
+  function energy(s){
+    var e=0;
+    for(var i=0;i<N;i++){
+      var si=s[i], Wi=W[i];
+      for(var j=0;j<N;j++){
+        if(i!==j){ e += Wi[j]*si*s[j]; }
+      }
+    }
+    return -0.5*e;
+  }
+
+  // --- overlap with a stored pattern (fraction of matching bits) ---
+  function overlap(s, key){
+    var v=VEC[key], m=0;
+    for(var i=0;i<N;i++){ if(s[i]===v[i]) m++; }
+    return m/N;
+  }
+  function bestMatch(s){
+    var best=null, bv=-1;
+    KEYS.forEach(function(k){ var o=overlap(s,k); if(o>bv){bv=o;best=k;} });
+    return {key:best, ov:bv};
+  }
+  function hamming(s, key){
+    var v=VEC[key], d=0;
+    for(var i=0;i<N;i++){ if(s[i]!==v[i]) d++; }
+    return d;
+  }
+
+  // ===== state =====
+  var seedKey = 'A';
+  var state = Int8Array.from(VEC.A);
+  var target = 'A';
+  var running = false;
+  var rafId = null;
+  var updateOrder = [];
+  var orderPos = 0;
+  var e0 = energy(VEC.A); // reference: a clean memory's energy
+
+  function shuffleOrder(){
+    updateOrder = [];
+    for(var i=0;i<N;i++){ updateOrder.push(i); }
+    for(var a=updateOrder.length-1;a>0;a--){
+      var b=Math.floor(Math.random()*(a+1));
+      var t=updateOrder[a]; updateOrder[a]=updateOrder[b]; updateOrder[b]=t;
+    }
+    orderPos=0;
+  }
+
+  // one asynchronous neuron update (Eq. 1, threshold 0)
+  function updateOneNeuron(i){
+    var sum=0, Wi=W[i];
+    for(var j=0;j<N;j++){ if(i!==j){ sum += Wi[j]*state[j]; } }
+    var ns = (sum>=0)?1:-1;
+    var changed = (ns!==state[i]);
+    state[i]=ns;
+    return changed;
+  }
+
+  // do one "sweep step": update next neuron in random order; reshuffle each full sweep
+  function stepOnce(){
+    if(orderPos>=updateOrder.length){ shuffleOrder(); }
+    var i=updateOrder[orderPos++];
+    return updateOneNeuron(i);
+  }
+
+  // ===== canvas drawing =====
+  var canvas = document.getElementById('hopCanvas');
+  var ctx = canvas.getContext('2d');
+
+  function drawGrid(s, x0, y0, cell, label, sub){
+    // border
+    ctx.fillStyle='#fafafa';
+    ctx.fillRect(x0-2,y0-2,SIDE*cell+4,SIDE*cell+4);
+    var k=0;
+    for(var r=0;r<SIDE;r++){
+      for(var c=0;c<SIDE;c++){
+        ctx.fillStyle = (s[k]===1) ? '#c0392b' : '#fdecea';
+        ctx.fillRect(x0+c*cell, y0+r*cell, cell-2, cell-2);
+        k++;
+      }
+    }
+    ctx.fillStyle='#1f2328';
+    ctx.font='600 14px -apple-system,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(label, x0+SIDE*cell/2, y0-12);
+    if(sub){
+      ctx.fillStyle='#6b7280';
+      ctx.font='11px -apple-system,sans-serif';
+      ctx.fillText(sub, x0+SIDE*cell/2, y0+SIDE*cell+18);
+    }
+  }
+
+  function drawEnergyBar(eNow){
+    // map energy onto a bar. clean memory energy e0 is near the floor (negative).
+    var W_bar = 560, x0 = 40, y = 322, h=14;
+    // dynamic range: from a "high" energy (noisy/random ~ 0) down to e0
+    var hi = 0, lo = e0; // lo is most negative (deepest)
+    var frac = (eNow - hi)/(lo - hi); // 0 at hi, 1 at lo (deepest)
+    if(frac<0)frac=0; if(frac>1)frac=1;
+    // track
+    ctx.fillStyle='#eef0f2';
+    ctx.fillRect(x0,y,W_bar,h);
+    // fill (deeper = more red, growing left->right means lower energy)
+    ctx.fillStyle='#c0392b';
+    ctx.fillRect(x0,y,W_bar*frac,h);
+    // floor marker
+    ctx.strokeStyle='#3a4048';
+    ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(x0+W_bar, y-3); ctx.lineTo(x0+W_bar, y+h+3); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#3a4048';
+    ctx.font='11px -apple-system,sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText('能量 E（越往右越低 → 越深的山谷）', x0, y-6);
+    ctx.textAlign='right';
+    ctx.fillText('记忆谷底', x0+W_bar, y+h+14);
+    ctx.textAlign='left';
+    ctx.fillText('E = '+eNow.toFixed(0), x0, y+h+14);
+  }
+
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var cell=28, gap=80;
+    var totalW = SIDE*cell*2 + gap;
+    var x1 = (canvas.width-totalW)/2;
+    var x2 = x1 + SIDE*cell + gap;
+    var y0 = 50;
+    var bm = bestMatch(state);
+    drawGrid(state, x1, y0, cell, '当前状态', '最像：'+NAMES[bm.key]+'（重合 '+(bm.ov*100|0)+'%）');
+    drawGrid(VEC[target], x2, y0, cell, '目标记忆', NAMES[target]);
+    // arrow
+    ctx.fillStyle='#c0392b';
+    ctx.font='700 22px -apple-system,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('→', (x1+SIDE*cell + x2)/2, y0+SIDE*cell/2+8);
+    drawEnergyBar(energy(state));
+  }
+
+  function updateReadout(extra){
+    var bm = bestMatch(state);
+    var d = hamming(state, bm.key);
+    var html = '当前最接近 <b style="color:#c0392b;">'+NAMES[bm.key]+'</b>，'
+      + '汉明距离 <b>'+d+'</b>/64 位，重合度 <b>'+(bm.ov*100).toFixed(0)+'%</b>。';
+    if(extra){ html += '<br><span style="color:#6b7280;">'+extra+'</span>'; }
+    document.getElementById('readout').innerHTML = html;
+  }
+
+  // ===== controls =====
+  function setSeed(key){
+    seedKey=key; target=key;
+    state = Int8Array.from(VEC[key]);
+    applyNoise(parseInt(document.getElementById('noise').value,10));
+    KEYS.forEach(function(k){
+      document.getElementById('seed'+k).style.background = (k===key)?'#c0392b':'#fff';
+      document.getElementById('seed'+k).style.color = (k===key)?'#fff':'#c0392b';
+    });
+  }
+
+  function applyNoise(nFlip){
+    state = Int8Array.from(VEC[seedKey]);
+    var idx=[];
+    for(var i=0;i<N;i++) idx.push(i);
+    for(var a=idx.length-1;a>0;a--){ var b=Math.floor(Math.random()*(a+1)); var t=idx[a];idx[a]=idx[b];idx[b]=t; }
+    for(var f=0; f<nFlip && f<N; f++){ state[idx[f]] = -state[idx[f]]; }
+    shuffleOrder();
+    render();
+    updateReadout('已对「'+NAMES[seedKey]+'」翻转 '+nFlip+' 个像素作为带噪输入。点「演化」看它沿能量下山弛豫。');
+  }
+
+  function finishCheck(){
+    var bm=bestMatch(state);
+    var d=hamming(state,bm.key);
+    if(d===0){
+      updateReadout('✅ 已完全弛豫到 <b>'+NAMES[bm.key]+'</b>（汉明距离 0）。这就是内容寻址记忆：从带噪输入沿能量极小点收敛回了完整记忆。');
+    } else if(bm.key!==seedKey){
+      updateReadout('⚠ 收敛到了 <b>'+NAMES[bm.key]+'</b>，而非种子「'+NAMES[seedKey]+'」——噪声把起点推进了别的吸引子流域（对应论文里 n/噪声变大时"模式跑偏"的现象）。');
+    } else {
+      updateReadout('停在一个稳定态：最像 <b>'+NAMES[bm.key]+'</b> 但还差 <b>'+d+'</b> 位。这是能量的一个局部极小（可能是伪记忆）——论文也报告过约 5% 落入"无明显意义"的稳态。');
+    }
+  }
+
+  function loop(){
+    var anyChanged=false;
+    // do a partial sweep per frame for visible relaxation
+    for(var s=0;s<3;s++){
+      if(stepOnce()) anyChanged=true;
+    }
+    render();
+    // check convergence: a full sweep with no change
+    if(orderPos>=updateOrder.length && !lastSweepChanged){
+      stopRun(); finishCheck(); return;
+    }
+    if(orderPos>=updateOrder.length){
+      lastSweepChanged=false; // reset for next sweep accumulation
+    }
+    if(anyChanged) lastSweepChanged=true;
+    rafId=requestAnimationFrame(loop);
+  }
+  var lastSweepChanged=true;
+
+  function startRun(){
+    if(running) return;
+    running=true; lastSweepChanged=true;
+    if(orderPos>=updateOrder.length) shuffleOrder();
+    updateReadout('正在演化：每个神经元异步检查"加权输入是否过阈值"，能量单调下降中…');
+    rafId=requestAnimationFrame(loop);
+  }
+  function stopRun(){
+    running=false;
+    if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+  }
+
+  // wire up
+  document.getElementById('seedA').onclick=function(){ stopRun(); setSeed('A'); };
+  document.getElementById('seedB').onclick=function(){ stopRun(); setSeed('B'); };
+  document.getElementById('seedC').onclick=function(){ stopRun(); setSeed('C'); };
+  var noiseEl=document.getElementById('noise');
+  noiseEl.oninput=function(){ document.getElementById('noiseVal').textContent=this.value; };
+  document.getElementById('addNoise').onclick=function(){ stopRun(); applyNoise(parseInt(noiseEl.value,10)); };
+  document.getElementById('evolve').onclick=function(){ startRun(); };
+  document.getElementById('step').onclick=function(){
+    stopRun();
+    var changed=false;
+    for(var s=0;s<N;s++){ if(stepOnce()) changed=true; if(orderPos>=updateOrder.length) break; }
+    render();
+    var bm=bestMatch(state);
+    if(!changed && orderPos>=updateOrder.length){ finishCheck(); }
+    else updateReadout('单步更新了一遍神经元。当前最像 <b>'+NAMES[bm.key]+'</b>，重合 '+(bm.ov*100|0)+'%。');
+  };
+  document.getElementById('reset').onclick=function(){ stopRun(); setSeed(seedKey); };
+
+  // init
+  setSeed('A');
+})();
+</script>
+</body>
+</html>

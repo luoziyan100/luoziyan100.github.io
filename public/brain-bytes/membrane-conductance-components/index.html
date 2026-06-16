@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hodgkin &amp; Huxley 1952《膜电导的分量》深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Membrane Conductance <span>×</span> 把一条电流拆成两扇会自己开关的"门"：钠门猛开速关，钾门慢开常驻</h1>
+    <div class="meta">
+      <span>📄 The Components of Membrane Conductance in the Giant Axon of <em>Loligo</em></span><br>
+      <span>✍️ A. L. Hodgkin &amp; A. F. Huxley</span><br>
+      <span>🏛️ 普利茅斯海洋生物协会实验室（Marine Biological Association, Plymouth）· 剑桥大学生理学实验室（University of Cambridge）</span><br>
+      <span>📅 The Journal of Physiology（《生理学杂志》）116: 473–496 · 1952 年（1951 年 10 月 24 日收稿）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-convention">先约定：那个反直觉的电压符号</a></li>
+        <li><a href="#sec-question">它到底想回答什么</a></li>
+        <li><a href="#sec-f1">核心发现一·电流会跳，电导不跳</a></li>
+        <li><a href="#sec-f2">核心发现二·瞬时遵守欧姆定律</a></li>
+        <li><a href="#sec-f3">核心发现三·钠电导关得有多快</a></li>
+        <li><a href="#sec-f4">核心发现四·钾门的画像</a></li>
+        <li><a href="#sec-viz">🔴 交互：一次电压钳里的两扇门</a></li>
+        <li><a href="#sec-compare">钠门 vs 钾门：异同清单</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是 Hodgkin &amp; Huxley 1952 年那套传奇四部曲的<strong>第三篇</strong>。前两篇做了铺垫：一篇发明了用电压钳精确测量电流-电压关系的手法，一篇靠"抽掉海水里的钠"把膜电流拆成了<strong>钠电流</strong>和<strong>钾电流</strong>两份。本篇的任务，是把这两份电流各自背后那扇"离子门"的开关行为彻底测清楚——它们随<strong>时间</strong>怎么开、怎么关，随<strong>电压</strong>又怎么变。这正是第四篇（那套著名的 <code>m、n、h</code> 微分方程和动作电位重建）赖以站立的全部实验地基。</p>
+        <p>它值得深读，是因为这里藏着整个神经电生理学最关键的一次"换坐标"：作者论证了应该把<strong>电导（conductance）</strong>而不是电流当成膜的真实"内部状态"。一旦换成电导，原始记录里那些莫名其妙的电流跳变和拖尾全部消失、变得光滑连续；而膜"瞬间"看上去就是一只老老实实服从欧姆定律的电阻。所有那些惊心动魄的非线性，都被归因到一件事上：电导这个量是<strong>随时间和电压缓慢变化的</strong>。本篇还第一次把钠门"猛开、速关、且开着开着会自己失活"与钾门"慢开、不失活、能一直撑住"这两幅画像并排画了出来——这就是神经为什么能产生一个有上升相、有下降相、有不应期的动作电位的物理原因。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文用词朴素，但每个词都连着一个精确的物理量。先把工具摆齐，后面读那些曲线就不打结了。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">膜电导（Membrane Conductance，g）</div>
+          <div class="cdesc">电阻的倒数，单位这里用 m.mho/cm²（毫姆欧每平方厘米，mho 就是 ohm 倒过来拼，即电导单位西门子的老叫法）。直觉上 g 就是"这扇门此刻开了多大"——门开得越大，离子越容易过，电导越高。本篇的全部主角就是它怎么随时间和电压变。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">钠电导 / 钾电导（g<sub>Na</sub> / g<sub>K</sub>）</div>
+          <div class="cdesc">分别衡量"钠门"和"钾门"此刻开多大。定义靠一道除法：<code>g = I / (V − V_eq)</code>，即把该离子的电流，除以"当前电压离它平衡电位还差多远"这个驱动力。换算后电流里的跳变消失，电导变得光滑——这正是本篇要立的论点。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">电压钳 / 膜电流（Voltage Clamp / Membrane Current）</div>
+          <div class="cdesc">一种实验手法：用反馈放大器（feed-back amplifier）把整段轴突的膜电位<strong>强行按住</strong>在你设定的值，然后测量为维持这个电位需要注入多少电流——这电流恰好等于膜上离子流过的电流。等于把"电压"这个自变量牢牢攥在手里，单独观察"电流"如何响应。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">去极化 / 复极化（Depolarization / Repolarization）</div>
+          <div class="cdesc">去极化＝让膜内外电位差变小（膜内变得没那么负），是触发离子门打开的扳机；复极化＝把电位猛地拉回静息值。本篇的核心实验套路就是"先去极化把门打开，再突然复极化，看门关得多快"——拖尾电流的衰减就是门关闭的录像。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">钠/钾平衡电位（V<sub>Na</sub> / V<sub>K</sub>，Equilibrium Potential）</div>
+          <div class="cdesc">某种离子"进出恰好打平、净电流为零"时的膜电位，由膜内外该离子的浓度差决定（能斯特电位）。本篇测得（以静息电位为零点的位移表示）<code>V_Na ≈ −110 mV</code>、<code>V_K ≈ +12 mV</code>。它就是欧姆定律那条直线穿过"零电流"的那一点。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">瞬时电流-电压关系（Instantaneous I–V Relation）</div>
+          <div class="cdesc">在电压突变后<strong>那一刹那</strong>（门还来不及改变开度时）测到的电流随电压怎么变。本篇发现它在海水中是一条<strong>过平衡电位的直线</strong>——即膜"瞬间"服从欧姆定律。这是把"快的电学"和"慢的门控"分离开来的关键判据。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">尾电流（Tail Current）</div>
+          <div class="cdesc">复极化那一瞬，电流不会立刻归零，而是留下一条快速衰减的"尾巴"。它来自一个事实：门还没来得及关，但驱动力 <code>V − V_eq</code> 已经被你瞬间改大了。尾巴衰减的速度，直接读出"门关闭"的速率常数。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">速率常数 b<sub>Na</sub> / b<sub>K</sub>（Rate Constant）</div>
+          <div class="cdesc">复极化后电导按 <code>exp(−b·t)</code> 衰减，b 越大关得越快。本篇核心结论之一：<code>b_Na</code> 在静息电位下约为 <code>b_K</code> 的 30 倍——钠门关得比钾门快一个数量级还多。b 还随温度和去极化深度变（温度系数 Q₁₀≈3）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">独立性原则（Independence Principle）</div>
+          <div class="cdesc">前篇提出的假设：每个离子穿膜的概率，不受其他离子是否在穿膜的影响。本篇用它从海水实验"推算"出钠自由溶液下该有的电流，再与真实测量对照来检验自洽——是 HH 反复使用的一把交叉验证标尺。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">失活 / 拐点（Inactivation / Inflexion）</div>
+          <div class="cdesc">失活＝持续去极化时，钠门开到峰值后会<strong>自己慢慢关掉</strong>（而钾门不会，能一直撑住）。拐点＝曲线"先慢后快"的 S 形折点；本篇发现两种电导的<strong>上升</strong>都带拐点（呈 S 形），而<strong>下降</strong>都没有拐点（是干净的指数）——这个不对称是后来 <code>m³</code>、<code>n⁴</code> 幂次方程的实验来源。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-convention">先约定：那个反直觉的电压符号</div>
+      <p>读 HH 的原文，第一个绊脚石永远是符号。这里花一分钟把它讲死，后面所有数字才不会读反。</p>
+      <p>本篇里的 <code>V</code> <strong>不是</strong>绝对膜电位，而是<strong>膜电位偏离静息值的位移</strong>（displacement from the resting level）。更要命的是 HH 用的符号约定与今天教科书<strong>相反</strong>：在他们的体系里，<strong>去极化对应 V 取负值</strong>。所以你会在原文里看到诸如"去极化 41 mV"被写成 <code>−41 mV</code>、"去极化到接近钠平衡电位"写成 <code>V ≈ −110 mV</code>。</p>
+      <div class="info-block">
+        <span class="ib-title">一句话记牢</span>
+        <p>在本篇里：<strong>V 越负 = 去极化越深 = 离子门越想开</strong>；<strong>V 回到 0 = 复极化到静息 = 门开始关</strong>。<code>V_Na ≈ −110 mV</code> 意味着"要把电位往去极化方向推约 110 mV，钠的净电流才归零"。<code>V_K ≈ +12 mV</code> 则意味着钾平衡电位在静息电位再<strong>超极化</strong>一点点的位置。本文为忠于原文保留这套符号，但每次都会用中文点明"去极化/复极化"以防读反。</p>
+      </div>
+
+      <div class="section-head" id="sec-question">它到底想回答什么</div>
+      <p>到 1951 年底，Hodgkin 与 Huxley 手里已经有两块拼图。第一块：他们能用电压钳把膜电位摁在任意值上，干净地读出膜电流（来自 Hodgkin、Huxley &amp; Katz 1952）。第二块：靠把海水里的钠换成不导电的胆碱（choline），他们证明了膜总电流是<strong>钠电流</strong>与<strong>钾电流</strong>两条独立分量之和（来自 Hodgkin &amp; Huxley 1952）。</p>
+      <p>但"知道电流由谁携带"还远远不够。要重建一个动作电位，必须知道每扇离子门<strong>开关的动力学规律</strong>：给定一个电压，门多快打开？维持去极化时门会不会自己变化？一旦撤掉去极化，门又多快关上？这些"随时间、随电压如何变"的定律，就是本篇要测的全部内容。论文把问题拆成两半：</p>
+      <ul>
+        <li><strong>短去极化实验</strong>（论文上半部）：聚焦<strong>钠</strong>的运动。用很短的脉冲快速去极化再复极化，从尾电流读出钠门的开关速度与电压依赖。</li>
+        <li><strong>长去极化实验</strong>（论文下半部）：聚焦<strong>钾</strong>的运动。因为钾电流上升慢、要维持较久的去极化才能看清，所以单独安排长脉冲来测钾门。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">核心研究问题</span>
+        <p>枪乌贼（<em>Loligo</em>，一种用作经典模式生物的鱿鱼）巨轴突膜上的<strong>钠电导 g<sub>Na</sub></strong> 与<strong>钾电导 g<sub>K</sub></strong>，各自如何随<strong>时间</strong>和<strong>膜电位</strong>变化？能不能找到一组定律，使得原始电流记录里所有的不连续、拖尾、非线性都被自然解释为"电导是一个随时空缓慢演化的状态变量"的后果？</p>
+      </div>
+
+      <div class="section-head" id="sec-f1">核心发现一 · 电流会"跳"，电导却不跳</div>
+      <p>第一个、也是最具范式意义的发现，藏在一个简单操作里：先短暂去极化（如 41 mV，记录 A），再<strong>突然</strong>把电位拉回静息。原始电流记录在复极化那一刻会出现一段<strong>向内的尾电流</strong>，幅度约 2.2 mA/cm²，然后以约 0.27 msec 的时间常数衰减到零（图 1）。更戏剧的是图 2D：当把膜去极化到<strong>接近钠平衡电位</strong>时，脉冲期间几乎看不到离子电流，可一复极化却"凭空"冒出一大段向内尾电流。</p>
+      <p>这看起来像是电流凭空跳变、违反守恒。但 HH 指出，只要换一个量来看，矛盾立刻消失。把电流换算成<strong>电导</strong>：</p>
+      <blockquote>
+        <p>g_Na = I_Na / (V − V_Na)        ……（原文公式 1）</p>
+      </blockquote>
+      <p>那一刹那膜电位 <code>V</code> 被你瞬间改变了，所以驱动力 <code>(V − V_Na)</code> 这个分母<strong>瞬间跳变</strong>——电流当然跟着跳。可分子分母一除，算出的 <code>g_Na</code> 在脉冲结束的那一点上<strong>完全连续、没有任何台阶</strong>（图 4 的 δ、D 曲线，图 5）。换句话说：</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>图 2D 里"去极化到钠电位时电流≈0、复极化后却涌出 2 mA/cm² 内向电流"这件怪事，被 <code>g_Na</code> 一眼看穿：脉冲末门是开着的（g 高），只是那时驱动力≈0 所以电流≈0；一复极化把驱动力瞬间拉满，同样开度的门立刻放出大电流。<strong>门没有变，变的只是推它的力。</strong>这就证明了应该把电导、而非电流，当作膜的真实内部状态。这一篇还顺带证明：电流的尾巴在去极化越深时衰减越快（图 3、表 1），说明门的关闭速率本身是电压的函数。</p>
+      </div>
+      <p>作者还用了一个漂亮的对照来排除"这其实是电容电流"的可能：在胆碱海水里（没有外部钠可携带内向电流），用阳极和阴极位移得到的电容浪涌几乎<strong>完美对称</strong>（图 3 的 B、C），证明复极化后那段尾巴是货真价实的离子电流，不是电容假象。整套现象可以用一句极简假设概括：<strong>膜被去极化时钠通透性上升，复极化后则按指数衰减</strong>。</p>
+
+      <div class="section-head" id="sec-f2">核心发现二 · 膜"瞬间"就是一只老实电阻（欧姆定律）</div>
+      <p>如果电导是慢变的状态变量，那么在它"还来不及变"的极短时间窗里，膜应该表现得像一个普通线性电阻。HH 设计了一个<strong>双阶跃</strong>实验来直接验证（图 6）：先用第一段电压脉冲（−29 mV、持续 1.53 msec）把门开到某个固定开度，再<strong>瞬间</strong>跳到第二个电压 <code>V₂</code>，并在跳变后<strong>立刻</strong>读取电流 <code>I₂</code>。</p>
+      <p>结果干净利落：<code>I₂</code> 随 <code>V₂</code> 的关系是<strong>一条直线</strong>（图 6 的曲线 A），而且这条直线穿过零电流的位置约在静息电位以下 <strong>110 mV</strong>——正是钠平衡电位。这与<strong>稳态</strong>下高度弯曲的电流-电压关系（图 6 的曲线 α，倒 U 形）形成"惊人对照"（原文 striking contrast）。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>同一张图里两条曲线讲了一个完整故事：<strong>曲线 α（稳态）</strong>是弯的，因为不同电压下门有时间长到各自的开度；<strong>直线 A（瞬时）</strong>是直的，因为门被"冻住"在固定开度、只剩纯电阻。两条线在 <code>V₂ = V₁ = −29 mV</code> 处相交（此时两种测法本就等价），第二个交点出现在约 −106 mV，接近钠电位。<strong>结论</strong>：膜的全部非线性都来自"门随时间随电压变开度"，去掉时间维度后，离子流就是欧姆定律 <code>I = g·(V − V_eq)</code> 这么简单。</p>
+      </div>
+      <p>HH 没有把话说满。他们紧接着自我设限：这条线性<strong>不是膜的内禀属性</strong>。在<strong>钠自由溶液</strong>里测同一关系（图 7 下半），瞬时电流-电压关系明显弯曲，跟海水里的直线完全不同。原因是当外部钠被抽光，<code>V_Na → ∞</code>，弦电导（chord conductance）这个定义本身就失效了——"电导"这个概念必须谨慎使用。这种主动暴露自家概念边界的克制，是这篇论文的格调。</p>
+
+      <div class="section-head" id="sec-f3">核心发现三 · 钠门关得有多快，取决于电压</div>
+      <p>既然复极化后 <code>g_Na</code> 按 <code>exp(−b_Na·t)</code> 衰减，那 <code>b_Na</code> 这个速率常数就是"钠门关闭速度"的直接读数。HH 系统地测了它（表 1）：在 5–6°C 下，速率常数大致落在 <strong>3.0 到 18.5 msec⁻¹</strong> 区间（视轴突状态与电压而定），对应衰减时间常数约零点几毫秒——非常快。</p>
+      <p>更重要的是它的<strong>电压依赖</strong>。把膜复极化到不同的 <code>V₂</code>，再看 <code>g_Na</code> 衰减多快（图 8 把电流换算成电导，图 9 汇总）：在 <code>V₂</code> 从 −20 mV 升到 +50 mV 的范围内，速率常数出现了约 <strong>10 倍</strong>的增长。也就是说，你把膜拉得越向超极化方向，钠门关得越快。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>图 8 还揭示了一件微妙的事：复极化的终点电压不同，<code>g_Na</code> 的命运也不同。复极化到 <code>V₂ = +57 mV</code>（强超极化），衰减速率常数从约 4.3 msec⁻¹ 进一步飙到约 10 msec⁻¹；而复极化到 <code>V₂ = −14 mV</code>（仍轻度去极化），<code>g_Na</code> 反而不再下降，转头爬向一个比 −29 mV 时更高的"平衡值"。这说明任一电压下达到的电导，是<strong>两个方向相反、各自随电压变化的过程</strong>的平衡结果——这正是后来 <code>m</code>（激活）与 <code>h</code>（失活）两个门控变量的实验雏形。整个钠门的开关录像，HH 还能反过来从尾电流随脉冲时长的变化重建出来（图 10），并与前篇用减法得到的曲线相互印证、吻合良好。</p>
+      </div>
+
+      <div class="section-head" id="sec-f4">核心发现四 · 钾门的画像：慢开、不失活、能撑住</div>
+      <p>论文下半部把镜头转向钾。因为钾电流上升慢，要看清它必须用<strong>长去极化</strong>（且为压住缓慢的"极化效应"误差，作者改在 20°C 下做），并尽量在胆碱海水里消去钠的干扰——这样去极化期间 90–95% 的外向电流都该是钾电流。</p>
+      <p>用与测钠时相同的双阶跃手法（图 11、图 12），HH 证明钾也<strong>瞬时服从欧姆定律</strong>：复极化后立刻测的电流-电压关系是一条直线，穿过零电流于钾平衡电位 <code>V_K ≈ +13 mV</code>（即静息电位再略微超极化处；按静息电位约 60–65 mV 估，<code>V_K</code> 绝对值约 80–85 mV，与化学分析估出的 91 mV 大致相符）。电导定义同样成立：</p>
+      <blockquote>
+        <p>g_K = I_K / (V − V_K)        ……（原文公式 2）</p>
+      </blockquote>
+      <p>一组实测：当 <code>V = −84 mV</code>（深去极化）时 <code>g_K ≈ 19 m.mho/cm²</code>；<code>V = 0</code>（静息）时 <code>g_K ≈ 18 m.mho/cm²</code>——说明瞬时 <code>g_K</code> 几乎与电压无关，是个老实的瞬时电阻。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 一个意味深长的不对称</span>
+        <p>图 13 是全篇最关键的钾曲线：去极化时 <code>g_K</code> 带着<strong>明显延迟、沿一条 S 形（有拐点）</strong>缓缓爬升；可一旦复极化，它却<strong>沿一条干净的指数下降、毫无拐点</strong>。同样的"上升有拐点、下降无拐点"的不对称，也出现在钠电导上（图 4、5、8）。这个看似不起眼的几何细节，正是第四篇里钾用 <code>n⁴</code>、钠用 <code>m³h</code> 这种<strong>幂次门控</strong>方程的直接实验依据——多个独立"亚门"必须同时打开才导通，会让上升呈 S 形而下降呈单指数。此外 <code>g_K</code> 衰减的速率常数 <code>b_K</code>（表 2）在 6°C 下平均约 <strong>0.17–0.28 msec⁻¹</strong>，比 <code>b_Na</code> 慢一个数量级；把 <code>V₂</code> 从 0 升到 +40 mV，<code>b_Na</code> 增约 3.2 倍而 <code>b_K</code> 只增约 1.6 倍——钾门对电压也没钠门那么敏感。</p>
+      </div>
+      <p>还有一处诚实的"未完全解释"：钾平衡电位 <code>V_K</code> 确实随外部钾浓度变化（表 4），但<strong>只变了能斯特浓差电池所预言的约一半</strong>。例如理论上该给出 +17、−17、−41 mV 的几组换液，实测都明显偏小。作者列了几种可能（钾不是唯一的载流离子、表面钾浓度与体相不同、胆碱/钠也参与等），但坦言<strong>没有定论</strong>。</p>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-viz">🔴 交互：一次电压钳里的两扇门</div>
+      <p>纯文字很难让人"看见"钠门与钾门在同一次去极化阶跃下如何分头行动。下面这个组件把本篇最核心的画面动起来：你设定一个去极化阶跃的<strong>深度</strong>和<strong>持续时间</strong>，曲线会画出 <code>g_Na</code>（猛开、达峰后失活）与 <code>g_K</code>（带延迟地慢升、然后维持）随时间的分离过程；脉冲结束（复极化）后，两条电导都按各自的速率常数指数衰减——钠衰减得快得多。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">去极化阶跃下 g<sub>Na</sub> 与 g<sub>K</sub> 的时间分离</div>
+        <div class="viz-note">模拟数据，定性复现 Hodgkin &amp; Huxley 1952（图 4/5/8/13）报告的模式：g<sub>Na</sub> 快激活后失活、g<sub>K</sub> 延迟激活后维持、复极化后两者指数衰减（b<sub>Na</sub> ≈ 30×b<sub>K</sub>）。曲线形状取自论文定性描述，非原始数值。</div>
+        <div class="viz-controls">
+          <label>去极化深度：<strong><span id="depVal">40</span> mV</strong></label>
+          <input type="range" id="dep" min="10" max="100" value="40" step="1" style="width:160px;">
+        </div>
+        <div class="viz-controls">
+          <label>脉冲持续时间：<strong><span id="durVal">4.0</span> ms</strong></label>
+          <input type="range" id="dur" min="1" max="9" value="4" step="0.1" style="width:160px;">
+        </div>
+        <div class="viz-controls">
+          <button id="btnNa" class="">显示 g<sub>Na</sub></button>
+          <button id="btnK" class="">显示 g<sub>K</sub></button>
+          <button id="btnPlay" class="alt">▶ 重放动画</button>
+        </div>
+        <canvas id="cv" width="900" height="420"></canvas>
+        <div class="viz-note" style="margin-top:14px;margin-bottom:0;">
+          读图提示：纵轴是电导（开度），横轴是时间。<strong>灰色阴影</strong>是去极化脉冲在持续，阴影右边缘＝复极化瞬间。注意三件事——①<span style="color:#c0392b;font-weight:700;">钠（红）</span>抢先冲到峰值，即便脉冲还在持续也会<strong>自己失活</strong>回落；②<span style="color:#2c6fbb;font-weight:700;">钾（蓝）</span>起步带明显延迟、呈 S 形，达到平台后能一直<strong>维持</strong>；③复极化后两者都指数衰减，但钠的尾巴消失得快得多。把"去极化深度"调大，可见两扇门都开得更猛、关得也更快。
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-compare">钠门 vs 钾门：异同清单</div>
+      <p>论文的"讨论"部分非常克制，只做了一件事：把钠、钾两套电导的行为并排比较。这张清单是全篇的浓缩，也是第四篇建模的出发点。</p>
+
+      <table>
+        <thead>
+          <tr><th>维度</th><th>钠电导 g<sub>Na</sub></th><th>钾电导 g<sub>K</sub></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>上升的形状</td><td>带拐点的 S 形（有延迟）</td><td>带拐点的 S 形（延迟更明显）</td></tr>
+          <tr><td>下降的形状</td><td>无拐点的干净指数</td><td>无拐点的干净指数</td></tr>
+          <tr><td>开关速度</td><td>快</td><td>慢 10–30 倍（关闭时 b<sub>Na</sub>≈30×b<sub>K</sub>）</td></tr>
+          <tr><td>峰值随电压变化</td><td>变化大、很敏感</td><td>变化较小</td></tr>
+          <tr><td>持续去极化时</td><td><strong>达峰后失活</strong>，回落到低水平</td><td><strong>维持</strong>不失活，撑在高平台</td></tr>
+          <tr><td>瞬时 I–V 关系</td><td>过 V<sub>Na</sub> 的直线（海水中）</td><td>过 V<sub>K</sub> 的直线</td></tr>
+          <tr><td>对温度</td><td>速率强依赖（Q₁₀≈3），绝对幅度弱依赖</td><td>同左</td></tr>
+        </tbody>
+      </table>
+      <p>这张表里"持续去极化时一个失活、一个维持"那一行，正是动作电位为什么长成那个样子的物理答案：钠门猛开造就<strong>上升相</strong>，钠门自己失活＋钾门慢慢撑起造就<strong>下降相</strong>，钠门失活态尚未恢复造就<strong>不应期</strong>。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文的力量一大半来自手法。它没有任何分子工具（1952 年离离子通道蛋白被发现还有几十年），却靠几招纯粹的电学与溶液技巧，把不可见的"门"测了个底朝天。</p>
+
+      <table>
+        <thead>
+          <tr><th>招数</th><th>怎么做</th><th>解决了什么</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>换算成电导</td>
+            <td>把电流除以驱动力 (V−V_eq)，<code>g = I/(V−V_eq)</code></td>
+            <td>让原始记录里的电流跳变与尾巴全部消失、变光滑连续，从而锁定"电导才是膜的真实状态变量"。</td>
+          </tr>
+          <tr>
+            <td>双阶跃瞬时测量</td>
+            <td>第一步把门开到固定开度，第二步瞬跳到 V₂ 并<strong>立刻</strong>读 I₂（图 6）</td>
+            <td>把"快的纯电学"从"慢的门控"中剥离出来，从而证明膜瞬时服从欧姆定律。</td>
+          </tr>
+          <tr>
+            <td>尾电流读速率</td>
+            <td>复极化后用 <code>exp(−b·t)</code> 拟合尾巴衰减</td>
+            <td>把"门关闭速度"变成一个可量化、可对比温度/电压依赖的数字 b。</td>
+          </tr>
+          <tr>
+            <td>胆碱替换钠</td>
+            <td>用不导电的胆碱离子顶替海水里的钠</td>
+            <td>消去钠分量来单独观测钾，并通过阳极/阴极浪涌对称性证明尾巴是离子电流而非电容假象。</td>
+          </tr>
+          <tr>
+            <td>电容浪涌扣除</td>
+            <td>用对应的阳极位移记录相减，扣掉电容电流（图 1 的 A*、B*）</td>
+            <td>把混在一起的电容电流剔除，露出纯离子电流的真实时间过程。</td>
+          </tr>
+          <tr>
+            <td>独立性原则交叉验证</td>
+            <td>从海水数据推算钠自由溶液该有的电流，再与实测对照</td>
+            <td>提供一把自洽性标尺，检验"各离子独立穿膜"假设并界定其适用范围。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>同样值得记一笔的是作者对<strong>误差的会计学</strong>。论文专门用两段（"系列电阻引入的误差""极化效应引入的误差"）逐一列出每个数字可能偏多少：例如他们承认在未补偿反馈（uncompensated feed-back）下，膜电位的真实零点不是 0 而是约 −4 mV，会让速率常数被低估；表 1 里某些值的误差可能高达 <strong>50%</strong>，但在用了补偿反馈（compensated feed-back）的 32 号、41 号轴突上应该很小（这些值在表中以星号标出）。这种"把自家数据的不确定度摊在桌面上"的诚实，是把可信度焊进结论里的方式。</p>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇文章是一个紧密系列里承上启下的一环，读它必须放进这条线里看。</p>
+      <ul>
+        <li><strong>承接自家前两篇。</strong>方法（电压钳）来自 Hodgkin、Huxley &amp; Katz (1952)；"电流分成钠、钾两份"以及"独立性原则""平衡电位"等概念来自 Hodgkin &amp; Huxley (1952)。本篇是在这两块地基上，专门去测两份电导各自的时间-电压定律。</li>
+        <li><strong>为第四篇铺路。</strong>本篇得到的全部曲线形状（上升带拐点、下降是单指数）、速率常数的电压依赖、钠失活而钾维持的对比，正是紧随其后的第四篇（HH 那套 <code>m、n、h</code> 方程与动作电位定量重建）所要拟合的实验对象。可以说没有本篇，第四篇无从落笔。</li>
+        <li><strong>呼应早年的钠假说。</strong>本篇定量坐实了 Hodgkin &amp; Katz (1949) 提出的"动作电位上升相由钠内流造成"的图景，并把它从定性推进到"逐毫秒的电导时间过程"。</li>
+        <li><strong>与化学测量相互印证。</strong>钾平衡电位的电学估计（绝对值 80–85 mV）与 Steinbach &amp; Spiegelman (1943) 等人对轴浆离子浓度的化学分析（推出约 91 mV）大致吻合，等于用两条独立路径互证。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>本篇的影响远远溢出了鱿鱼轴突。</p>
+      <ul>
+        <li><strong>建立了一套通用的"门控"语言。</strong>"把一团复杂的非线性归因到一个随时间、随电压缓慢演化的电导（开度）状态变量"——这套思路后来成了整个膜生物物理学、乃至所有可兴奋细胞（心肌、肌肉、各类神经元）建模的标准范式。今天教科书里所有"钠通道激活/失活、钾通道延迟整流"的语言都源自这里。</li>
+        <li><strong>"瞬时线性 + 慢变状态"是一种可迁移的建模姿态。</strong>把一个系统拆成"快的、线性的、瞬时响应的部分"与"慢的、非线性的、记忆性的状态变量"，这种分解在控制论、电路、化学动力学甚至机器学习里反复出现。HH 在这里给了一个教科书级范例：先用双阶跃证明瞬时线性，再把所有非线性塞进状态变量的时间演化。</li>
+        <li><strong>失活 vs 维持的对比＝兴奋性系统的设计原语。</strong>"一个分量自己关掉、另一个分量撑住"这种结构，是任何需要产生"一次性脉冲＋自动复位＋不应期"的系统（生物的、电子的）的通用配方。后来无数神经形态电路、振荡器设计都在重演这个母题。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文以诚实著称，但仍有一些它自己没完全收口、或被时代所限的地方，值得点出。</p>
+      <ul>
+        <li><strong>"电导"是唯象量，不是机制。</strong>本篇全程在描述门"开多大、开多快"，但对<strong>门是什么、为什么会随电压开关</strong>只字不能答——当时还不知道有离子通道蛋白这种东西。论文自己也承认，在钠自由溶液里"电导"概念会失效（<code>V_Na→∞</code>），提醒它只是一个在特定条件下好用的等效描述。</li>
+        <li><strong>钾平衡电位的反常没解决。</strong>如前所述，<code>V_K</code> 随外钾只变了能斯特预言的约一半（表 4）。作者列了三四种猜测（钾非唯一载流子、表面浓度异于体相、胆碱/钠参与），但明确说<strong>无定论</strong>。这其实埋着后来"钾通道并非理想能斯特电极"以及表面/积累效应的伏笔。</li>
+        <li><strong>钠失活的机制悬而未决。</strong>本篇观察到"持续去极化时钠门会自己关掉"，并发现任一电压下的电导是两个反向过程的平衡，但并未把失活拆成一个独立的门控变量——这一步要等第四篇引入 <code>h</code> 才完成。读本篇时，失活还只是一个待解释的现象。</li>
+        <li><strong>数字的不确定度不小。</strong>由作者自陈，未补偿反馈下速率常数误差可能高达 50%（表 1），真实膜电位零点偏移约 −4 mV，系列电阻也会让斜率偏差 7–30%。这些定量结论的<strong>精度</strong>，明显不如其<strong>定性模式</strong>来得稳固——作者本人也是这么界定的。</li>
+        <li><strong>极少数轴突的指数律有偏差。</strong>个别记录（图 2、5）里电导的初始下降"太快"，偏离纯指数；作者归因于系列电阻，但也坦言"我们对钠电导回落能在多大程度上算作指数仍不确定"。即连"指数衰减"这条核心简化，作者都没把它说成铁律。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下是解读者的独立评价，每条都尽量落到文中证据上。</p>
+      <p><strong>它最深的贡献是一次"换坐标"，而不只是一批数据。</strong>把膜的状态变量从"电流"换成"电导"，让一堆看似违反守恒的跳变和拖尾瞬间变得光滑连续（图 4、5）——这是范式级的洞察，其价值高于任何单个测得的数字。后世整个可兴奋膜建模都站在这次换坐标之上。</p>
+      <p><strong>论证链条异常干净、可独立检验。</strong>"瞬时服从欧姆定律"不是断言而是用双阶跃实验直接测出来的（图 6 的直线 A 对比弯曲的稳态 α）；"电导连续"是把同一条记录两种算法对照得出的；"钠快钾慢"是两套速率常数表（表 1、2）摆在一起的。几乎每个结论都能在图表里找到对应的、可证伪的实测，这是实验论文的最高规格。</p>
+      <p><strong>克制是它的美德也是它的边界。</strong>讨论部分短到只做了一张异同清单，作者刻意不越界去猜机制——这种克制让结论极其耐久（七十多年后仍然成立），代价是本篇<strong>本身</strong>并不给出可计算的模型，所有"为什么"都留给了第四篇。把本篇当成"实验地基"而非"完整理论"来读，才不会失望。</p>
+      <p><strong>对自家不确定度的诚实，反而是可信度的来源。</strong>主动报告 50% 量级的误差、承认指数律在个别轴突不成立、暴露"电导"概念在钠自由液中失效——这些自我设限不是弱点，而是把"哪些结论硬、哪些结论软"标得清清楚楚，让读者能精确地知道该信到什么程度。这正是这篇论文（及整个 HH 系列）成为典范的原因之一。</p>
+      <p><strong>一个温和的保留。</strong>本篇的钾平衡电位反常（表 4，只变了一半）至今在文中是个悬案；作者的几种猜测都未验证。这提示：本篇对"钾门是理想离子选择门"的隐含假设，其实比对钠的把握要弱一些——这一点在阅读时值得放在心上。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Hodgkin &amp; Huxley 在这篇 1952 年系列第三作里证明：只要把膜电流换算成<strong>电导</strong>，所有诡异的电流跳变与拖尾都化为光滑连续，膜"瞬间"不过是一只服从欧姆定律、零电流点落在各离子平衡电位（<code>V_Na≈−110 mV</code>、<code>V_K≈+13 mV</code>）的电阻；而全部非线性来自两扇随时间和电压缓慢开关的"离子门"——<strong>钠门猛开、达峰后自己失活、关闭速率比钾门快约 30 倍</strong>，<strong>钾门带延迟地慢开、达平台后能一直维持</strong>，两者上升都呈带拐点的 S 形、下降都是干净的指数。这张钠/钾电导的时间-电压画像，正是次年那套 <code>m、n、h</code> 方程定量重建动作电位的全部实验地基。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Hodgkin, A. L., &amp; Huxley, A. F. (1952). The components of membrane conductance in the giant axon of <em>Loligo</em>. <em>The Journal of Physiology</em>, 116(4), 473–496.
+    <br><strong>系列定位：</strong>此为 Hodgkin &amp; Huxley 1952 年枪乌贼巨轴突四部曲的第三篇（膜电导分量）；前承 Hodgkin, Huxley &amp; Katz (1952) 的电流-电压测量法与 Hodgkin &amp; Huxley (1952) 的钠/钾电流分离，后启含 <code>m、n、h</code> 门控方程与动作电位定量重建的第四篇。
+    <br><span style="color:#9aa1ab;">本页为深度解读，所有图示为帮助理解的示意，关键数字与结论以原论文为准。</span>
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var cv = document.getElementById("cv");
+  if(!cv) return;
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
+
+  // ----- state -----
+  var depEl = document.getElementById("dep");
+  var durEl = document.getElementById("dur");
+  var depValEl = document.getElementById("depVal");
+  var durValEl = document.getElementById("durVal");
+  var btnNa = document.getElementById("btnNa");
+  var btnK  = document.getElementById("btnK");
+  var btnPlay = document.getElementById("btnPlay");
+
+  var showNa = true, showK = true;
+  var animProgress = 1;   // 0..1 reveal fraction
+  var animating = false;
+  var animStart = 0;
+
+  var T_TOTAL = 10;       // ms shown on x-axis
+  var pulseStart = 1.0;   // ms, when depolarization begins
+
+  // plot area (leave room for axes/labels)
+  var padL = 64, padR = 24, padT = 24, padB = 52;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+
+  function xOf(t){ return padL + (t / T_TOTAL) * plotW; }
+  function yOf(g){ return padT + (1 - g) * plotH; }   // g normalized 0..1.05ish
+
+  // ---- conductance model (purely illustrative shapes) ----
+  // depth in mV (10..100) -> normalized drive 0..1
+  function drive(dep){ return Math.min(1, Math.max(0, (dep - 5) / 95)); }
+
+  // sodium: fast sigmoid activation * inactivation that proceeds during pulse
+  function gNa(t, dep, durMs){
+    var d = drive(dep);
+    var pEnd = pulseStart + durMs;
+    var amp = 0.30 + 0.65 * d;            // peak height scales with depth
+    var tauAct = 0.45 - 0.18 * d;         // faster activation when deeper
+    var tauInact = 1.4 - 0.6 * d;         // faster inactivation when deeper
+    var tauDecay = 0.22 + 0.10 * (1 - d); // fast close on repolarization
+    if(t < pulseStart) return 0;
+    if(t <= pEnd){
+      var tt = t - pulseStart;
+      var act = 1 - Math.exp(-tt / tauAct);
+      // m^3-like rise -> sigmoidal
+      act = act*act*act;
+      var inact = Math.exp(-tt / tauInact);
+      return amp * act * inact;
+    } else {
+      // value at end of pulse, then exponential decay (fast)
+      var ttE = pEnd - pulseStart;
+      var actE = 1 - Math.exp(-ttE / tauAct); actE = actE*actE*actE;
+      var inactE = Math.exp(-ttE / tauInact);
+      var g0 = amp * actE * inactE;
+      return g0 * Math.exp(-(t - pEnd) / tauDecay);
+    }
+  }
+
+  // potassium: delayed n^4 rise to a maintained plateau; slow exp decay
+  function gK(t, dep, durMs){
+    var d = drive(dep);
+    var pEnd = pulseStart + durMs;
+    var amp = 0.20 + 0.70 * d;            // plateau height
+    var tauN = 1.6 - 0.7 * d;             // time constant of rise (slow, delayed)
+    var tauDecayK = 1.5 + 0.6 * (1 - d);  // slow close on repolarization (~5-10x Na)
+    if(t < pulseStart) return 0;
+    if(t <= pEnd){
+      var tt = t - pulseStart;
+      var n = 1 - Math.exp(-tt / tauN);
+      n = n*n*n*n;                        // n^4 -> strong delay / inflexion, then plateau
+      return amp * n;
+    } else {
+      var ttE = pEnd - pulseStart;
+      var nE = 1 - Math.exp(-ttE / tauN); nE = nE*nE*nE*nE;
+      var g0 = amp * nE;
+      return g0 * Math.exp(-(t - pEnd) / tauDecayK);
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    var dep = parseFloat(depEl.value);
+    var durMs = parseFloat(durEl.value);
+    var pEnd = pulseStart + durMs;
+
+    // ---- pulse shading ----
+    ctx.fillStyle = "rgba(120,130,140,0.10)";
+    var x0 = xOf(pulseStart), x1 = xOf(Math.min(pEnd, T_TOTAL));
+    ctx.fillRect(x0, padT, x1 - x0, plotH);
+    // pulse edges
+    ctx.strokeStyle = "rgba(120,130,140,0.55)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(x0, padT); ctx.lineTo(x0, padT+plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, padT); ctx.lineTo(x1, padT+plotH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // label for pulse
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "12px -apple-system,Segoe UI,sans-serif";
+    ctx.textAlign = "center";
+    if(x1 - x0 > 60){
+      ctx.fillText("去极化脉冲持续中", (x0+x1)/2, padT + 16);
+    }
+    ctx.textAlign = "left";
+    ctx.fillText("↑复极化", Math.min(x1+4, W-70), padT + plotH - 6);
+
+    // ---- axes ----
+    ctx.strokeStyle = "#c9ced4";
+    ctx.lineWidth = 1.2;
+    // y axis
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT+plotH); ctx.stroke();
+    // x axis (baseline g=0)
+    ctx.beginPath(); ctx.moveTo(padL, padT+plotH); ctx.lineTo(padL+plotW, padT+plotH); ctx.stroke();
+
+    // x ticks (ms)
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "11px -apple-system,Segoe UI,sans-serif";
+    ctx.textAlign = "center";
+    for(var tms=0; tms<=T_TOTAL; tms+=1){
+      var xt = xOf(tms);
+      ctx.strokeStyle = "#e6e8eb";
+      ctx.beginPath(); ctx.moveTo(xt, padT+plotH); ctx.lineTo(xt, padT+plotH+4); ctx.stroke();
+      ctx.fillText(tms.toString(), xt, padT+plotH+18);
+    }
+    ctx.fillText("时间 (ms)", padL+plotW/2, H-8);
+
+    // y label
+    ctx.save();
+    ctx.translate(16, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "12px -apple-system,Segoe UI,sans-serif";
+    ctx.fillText("电导 g（门开度，归一化）", 0, 0);
+    ctx.restore();
+
+    // ---- curves ----
+    var revealT = pulseStart + animProgress * (T_TOTAL - pulseStart);
+    var STEP = 0.02;
+
+    function plot(fn, color, lw){
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      var started = false;
+      for(var t=0; t<=T_TOTAL+0.0001; t+=STEP){
+        if(t > revealT) break;
+        var g = fn(t, dep, durMs);
+        var X = xOf(t), Y = yOf(g);
+        if(!started){ ctx.moveTo(X,Y); started=true; }
+        else ctx.lineTo(X,Y);
+      }
+      ctx.stroke();
+    }
+
+    if(showK) plot(gK, "#2c6fbb", 2.6);
+    if(showNa) plot(gNa, "#c0392b", 2.8);
+
+    // ---- legend ----
+    var lx = padL + plotW - 150, ly = padT + 8;
+    ctx.font = "13px -apple-system,Segoe UI,sans-serif";
+    ctx.textAlign = "left";
+    if(showNa){
+      ctx.strokeStyle = "#c0392b"; ctx.lineWidth=2.8;
+      ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx+26, ly); ctx.stroke();
+      ctx.fillStyle="#c0392b"; ctx.fillText("g_Na  钠门", lx+32, ly+4);
+    }
+    if(showK){
+      ctx.strokeStyle = "#2c6fbb"; ctx.lineWidth=2.6;
+      ctx.beginPath(); ctx.moveTo(lx, ly+22); ctx.lineTo(lx+26, ly+22); ctx.stroke();
+      ctx.fillStyle="#2c6fbb"; ctx.fillText("g_K  钾门", lx+32, ly+26);
+    }
+  }
+
+  function tick(ts){
+    if(!animating){ return; }
+    if(!animStart) animStart = ts;
+    var elapsed = ts - animStart;
+    animProgress = Math.min(1, elapsed / 1600);  // 1.6s sweep
+    draw();
+    if(animProgress < 1){ requestAnimationFrame(tick); }
+    else { animating = false; }
+  }
+
+  function play(){
+    animProgress = 0; animating = true; animStart = 0;
+    requestAnimationFrame(tick);
+  }
+
+  function syncBtns(){
+    btnNa.className = showNa ? "" : "alt";
+    btnNa.style.opacity = showNa ? "1" : "0.85";
+    btnK.className  = showK ? "" : "alt";
+    btnK.style.opacity = showK ? "1" : "0.85";
+  }
+
+  depEl.addEventListener("input", function(){
+    depValEl.textContent = depEl.value;
+    if(!animating){ animProgress = 1; draw(); }
+  });
+  durEl.addEventListener("input", function(){
+    durValEl.textContent = parseFloat(durEl.value).toFixed(1);
+    if(!animating){ animProgress = 1; draw(); }
+  });
+  btnNa.addEventListener("click", function(){ showNa = !showNa; syncBtns(); if(!animating){animProgress=1;} draw(); });
+  btnK.addEventListener("click",  function(){ showK  = !showK;  syncBtns(); if(!animating){animProgress=1;} draw(); });
+  btnPlay.addEventListener("click", play);
+
+  // init
+  depValEl.textContent = depEl.value;
+  durValEl.textContent = parseFloat(durEl.value).toFixed(1);
+  syncBtns();
+  draw();
+  // gentle intro animation
+  setTimeout(play, 250);
+})();
+</script>
+</body>
+</html>

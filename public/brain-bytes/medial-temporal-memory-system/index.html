@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内侧颞叶 —— 记忆不是一个系统，而是一个联盟</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Medial Temporal Lobe <span>×</span> 记忆不是一个系统，而是一个分工的联盟</h1>
+    <div class="meta">
+      <span>📄 The Medial Temporal Lobe</span><br>
+      <span>✍️ Larry R. Squire, Craig E.L. Stark, Robert E. Clark</span><br>
+      <span>🏛️ 圣地亚哥退伍军人事务医疗系统 / 加州大学圣地亚哥分校 / 约翰·霍普金斯大学</span><br>
+      <span>📅 Annual Review of Neuroscience · 2004 · 27:279–306</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-tree">交互：记忆系统分类树</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-f1">① 损伤画像：四个特征</a></li>
+        <li><a href="#sec-f2">② 三大「干净二分法」全部破产</a></li>
+        <li><a href="#sec-f3">③ 巩固：记忆的搬家</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是 Larry Squire——「<strong>陈述性记忆系统</strong>」这套范式的主要奠基人——在积累了二十年人、猴、鼠三类证据后，亲手写下的一份「中期盘点」。它干两件大事：第一，把<strong>内侧颞叶</strong>（MTL，Medial Temporal Lobe）确立为一个为「有意识地记住事实与事件」而专门服务的解剖系统；第二，也是更难得的，<strong>主动拆掉了一批听起来很顺、被广泛引用、却经不起数据检验的「漂亮二分法」</strong>——海马管联想、皮层管单项？海马管情景、皮层管语义？海马管回忆、皮层管熟悉感？作者用一节又一节的实验把它们逐个驳回。</p>
+        <p>对今天的读者，它的价值不在「又一个脑区负责又一个功能」，而在示范了一种<strong>克制的科学姿态</strong>：当一个分类既动人又流行时，怎样用跨物种、跨方法（损伤、单细胞记录、功能性磁共振成像）的证据去逼问它「到底是真的分工，还是我们一厢情愿的整齐」。这正是「记忆不是单一系统」这句话从口号变成可检验主张的关键文献。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>读这篇综述前，先校准九个核心词。它们多数是「记忆的种类」或「脑区的零件」，作者全文都在这几个概念之间腾挪。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">内侧颞叶（MTL，Medial Temporal Lobe）</div>
+          <div class="cdesc">大脑颞叶内侧一组协同工作的结构，是本文主角。它不是单一器官，而像一个「记忆事务所」：由海马区这个核心部门，加上三块毗邻皮层组成。损坏它，人就记不住新的事实和事件。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">海马区（hippocampal region）</div>
+          <div class="cdesc">MTL 的核心，含三个零件：CA 区（CA，Cornu Ammonis，氨角，即 CA1/CA3 等海马细胞场）、齿状回（DG，Dentate Gyrus）、下托复合体（subicular complex）。位于皮层信息加工层级的「最末端」，是各路信息汇聚的终点站。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">三块毗邻皮层（adjacent cortices）</div>
+          <div class="cdesc">围在海马外圈的三块「中转皮层」：嗅周皮层（perirhinal cortex）、内嗅皮层（entorhinal cortex）、海马旁皮层（parahippocampal cortex，大鼠中叫后嗅皮层 postrhinal cortex）。它们把全脑各处的信息汇总后再喂给海马。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">陈述性记忆（declarative memory）</div>
+          <div class="cdesc">能「说出来」的记忆——对事实和事件的<strong>有意识</strong>回忆。比如「法国首都是巴黎」「昨天我在哪吃的饭」。这正是 MTL 系统负责的那一类。下分情景记忆与语义记忆。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">非陈述性记忆（nondeclarative memory）</div>
+          <div class="cdesc">「说不出、但身体记得」的一大类记忆，通过<strong>表现</strong>而非回忆体现：骑车的技能与习惯、简单条件反射、启动效应等。它们各自依赖纹状体、小脑等别的脑系统，<strong>不</strong>靠 MTL。是陈述性记忆的对照组。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">情景 vs 语义记忆（episodic / semantic）</div>
+          <div class="cdesc">陈述性记忆的两个子类：情景记忆=带「时间地点、亲历感」的具体事件（去年生日那天）；语义记忆=剥离了情境的纯事实知识（水的化学式是 H₂O）。一个长期争论是：海马只管情景、还是两者都管？</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">回忆 vs 熟悉感（recollection / familiarity）</div>
+          <div class="cdesc">再认记忆的两个成分。回忆=连同「在哪学到的」一起想起来（remember）；熟悉感=只觉得「这个见过」却说不清来历（know）。流行假说说海马管前者、毗邻皮层管后者——本文要检验它。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">顺行 vs 逆行遗忘（anterograde / retrograde）</div>
+          <div class="cdesc">损伤后的两种失忆：顺行=学不进损伤<strong>之后</strong>的新东西；逆行=丢失损伤<strong>之前</strong>已有的旧记忆。逆行遗忘常呈「时间梯度」：越近的记忆丢得越狠，很久远的反而保留。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">系统巩固（systems consolidation）</div>
+          <div class="cdesc">长期记忆「搬家」的过程：新记忆起初依赖 MTL 与新皮层合作，随时间推移，皮层之间的连接被逐步加固，最终记忆可<strong>脱离 MTL</strong> 单独由皮层支撑。这解释了为何很久远的记忆在 MTL 受损后仍在。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-tree">交互：记忆系统分类树</div>
+      <p>这篇综述最持久的遗产，是「记忆不是一个东西」这个图景：它是一棵树，先分成<strong>陈述性</strong>与<strong>非陈述性</strong>两大支，每一支下面再有子类，<strong>各自挂靠不同脑区</strong>。下面这棵树可以点：点任一类别，右侧会告诉你它依赖哪个脑系统、用什么典型任务测、以及损了 MTL 后它会不会受影响。亲手点几下，你会对「为什么海马受损的病人骑车照样溜、却记不住刚见过的人」这种看似矛盾的现象豁然开朗。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">记忆系统分类树 · 点选任一类别查看依赖脑区与典型任务</div>
+        <div class="viz-note">分类框架综合自 Squire 等 (2004) 及该谱系的经典记忆系统图（Schacter & Tulving 1994；Squire 1992）。脑区归属为定性归纳，用于建立「多重系统」直觉。</div>
+        <div id="tree-root"></div>
+        <div class="viz-controls">
+          <button id="tree-reset" class="alt" type="button">复位 / 收起</button>
+          <button id="tree-mtl" type="button">高亮：哪些靠内侧颞叶？</button>
+        </div>
+        <div id="tree-detail" style="border-top:1px dashed var(--red-line);padding-top:14px;margin-top:6px;min-height:96px;font-size:0.95rem;color:var(--ink-soft);line-height:1.7;">
+          <em style="color:var(--muted);">↑ 点击树上任意一个方块，这里显示它的「依赖脑区 / 典型任务 / 与 MTL 的关系」。</em>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>全文可以收束成三组发现：（1）MTL 损伤后的遗忘有一张精确的「画像」，告诉我们这个系统到底负责什么、不负责什么；（2）三条流行的「海马 vs 毗邻皮层」干净二分法，被证据逐个驳回；（3）记忆会「搬家」——巩固使旧记忆脱离 MTL。下面逐一展开。</p>
+
+      <div class="section-head-sub" id="sec-f1">① 损伤画像：四个特征界定了「MTL 到底管什么」</div>
+      <p>作者先从最经典的临床事实出发：病人 H.M. 在 Brenda Milner 的系统记录下，因双侧 MTL 切除而出现「严重的健忘」（profound forgetfulness）。但「健忘」不是一团糨糊，它有四个相互独立的特征，每一个都在帮我们划定这个系统的职责边界：</p>
+      <ul>
+        <li><strong>跨通道（multimodal）</strong>：不管信息从眼睛、耳朵还是触觉进来，记忆都受损。这与解剖一致——MTL 正是各感觉通道信息汇聚的「会聚区」。</li>
+        <li><strong>即时记忆完好</strong>：即便大面积 MTL 损伤，<strong>数字广度</strong>（digit span，一口气能复述的数字串长度）仍正常（Drachman & Arbit 1966）。能被默念复述的 2–3 个数字，几分钟后还在；可一旦材料难以复述（如复杂图形），<strong>10 秒内</strong>就垮（Buffalo 等 1998）。</li>
+        <li><strong>智力与知觉完好</strong>：H.M. 的智力测验、知觉功能、词汇知识都正常（Kensinger 等 2001；Milner 等 1968）。损伤是「记忆专属」的，不是「变笨」。</li>
+        <li><strong>问题出在「存储」而非「提取」</strong>：在短暂性全面遗忘等案例里，发作期间发生的事，事后<strong>永远</strong>想不起来——说明若 MTL 在学习当下没工作，记忆压根没被以「可用」的方式建立起来（Kritchevsky 等 1988）。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：动物模型把「即时完好、延迟受损」钉死了</span>
+        <p>这套画像不止见于人。海马损伤的大鼠做<strong>延迟非匹配样本任务</strong>（DNMS，Delayed Nonmatching-to-Sample）：延迟 <strong>4 秒</strong>时学习速率与正常鼠无异；延迟拉到 <strong>1–2 分钟</strong>就明显受损（Clark 等 2001）。更妙的是，哪怕用 1 分钟延迟训练，把 4 秒的试次<strong>间或插进去</strong>，短延迟仍全对、长延迟仍失败——证明它既懂规则、短时记忆也在，唯独「跨越时间留住信息」这一环坏了。这就把「MTL=把易逝的即时表征转成持久长期记忆的转换器」这个定位，从人类病例推广成了跨物种事实。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f2">② 三大「干净二分法」全部破产——本文最锋利的部分</div>
+      <p>这是整篇综述的灵魂。海马居于信息加工层级的末端、汇聚四方输入，于是一个极有诱惑力的想法是：<strong>海马</strong>专管那些「需要把多个元素绑成一团」的任务，而<strong>毗邻皮层</strong>管那些「单个项目、不需绑定」的任务。由此可推出三对漂亮的分工。作者一对一对地检验，结论是：<strong>三对全都不成立</strong>。</p>
+
+      <p><strong>二分法 A：情景 vs 语义？</strong>——预测是「局限于海马的损伤应只伤情景记忆（亲历事件），放过语义记忆（纯事实）」。证据说不。Manns 等（2003b）研究 5 名仅海马受损的病人：他们对发病<strong>之后</strong>新闻事件的<strong>语义</strong>知识有明显缺陷；而且这种语义缺陷<strong>不是</strong>情景记忆受损的副产品（健康人回忆事实时，也并不靠回想「我在哪学到的」来帮忙）。结论：语义与情景记忆<strong>都</strong>依赖海马区。</p>
+
+      <p><strong>二分法 B：联想 vs 单项？</strong>——预测是「海马管把两个无关项绑成对，毗邻皮层管单个项」。证据说不。在让病人区分「全新 / 旧词 / 旧词新配对 / 真重复」的连续判断任务里，海马损伤病人对<strong>所有项目类型</strong>受损程度相当，并没有「专门」更难拒绝重组对（Stark & Squire 2003）。另一研究让同组病人记人脸、房子、脸-房子配对：单项与联想测验<strong>同等受损</strong>；当把学习列表从看 1 遍增加到看 <strong>8 遍</strong>，两类成绩又一起追上对照组（Stark 等 2002）。海马对单项记忆和联想记忆「一视同仁」地重要。</p>
+
+      <p><strong>二分法 C：回忆 vs 熟悉感？</strong>——这是最流行的一对：海马管「回忆」（remember，连来历一起想起），毗邻皮层管「熟悉感」（know，只觉眼熟）。证据说不。Manns 等（2003a）研究 7 名仅海马受损病人，用 remember/know 技术测量：<strong>「knowing」（熟悉感）的损害，和「remembering」（回忆）的损害一样严重</strong>。作者也老实指出该技术的软肋（它终究是主观自评），但跨人类与动物的损伤数据，整体都不支持把回忆与熟悉感干净地切给两个脑区。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：真正干净的双重分离长什么样（反例做对照）</span>
+        <p>为了让你感到「二分法破产」的分量，看一个作者认可的、<strong>真</strong>分离的例子——它发生在嗅周皮层与视觉区 TE（颞叶下部的高级视觉区，专名沿用 Bonin-Bailey 分区命名）之间，而非海马内部。视觉配对比较任务中，猴子天生爱看新图。<strong>嗅周</strong>损伤的猴：1 秒延迟时表现正常（看新图偏好 66.4%，对照 66.4%，几乎一模一样），但延迟拉到 10 秒–10 分钟就垮（偏好降到 56.6%，对照 64.6%）——说明嗅周管的是<strong>记忆</strong>（只在需要跨延迟时才出问题）。而<strong>TE</strong> 损伤的猴：<strong>任何</strong>延迟下都没有偏好（50.2%，纯随机=50%）——说明 TE 管的是<strong>知觉</strong>本身。一个只在延迟后坏、一个连当下都坏，这才是教科书级的双重分离。海马 vs 毗邻皮层那三对，恰恰拿不出这样的对照。</p>
+      </div>
+
+      <p>一个特别有说服力的案例是病人 E.P.（MTL 损伤极重）。他能在 <strong>12 周、24 次</strong>训练里，慢慢学会一批三词句（如「venom caused fever」毒液致热），线索回忆和强迫选择成绩都在提升。可三条观察暴露了这「学会」的本质：他从不认为自己在给正确答案；对错答案的<strong>信心评分一样</strong>；最致命的是，一旦把句中第二个词换成<strong>同义词</strong>，他几乎全错（<strong>48 题只对 1 题</strong>）。这种僵硬、不可有意识调用、对措辞敏感的「学会」，本质是非陈述性的（类似知觉学习）——它从反面印证了：真正的陈述性学习，必须有 MTL 在场。</p>
+
+      <div class="section-head-sub" id="sec-f3">③ 巩固：记忆会「搬家」，最终搬离内侧颞叶</div>
+      <p>第三组发现解释了一个表面矛盾：为什么 MTL 大面积损伤的病人，几十年前的远期记忆反而完好？答案是<strong>系统巩固</strong>。逆行遗忘几乎总呈<strong>时间梯度</strong>：损伤越靠近的记忆丢得越彻底，越久远的越保留。</p>
+      <ul>
+        <li><strong>动物</strong>：十多项研究显示梯度时程约 <strong>30 天</strong>（Squire 等 2004 综述）。例如大鼠痕迹眨眼条件反射，学习后 <strong>1 天</strong>做海马损伤几乎抹掉条件反应，<strong>4 周</strong>后做则毫无影响（Takehara 等 2003）——记忆已搬出海马。</li>
+        <li><strong>人类</strong>：梯度跨度是「几年」而非「几周」。一项研究里 8 名病人（含 2 名大面积损伤的 E.P. 与 G.P.）与 25 名年龄匹配对照，用 24 个线索词回忆早年往事，两组回忆所含细节数量相当（<strong>误差约 ±5%</strong>）——说明远期自传体记忆并不依赖 MTL。</li>
+      </ul>
+      <p>机制图景（Mishkin 1982；Squire & Alvarez 1995）：记忆按其加工结果，存在新皮层中本就负责该内容的同一批区域；海马起初与新皮层协同把记忆编码、再读取；通过逐步重组，皮层各区之间的连接被持续加固，直到皮层记忆可<strong>独立于海马</strong>被取用。作者据此倾向于反驳「海马永远是提取丰富细节自传记忆所必需」的对立观点：动物中<strong>完全</strong>海马损伤也常报告出时间梯度。但他也诚实承认这里仍有未决之处（见下文边界）。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>作为综述，它的「方法」是<strong>如何整合证据、以及如何对证据保持警惕</strong>。下表是几处值得学习的方法论操作。</p>
+      <table>
+        <thead>
+          <tr><th>手法</th><th>具体做法</th><th>为什么聪明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>三物种交叉</td>
+            <td>同一问题在人（病例 + 影像）、猴（损伤 + 单细胞）、鼠（损伤 + 基因操作）上分别验证</td>
+            <td>各方法短板不同（人不可控损伤、动物难报告意识体验），交叉印证才能把结论钉牢；任一物种的反例都会被认真对待</td>
+          </tr>
+          <tr>
+            <td>用「失败的分离」反推</td>
+            <td>不去硬找海马的独特功能，而是系统检验每条流行二分法，记录它们<strong>哪里没分开</strong></td>
+            <td>阴性结果（找不到干净分工）本身就是强结论，能挡住领域里「过度解读单个分离」的惯性</td>
+          </tr>
+          <tr>
+            <td>区分「相关」与「必要」</td>
+            <td>明确指出功能性磁共振成像（fMRI，functional Magnetic Resonance Imaging）只能给相关证据，不能证明某结构对某功能<strong>必要</strong></td>
+            <td>用兔眨眼条件反射做反例：海马活动随条件反射强烈增长、还能预测行为，可海马损伤对该条件反射<strong>毫无影响</strong>——活动≠必要</td>
+          </tr>
+          <tr>
+            <td>警惕「基线陷阱」</td>
+            <td>指出 fMRI 是对比性的，选错基线（对照任务）会让同一脑区显得「激活/不激活」两样</td>
+            <td>用静息当基线，海马对新旧场景「无反应」；换成枯燥的奇偶判断当基线，海马双侧强烈响应——基线决定结论（Stark & Squire 2001a）</td>
+          </tr>
+          <tr>
+            <td>正视定位误差</td>
+            <td>指出传统全脑配准（Talairach 图谱）对 MTL 亚区定位不准——约<strong>一半体素</strong>在两脑间被分到不同亚区</td>
+            <td>转而采用基于个体解剖手工勾画的感兴趣区配准（ROI-AL，Region-of-Interest–based Alignment），让跨被试结论可信（Stark & Okado 2003）</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇文章站在两个传统的交汇处，并对若干对手观点正面回应：</p>
+      <ul>
+        <li><strong>承接 Scoville & Milner（1957）与 H.M. 传统</strong>：H.M. 让「MTL 与记忆」从临床轶事变成确凿事实；本文是这一传统在动物模型成熟、影像技术爆发后的集大成盘点。</li>
+        <li><strong>对话 O'Keefe & Nadel 的「认知地图」说</strong>：自 O'Keefe & Dostrovsky（1971）发现海马<strong>位置细胞</strong>（place cells）以来，「海马主司空间记忆」深入人心。作者的处理很微妙：承认空间记忆确实更依赖海马，但主张把空间记忆视为更大范畴（陈述性记忆）的一个<strong>子集</strong>、一个好例子，而非海马的「本职」。证据是海马损伤同样损害大量<strong>非空间</strong>记忆（鼠、猴、人皆然）。</li>
+        <li><strong>反驳 Gaffan、Murray & Bussey 等的「替代解释」</strong>：（1）有人说严重遗忘其实源于穹窿、杏仁核传导纤维或颞干被切断，而非 MTL 皮层本身——但 H.M. 的穹窿与颞干几乎完好，且仅限海马结构的损伤就足以致残（Corkin 等 1997；Rempel-Clower 等 1996）。（2）有人主张嗅周皮层主司<strong>知觉</strong>（物体辨识）而非记忆——但对 3 名嗅周完全损伤病人测 7 种辨别任务，表现都好，其语义缺陷更可能来自外侧颞叶的额外损伤（Stark & Squire 2000；Schmolck 等 2002）。</li>
+        <li><strong>澄清一个被强加的立场</strong>：作者特意声明，「MTL 各结构在某种程度上都参与陈述性记忆」<strong>不</strong>等于他们认为 MTL 是一个均质、不可分的功能单元——这一误读常被安在他们头上（如 Murray & Bussey 2001）。他们承认存在<strong>分工</strong>，只是反对把分工简化成那三对干净二分法。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇 20 年前的综述，对今天几个领域仍有回响：</p>
+      <ul>
+        <li><strong>对人工智能的记忆架构</strong>：MTL+新皮层的「快学—慢固化」双系统，正是「互补学习系统」理论（McClelland 等 1995，本文引用）的神经学背书。它对应到机器学习里的<strong>灾难性遗忘</strong>问题与「经验回放」式巩固：一个快速绑定具体经验的模块，配一个慢速整合统计规律的模块，缺一不可。</li>
+        <li><strong>对临床与日常的「学习设计」</strong>：「即时记忆完好、延迟转换受损」提醒我们，遗忘的关键不在「当下记没记住」而在「能否跨越时间留存」；而 E.P. 用 24 次训练学会僵硬句子的案例说明，<strong>重复</strong>能让残存系统硬磨出一种不可灵活调用的知识——这对失忆症康复、也对「死记 vs 理解」的教育之争都有提示。</li>
+        <li><strong>对「分类学」本身的方法论警示</strong>：本文是一则反面教材的正面用法——当一个分类（情景/语义、回忆/熟悉感）<strong>同时具备直觉吸引力与文献流行度</strong>时，恰恰最该警惕它是真分工还是人为整齐。这一姿态适用于任何想给复杂系统「画干净边界」的领域。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>作者本人相当克制，文中明示了多处未决；这里把它们连同「文章没明说的张力」一并列出。</p>
+      <ul>
+        <li><strong>毗邻皮层在巩固中的角色仍是空白</strong>（作者承认）：逆行遗忘梯度的「搬家」机制主要讲海马；当损伤<strong>同时</strong>包含毗邻皮层时（如 E.P.，逆行遗忘可覆盖数十年），嗅周/海马旁皮层究竟有没有那个「临时存储」角色、还是它们本身就是长期记忆库的一部分，尚不清楚。</li>
+        <li><strong>大鼠空间记忆与人类结论冲突</strong>（作者承认）：人类远期空间记忆在大面积 MTL 损伤后仍保留（E.P. 能回忆 50 多年前家乡布局），但大鼠用最常用的 Morris 水迷宫测远期空间记忆却<strong>受损</strong>，哪怕学习—手术间隔达 98 天。作者列出可能解释（鼠的远期空间测验本身可能需要新学习），但坦言「为何鼠人不一致」仍未解决。</li>
+        <li><strong>remember/know 技术的主观性</strong>（作者承认）：检验「回忆 vs 熟悉感」二分法所依赖的核心工具是被试自评，可靠性有争议（Donaldson 1996）。少数据看似保留了熟悉感的病例（Holdstock 等 2002；Yonelinas 等 2002），可能正源于该方法的不稳，也可能是真现象——本文无法定论。</li>
+        <li><strong>「都参与」与「有分工」之间的尺度未量化</strong>（解读者观点）：作者既说「MTL 各结构都参与陈述性记忆」，又承认「存在劳动分工」。但这份综述给出的多是<strong>定性</strong>否证（哪些二分法不成立），对「分工到底沿哪个维度、以多大程度展开」缺少正面的定量刻画——它擅长说「不是 A 也不是 B」，却没给出「那是什么」的替代模型。</li>
+        <li><strong>发育性失忆是个未消化的例外</strong>（解读者观点，基于文中）：病人 Jon 幼年即海马受损，却有高于平均的智力、语言正常、能习得相当多语义知识。作者把它列为「对语义=依赖海马」这一概括的可能例外，但只给了两个相互竞争的解释（早期损伤允许功能重组 vs 足够努力下按情景能力比例习得），并未在本文内裁决。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都尽量绑定文中证据。</p>
+      <p><strong>它最大的贡献，是把「破除二分法」做成了正面科学，而不只是抬杠。</strong>支撑：文中对情景/语义、联想/单项、回忆/熟悉感三对，分别引出 Manns(2003b)、Stark & Squire(2003)/Stark(2002)、Manns(2003a) 的针对性实验作否证，且每次都给了具体设计与数字（如 8 遍呈现后追平、48 题对 1 题、knowing 与 remembering 同等受损）。这不是「我觉得不对」，而是「这里有数据」。</p>
+      <p><strong>它的论证强度不均匀：「破」远比「立」扎实。</strong>支撑：作者反复用「都依赖」「同等重要」来收尾，却没有给出一个能正面预测「哪种任务多依赖哪块结构、依赖多少」的模型。相比之下，他引用的嗅周 vs TE 那个真双重分离（66.4% vs 56.6% vs 50.2%）干净得多——这恰反衬出海马内部分工的图景仍是模糊的。这是综述的诚实，也是其局限。</p>
+      <p><strong>跨物种交叉是它的护城河，但也埋着未解的裂缝。</strong>支撑：三物种互证让「MTL 主司记忆而非知觉、主司存储而非提取」非常稳。但同样是这套方法，暴露了鼠-人在远期空间记忆上的正面冲突（鼠水迷宫受损 vs 人 E.P. 完好），作者只能列举可能性而无法裁决——说明「跨物种一致」在某些维度上还是个假设而非已证事实。</p>
+      <p><strong>立场克制、对反方公平，提升了可信度。</strong>支撑：作者主动澄清自己<strong>不</strong>持「MTL 是均质单元」立场，逐条回应 Gaffan、Murray & Bussey 的替代解释，并多次承认方法局限（fMRI 只给相关、基线陷阱、remember/know 主观）。一篇愿意把对手最好的论点摆上台再回应的综述，比单方面宣告胜利的更可信。</p>
+      <p><strong>时代局限需读者自行折算（解读者观点）。</strong>本文 2004 年成稿，文末已预告「再巩固」（reconsolidation）与齿状回神经发生两大新议题尚未纳入。今天看，海马亚区与记忆精度、模式分离/补全等更细的功能解剖已有大量进展——本文的「反二分法」结论依然站得住，但「那到底是什么分工」的空缺，部分已被后续工作填补。读它要当「奠基与清场」之作，而非终点。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>内侧颞叶是一套为「有意识地记住事实与事件」专门服务、并与新皮层协作再逐步交棒（逆行遗忘时程约：动物 30 天 / 人类数年）的<strong>陈述性记忆系统</strong>；而 Squire 等用跨人猴鼠三类证据郑重地告诉我们：<strong>海马与毗邻皮层之间那三对漂亮的分工——情景/语义、联想/单项、回忆/熟悉感——一个都不成立。记忆不是单一系统，但它内部的边界，也远没有我们希望的那么整齐。</strong></p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Squire, L. R., Stark, C. E. L., &amp; Clark, R. E. (2004). The Medial Temporal Lobe. <em>Annual Review of Neuroscience</em>, 27, 279–306.
+    <br>本页为基于原文的中文深度解读；所有数字与论断均取自原文，类比与评价部分已标注为解读者观点。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+/* ============================================================
+   交互组件：记忆系统分类树
+   纯原生 JS + DOM，无任何外部依赖。
+   点选类别 -> 右侧详情区显示「依赖脑区 / 典型任务 / 与 MTL 关系」。
+   ============================================================ */
+(function(){
+  var RED = "#c0392b", REDSOFT = "#fdecea", LINE = "#e6e8eb", INK = "#1f2328";
+
+  // 分类树数据。mtl=true 表示该类依赖内侧颞叶。
+  var DATA = {
+    name: "记忆（Long-term Memory）",
+    children: [
+      {
+        name: "陈述性记忆\n(declarative)",
+        mtl: true,
+        region: "内侧颞叶（MTL）+ 新皮层",
+        task: "回忆刚学过的事实、复述昨天发生的事、再认见过的人脸",
+        rel: "本文主角。能「说出来」的有意识记忆，正是 MTL 系统的职责。",
+        children: [
+          {
+            name: "情景记忆\n(episodic)",
+            mtl: true,
+            region: "海马区为核心，与新皮层协作",
+            task: "回忆「去年生日那天在哪、和谁、发生了什么」这类带时空与亲历感的具体事件",
+            rel: "依赖 MTL。流行假说曾以为只有它靠海马——本文证明语义记忆同样靠海马。"
+          },
+          {
+            name: "语义记忆\n(semantic)",
+            mtl: true,
+            region: "海马区（习得阶段）→ 逐步交棒给新皮层",
+            task: "回答「水的化学式」「法国首都」这类剥离了情境的纯事实",
+            rel: "依赖 MTL。Manns(2003b)：仅海马损伤的病人，对发病后新闻的语义知识也明显受损，且非情景受损的副产品。"
+          }
+        ]
+      },
+      {
+        name: "非陈述性记忆\n(nondeclarative)",
+        mtl: false,
+        region: "纹状体 / 小脑 / 杏仁核等——不靠 MTL",
+        task: "通过「表现」而非「回忆」体现：会做、但说不出来",
+        rel: "陈述性记忆的对照组。MTL 损伤的病人（如 H.M.）这一大类大体完好。",
+        children: [
+          {
+            name: "程序记忆\n(技能与习惯)",
+            mtl: false,
+            region: "新纹状体（neostriatum）",
+            task: "镜像描图、骑车、习惯性反应；猴的图案辨别学习（视觉习惯形成）",
+            rel: "不靠 MTL。海马损伤病人骑车照样溜。猴的图案辨别走「下颞叶—纹状体」通路，不模拟人类失忆。"
+          },
+          {
+            name: "启动效应\n(priming)",
+            mtl: false,
+            region: "新皮层（感知—表征系统）",
+            task: "之前见过某词，之后更快/更易补全或识别它，却不记得见过",
+            rel: "不靠 MTL。E.P. 学三词句的「学会」，本质更接近这种知觉学习——僵硬、不可有意识调用。"
+          },
+          {
+            name: "经典条件化\n(simple conditioning)",
+            mtl: false,
+            region: "小脑（如眨眼条件反射）/ 杏仁核（恐惧）",
+            task: "兔/人的延迟眨眼条件反射；恐惧条件化",
+            rel: "不靠 MTL。关键反例：海马活动随条件反射强烈增长还能预测行为，但海马损伤对它毫无影响——活动≠必要。"
+          },
+          {
+            name: "非联想学习\n(nonassociative)",
+            mtl: false,
+            region: "反射通路本身",
+            task: "习惯化、敏感化：对反复刺激反应渐弱或渐强",
+            rel: "不靠 MTL。最基础的一类记忆，连皮层都大多不需要。"
+          }
+        ]
+      }
+    ]
+  };
+
+  var root = document.getElementById("tree-root");
+  var detail = document.getElementById("tree-detail");
+  var highlightMTL = false;
+  var selectedEl = null;
+
+  function makeNode(node, depth){
+    var wrap = document.createElement("div");
+    wrap.style.margin = "0";
+
+    var box = document.createElement("div");
+    box.textContent = node.name;
+    box.style.whiteSpace = "pre-line";
+    box.style.textAlign = "center";
+    box.style.padding = depth === 0 ? "10px 14px" : "8px 12px";
+    box.style.margin = "0 auto";
+    box.style.borderRadius = "7px";
+    box.style.cursor = node.region ? "pointer" : "default";
+    box.style.fontSize = depth === 0 ? "0.96rem" : "0.88rem";
+    box.style.fontWeight = depth === 0 ? "800" : (depth === 1 ? "700" : "600");
+    box.style.lineHeight = "1.35";
+    box.style.transition = "all .15s ease";
+    box.style.maxWidth = depth === 0 ? "320px" : "230px";
+    box.style.border = "2px solid " + RED;
+
+    // 配色：depth0 红底白字；其余白底，叶子按 mtl 着色边
+    if(depth === 0){
+      box.style.background = RED; box.style.color = "#fff";
+    } else if(depth === 1){
+      box.style.background = REDSOFT; box.style.color = INK;
+    } else {
+      box.style.background = "#fff"; box.style.color = INK;
+      box.style.borderColor = node.mtl ? RED : "#b9c0c9";
+      box.style.borderStyle = node.mtl ? "solid" : "dashed";
+    }
+    box.style.boxShadow = "0 1px 2px rgba(0,0,0,0.05)";
+
+    function applyHighlight(){
+      // MTL 高亮模式：靠 MTL 的更醒目，不靠的变灰
+      if(highlightMTL && depth > 0){
+        if(node.mtl){
+          box.style.outline = "3px solid " + RED;
+          box.style.outlineOffset = "1px";
+          box.style.opacity = "1";
+        } else {
+          box.style.outline = "none";
+          box.style.opacity = "0.42";
+        }
+      } else {
+        box.style.outline = "none";
+        box.style.opacity = "1";
+      }
+    }
+    box._applyHighlight = applyHighlight;
+    applyHighlight();
+
+    if(node.region){
+      box.addEventListener("mouseenter", function(){
+        if(box !== selectedEl){ box.style.transform = "translateY(-1px)"; box.style.boxShadow = "0 3px 8px rgba(192,57,43,0.2)"; }
+      });
+      box.addEventListener("mouseleave", function(){
+        if(box !== selectedEl){ box.style.transform = "none"; box.style.boxShadow = "0 1px 2px rgba(0,0,0,0.05)"; }
+      });
+      box.addEventListener("click", function(){
+        if(selectedEl){ selectedEl.style.boxShadow = "0 1px 2px rgba(0,0,0,0.05)"; selectedEl.style.transform = "none"; selectedEl.style.filter = "none"; }
+        selectedEl = box;
+        box.style.transform = "translateY(-1px)";
+        box.style.boxShadow = "0 4px 12px rgba(192,57,43,0.35)";
+        box.style.filter = "saturate(1.2)";
+        showDetail(node);
+      });
+    }
+
+    wrap.appendChild(box);
+
+    if(node.children && node.children.length){
+      // 竖直连接线
+      var connector = document.createElement("div");
+      connector.style.width = "2px";
+      connector.style.height = "16px";
+      connector.style.background = RED;
+      connector.style.margin = "0 auto";
+      wrap.appendChild(connector);
+
+      var kids = document.createElement("div");
+      kids.style.display = "flex";
+      kids.style.flexWrap = "wrap";
+      kids.style.justifyContent = "center";
+      kids.style.gap = "12px";
+      kids.style.alignItems = "flex-start";
+      node.children.forEach(function(c){
+        var cell = makeNode(c, depth + 1);
+        cell.style.flex = "1 1 200px";
+        cell.style.minWidth = "170px";
+        cell.style.maxWidth = "260px";
+        kids.appendChild(cell);
+      });
+      wrap.appendChild(kids);
+    }
+    return wrap;
+  }
+
+  function showDetail(node){
+    var mtlTag = node.mtl
+      ? '<span style="display:inline-block;background:'+RED+';color:#fff;font-size:0.72rem;padding:1px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;">依赖内侧颞叶</span>'
+      : '<span style="display:inline-block;background:#eceff2;color:#586070;font-size:0.72rem;padding:1px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;">不依赖内侧颞叶</span>';
+    var title = node.name.replace(/\n/g, " ");
+    detail.innerHTML =
+      '<div style="font-weight:800;color:'+INK+';font-size:1.05rem;margin-bottom:8px;">'+title+mtlTag+'</div>' +
+      '<div style="margin-bottom:5px;"><strong style="color:'+RED+';">依赖脑区：</strong>'+node.region+'</div>' +
+      '<div style="margin-bottom:5px;"><strong style="color:'+RED+';">典型任务：</strong>'+node.task+'</div>' +
+      '<div><strong style="color:'+RED+';">与 MTL 的关系：</strong>'+node.rel+'</div>';
+  }
+
+  function render(){
+    root.innerHTML = "";
+    root.appendChild(makeNode(DATA, 0));
+  }
+
+  function refreshHighlights(el){
+    // 递归触发所有 box 的高亮刷新
+    if(el && el._applyHighlight) el._applyHighlight();
+    if(el && el.childNodes){
+      for(var i=0;i<el.childNodes.length;i++) refreshHighlights(el.childNodes[i]);
+    }
+  }
+
+  document.getElementById("tree-reset").addEventListener("click", function(){
+    highlightMTL = false;
+    selectedEl = null;
+    render();
+    detail.innerHTML = '<em style="color:#6b7280;">↑ 点击树上任意一个方块，这里显示它的「依赖脑区 / 典型任务 / 与 MTL 的关系」。</em>';
+  });
+
+  document.getElementById("tree-mtl").addEventListener("click", function(){
+    highlightMTL = !highlightMTL;
+    this.textContent = highlightMTL ? "取消高亮" : "高亮：哪些靠内侧颞叶？";
+    refreshHighlights(root);
+    if(highlightMTL){
+      detail.innerHTML = '<div style="color:'+INK+';"><strong style="color:'+RED+';">实线红框 = 依赖内侧颞叶</strong>（陈述性记忆这一整支：情景 + 语义）。<br>变灰虚线 = 不依赖 MTL（非陈述性那一整支：程序 / 启动 / 条件化 / 非联想——各有别的脑系统负责）。<br>这就是「海马损伤病人骑车照样溜、却记不住刚见过的人」的全部秘密：受损的只是这棵树的<strong>一</strong>支。</div>';
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

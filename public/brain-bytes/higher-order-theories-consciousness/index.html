@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>意识的高阶理论 · 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Higher-Order Theory <span>×</span> 一个状态要"被你知道在其中"，才算有意识</h1>
+    <div class="meta">
+      <span>📄 Empirical support for higher-order theories of conscious awareness（意识觉知的高阶理论的经验支持）</span><br>
+      <span>✍️ Hakwan Lau（刘晓欢）&amp; David Rosenthal</span><br>
+      <span>🏛️ 哥伦比亚大学心理学系 · 内梅亨 Donders 研究所 · 纽约市立大学研究生中心哲学与认知科学</span><br>
+      <span>📅 Trends in Cognitive Sciences（认知科学趋势）· 2011 年 · 第 15 卷第 8 期 · 第 365–373 页</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-question">核心问题：意识藏在哪一层</a></li>
+        <li><a href="#sec-findings">核心证据</a></li>
+        <li><a href="#sec-viz">交互：表现与觉知的解离</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与三大对手理论的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>意识研究里有一个看似纯哲学、实则可被脑科学检验的问题：<strong>一个心理状态凭什么变成"有意识的"？</strong>高阶理论给出一个反直觉的回答——光是大脑里有"看到红色"的表征还不够，你还得有一个<strong>关于"我正在看到红色"</strong>的更高一层表征，这个状态才真正进入意识。这篇文章的价值不在提出新理论（高阶理论可追溯到 Locke 和 Kant），而在于它把一套原本被讥为"不可证伪的形而上学"的主张，逐条对接到了具体的脑科学数据上。</p>
+        <p>它最聪明的一招是：<strong>只挑那些"客观任务表现一样、但主观觉知不一样"的实验</strong>。因为只有在表现被卡死、觉知却变了的情况下，才能把"意识"从"能不能完成任务"里干净地剥离出来——而这恰好是区分高阶理论与它三个主要对手（全局工作空间、信息整合、一阶理论）的关键战场。读完你会对"意识能不能被实验抓住"这件事有一套可操作的判据。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇综述横跨哲学、信号检测论与认知神经科学，术语密度很高。先把最吃重的几个概念用人话讲清楚，后文不再解释。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">高阶理论（HOT，Higher-Order Theory）</div>
+          <div class="cdesc">本文主角。主张：一个心理状态成为有意识的，当且仅当存在一个<strong>关于它</strong>的更高一层表征。类比：你脑子里"装着"一张照片不算有意识地看到它，得有一个"我注意到自己手里拿着这张照片"的念头，照片的内容才真正"亮"进意识。最常被讨论的版本是<strong>高阶思想理论</strong>（HOT，Higher-Order Thought theory，刚好同缩写）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">高阶表征（HOR，Higher-Order Representation）</div>
+          <div class="cdesc">那个"关于状态的状态"的统称。它不是关于外部世界（那是一阶的），而是关于<strong>自己正处于某个一阶状态</strong>。本文假定它主要依赖前额叶（与顶叶）皮层的活动。可以想成大脑给自己的内部状态贴的一张"我现在处于 X 状态"的标签。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">一阶理论（First-Order Theories）</div>
+          <div class="cdesc">主要对手。主张意识完全由早期感觉活动本身决定，跟有没有"关于它"的高阶表征无关。Ned Block 等也被归入此阵营——他们认为意识的"质"取决于感觉表征的生物基质，或取决于视觉皮层外侧区（extrastriate）的活动、或对初级视皮层的反馈。一句话：在他们看来"看到红"这件事本身就够了，不需要再被知道。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">任务表现 vs 觉知（Task Performance vs Awareness）</div>
+          <div class="cdesc">全文的实验杠杆。<strong>任务表现</strong>=在辨别任务上做得多准（用正确率，或信号检测论的 d′ 衡量）；<strong>主观觉知</strong>=被试报告自己"看见了/确实意识到了"的程度。高阶理论预言这两者能<strong>解离</strong>：表现一样好，觉知却可以不同。这正是把"意识"从"能力"里抠出来的手术刀。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">元认知（Metacognition，元认知）</div>
+          <div class="cdesc">"对认知的认知"——本文特指<strong>感觉元认知</strong>：你对自己一次知觉判断有多靠谱的把握。实验上常用"信心评分与对错的吻合程度"来量化：你越能把答对的标高信心、答错的标低信心，元认知能力越强。它和高阶表征是近亲，但本文强调二者并不完全等同。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">敏感度 d′（d-prime，辨别敏感度）</div>
+          <div class="cdesc">信号检测论（Signal Detection Theory）里衡量"真本事"的指标：把信号从噪声里分辨出来的能力，约等于底层信噪比的估计，<strong>不受答题偏好影响</strong>。它和"正确率"配合，用来确认两个条件下的客观表现是否真的被卡到一样——这是"匹配表现"实验成立的前提。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">背外侧前额叶 DLPFC（Dorsolateral Prefrontal Cortex）</div>
+          <div class="cdesc">高阶表征被认为最依赖的脑区之一，对应 Brodmann 第 46 与 9 区。多项视觉觉知研究在此发现活动，且在任务表现被控制住后活动依然随觉知变化。可以粗略想成大脑里负责"评估与监控自己当前知觉状态"的中央调度区。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">额极区 FPR（Frontal Polar Region）</div>
+          <div class="cdesc">前额叶最前端，对应 Brodmann 第 10 区。与知觉决策、感觉元认知能力的个体差异有关；本文引用的一例患者（该区受损）出现了知觉辨别普遍受损、而<strong>对主观报告的影响更突出</strong>的模式——是"前额叶损伤影响视觉感知"的关键证据。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">盲视（Blindsight，盲视）</div>
+          <div class="cdesc">因初级视皮层（V1）损伤而"看不见"的患者，却能在猜测中以<strong>高于随机水平</strong>完成视觉辨别。表面看像是"表现好但无觉知"的天然样本，一阶理论曾拿它当证据；本文要论证它其实更支持高阶理论。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">三大对手理论</div>
+          <div class="cdesc">本文要击败的三家：<strong>全局工作空间理论</strong>（GWT，Global Workspace Theory）——意识=信息被广播进前额-顶叶的全局网络；<strong>信息整合理论</strong>（IIT，Information Integration Theory）——意识=一个"核心"系统能整合的信息量；以及上面的<strong>一阶理论</strong>。前两家也预测前额叶活动，所以光看"前额叶亮了"分不出谁对，必须靠"匹配表现"的实验。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-question">核心问题：意识藏在哪一层</div>
+
+      <p>把问题压到最干净的形式：当你有意识地看到一张脸，这份"有意识"是由<strong>"看到脸"这个表征本身</strong>给的，还是由<strong>一个"我正看到脸"的更高层表征</strong>给的？</p>
+
+      <p>一阶理论选前者：看到脸的经验，就由对脸的那个表征决定，到此为止。高阶理论选后者，并给出一个关键的转译，把哲学命题接进脑科学——它假定<span class="term">一阶感觉表征主要依赖早期感觉皮层的神经活动，而高阶表征主要依赖前额叶（与顶叶）皮层的活动</span>。这个解剖学落点不是高阶理论的逻辑必需，但被包括一阶理论家在内的许多作者接受，本文据此展开。</p>
+
+      <p>于是哲学之争被翻译成一个可观测的对立：<strong>"意识觉知是否至少部分由前额叶与顶叶活动决定？"</strong>——一阶理论说不，高阶理论说是。下表是高阶阵营内部的六个变体，它们机制各异，但共享同一条底线：<strong>仅靠一阶表征不足以产生意识，必须有高阶表征的某种参与。</strong></p>
+
+      <table>
+        <thead>
+          <tr><th>高阶变体（原文 Table 1）</th><th>核心高阶机制</th><th>觉知如何产生</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>高阶思想理论<br>(HOT, Higher-Order Thought)</td><td>一个"思想样"的心理状态（注意：这个高阶状态本身通常不是有意识的）</td><td>当一个"思想样"的高阶表征使你意识到某个一阶表征时</td></tr>
+          <tr><td>高阶知觉理论<br>(Higher-Order Perception)</td><td>一个"知觉样"的心理状态</td><td>当一个"知觉样"的高阶状态"感知"到某个一阶表征时</td></tr>
+          <tr><td>同阶理论<br>(Same-Order Theory)</td><td>一个指向自身的状态</td><td>当一个带知觉内容的状态同时表征自身时</td></tr>
+          <tr><td>倾向性高阶思想理论<br>(Dispositional HOT)</td><td>一个"拥有高阶思想"的倾向</td><td>当一个一阶表征变得"倾向于"被高阶思想样状态表征时</td></tr>
+          <tr><td>高阶统计推断观<br>(Higher-Order Statistical Inference)</td><td>一种类似知觉决策的认知过程</td><td>当一阶表征被高阶决策过程"判定"为构成统计上可靠的知觉信号时（注意：高阶过程激活弱也可能做出错误判定，如虚报）</td></tr>
+          <tr><td>激进可塑性论<br>(Radical Plasticity Thesis)</td><td>一个基于学习的"表征再描述"过程</td><td>当高阶过程"学到"某个一阶表征可靠存在时；因学习产物是思想样表征，故近似高阶思想理论</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-block">
+        <span class="ib-title">为什么这套理论以前被人嫌弃</span>
+        <p>批评者认为高阶理论是"不可证伪的形而上学"——你怎么从外部测到一个"关于状态的状态"？本文的整篇用力，就是回应这一点：它不直接去测高阶表征，而是去找<strong>它独有的可观测后果</strong>（觉知与表现可解离、且觉知绑定前额叶），用反证法把对手逐个排除。</p>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心证据</div>
+      <p>本文的证据策略高度统一：<strong>凡是"任务表现被匹配、主观觉知却不同"的案例，都最能区分高阶理论与对手</strong>。下面按从实验室到临床、由强到弱整理六组证据。</p>
+
+      <div class="section-head-sub">证据一：表现匹配，觉知却随背外侧前额叶活动变化</div>
+      <p>Lau 与 Passingham（2006，文献[35]）用视觉掩蔽（visual masking）制造出两种条件：被试辨别两个图形的能力（客观表现）<strong>被调到一样</strong>，但被试报告自己"有意识看到"图形身份的频率（即更少靠猜）在一种条件下明显更高。这个更高的觉知水平，伴随<span class="term">背外侧前额叶（DLPFC）</span>的活动。</p>
+      <p>这就直接戳中全局工作空间理论：后者认为前额叶活动既反映意识觉知、<strong>也</strong>反映更强的任务表现能力；可这里表现被卡死了，前额叶活动却仍随觉知走——指向高阶理论而非全局工作空间。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>关键不在某个 p 值，而在实验设计的"卡点"：两条件的<strong>辨别敏感度 d′（或正确率）被统计上匹配到无差异</strong>，唯一系统性变化的是"报告看见"的比例与前额叶血氧水平依赖信号（BOLD，Blood-Oxygen-Level-Dependent，功能磁共振成像所测的脑活动代理指标）。当自变量只剩"觉知"时，前额叶随之变动，因果矛头才指得干净。</p>
+      </div>
+
+      <div class="section-head-sub">证据二（最有分量）：经颅磁刺激背外侧前额叶，砍掉觉知却不动表现</div>
+      <p>Rounis 等（2010，文献[36]）用<span class="term">经颅磁刺激（TMS，Transcranial Magnetic Stimulation）</span>的 theta 爆发式刺激打到双侧背外侧前额叶，结果：被试的<strong>主观视觉觉知报告下降、元认知能力受损，而任务表现不受影响</strong>。</p>
+      <p>本文把这条列为最难反驳的证据，理由有二。其一，对手常说"前额叶活动其实反映的是注意或通达，不是觉知本身"——但 TMS 直接外部干预了前额叶，<strong>任务表现没变，说明被操纵的不是注意</strong>（若动的是注意，表现应一起变）。其二，它同时压低觉知报告与元认知，正是高阶表征受损该有的样子。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么"表现不变"这么关键</span>
+        <p>注意若被削弱，通常会拖累任务表现；TMS 在<strong>表现纹丝不动</strong>的前提下单独压低了主观觉知与元认知——这把"前额叶=注意/通达"的解释挡在门外，留下"前额叶=高阶觉知机制"作为更省力的解释。</p>
+      </div>
+
+      <div class="section-head-sub">证据三：盲视——一阶理论的"主场"其实更挺高阶理论</div>
+      <p><span class="term">盲视（blindsight）</span>患者因 V1 损伤而无视觉觉知，却能在高于随机水平上完成辨别，看起来像"一阶受损也能保留表现"的反例。但本文反转了这个叙事：</p>
+      <ul>
+        <li>对一个脑区的损伤常有<strong>远隔效应</strong>。已有研究显示，即便把任务表现控制住，盲视中觉知的缺失仍伴随<strong>前额叶活动的降低</strong>（Del Cul 等，文献[68]）。</li>
+        <li>一个计算模型（文献[9]）能把盲视解释为：早期病变通过影响<strong>高阶表征</strong>而导致觉知丧失，而非简单的一阶信号缺失。</li>
+      </ul>
+      <p>换句话说，"看不见但能猜对"恰恰是"一阶信号还在、高阶表征被切断"的画面，与高阶理论完全相容。</p>
+
+      <div class="section-head-sub">证据四：破除"前额叶损伤不影响视觉感知"的迷思（原文 Box 2）</div>
+      <p>反对者长期主张：与初级视皮层损伤不同，前额叶损伤不会废除视觉觉知，所以意识无关前额叶。本文用临床证据正面回应：</p>
+      <ul>
+        <li>额极区（<span class="term">FPR，Frontal Polar Region</span>，Brodmann 第 10 区）受损的患者，视觉辨别表现在不同程度的注意线索下<strong>一致受损</strong>，而且对<strong>主观报告的影响比对任务表现的影响更突出</strong>（文献[90]）。</li>
+        <li>Knight 等检验过一例外侧前额叶大面积双侧损伤的患者：对外界刺激<strong>普遍无反应，仿佛意识觉知被完全废除</strong>；即便单侧损伤，在需要双侧视野同时监控的任务下视觉表现也受损（文献[86,88]）。</li>
+        <li>对前额叶通常是<strong>单侧</strong>损伤这一点，本文给出方法论辩护：未受损半球可动态"接管"，所以前额叶损伤的可见效应常被低估——这解释了为何"前额叶损伤无碍视觉"的印象会产生。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">一个反复出现的模式</span>
+        <p>多条临床与刺激证据共享同一签名：<strong>对主观报告的扰动，比对任务表现的扰动更明显</strong>。本文认为这恰恰是高阶理论的预言——因为主观报告比任务表现更直接地测量了意识觉知，所以扰动高阶机制时，先动的是报告而不是能力。</p>
+      </div>
+
+      <div class="section-head-sub">证据五：注意之外的觉知"通胀"与"现象学溢出"（原文 Figure 2 / Box）</div>
+      <p>人对<strong>未被注意/周边视野</strong>里的东西，常常<strong>高估</strong>自己看清了多少——周边视觉其实空间分辨率低、对颜色不敏感，但我们主观上觉得周边世界细节丰富、色彩俱全。本文把这解释为高阶系统的<strong>自上而下"填补"（top-down filling-in）</strong>：在缺乏注意时，高阶系统可能把嘈杂的早期输入误判为可靠信号，于是给出更多虚报、更高信心——这正是"高阶统计推断观"会预测的。</p>
+      <p>这同时回应了 Block 提出的<strong>现象学溢出</strong>难题（基于 Sperling 1960 的部分报告实验，文献[100]）：经典 Sperling 范式里，被试看到 12 个字母的阵列，被提示某一行时能报出该行 4 个字母、却报不全 12 个，似乎说明"意识到的多于能报告的"。本文的反驳是：被试"觉得"自己看清了全部 12 个字母，但因为对任一具体字母投入的注意很少，这种"看清全部"的感觉本身可能就是上面那种<strong>主观通胀</strong>，而非真有 12 个字母进了意识。</p>
+
+      <div class="section-head-sub">证据六：元认知与觉知会解离——但这不打脸高阶理论</div>
+      <p>有研究发现，在某些情况下被试报告"没看到"目标，却仍能展现<strong>感觉元认知</strong>（文献[64]），看似说明元认知与觉知可分离、从而反对高阶理论。本文的回应很精巧：高阶表征既可以是"我正在知觉到 X"，<strong>也可以是"我正在'没有知觉到'X"</strong>——后者同样是一个关于自身一阶状态的高阶表征，正好能解释"报告没看见、却仍有元认知判断"的情形。所以元认知与觉知的解离，与"意识需要某种特定的高阶表征"并不冲突。</p>
+
+      <div class="section-head" id="sec-viz">交互：表现与觉知的解离</div>
+      <p>本文所有"硬证据"共享同一形状：<strong>客观任务表现保持高且稳定，主观觉知却被单独压低或抬高。</strong>下面这个交互让你亲手制造这种解离——切换三种被本文讨论的情境，看"能力条"与"觉知条"如何分家；并拖动"高阶判定门槛"，体会为什么"看清周边"的主观感受可能只是高阶系统的虚报。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">交互演示：一阶表现 vs 高阶觉知，如何被拆开</div>
+        <div class="viz-note">模拟数据基于论文报告的定性模式（表现匹配 / 觉知与元认知随前额叶机制变动），仅展示定性趋势，非原始测量值。d′＝辨别敏感度，HR（命中率，Hit Rate），FA（虚报率，False Alarm rate）。</div>
+        <div class="viz-controls">
+          <button id="btnNormal">正常知觉</button>
+          <button class="alt" id="btnBlind">盲视（V1 损伤）</button>
+          <button class="alt" id="btnTMS">背外侧前额叶 TMS</button>
+        </div>
+        <div class="viz-controls">
+          <label>高阶"判定看见"的门槛（criterion）：<span id="critVal">中</span></label>
+          <input type="range" id="crit" min="0" max="100" value="50" style="flex:1;min-width:160px;">
+        </div>
+        <canvas id="vizCanvas" width="760" height="340"></canvas>
+        <div class="viz-note" id="vizExplain" style="margin-top:14px;"></div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">怎么读这张图</span>
+        <p>左边一对柱是<strong>客观能力</strong>（辨别敏感度 d′ 与正确率），右边一对柱是<strong>主观侧</strong>（觉知报告比例与元认知吻合度）。在"盲视"与"前额叶 TMS"两档下你会看到：<strong>左边能力柱仍然挺立，右边主观柱却塌下去</strong>——这就是把意识从能力里剥离出来的那一刀。拖门槛会改变虚报率：门槛太松，未注意/周边的噪声被高阶系统当成"看见"，于是觉知报告虚高——对应"主观通胀"。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这是一篇综述，它的"方法"是<strong>一套筛选与比较证据的策略</strong>。把它的关键招式列出来：</p>
+
+      <table>
+        <thead>
+          <tr><th>招式</th><th>具体做法</th><th>挡住了哪种反驳</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>匹配任务表现</td><td>只采信"客观 d′／正确率被统计上卡到无差异，而主观觉知不同"的实验</td><td>挡住"觉知差只是因为信号差/能力差"，把意识与能力分离</td></tr>
+          <tr><td>对手预测对照（原文 Table 2）</td><td>把高阶、全局工作空间、信息整合、一阶四家在"是否预测前额叶活动""是否把觉知与任务表现绑定"等维度上列表对照</td><td>挡住"前额叶亮了就支持任意理论"——只有不绑定表现的高阶观能解释匹配-表现案例</td></tr>
+          <tr><td>因果干预优先</td><td>偏重 TMS 这类直接外部干预（而非仅相关的 fMRI 影像）</td><td>挡住"前额叶活动只是相关、反映注意/通达"</td></tr>
+          <tr><td>远隔效应辩护</td><td>对盲视、单侧前额叶损伤等，指出局部病变会经远隔效应波及高阶表征，且健侧可代偿</td><td>挡住"V1 损伤还能猜对＝支持一阶""前额叶损伤不影响视觉"</td></tr>
+          <tr><td>报告 vs 表现的敏感度差</td><td>强调主观报告比任务表现更直接测量觉知，故扰动高阶机制时报告先变</td><td>解释动物研究为何少见此类证据（动物范式多依赖任务表现，难取主观报告）</td></tr>
+          <tr><td>层级模型胜过双通道（原文 Figure 1c）</td><td>引用直接比较的研究：把"一阶→高阶"的<strong>层级</strong>模型与"意识/无意识两条平行通道"的<strong>双通道</strong>模型对数据拟合，层级模型拟合更好（文献[38]）</td><td>挡住"觉知变化只是两条独立通道此消彼长"的替代解释</td></tr>
+        </tbody>
+      </table>
+
+      <p>这里还藏着一个微妙的方法论自觉，值得点出：本文区分了<strong>"前额叶活动反映觉知"</strong>与<strong>"任何前额叶活动都足以产生觉知"</strong>。它明确承认高阶表征大概只占前额叶活动的一小部分，所以它<strong>不</strong>预测"随便哪点前额叶活动都带来觉知"——这让该理论免于被"前额叶在很多无意识加工中也活跃"轻易证伪（属确认性立场，非事后辩护，原文 Table 2 已写明）。</p>
+
+      <div class="section-head" id="sec-relation">与三大对手理论的关系</div>
+      <p>本文的整个论证可以读成一场"淘汰赛"：用匹配-表现证据当擂台，看谁被打下去。下表是它和三家对手在关键预测上的对照（基于原文 Table 2）。</p>
+
+      <table>
+        <thead>
+          <tr><th>理论</th><th>预测前额叶/顶叶活动？</th><th>把觉知与任务表现能力绑定？</th><th>在"匹配表现"擂台上的处境</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>高阶观<br>(Higher-Order View)</td><td>是（但不认为"任意"前额叶活动就足够）</td><td>否</td><td>占优：表现卡死、觉知仍随前额叶变，正是它的预言</td></tr>
+          <tr><td>全局工作空间理论<br>(GWT, Global Workspace Theory)</td><td>是</td><td>是（还把觉知与高级认知功能如认知控制绑定）</td><td>受压：它认为前额叶活动也反映更强表现能力，难解释"表现不变而觉知变"</td></tr>
+          <tr><td>信息整合理论<br>(IIT, Information Integration Theory)</td><td>是（若认定相关活动反映"核心"系统）</td><td>否</td><td>未被本文当主要靶子；其"核心"系统尚未严格定位到具体解剖结构</td></tr>
+          <tr><td>一阶理论<br>(First-Order，含递归加工观 Recurrent)</td><td>否</td><td>是（虽非理论必然，但此派一般如此假定）</td><td>最被针对：它预测觉知由早期感觉活动独自决定，无法解释觉知绑定前额叶</td></tr>
+        </tbody>
+      </table>
+
+      <p>对全局工作空间理论，本文承认双方在"前额叶重要"上一致，分歧在于<strong>前额叶活动到底反映什么</strong>：全局工作空间说它同时反映觉知<strong>和</strong>更优表现能力，高阶观说它（其中一小部分）专门反映觉知本身。匹配-表现实验把后者顶上去了。</p>
+      <p>对信息整合理论，本文给的处理较温和：承认它是一个有前景的定量理论，并提出可调和的可能——也许高阶表征本身就是"核心"复合体的一部分，或某种机制让早期信息得以进入"核心"。这是把对手吸收进自己框架，而非硬碰。</p>
+      <p>在思想史坐标上：高阶理论起源于 Locke 与 Kant 的哲学传统，由 Rosenthal、Carruthers、Lycan 等在当代复兴；本文（尤其作者之一 Rosenthal）正与 Block 就"高阶进路是否已死"进行公开论战（见 2011 年 Analysis 上的几篇互呛，文献[17,18,19]）。这篇 TiCS 文章是高阶阵营把战线从哲学拉到神经科学的一次正式出击。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>给意识的"功能之问"松绑。</strong>因为意识觉知可以在所有一阶表征不变时改变，本文坦承<strong>觉知本身可能没什么即时功能</strong>——这反直觉，却与"无意识信息也能影响行为、辅助学习/动机/算术"等发现相容。它把"意识有什么用"从理论的承重墙降级为开放问题：高阶观对此<strong>保持中立</strong>，不预设觉知有用或无用。</li>
+        <li><strong>给临床精神病学一个统一视角。</strong>多种意识紊乱都有前额叶起源：精神分裂症涉及投射到前额叶的多巴胺系统紊乱并伴幻觉；帕金森病人用左旋多巴（Levodopa）后常出现视幻觉；癫痫术前直接电刺激前额叶皮层可诱发视幻觉。这些"前额叶活动→（哪怕是幻觉性的）意识内容"的案例，都与高阶观相容。</li>
+        <li><strong>给人工智能与意识判据一个操作问题。</strong>本文在结尾发问：若高阶观为真，<strong>什么样的造物拥有意识？</strong>没有前额叶的章鱼算吗？一个被同时写入了高阶与一阶机制的机器人算吗？这把"机器有没有意识"从玄学转成"它有没有那种关于自身状态的高阶表征"。</li>
+        <li><strong>给时间知觉研究指了一条路。</strong>本文判断"知觉发生时刻、时序判断"很可能依赖高阶机制（如注意导致的"先入优先"现象）；针对时序的实验或许最能揭示负责相关觉知的具体神经机制。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>本文末尾自列了一串开放问题（原文 Box 4），加上解读者注意到的张力，归纳如下：</p>
+      <ul>
+        <li><strong>"匹配表现"实验难做。</strong>这是全文的方法论命门：要把客观 d′ 精确卡到无差异、同时让觉知变化，实验上很难做到；本文坦言"最具决定性的证据才刚开始出现"，论证因此<strong>不是结论性的</strong>。</li>
+        <li><strong>前额叶的分工尚不清楚。</strong>额极区、背外侧前额叶、前扣带回（ACC，Anterior Cingulate Cortex）等在支持高阶表征上各扮演什么角色？还不知道。"前额叶"被当成一个略嫌粗糙的整体。</li>
+        <li><strong>质的归属难题（原文 Box 3，"现象学劳动分工"）。</strong>如果一阶表征是"绿"而高阶表征错表征成"红"，你究竟有意识地体验到哪种颜色？意识经验的"质"到底由前额叶活动、早期感觉活动、还是两者共同决定——这是个尚待直接实验回答的经验问题，不同高阶理论家给出的答案彼此冲突。</li>
+        <li><strong>周边视觉的细节是真是假，未定。</strong>我们对未注意区域那种"色彩与形状俱全"的体验，究竟是真的有意识地体验到了，还是只是事后的混淆/虚报？本文倾向后者，但承认这仍是开放问题。</li>
+        <li><strong>儿童与动物的尴尬。</strong>儿童与动物想必有意识，但其前额叶可能发育不全——本文只能退而主张：他们也许只有<strong>较"粗粒度"的觉知</strong>，且第三阶表征（自我指涉的反思）可能缺席。这是个需要打补丁才能自洽的边界。</li>
+        <li><strong>快速眼动睡眠的反例隐患。</strong>快速眼动睡眠（REM，Rapid Eye Movement）期据称前额叶活动很低，我们却在其中做梦。这看似与"高阶觉知需要更高前额叶活动"冲突；本文把它列为待解，并留了个口子——也许梦境并非真有意识体验，只是醒后被我们误以为有。</li>
+        <li><strong>解剖学落点是借来的前提。</strong>"一阶＝早期感觉皮层、高阶＝前额叶"这一映射并非高阶理论的逻辑必需，而是一个被广泛接受、但仍可被未来神经科学推翻的工作假设；全文论证的力度系于此前提的成立。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下为解读者评价，每条尽量对应文中证据。</p>
+      <ul>
+        <li><strong>最大贡献：把"不可证伪"的指控正面化解。</strong>本文成功展示了高阶理论<strong>可被检验</strong>——它给出了独有的可观测后果（觉知与表现可解离、觉知绑定前额叶），并组织起一批支持证据。就"让一个哲学立场进入实验议程"而言，目标达成。【依据：全文围绕匹配-表现案例与 Table 2 的对手对照组织。】</li>
+        <li><strong>最硬的一块砖是 Rounis 等的 TMS。</strong>在所有证据里，唯有它是<strong>因果干预 + 表现不变 + 觉知与元认知同降</strong>三者齐备，最能挡住"前额叶=注意/通达"的解释。其余多为相关证据或临床个案。本文把它放在中心位置是合理的。【依据：证据二；本文亦称之为最难反驳。】</li>
+        <li><strong>论证形状是"排除法"而非"正面坐实"。</strong>本文几乎从不直接测量高阶表征，而是反复排除对手的替代解释（注意、通达、双通道、远隔效应误读）。这在逻辑上稳健，但也意味着<strong>结论强度受限于"对手是否真被穷尽"</strong>——只要还有未被考虑的一阶变体或第三种机制，淘汰就不彻底。【依据：方法论表中六招全是"挡住某种反驳"。】</li>
+        <li><strong>对反例的处理有"可证伪性打折"的隐忧。</strong>面对元认知-觉知解离、REM 做梦、儿童/动物等潜在反例，本文都能用"高阶表征也可以是'没知觉到'""也许那不是真意识""也许只是粗粒度觉知"来吸收。这些回应单看都成立，但合起来让人担心：理论是否变得<strong>难以被任何观测推翻</strong>？这与它"可检验"的卖点构成内在张力。【依据：证据六、边界章 REM/儿童两条。】</li>
+        <li><strong>诚实度高，不掩盖软肋。</strong>作者明确承认匹配-表现实验难做、决定性证据才刚出现、质的归属是未决经验问题、觉知可能无功能。这种把自家命门摆上台面的写法，提升了可信度。【依据：结语与 Box 3、Box 4。】</li>
+        <li><strong>对信息整合理论的处理偏软。</strong>对一阶与全局工作空间是正面交锋，对信息整合理论却选择"或许可调和"，并未给出能区分两者的判决性实验。这使"淘汰赛"在这一格留了空位，结论的覆盖面打了折扣。【依据：与已有研究关系章；Table 2 中信息整合理论的处境描述较含糊。】</li>
+        <li><strong>整体定位：一篇有说服力的"议程设定"文，而非"盖棺定论"文。</strong>它该被读作"高阶理论值得也能够被实验认真对待，且现有证据偏向支持它"，而不是"高阶理论已被证实"。本文自己的结语正是这个分寸。【依据：结语"我们的论证因此不是结论性的……希望前面的讨论令人信服地表明，在一种立场良好的神经实现观下，高阶观得到现有经验证据支持"。】</li>
+      </ul>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Lau 与 Rosenthal 把"一个状态要有意识、就得被一个关于它的<strong>高阶表征</strong>所知道"这一哲学命题，翻译成可检验的脑科学预言——<strong>意识觉知至少部分由前额叶活动决定，且能在客观任务表现被匹配时被单独改变</strong>——并以背外侧前额叶（DLPFC）经颅磁刺激"砍觉知不动表现"、盲视、额极区损伤、主观通胀等一系列匹配-表现证据，把一阶、全局工作空间等对手逐个排除，给原本被讥为"不可证伪"的高阶理论赢得了实质性的经验可信度；但作者也坦承匹配-表现实验难做、决定性证据才刚出现，这是一份有力的"议程设定"，而非"盖棺定论"。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Lau, H. &amp; Rosenthal, D. (2011). Empirical support for higher-order theories of conscious awareness. <em>Trends in Cognitive Sciences, 15</em>(8), 365–373. doi:10.1016/j.tics.2011.05.009<br>
+    <strong>说明：</strong>本页为该论文的中文深度解读，交互组件为基于论文报告之定性模式的示意模拟（非原始数据），仅供建立直觉之用。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('vizCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 三种情境的"底子"：客观能力 [dprime0-1, acc0-1]，主观底子 [awareBase0-1, metaBase0-1]
+  // 设计意图：盲视/TMS 保住客观能力，砍掉主观侧——演示解离
+  var scenarios = {
+    normal: { name:'正常知觉', dprime:0.86, acc:0.86, awareBase:0.84, metaBase:0.80,
+      desc:'客观能力强，主观觉知与元认知也高——能力与觉知此时一致，看不出解离。' },
+    blind:  { name:'盲视（V1 损伤）', dprime:0.72, acc:0.70, awareBase:0.10, metaBase:0.22,
+      desc:'辨别仍高于随机水平（能力柱挺立），但主观觉知几乎归零——经典的"能猜对却看不见"。本文认为这反映高阶表征被早期病变远隔切断，而非一阶信号本身消失。' },
+    tms:    { name:'背外侧前额叶 TMS', dprime:0.84, acc:0.84, awareBase:0.40, metaBase:0.34,
+      desc:'经颅磁刺激打到背外侧前额叶：任务表现几乎不变（能力柱不动），主观觉知报告与元认知双双下降——最难用"注意/通达"解释，是本文最有分量的证据。' }
+  };
+
+  var cur = 'normal';
+  var crit = 0.5; // 0=门槛松（易报"看见"，虚报多），1=门槛严
+
+  function lerp(a,b,t){ return a+(b-a)*t; }
+
+  function compute(){
+    var s = scenarios[cur];
+    // 门槛影响"主观觉知报告比例"：门槛越松，越倾向报告看见（虚报抬升觉知报告）；
+    // 但元认知（对错吻合度）在门槛过松或过严时都变差，中等门槛最佳。
+    var looseness = 1 - crit; // 0..1, 越大越松
+    // 觉知报告 = 底子 + 松门槛带来的虚高（被噪声"通胀"）
+    var aware = s.awareBase + (looseness - 0.5) * 0.5 * (1 - s.awareBase*0.3);
+    aware = Math.max(0.02, Math.min(0.99, aware));
+    // 元认知：以最佳门槛 0.5 为顶点的倒 U
+    var metaPenalty = Math.abs(crit - 0.5) * 1.1;
+    var meta = Math.max(0.02, s.metaBase * (1 - metaPenalty));
+    // 虚报率 FA：门槛越松越高
+    var fa = Math.max(0.02, Math.min(0.6, looseness * 0.55));
+    // 命中率 HR：与 d' 和门槛有关，门槛松命中也高
+    var hr = Math.max(0.05, Math.min(0.99, 0.5 + s.dprime*0.45 + (looseness-0.5)*0.2));
+    return { dprime:s.dprime, acc:s.acc, aware:aware, meta:meta, fa:fa, hr:hr };
+  }
+
+  function bar(x, w, val, label, sub, color){
+    var baseY = H - 70;
+    var maxH = 200;
+    var h = val * maxH;
+    // 轨道
+    ctx.fillStyle = '#f0f0f2';
+    ctx.fillRect(x, baseY - maxH, w, maxH);
+    // 柱
+    ctx.fillStyle = color;
+    ctx.fillRect(x, baseY - h, w, h);
+    // 数值
+    ctx.fillStyle = '#1f2328';
+    ctx.font = 'bold 15px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText((val).toFixed(2), x + w/2, baseY - h - 8);
+    // 标签
+    ctx.fillStyle = '#3a4048';
+    ctx.font = '13px -apple-system,Segoe UI,sans-serif';
+    ctx.fillText(label, x + w/2, baseY + 20);
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '11px -apple-system,Segoe UI,sans-serif';
+    ctx.fillText(sub, x + w/2, baseY + 37);
+  }
+
+  function draw(){
+    var d = compute();
+    ctx.clearRect(0,0,W,H);
+
+    // 分组背景
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(40, 26, 320, 16);
+    ctx.fillRect(400, 26, 320, 16);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = 'bold 12px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('客观能力（一阶 · 早期感觉皮层）', 200, 39);
+    ctx.fillStyle = '#c0392b';
+    ctx.fillText('主观侧（高阶 · 前额叶）', 560, 39);
+
+    // 四根柱
+    var red = '#c0392b', gray = '#8a9099';
+    bar(70,  90, d.dprime, '辨别敏感度 d′', '客观分辨力', gray);
+    bar(210, 90, d.acc,    '正确率',         '客观正确率', gray);
+    bar(430, 90, d.aware,  '觉知报告比例',   '主观"看见"', red);
+    bar(570, 90, d.meta,   '元认知吻合度',   '信心↔对错', red);
+
+    // 中线分隔
+    ctx.strokeStyle = '#e6e8eb';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(385, 30); ctx.lineTo(385, H-40); ctx.stroke();
+
+    // 虚报标注（小字）
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '11px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('当前虚报率 FA ≈ ' + d.fa.toFixed(2) + '　命中率 HR ≈ ' + d.hr.toFixed(2), 430, H-44);
+  }
+
+  function updateExplain(){
+    var s = scenarios[cur];
+    var d = compute();
+    var el = document.getElementById('vizExplain');
+    var diss = '';
+    var gap = ((d.dprime+d.acc)/2) - ((d.aware+d.meta)/2);
+    if(gap > 0.25){
+      diss = '<strong style="color:#c0392b;">解离出现了</strong>：左侧客观能力远高于右侧主观觉知——意识被从能力里剥离了出来。';
+    } else {
+      diss = '此时能力与觉知大体一致，<strong>没有明显解离</strong>——这正是为什么本文要去找盲视/前额叶 TMS 这类特殊情境。';
+    }
+    el.innerHTML = '【' + s.name + '】' + s.desc + ' ' + diss;
+  }
+
+  function setScenario(k){
+    cur = k;
+    document.getElementById('btnNormal').className = (k==='normal')?'':'alt';
+    document.getElementById('btnBlind').className  = (k==='blind') ?'':'alt';
+    document.getElementById('btnTMS').className     = (k==='tms')   ?'':'alt';
+    draw(); updateExplain();
+  }
+
+  document.getElementById('btnNormal').addEventListener('click', function(){ setScenario('normal'); });
+  document.getElementById('btnBlind').addEventListener('click',  function(){ setScenario('blind'); });
+  document.getElementById('btnTMS').addEventListener('click',     function(){ setScenario('tms'); });
+
+  var critSlider = document.getElementById('crit');
+  critSlider.addEventListener('input', function(){
+    crit = parseInt(critSlider.value,10)/100;
+    var label = crit < 0.34 ? '松（易报"看见"）' : (crit > 0.66 ? '严（保守报告）' : '中');
+    document.getElementById('critVal').textContent = label;
+    draw(); updateExplain();
+  });
+
+  // init
+  setScenario('normal');
+})();
+</script>
+</body>
+</html>

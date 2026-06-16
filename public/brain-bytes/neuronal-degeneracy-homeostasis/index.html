@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>简并性与稳态 · Marder & Goaillard 2006 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Degeneracy <span>×</span> 长得完全不同的神经元，跑出几乎一样的节律</h1>
+    <div class="meta">
+      <span>📄 Variability, compensation and homeostasis in neuron and network function</span><br>
+      <span>✍️ Eve Marder &amp; Jean-Marc Goaillard</span><br>
+      <span>🏛️ Volen Center 与生物系，布兰戴斯大学（Brandeis University）</span><br>
+      <span>📅 Nature Reviews Neuroscience · 2006 年第 7 卷 · 第 563–574 页 · doi:10.1038/nrn1949</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-demo">交互演示：简并性</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-f1">① 通道密度 2–4 倍乱跳</a></li>
+        <li><a href="#sec-f2">② 简并性：同输出多解</a></li>
+        <li><a href="#sec-f3">③ 药理阻断 ≠ 基因敲除</a></li>
+        <li><a href="#sec-f4">④ 补偿是相关的、有方向的</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这篇综述把一个反直觉、却被几十年实验反复验证的事实摆上台面：<strong>构成一个神经元的"零件"（离子通道、受体）在分钟到几周内就被全部换掉一遍，而神经元本身要稳定工作几十年。</strong>更惊人的是——同一类神经元在不同个体里，关键离子电流的密度可以相差 <strong>2 到 4 倍</strong>，可它们跑出来的放电节律几乎一模一样。换句话说，大脑达到"同一个功能"的参数组合不是一个点，而是一整片高维空间里的"解集"。</p>
+        <p>这件事颠覆了一个根深蒂固的研究范式假设：以为"测一个细胞的电流，就能预测它的行为"。Marder（神经回路稳态领域的奠基人之一）用龙虾胃神经节这个只有约 30 个神经元、却被研究得最透彻的小回路，加上 <strong>超过 2000 万个</strong>计算机模型，系统论证了<span class="term">简并性（degeneracy）</span>与<span class="term">稳态调节（homeostasis）</span>如何共同保证功能稳定。这对理解为什么某些基因敲除"出奇地没事"、为什么神经调质效果因人而异、乃至为什么大脑既鲁棒又灵活，都是地基级的洞见。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">简并性（degeneracy）</div>
+          <div class="cdesc">结构上很不一样的系统，能产生功能上几乎一样的输出。好比"到达同一个目的地有很多条路"——而且这些路差别还很大。本文核心：不同的离子通道密度组合，能产生同一种爆发节律。注意它不等于"冗余（redundancy，多个一模一样的备份）"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">稳态调节（homeostasis）</div>
+          <div class="cdesc">系统主动把某个被监控的量（如神经元的平均活动水平）维持在目标点附近，靠负反馈纠偏。类比家里的恒温空调：天热就制冷、天冷就制热，房间温度始终稳。神经元用细胞内钙离子浓度当"温度计"来感知自己的活动。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">电导密度（conductance density）</div>
+          <div class="cdesc">某种离子通道在单位膜面积上"开多大口子"让离子流过的能力，等于电流除以膜面积（由膜电容估算）。可粗略理解为"这种通道在这个细胞膜上装了多少个、开多大"。本文反复强调：它在同类细胞间能差 2–4 倍。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">多维参数空间（multidimensional parameter space）</div>
+          <div class="cdesc">把一个神经元的每种通道密度当成一个坐标轴，N 种通道就张成 N 维空间，每个神经元是其中一个点。同一种行为对应的不是一个点，而是一整片连通的区域（见 Box 1 示意图）。神经元可以在这片区域里"漫游"而行为不变。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">幽门节律（pyloric rhythm）</div>
+          <div class="cdesc">甲壳动物（龙虾、螃蟹）胃部胃神经节产生的一种节律性运动模式，频率约 1 赫兹（Hz，Hertz），驱动胃幽门部的肌肉。它由一个<strong>中枢模式发生器</strong>产生，是被研究得最透彻的小神经回路之一，本文的"主角实验系统"。典型是三相节律：前爆发神经元（AB，Anterior Burster）/ 幽门扩张神经元（PD，Pyloric Dilator）→ 外侧幽门神经元（LP，Lateral Pyloric）→ 幽门神经元（PY，Pyloric）依次放电。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">中枢模式发生器（CPG，Central Pattern Generator）</div>
+          <div class="cdesc">不需要外部节律输入、自己就能产生节律性运动指令的神经回路，负责行走、呼吸、咀嚼等重复动作。幽门节律就是一个 CPG 的产物。它能在没有感觉反馈时"自己打拍子"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">瞬时外向钾电流（I<sub>A</sub>，transient outward current）/ 超极化激活内向电流（I<sub>h</sub>）</div>
+          <div class="cdesc">I<sub>A</sub> 是电压门控钾通道在去极化时快速打开又快速关闭（失活）的电流，影响放电频率；I<sub>h</sub> 是细胞被超极化（变更负）时反而打开的混合阳离子内向电流（由 HCN，即超极化激活环核苷酸门控通道，Hyperpolarization-activated Cyclic Nucleotide-gated channel 介导）。本文的明星配对：增加 I<sub>A</sub> 会被增加 I<sub>h</sub> 补偿，从而行为不变。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">神经调质（neuromodulator）</div>
+          <div class="cdesc">不直接快速传递信号、而是"调音师"般改变神经元/回路反应特性的物质（如多巴胺、5-羟色胺）。它常同时作用于好几种电压门控电流。本文的悖论：若每个细胞起始电导都不同，同一种调质怎么还能产生一致的效果？</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">动态钳（dynamic clamp）</div>
+          <div class="cdesc">一种实时实验技术：用计算机算出"假想的某种离子电流应该是多少"，再实时注回真实细胞，等于给活细胞"凭空加装/删除"一种通道。Marder 实验室是其重要开发者，用它来验证某种电流对回路的因果作用。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">河豚毒素（TTX，Tetrodotoxin）/ 通道敲除</div>
+          <div class="cdesc">TTX 是选择性阻断电压门控钠通道的毒素，代表"急性药理阻断"（分钟级、来不及补偿）；基因敲除则是"慢性删除"（发育期就缺，有时间补偿）。本文用二者的效果反差，凸显补偿机制的存在。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-demo">交互演示：把"简并性"调出来</div>
+      <p>本文最反直觉的主张是：<strong>很不同的电导参数组合，可以产生几乎一样的爆发节律。</strong>光看文字很难有感觉。下面这个交互让你亲手拨动三种电导，去找"不同组合、同一节律"——这正是 Box 1 示意图、Prinz 等人 2000 万模型、以及 Swensen &amp; Bean 浦肯野细胞实验共同讲的那件事。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">简并性沙盘：三种电导 → 同一种爆发节律</div>
+        <div class="viz-note">模拟数据，定性复现论文报告的模式（不同电导组合产生相似爆发输出）。上图是一个简化爆发模型的膜电位轨迹；右上角的"输出指纹"用爆发周期 / 每簇锋电位数 / 占空比三个指标刻画节律是否仍然"是同一种"。这不是论文原始数据，仅展示定性现象。</div>
+
+        <canvas id="degCanvas" width="860" height="360"></canvas>
+
+        <div class="viz-controls">
+          <label style="min-width:230px;">内向去极化电导 g<sub>Ca</sub>（"驱动慢波"）：<b id="gCaVal">100</b>%</label>
+          <input type="range" id="gCa" min="55" max="180" value="100" style="flex:1;min-width:160px;">
+        </div>
+        <div class="viz-controls">
+          <label style="min-width:230px;">外向钾电导 g<sub>K</sub>（"刹车 / 复极"）：<b id="gKVal">100</b>%</label>
+          <input type="range" id="gK" min="55" max="180" value="100" style="flex:1;min-width:160px;">
+        </div>
+        <div class="viz-controls">
+          <label style="min-width:230px;">超极化激活电导 g<sub>h</sub>（"回弹起搏"）：<b id="gHVal">100</b>%</label>
+          <input type="range" id="gH" min="55" max="180" value="100" style="flex:1;min-width:160px;">
+        </div>
+        <div class="viz-controls">
+          <button id="findBtn">🎲 随机找一个"不同组合·同节律"的解</button>
+          <button class="alt" id="resetBtn">复位到基准组合</button>
+        </div>
+        <div id="degVerdict" style="font-size:0.92rem;margin-top:6px;line-height:1.6;"></div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">怎么玩才能看懂论文</span>
+        <p>① 先单拉一个滑块到极端，你会看到节律明显变样——这对应"急性药理阻断单一电流，效果往往很显著"。② 再试着<strong>同时反向拉两个</strong>滑块（比如 g<sub>Ca</sub> 拉高、g<sub>K</sub> 也拉高），找回原来的节律——这就是<strong>补偿</strong>：电流配比变了，输出却几乎不变。③ 点"随机找解"，程序会自动搜出一组与基准电导差别明显、但输出指纹仍然吻合的参数——这正是 2000 万模型里"很多不同网络、同一种行为"的微缩版。</p>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>全文围绕一个张力展开：<strong>分子层面剧烈流动 + 个体间参数大幅变异</strong>，却换来<strong>功能层面的高度稳定</strong>。作者从四个递进的角度论证这是怎么做到的。</p>
+
+      <div class="section-head-sub" id="sec-f1">① 通道密度在同类神经元间会乱跳 2–4 倍</div>
+      <p>第一块基石是经验事实：哪怕严格挑同一种、活动模式几乎一样的神经元，跨个体一比，关键离子电流的电导密度常相差 <strong>2 到 4 倍</strong>；而且不只是蛋白层面，连编码这些通道的信使核糖核酸（mRNA，messenger RNA）的拷贝数，在同类神经元间也能差不多大范围地变。</p>
+      <p>最有冲击力的单细胞证据来自 Swensen &amp; Bean 对小鼠浦肯野细胞（Purkinje neuron）的电压钳实验（本文 Figure 2a）：两个爆发模式几乎一致的细胞，底下的电流配比却天差地别——</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：同样的爆发，迥异的电流账本（Figure 2a，Swensen &amp; Bean）</span>
+        <p>测两个浦肯野细胞在爆发期间（前两个锋电位之间）的钠电流 I<sub>Na</sub> 和钙电流 I<sub>Ca</sub>：<br>
+        ・<strong>细胞 1</strong>：I<sub>Na</sub> ≈ <strong>−156 pA</strong>，I<sub>Ca</sub> ≈ <strong>−221 pA</strong>（钠占主导）<br>
+        ・<strong>细胞 2</strong>：I<sub>Na</sub> ≈ <strong>−41 pA</strong>，I<sub>Ca</sub> ≈ <strong>−823 pA</strong>（钙占主导）<br>
+        钠电流差约 <strong>4 倍</strong>、钙电流差约 <strong>4 倍</strong>，方向还相反，可两个细胞的爆发波形几乎看不出区别。pA = 皮安（picoampere，10<sup>-12</sup> 安培）。</p>
+      </div>
+      <p>另一条线来自 Schulz 等人对螃蟹胃神经节神经元的工作（Figure 2c,d）：他们先电压钳测好几种钾电流，再对同一个细胞做实时定量 PCR（聚合酶链式反应，Polymerase Chain Reaction）数 mRNA 拷贝数。结果两种钾电流的 mRNA 与电导密度<strong>强相关</strong>（图中 p&lt;0.005 与 p&lt;0.001），可同一类细胞跨个体仍有 2–4 倍变异。一个关键细节：<strong>同一只动物里电耦合的一对幽门扩张神经元（PD）的 I<sub>A</sub> 和 I<sub>h</sub> 高度相关，跨动物却变异很大</strong>——说明"配比"在个体内被协调，绝对值却可以漂。</p>
+
+      <div class="section-head-sub" id="sec-f2">② 简并性：通往同一个网络输出的"解"有无数个</div>
+      <p>第二块是本文的概念核心，由 Prinz 等人的大规模计算证明。他们为龙虾幽门网络构建了<strong>超过 2000 万个</strong>模型网络，再筛出能匹配真实生物网络（按多个测量指标）的那些。结论让人印象深刻：</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：2000 万模型里的"多解"（Figure 4，Prinz et al.）</span>
+        <p>许多<strong>突触强度和电压门控电导都相当不同</strong>的模型网络，却产生<strong>非常相似的三相运动模式</strong>。Figure 4a/4b 直接对比了两个这样的网络：输出几乎一致，底层 6 种内在电导 + 5 种突触电导的取值却明显不同。这等价于说：要造出"正确的幽门节律"，不是只有唯一配方，而是一大片配方都行。</p>
+      </div>
+      <p>这正是 Box 1 那张三维示意图想表达的：把三种电导当三个轴，"显示某种行为"的神经元落在一整片<strong>连通的区域</strong>里（紫色）；只要不越出这片区域的边界，改动参数都不会让行为发生质变。神经元因此可以在这片"解空间"里漫游，去找到通往某个目标活动水平的众多解之一。作者特别提醒：<strong>这片区域常是"凹"形的，所以"取群体平均"可能落在区域之外、反而抓不到任何真实个体的行为</strong>（Box 1 里那个大圆圈 M）——这是个方法论警告。</p>
+
+      <div class="section-head-sub" id="sec-f3">③ 急性药理阻断 ≠ 慢性基因敲除：补偿需要时间</div>
+      <p>第三块发现极具实践价值，几乎是给所有用"敲基因看表型"的人提的醒。同一种通道，<strong>急性用药阻断</strong>常常效果剧烈，<strong>慢性基因敲除</strong>却可能"出奇地没事"——因为发育和日常运转中的慢补偿机制，有时间重新配平其它电导。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：同一通道，两种命运（Figure 3）</span>
+        <p>・<strong>钠通道</strong>：8.1 nM 河豚毒素（TTX）急性阻断浦肯野细胞的钠电流，爆发明显改变；但把对应的 NaV1.6（电压门控钠通道 Na<sub>v</sub>1.6 亚基）<strong>基因敲除</strong>的小鼠，爆发模式与野生型<strong>非常接近</strong>。<br>
+        ・<strong>P/Q 型钙通道</strong>（一类高电压激活钙通道）：用 Aga IVA（ω-蜘蛛毒素 IVA，ω-Agatoxin IVA，一种 P/Q 通道阻断剂）急性阻断会减少 30 Hz 刺激诱发的突触释放；但把 α1A 亚基<strong>敲除</strong>，影响"出奇地轻微"。<br>
+        结论：药理学发展出的"某电流很重要"的直觉，可能<strong>预测不了</strong>同一通道长期遗传操作的结果。nM = 纳摩尔（nanomolar）；Hz = 赫兹（每秒次数）。</p>
+      </div>
+      <p>作者强调这种反差"很可能不是冗余，而是不同性质的组分之间发生了补偿"——这也呼应了为什么很多基因敲除动物的表型出奇地温和。</p>
+
+      <div class="section-head-sub" id="sec-f4">④ 补偿不是随机的：它是相关的、而且常常有方向</div>
+      <p>第四块把"补偿"从模糊概念变成可操作的实验事实。最干净的例子是 shal 实验：把编码 I<sub>A</sub> 通道的基因 <em>shal</em>（果蝇 Shal/Kv4 钾通道基因）的 mRNA 注入幽门扩张神经元，I<sub>A</sub> 涨了好几倍，可<strong>放电活动几乎没变</strong>——因为同时出现了一个代偿性的 I<sub>h</sub> 上调（Figure 3 文末）。这证明慢速发育/稳态机制能"找到"多种相关电导的协同解。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：补偿是"有向的"，不是对称的</span>
+        <p>・注 shal（增 I<sub>A</sub>）→ I<sub>A</sub> 上升数倍，但活动不变，因为 I<sub>h</sub> 代偿性上调（Soto-Trevino / MacLean 等）。<br>
+        ・反过来注 <em>shab</em>（另一果蝇钾通道基因，此处用于扰动并增加 I<sub>h</sub>）→ 在幽门扩张神经元里 I<sub>h</sub> 涨约 <strong>4 倍</strong>，<strong>同时</strong>改变了 I<sub>A</sub>——说明 I<sub>A</sub> 与 I<sub>h</sub> 的调控关系<strong>不是互逆的</strong>（一个方向能补偿，反方向却会牵动）。<br>
+        ・建模中把 I<sub>h</sub> 删掉，稳态调节也<strong>不能完全</strong>把它补回来。<br>
+        启示：每种细胞、每种电流的补偿规则可能各不相同，"补偿"是结构化的，而非万能的弹簧。</p>
+      </div>
+      <p>那么细胞凭什么知道自己"该补到什么程度"？作者讨论了两类候选机制：(a) 每个细胞有一个由身份决定的<strong>目标活动水平（target activity level）</strong>，用细胞内钙等信号当"活动传感器"，靠负反馈调节通道合成/降解把活动拉回目标；(b) 每类细胞有一套<strong>由基因决定、需被精细调控的离子通道配方</strong>。现有数据与两者都相容，作者倾向认为真实情况是"活动依赖"与"活动无关"机制的混合。</p>
+
+      <div class="info-block">
+        <span class="ib-title">一个贯穿全文的悖论：神经调质怎么还能产生一致效果？</span>
+        <p>如果每个细胞的起始电导都不一样，那么作用于某个电导的神经调质（neuromodulator），效果按理应该因细胞而异、乱成一团。作者给出的化解：① 同型细胞对同一调质的反应本就有相当大的个体差异；② 调质通常<strong>同时</strong>作用于多个电流、甚至网络里多个靶点，多靶点的协同/合作可能维持了整体效果的一致；③ 有些神经元在参数空间里沿"切向"分布，使它们尽管起始电导不同、却对调质有相对一致的响应。换言之，"能产生相似行为的解集"可能进一步被"还要能正常响应调质"这个约束收窄。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这是一篇综述，但它的力量恰恰在于把<strong>不同尺度、不同手段</strong>的证据编织成一条逻辑链——单看任一条都可被质疑，合在一起才稳。下面把它倚重的方法各自的"为什么关键"列清楚。</p>
+
+      <table>
+        <thead>
+          <tr><th>方法 / 系统</th><th>做了什么</th><th>为什么是关键证据</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>幽门网络模型库（Prinz et al.）</td>
+            <td>枚举 &gt;2000 万个参数组合的网络模型，筛出匹配真实生物输出者</td>
+            <td>在生物上无法把所有参数都试一遍；穷举式建模直接证明"多解"在数学上真实存在，且能量化解集大小</td>
+          </tr>
+          <tr>
+            <td>单细胞电压钳 + 单细胞定量 PCR（Schulz et al.）</td>
+            <td>对同一个细胞既测电流密度、又数 mRNA 拷贝数</td>
+            <td>把"功能（电导）"和"分子（mRNA）"在<strong>同一个体内</strong>对上，才能区分"补偿是相关的"还是"纯噪声"——避免群体平均掩盖个体内协调</td>
+          </tr>
+          <tr>
+            <td>药理阻断 vs 基因敲除对照</td>
+            <td>同一通道，分别用毒素急性阻断与遗传慢性删除，比较表型</td>
+            <td>时间尺度成了"自然实验"的变量：急性来不及补偿、慢性有时间补偿，二者反差直接暴露补偿机制</td>
+          </tr>
+          <tr>
+            <td>mRNA 过表达 + 动态钳（shal 实验）</td>
+            <td>人为拉高某电流，看活动是否被代偿；用动态钳给活细胞凭空加/减电流</td>
+            <td>从"观察相关"升级到"主动扰动看回弹"，是补偿存在的因果级证据</td>
+          </tr>
+          <tr>
+            <td>跨发育阶段对照（幼体 vs 成体，Figure 6）</td>
+            <td>对比龙虾幼体与成体幽门网络的运动输出</td>
+            <td>动物长大、膜面积/突触距离/通道密度都得重调，输出却"几乎无法区分"——证明稳态是持续在线的"再配平"</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-block">
+        <span class="ib-title">一个常被忽略却很重要的方法论警告：别轻易取平均</span>
+        <p>因为"产生同一行为"的参数区域在结构上常是<strong>凹</strong>的（Box 1），把一群神经元的参数<strong>逐维取平均</strong>得到的"平均神经元"，很可能落在解集之外，行为反而不像任何一个真实个体。这对一切"先平均再建模"的研究都是警醒：群体均值不一定是合法的代表。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>本文是对一条 20 余年研究脉络的总结与升华，几个坐标如下：</p>
+      <ul>
+        <li><strong>承接 Turrigiano &amp; Nelson 的稳态可塑性。</strong>前人已证明<span class="term">突触缩放（synaptic scaling）</span>等机制能慢速调节突触强度、维持神经元活动在目标水平；本文把视野从"突触强度"扩展到"内在电导 + 突触强度 + 网络"全栈，并把"维持稳定"与"允许多解"两件事统一进同一个参数空间框架。</li>
+        <li><strong>把 Hebb 型学习与稳态对立又互补地摆好。</strong>Hebbian 可塑性是正反馈、会失稳，必须有稳态这类负反馈来"兜底"，二者像油门和刹车。</li>
+        <li><strong>呼应并约束了纯建模研究。</strong>作者反复强调一个反差：<strong>模型里能找到的电导变异范围，往往比真实生物神经元群体大得多</strong>——所以生物的解集虽比"我们原以为的"宽（2–4 倍已超预期），但仍比"不受约束的模型"窄。这给建模者划了边界。</li>
+        <li><strong>把"简并性"概念从免疫学/演化生物学（Edelman &amp; Gally 等）引入回路神经科学</strong>，并明确与工程上的"冗余（多份相同备份）"区分开——生物的鲁棒性更多来自"不同性质组分之间的补偿"，而非简单备份。</li>
+        <li><strong>给"细胞身份/分型"提了难题。</strong>既然相似活动可来自不同机制、同一神经元的活动状态又随历史而变，那么"用电活动给神经元分类"本身就不可靠——这与当时正兴起的"用转录因子/基因表达谱定义细胞类型"的努力直接相关。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇文章的思想远超出胃神经节，几个值得带走的迁移：</p>
+      <ul>
+        <li><strong>对疾病与遗传学：</strong>"基因敲除表型温和"不一定说明该基因不重要，可能是补偿掩盖了它。理解疾病需要知道<strong>补偿网络</strong>本身，而不只是单个被改的基因。反过来，当补偿能力被耗尽或本身有缺陷时，温和的扰动也可能突然显形。</li>
+        <li><strong>对神经疾病机制：</strong>作者点出，神经元类型的<strong>多样性</strong>本身可能是网络的调节变量——增大某群中间神经元的参数多样性能降低网络同步性，而过度同步与癫痫等相关。多样性可能是"防病"的特性，不只是测量噪声。</li>
+        <li><strong>对工程与人工系统：</strong>工程冗余靠"多份相同备份"，生物鲁棒性靠"不同组分互相补偿"。后者天然带来灵活性与<strong>演化可塑性</strong>——系统能在改变的解空间里平滑迁移，而不是非黑即白地坏掉。这对设计容错系统、乃至理解人工神经网络的"参数简并"都有启发。</li>
+        <li><strong>对实验方法论（跨学科通用）：</strong>"群体均值可能落在解集之外、不代表任何个体"这条警告，适用于一切高维、非凸的系统——从基因表达到行为学到机器学习模型的参数集成。</li>
+        <li><strong>对发育生物学：</strong>动物长大过程中所有网络参数必须被持续"再配平"以匹配变化的膜电容与几何（Figure 6），暗示稳态不是"长好后才启动"，而是贯穿一生的在线过程；早期自发活动可能正是为这种调谐提供训练信号。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>除了作者自己坦承的开放问题，这里也点出几处文中没明说、但读者应警惕的边界：</p>
+      <ul>
+        <li><strong>"目标活动水平"如何被编码，基本是黑箱（作者承认）。</strong>用细胞内钙当传感器只是<strong>合理推测</strong>；一个稳定的"目标"如何从一堆信号通路的平衡里"涌现"出来、不同细胞如何设不同的目标，文中坦言"含糊"，缺乏分子机制层面的闭环证据。</li>
+        <li><strong>证据偏向无脊椎动物小回路，外推到哺乳脑需谨慎（作者部分承认）。</strong>核心因果实验（动态钳、shal 注射、单细胞 PCR-电导对应）大多来自龙虾/螃蟹胃神经节这种只有约 30 个、且可被逐一辨认的神经元的系统。脊椎动物大网络里"识别同一个神经元跨个体比较"极难，许多结论目前只能<strong>类比</strong>而非直接验证。</li>
+        <li><strong>"简并性"的证据强弱不均（解读者观点）。</strong>"2000 万模型多解"是计算结论，"浦肯野细胞电流配比差 4 倍"是真实测量，二者证据等级不同；文章把它们并列叙述，读者需自行分辨哪些是<strong>生物已观测</strong>、哪些是<strong>模型可能性</strong>。作者其实也提醒"模型里的变异常比生物大得多"。</li>
+        <li><strong>补偿规则的"特异性"意味着难以一般化（作者点到）。</strong>I<sub>A</sub>↔I<sub>h</sub> 的补偿不互逆、删 I<sub>h</sub> 不能被完全补回——说明每种细胞/每种电流的补偿律可能都不同。这既是发现，也是困难：很难有一条统一定律，未来要"逐个细胞类型"去测。</li>
+        <li><strong>大网络是否也靠"局部调谐律"自组织出整体功能，仍未知（作者承认）。</strong>小回路里"每个神经元各自维持自身目标"可能就够；但大网络的"目标"是整体行为，是否需要一个尚未发现的<strong>全局性能传感器</strong>来提供误差信号，文中明确列为开放问题。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下是基于文本证据的评价，凡属个人推断处均标注。</p>
+      <p><strong>这是一篇地基级、影响深远的综述，配得上其引用地位。</strong>它的最大贡献不是某个新数据，而是把"分子剧烈流动 / 个体大幅变异 / 功能高度稳定"三者的张力，用<strong>参数空间 + 简并性 + 稳态负反馈</strong>这一套统一语言讲清楚了（依据：全文从 Box 1 框架贯穿到结论）。这套语言此后成了系统神经科学的标准词汇。</p>
+      <p><strong>论证的可信度，关键在于多尺度证据互相咬合，而非单点突破。</strong>计算（2000 万模型）、单细胞分子-功能对应（Schulz）、因果扰动（动态钳、shal 注射）、自然实验（药理 vs 敲除、幼体 vs 成体）各自有弱点，但指向同一结论，交叉验证使整体说服力远大于各部分之和（依据：Figure 2/3/4/6 与方法论表）。</p>
+      <p><strong>最实用的单一洞见</strong>，我认为是"急性药理 ≠ 慢性遗传"那条（Figure 3）：它直接修正了大量实验解读的默认假设，且有清晰的机制解释（补偿需要时间）。对任何做基因敲除/敲低的人，这是必须内化的警告。</p>
+      <p><strong>需要保留的地方：</strong>(1) 关于"目标活动水平"的机制，本文停在框架层面，未给闭环分子证据，属于"提出问题"而非"解决问题"（依据：作者用"vagueness""circumstantial"等词自评）。(2) 把无脊椎小回路结论外推到哺乳脑，本文措辞谨慎但不可避免地带有<strong>类比成分</strong>（解读者观点，但与作者"识别细胞类型在脊椎动物很难"的自陈一致）。(3) 文中"变异比预期大但仍比模型小"是个微妙的双向限定，容易被快读者误读成"生物高度可变"——其实作者反复在收紧这个范围。</p>
+      <p>总体：作为<strong>组织一个领域、设定研究议程</strong>的综述，它近乎典范；作为<strong>给出确定机制答案</strong>的论文，它诚实地承认大半问题仍开放。两者并不矛盾——它的价值正在于把对的问题问对。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>神经元的零件每隔几分钟到几周就被换一遍、同类细胞间关键电导还能差 <strong>2–4 倍</strong>，可它们跑出的节律几乎一样——因为通往同一种功能的参数组合不是一个点而是一整片"解空间"（<strong>简并性</strong>，2000 万模型与浦肯野细胞 4 倍电流差为证），加上以钙为传感器的<strong>稳态负反馈</strong>不断把活动拉回目标、并让相关电导彼此补偿（shal 注射使 I<sub>A</sub> 涨数倍却被 I<sub>h</sub> 上调抵消）；这也解释了为什么<strong>急性药理阻断效果剧烈、而慢性基因敲除常出奇温和</strong>——补偿，只是需要时间。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Marder, E. &amp; Goaillard, J.-M. (2006). Variability, compensation and homeostasis in neuron and network function. <em>Nature Reviews Neuroscience</em>, 7(7), 563–574. doi:10.1038/nrn1949<br>
+    <strong>说明：</strong>本页为该论文的中文深度解读，所有关键数字（2–4 倍电导变异、&gt;2000 万模型、浦肯野细胞 I<sub>Na</sub>/I<sub>Ca</sub> 数值、I<sub>h</sub> 约 4 倍上调等）均出自原文与其图注。交互组件为简化爆发模型的模拟演示，用于直觉化"简并性 / 补偿"现象，非论文原始数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  // ============================================================
+  // 简并性沙盘：一个高度简化的"慢波 + 锋电位"爆发模型
+  // 目的不是生理精确，而是定性复现论文核心现象：
+  //   不同的 (gCa, gK, gH) 组合可以产生几乎相同的爆发"指纹"
+  //   （周期 / 每簇锋数 / 占空比）。
+  // ============================================================
+  var cv = document.getElementById("degCanvas");
+  if(!cv) return;
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
+
+  // 基准电导（百分比 100 = 1.0）
+  var BASE = {gCa:1.0, gK:1.0, gH:1.0};
+
+  var gCaEl = document.getElementById("gCa");
+  var gKEl  = document.getElementById("gK");
+  var gHEl  = document.getElementById("gH");
+  var gCaV  = document.getElementById("gCaVal");
+  var gKV   = document.getElementById("gKVal");
+  var gHV   = document.getElementById("gHVal");
+  var verdict = document.getElementById("degVerdict");
+
+  // ---- 简化爆发模型：产生一条膜电位轨迹 + 提取"指纹" ----
+  // 思路：一个慢变量 s（钙样去极化驱动）在 gCa/gH 推动、gK 拉回下做弛豫振荡；
+  //   当 s 越过阈值进入"爆发相"，叠加快速锋电位；锋频与簇内时长由电导决定。
+  function simulate(gCa, gK, gH){
+    var dt = 1.0;            // 任意时间单位
+    var T  = 2400;           // 总步数
+    var v  = -60;            // 膜电位（仅作显示用的合成轨迹）
+    var s  = 0.0;            // 慢门控（0~1）
+    var phase = 0;           // 0 = 簇间静息, 1 = 爆发中
+    var trace = new Float32Array(T);
+
+    // 电导塑形：去极化驱动 ~ gCa+gH，复极/刹车 ~ gK
+    var drive = 0.020 * (0.55*gCa + 0.45*gH);   // 慢波上升速率
+    var brake = 0.016 * gK;                       // 慢波下降速率
+    var spikeRate = 0.34 * gCa / Math.sqrt(gK);   // 簇内锋频（越多 Ca、越少 K，锋越密）
+    var burstThr  = 0.62 - 0.10*(gH-1.0);         // 进入爆发的阈值，受 gH（回弹）影响
+
+    var spikeTimes = [];
+    var burstStarts = [];
+    var burstEnds = [];
+    var lastPhase = 0;
+    var spikePhaseAcc = 0;
+
+    for(var t=0; t<T; t++){
+      if(phase===0){
+        // 簇间：慢门控在 drive 推动下上升
+        s += drive*(1.05 - s);
+        v += (-62 - v)*0.25;            // 静息电位附近小幅波动
+        if(s > burstThr){ phase = 1; burstStarts.push(t); }
+      } else {
+        // 爆发相：慢门控在 brake 作用下衰减；叠加锋电位
+        s -= brake*(s + 0.05);
+        // 合成锋电位：相位累加器超过 1 就放一个锋
+        spikePhaseAcc += spikeRate;
+        if(spikePhaseAcc >= 1){
+          spikePhaseAcc -= 1;
+          spikeTimes.push(t);
+          v = 18;                        // 锋顶
+        } else {
+          v += (-44 - v)*0.55;           // 锋间下冲到去极化平台
+        }
+        if(s < 0.18){ phase = 0; burstEnds.push(t); s = 0.02; spikePhaseAcc = 0; }
+      }
+      trace[t] = v;
+      lastPhase = phase;
+    }
+
+    // ---- 提取指纹 ----
+    // 周期 = 相邻爆发起点间隔的平均
+    var periods = [];
+    for(var i=1;i<burstStarts.length;i++){ periods.push(burstStarts[i]-burstStarts[i-1]); }
+    var period = avg(periods);
+
+    // 每簇锋数 = 总锋数 / 爆发次数
+    var nBursts = Math.min(burstStarts.length, burstEnds.length);
+    var spikesPerBurst = nBursts>0 ? spikeTimes.length / nBursts : 0;
+
+    // 占空比 = 平均爆发时长 / 周期
+    var durs = [];
+    var m = Math.min(burstStarts.length, burstEnds.length);
+    for(var j=0;j<m;j++){ if(burstEnds[j]>burstStarts[j]) durs.push(burstEnds[j]-burstStarts[j]); }
+    var dur = avg(durs);
+    var duty = period>0 ? dur/period : 0;
+
+    return {trace:trace, period:period, spikesPerBurst:spikesPerBurst, duty:duty,
+            spikeTimes:spikeTimes, burstStarts:burstStarts};
+  }
+
+  function avg(a){ if(!a.length) return 0; var s=0; for(var i=0;i<a.length;i++) s+=a[i]; return s/a.length; }
+
+  // 基准指纹（用于比对"是否还是同一种节律"）
+  var REF = simulate(BASE.gCa, BASE.gK, BASE.gH);
+
+  function fingerprintMatch(r){
+    // 三个指标各自的相对偏差，取容差判定
+    var dP = REF.period>0 ? Math.abs(r.period-REF.period)/REF.period : 1;
+    var dS = REF.spikesPerBurst>0 ? Math.abs(r.spikesPerBurst-REF.spikesPerBurst)/REF.spikesPerBurst : 1;
+    var dD = REF.duty>0 ? Math.abs(r.duty-REF.duty)/REF.duty : 1;
+    var score = Math.max(dP, dS, dD);
+    return {ok: score < 0.16, dP:dP, dS:dS, dD:dD, score:score};
+  }
+
+  // ---- 绘制 ----
+  function draw(){
+    var gCa = (+gCaEl.value)/100;
+    var gK  = (+gKEl.value)/100;
+    var gH  = (+gHEl.value)/100;
+    gCaV.textContent = gCaEl.value;
+    gKV.textContent  = gKEl.value;
+    gHV.textContent  = gHEl.value;
+
+    var r = simulate(gCa, gK, gH);
+
+    ctx.clearRect(0,0,W,H);
+    // 背景
+    ctx.fillStyle = "#fff"; ctx.fillRect(0,0,W,H);
+
+    // ---- 主轨迹区（左 + 中，留出右上角放指纹卡）----
+    var plotX = 14, plotY = 18, plotW = W-260, plotH = H-58;
+    // 轴框
+    ctx.strokeStyle = "#e6e8eb"; ctx.lineWidth = 1;
+    ctx.strokeRect(plotX, plotY, plotW, plotH);
+
+    // 基准轨迹（淡灰，作参照）
+    drawTrace(REF.trace, plotX, plotY, plotW, plotH, "rgba(150,155,165,0.45)", 1.4);
+    // 当前轨迹（红）
+    drawTrace(r.trace, plotX, plotY, plotW, plotH, "#c0392b", 1.8);
+
+    // 轨迹标注
+    ctx.fillStyle = "#6b7280"; ctx.font = "12px -apple-system,sans-serif";
+    ctx.fillText("膜电位（合成轨迹，任意单位）", plotX+8, plotY+16);
+    ctx.fillStyle = "rgba(120,125,135,0.9)";
+    ctx.fillText("灰 = 基准组合", plotX+8, plotY+plotH-10);
+    ctx.fillStyle = "#c0392b";
+    ctx.fillText("红 = 当前组合", plotX+110, plotY+plotH-10);
+
+    // ---- 右上角"输出指纹"卡 ----
+    var cardX = W-232, cardY = 18, cardW = 218, cardH = H-58;
+    var fm = fingerprintMatch(r);
+    ctx.fillStyle = fm.ok ? "#fdecea" : "#fff7f0";
+    ctx.strokeStyle = fm.ok ? "#c0392b" : "#e0a060";
+    ctx.lineWidth = fm.ok ? 2 : 1.5;
+    roundRect(ctx, cardX, cardY, cardW, cardH, 8); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = "#1f2328"; ctx.font = "bold 13px -apple-system,sans-serif";
+    ctx.fillText("输出指纹", cardX+14, cardY+24);
+
+    // 三条指标条
+    var labels = ["爆发周期", "每簇锋数", "占空比"];
+    var curVals = [r.period, r.spikesPerBurst, r.duty];
+    var refVals = [REF.period, REF.spikesPerBurst, REF.duty];
+    var rowY = cardY+44;
+    for(var k=0;k<3;k++){
+      ctx.fillStyle = "#3a4048"; ctx.font = "12px -apple-system,sans-serif";
+      ctx.fillText(labels[k], cardX+14, rowY);
+      // 参照条（灰）
+      var bx = cardX+14, by = rowY+8, bw = cardW-28, bh = 9;
+      ctx.fillStyle = "#eceef1"; roundRect(ctx, bx, by, bw, bh, 4); ctx.fill();
+      // 当前值条（红），按与参照之比映射，1.0 ≈ 60% 宽
+      var ratio = refVals[k]>0 ? curVals[k]/refVals[k] : 1;
+      var frac = Math.max(0.04, Math.min(1, ratio*0.6));
+      ctx.fillStyle = "#c0392b"; roundRect(ctx, bx, by, bw*frac, bh, 4); ctx.fill();
+      // 参照刻度线（60% 处）
+      ctx.strokeStyle = "#9aa1ab"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(bx+bw*0.6, by-2); ctx.lineTo(bx+bw*0.6, by+bh+2); ctx.stroke();
+      rowY += 40;
+    }
+
+    // 判定徽标
+    ctx.fillStyle = fm.ok ? "#c0392b" : "#b9772a";
+    ctx.font = "bold 13px -apple-system,sans-serif";
+    var badge = fm.ok ? "✓ 仍是同一种节律" : "✗ 节律已变样";
+    ctx.fillText(badge, cardX+14, cardY+cardH-40);
+    ctx.fillStyle = "#6b7280"; ctx.font = "11px -apple-system,sans-serif";
+    ctx.fillText("竖灰线 = 基准水平", cardX+14, cardY+cardH-22);
+    ctx.fillText("最大偏差 "+(fm.score*100).toFixed(0)+"%（容差16%）", cardX+14, cardY+cardH-8);
+
+    // ---- 文字判词 ----
+    var dist = Math.sqrt(Math.pow(gCa-BASE.gCa,2)+Math.pow(gK-BASE.gK,2)+Math.pow(gH-BASE.gH,2));
+    var distPct = (dist*100/Math.sqrt(3)).toFixed(0);
+    if(fm.ok){
+      if(dist > 0.18){
+        verdict.innerHTML = '<span style="color:#c0392b;font-weight:700;">这就是简并性。</span> '+
+          '当前电导组合与基准的"距离"约 '+distPct+'%（明显不同的配方），但三项输出指标都在 16% 容差内——'+
+          '<strong>不同的参数、同一种节律</strong>。这正是论文里"2000 万模型中很多不同网络产生相似输出""浦肯野细胞电流差 4 倍却同样爆发"的微缩演示。';
+      } else {
+        verdict.innerHTML = '当前组合与基准接近，节律自然一致。试着<strong>大幅、且反向</strong>地拨动两个滑块（如同时拉高 g<sub>Ca</sub> 和 g<sub>K</sub>），'+
+          '看能否在"配方很不同"的情况下仍保持 ✓ —— 那才是补偿的精髓。';
+      }
+    } else {
+      verdict.innerHTML = '<span style="color:#b9772a;font-weight:700;">节律变样了。</span> '+
+        '你大概只拉动了单一电导而没有补偿——这对应论文里"急性药理阻断单一电流，效果往往很显著"。'+
+        '现在试着拨动<strong>另一个</strong>滑块去抵消它，把右侧判定重新拉回 ✓。';
+    }
+  }
+
+  function drawTrace(trace, x, y, w, h, color, lw){
+    var T = trace.length;
+    // 轨迹值域大致 [-64, 20]
+    var vmin = -66, vmax = 24;
+    ctx.beginPath();
+    for(var t=0;t<T;t++){
+      var px = x + (t/(T-1))*w;
+      var norm = (trace[t]-vmin)/(vmax-vmin);
+      var py = y + h - norm*h;
+      if(t===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineJoin="round";
+    ctx.stroke();
+  }
+
+  function roundRect(c, x, y, w, h, r){
+    c.beginPath();
+    c.moveTo(x+r, y);
+    c.arcTo(x+w, y, x+w, y+h, r);
+    c.arcTo(x+w, y+h, x, y+h, r);
+    c.arcTo(x, y+h, x, y, r);
+    c.arcTo(x, y, x+w, y, r);
+    c.closePath();
+  }
+
+  // ---- 自动找一个"不同组合·同节律"的解 ----
+  function findDegenerate(){
+    var best = null;
+    for(var iter=0; iter<600; iter++){
+      var gCa = 0.55 + Math.random()*1.25;
+      var gK  = 0.55 + Math.random()*1.25;
+      var gH  = 0.55 + Math.random()*1.25;
+      var r = simulate(gCa, gK, gH);
+      var fm = fingerprintMatch(r);
+      if(fm.ok){
+        var dist = Math.sqrt(Math.pow(gCa-BASE.gCa,2)+Math.pow(gK-BASE.gK,2)+Math.pow(gH-BASE.gH,2));
+        if(dist > 0.22 && (!best || dist > best.dist)){
+          best = {gCa:gCa, gK:gK, gH:gH, dist:dist};
+        }
+      }
+    }
+    if(best){
+      gCaEl.value = Math.round(best.gCa*100);
+      gKEl.value  = Math.round(best.gK*100);
+      gHEl.value  = Math.round(best.gH*100);
+      draw();
+    } else {
+      // 兜底：极少触发
+      gCaEl.value = 140; gKEl.value = 130; gHEl.value = 115; draw();
+    }
+  }
+
+  gCaEl.addEventListener("input", draw);
+  gKEl.addEventListener("input", draw);
+  gHEl.addEventListener("input", draw);
+  document.getElementById("findBtn").addEventListener("click", findDegenerate);
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    gCaEl.value = 100; gKEl.value = 100; gHEl.value = 100; draw();
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>

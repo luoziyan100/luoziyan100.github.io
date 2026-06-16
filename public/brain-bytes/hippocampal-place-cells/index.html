@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海马位置细胞（O'Keefe & Dostrovsky 1971）深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Place Cells <span>×</span> 大脑里藏着一张「我在哪儿」的地图</h1>
+    <div class="meta">
+      <span>📄 The hippocampus as a spatial map. Preliminary evidence from unit activity in the freely-moving rat</span><br>
+      <span>✍️ J. O'Keefe &amp; J. Dostrovsky</span><br>
+      <span>🏛️ M.R.C. 大脑功能研究组 · 解剖学系 · 伦敦大学学院（University College London）</span><br>
+      <span>📅 Brain Research · 第 34 卷 · 171–175 页 · 1971 年（Short Communications 简报）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-q">它到底想回答什么</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-viz">交互：移动小鼠，唤醒位置细胞</a></li>
+        <li><a href="#sec-controls">关键控制分析</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <!-- ===================== 为什么值得深读 ===================== -->
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是一篇只有 5 页、被作者自己反复称为「初步（preliminary）」的简报，却在 33 年后帮 O'Keefe 拿下了 2014 年诺贝尔生理学或医学奖。它第一次给「认知地图」这个心理学概念找到了实打实的生理对应物：当一只清醒、自由活动的大鼠走到房间里某个特定角落、朝向某个特定方向时，海马里会有一个细胞突然「噼里啪啦」放电；离开那个地方，它就沉默。作者把这种细胞理解为大脑空间地图上的一个「图钉」。</p>
+        <p>它值得深读，恰恰因为<strong>数据少得惊人</strong>——全文真正用来支撑这个大结论的，只有 76 个细胞里挑出的 8 个，而细节充分的只有 <strong>1 个</strong>（图 1 那个 CA1 细胞）。读它，是在看一个改变了整个领域的判断，如何从极其单薄的证据里被小心地、几乎是冒险地提了出来。理解这份「证据 / 主张」之间的巨大张力，比记住结论本身更有价值。</p>
+      </div>
+
+      <!-- ===================== 概念工具箱 ===================== -->
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的术语不多，但每一个都关乎你能不能看懂那个核心实验。先把工具备齐：</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">海马（Hippocampus）</div>
+          <div class="cdesc">大脑颞叶深处一对形似海马的结构。本文研究的是它的「背侧」部分。当时人们已知它和记忆、空间任务有关，但没人知道单个细胞在干什么。可以把它先理解成一块「功能尚不明」的高级脑区。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">位置细胞 / 空间地图（Place Cell / Spatial Map）</div>
+          <div class="cdesc">本文创造的核心概念：某些海马细胞只在动物身处空间中某个特定地点（且常常朝向特定方向）时才放电。许多这样的细胞拼起来，就像一张标满「图钉」的地图，随时告诉大脑「你现在在哪儿」。注意：1971 年作者强调的是「地点＋朝向」，后来「纯地点」的版本才被确立。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">单细胞记录（Unit Recording）</div>
+          <div class="cdesc">把极细的微电极插到脑组织里，偷听单个神经元放电（spike，像一声声电脉冲）的技术。难点在于：要在一只到处乱跑的清醒大鼠身上，让电极稳稳贴着同一个细胞超过 15–30 分钟不脱落。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">感受野（Receptive Field）</div>
+          <div class="cdesc">来自视觉研究的经典概念：一个感觉神经元「负责」外界刺激的某个特定区域或特征（比如某朝向的光条）。本文的关键反衬——作者证明位置细胞<strong>不是</strong>这种感受野细胞：它对应的不是视网膜上某块图像，而是动物在房间里的位置。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">唤醒 / 注意状态（Arousal）</div>
+          <div class="cdesc">动物清醒、警觉、投入的程度。本文的位置细胞有个前提条件：动物得处于「中等唤醒」状态它们才肯放电；昏昏欲睡时即便走到对的位置也不响。这让「位置」信号和「警觉」信号纠缠在了一起，是解读时要小心的地方。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">海马 θ 节律（Theta Rhythm）</div>
+          <div class="cdesc">海马脑电（EEG，Electroencephalogram，脑电图）里一种 4–8 Hz 的规律性波动，在动物走动、探索时出现（Vanderwolf 的发现）；安静不动时则是不规则慢波。本文把它当作「动物正在移动 / 打算移动」的信号，设想地图靠它来「预判」下一个位置。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">等势线索（Equipotential Cues）</div>
+          <div class="cdesc">作者的一个推测：位置细胞的「方向偏好」不是靠某一个线索（某盏灯、某种气味）撑起来的，而是房间里好几个线索共同决定、彼此可替代。拿掉任何一个都不够破坏它——就像一张桌子有很多条腿，锯掉一条还站得住。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">预判 / 失配（Anticipation / Mismatch）</div>
+          <div class="cdesc">作者设想这张地图不只是被动记录，还会「预测」：根据移动意图提前激活下一个位置的细胞。当预测和实际撞上的感觉不一致（mismatch，比如水碗突然被玻璃罩住了），动物就会去探索，把新情况更新进地图。这是后来「海马＝比较器」思想的雏形。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">认知地图（Cognitive Map）</div>
+          <div class="cdesc">心理学家 Tolman 1948 年提出的概念：动物脑中有一张抽象的环境地图，让它能抄近路、灵活找路，而不是死记一串「左转右转」的动作链。本文最大的野心，就是给这个纯心理学概念找到神经元层面的载体。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">海马切除大鼠（Hippocampectomized Rat）</div>
+          <div class="cdesc">海马受损的大鼠。前人报告它们在新环境里过度活跃、「固执」（学会的反应改不掉）、空间任务（如迷宫）做得差。本文反过来用「地图丢失」来统一解释这一串看似零散的缺陷——这是它论证链条的另一端。</div>
+        </div>
+
+      </div>
+
+      <!-- ===================== 它到底想回答什么 ===================== -->
+      <div class="section-head" id="sec-q">它到底想回答什么</div>
+      <p>1971 年关于海马，有一堆零散的行为学事实却没有统一解释。作者在开篇就把它们摆了出来：海马受损的大鼠在新环境里<strong>过度活跃</strong>、表现出「固执反应」（perseverative，学会的反应改不掉）、对学过的任务<strong>抗消退</strong>（resistant to extinction）、对环境的剧烈变化无动于衷、并且在迷宫这类<strong>空间任务</strong>以及需要在连续试次间灵活改变反应的任务上做得很差。</p>
+      <p>这串症状看起来风马牛不相及。作者提出一个大胆的统一假说：<strong>这些缺陷可能都源于失去了同一个东西——一个为动物提供「认知地图」或「空间地图」的神经系统</strong>。那么问题就变得很具体了：</p>
+      <div class="info-block">
+        <span class="ib-title">核心研究问题</span>
+        <p>在一只<strong>清醒、自由活动</strong>的大鼠脑中，海马的单个神经元到底「为什么」放电？它们编码的，是某种感觉刺激（像视觉皮层那样），还是某种动作，<strong>抑或是动物在空间中的「位置」本身</strong>？</p>
+      </div>
+      <p>这是一个典型的「自下而上」找答案的实验：不预设细胞该编码什么，而是把电极扎进去，穷举各种行为和刺激，看细胞在什么条件下响、什么条件下哑，再倒推它「关心」的是什么。</p>
+
+      <!-- ===================== 核心发现 ===================== -->
+      <div class="section-head" id="sec-findings">核心发现</div>
+
+      <div class="section-head-sub">发现一：绝大多数细胞编码的是状态或动作，不是位置</div>
+      <p>作者一共在 23 只大鼠、36 次电极穿刺中记录到 <strong>76 个</strong>背侧海马（CA1、CA4 区）和齿状回的细胞。在为本文重点分析的 8 个之外的 <strong>68 个</strong>里，他们做了一次诚实的分类——这份「不那么激动人心」的清单恰恰是结论可信度的地基：</p>
+      <table>
+        <thead><tr><th>细胞类型</th><th>数量</th><th>放电时机</th></tr></thead>
+        <tbody>
+          <tr><td>唤醒 / 注意型</td><td>14</td><td>与动物的警觉、注意水平挂钩（类似 Vinogradova 报告的细胞）</td></tr>
+          <tr><td>运动型</td><td>21</td><td>在定向、嗅探、压杆、走动时活跃；安静坐着或慢波睡眠时几乎不放电</td></tr>
+          <tr><td>预期 / 失配型</td><td>2</td><td>与动物的「预期」有关（如只在嗅自己的水碗、且水碗符合预期时放电）</td></tr>
+          <tr><td>无法解读型</td><td>31</td><td>找不到合适的刺激或行为，或反应前后不一致；其中 <strong>15 个</strong>无论怎么折腾都「沉默」</td></tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">为什么这张「失败清单」很重要</span>
+        <p>那 <strong>15 个怎么逗都不放电</strong>的「沉默细胞」是关键伏笔：作者发现，8 个位置细胞中有 5 个，在所有其它方面都和这 15 个沉默细胞<strong>一模一样</strong>——它们之所以「沉默」，很可能只是因为<strong>实验时大鼠从没恰好走到它们负责的那个位置</strong>。换句话说，位置细胞可能远不止 8 个，只是大多数被「错过」了。这是从单薄数据里能挖出的最有分量的推论之一。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：8 个细胞「只在特定地点＋特定朝向」才放电</div>
+      <p>真正的主角是这 <strong>8 个</strong>细胞。它们的共同特征被作者精确地描述为：<strong>只有当大鼠处于测试平台的某个特定部位、且面朝某个特定方向时，才会唯一地或最大程度地放电</strong>（responded solely or maximally when the rat was situated in a particular part of the testing platform facing in a particular direction）。这 8 个又分两小类：</p>
+      <ul>
+        <li><strong>5 个</strong>没有自发放电，需要满足条件才响：动物得处于中等唤醒、且位于正确的位置；其中 <strong>4 个</strong>还额外需要一个合适的感觉刺激。</li>
+        <li><strong>3 个</strong>有自发放电，但其放电率在测试台的某个特定部位达到最大。</li>
+      </ul>
+      <p>作者把这种「地点＋朝向」的偏好称为细胞的<strong>「空间朝向野」（spatial orientation field）</strong>——这正是后世「位置野（place field）」概念的直系祖先。</p>
+
+      <div class="section-head-sub">发现三：图 1 那个 CA1 细胞——全文唯一的「实锤」</div>
+      <p>由于篇幅是简报，作者把火力集中在 1 个最干净的例子上：一个记录自前背侧海马 CA1 区的细胞。它<strong>没有任何自发活动</strong>，只在两个条件<strong>同时</strong>满足时才放电：</p>
+      <ol>
+        <li>大鼠朝向 <strong>A 或 B 方向</strong>（特定的空间朝向）；<strong>并且</strong></li>
+        <li>有人用手轻轻但稳稳地按住它的背部、拇指和食指搭在肩膀和上臂上（一个特定的<strong>触觉刺激</strong>）。</li>
+      </ol>
+      <p>实验设计极其巧妙：把大鼠沿逆时针方向绕平台一圈，依次在 A、B、C、D、E、F、G、H 各点停留几秒，每个点都施加同样的「按背」操作。结果是——这个细胞<strong>只在 A 和 B 位置放电</strong>，以及从 B 往 D（途经 C）移动时放电；而当大鼠被平移到 H 点（朝向相近、位置不同）时，反应<strong>明显变小</strong>。</p>
+      <div class="info-block">
+        <span class="ib-title">从这一个细胞里能读出的三件事（数字直觉）</span>
+        <p>① <strong>朝向很重要</strong>：换了朝向（在不对的位置施加同样操作），细胞不响。<br>
+        ② <strong>位置同样重要</strong>：H 点朝向相近，但因为位置不同，反应「明显小很多」（considerably smaller）——说明细胞编码的不只是头朝哪儿，还有「人在哪儿」。<br>
+        ③ <strong>触觉刺激必不可少</strong>：当大鼠静止在 A 那个对的位置、朝着对的方向，但<strong>没被按住</strong>时，细胞<strong>不放电</strong>；松松地抱着躯干也不行——必须是那个特定的触觉输入。三者缺一不可。</p>
+      </div>
+
+      <div class="section-head-sub">发现四：方向线索是「视觉」的，但不是单一刺激</div>
+      <p>对这个细胞，作者进一步追问：它判断「朝向」靠的是什么线索？答案是<strong>视觉</strong>——因为<strong>关灯就让反应完全消失</strong>（shutting off the lights abolished the response）。但他们诚实地补充：<strong>无法把反应归因于任何单一视觉刺激</strong>，并且认为不太可能是某个单一刺激在起作用。关键的反衬是：</p>
+      <blockquote>
+        <p>这个细胞<strong>不</strong>具备 Hubel 和 Wiesel 描述的视觉皮层细胞性质：</p>
+        <p>他们对视前皮层（prestriate cortex）细胞屡试不爽的方法——拿一张合适大小、特定朝向的条纹卡在视野里移动来诱发反应——在这个细胞上<strong>找不到</strong>对应的感受野。</p>
+        <p>而且，当大鼠从 A 转到 B 时，<strong>没有任何单一视觉刺激</strong>大到足以一直覆盖视网膜上大致相同的区域。</p>
+      </blockquote>
+      <p>这一段是全文最锋利的地方：它用排除法划清了「位置细胞」与「感觉细胞」的界线——位置细胞回答的不是「我看到了什么」，而是「我在哪里、朝向何方」。这个细胞的「空间朝向野」大小，作者说，对他们见过的所有此类细胞而言都是典型的。</p>
+
+      <div class="info-block">
+        <p>作者还顺手记下一个漂亮的细节：在<strong>同一次穿刺、仅高出图 1 那个细胞 10 微米（μm）</strong>的地方，记录到另一个细胞，它在大鼠位于 G 和 A 之间、面对特定朝向时，对<strong>任何移动的视觉刺激</strong>都放电。两个紧挨着的细胞，偏好的位置、朝向、刺激类型却完全不同——说明海马里不同细胞各自「负责」不同的空间情境，密集地拼成一张图。</p>
+      </div>
+
+      <!-- ===================== 交互组件 ===================== -->
+      <div class="section-head" id="sec-viz">交互：移动小鼠，唤醒位置细胞</div>
+      <p>「位置细胞只在它的位置野里放电」这句话，读十遍不如自己动手走一遍。下面是一个模拟的 24 cm × 36 cm 测试平台（对应论文里的真实尺寸），三个虚拟位置细胞各自有一片「位置野」。<strong>拖动小鼠（或点击平台任意处）</strong>，看哪些细胞醒过来；再用滑块调节大鼠的「唤醒水平」，体会论文里那个微妙的前提——位置对了，但不够清醒，细胞照样沉默。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">虚拟测试平台：把小鼠拖进不同的「位置野」</div>
+        <div class="viz-note">模拟示意，定性还原论文报告的定性模式（位置×朝向×唤醒三因素门控放电）；非论文原始数据。平台尺寸、三因素逻辑取自正文。</div>
+
+        <canvas id="arenaCanvas" width="560" height="400"></canvas>
+
+        <div class="viz-controls">
+          <button id="btnMove" class="alt" type="button">▶ 自动巡游一圈</button>
+          <button id="btnReset" type="button">重置位置</button>
+        </div>
+        <div class="viz-controls">
+          <label style="min-width:120px;">唤醒水平 Arousal：</label>
+          <input type="range" id="arousal" min="0" max="100" value="70" style="flex:1;min-width:160px;">
+          <span id="arousalVal" style="min-width:42px;font-weight:700;color:var(--red);">70%</span>
+        </div>
+        <div id="fireStatus" style="margin-top:6px;font-size:0.92rem;line-height:1.7;color:var(--ink-soft);"></div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">动手时请注意这几点（它们正是论文的论点）</span>
+        <p>① 同一只小鼠，<strong>走到不同地方会唤醒不同的细胞</strong>——这就是「地图＝许多图钉」。<br>
+        ② 把「唤醒水平」拖到很低，你会发现<strong>站在位置野里细胞也不放电</strong>——对应论文中 5 个细胞「需中等唤醒」的前提，也是为什么 15 个细胞会被误判为「沉默」。<br>
+        ③ 细胞 C 标了「需朝向」：只有当小鼠的朝向箭头落在它要求的方向扇区里才放电，重现图 1 那个 CA1 细胞「地点＋朝向」缺一不可的特性。</p>
+      </div>
+
+      <!-- ===================== 关键控制分析 ===================== -->
+      <div class="section-head" id="sec-controls">关键控制分析</div>
+      <p>一篇结论这么大的简报，可信度全压在「排除其它解释」的几个对照操作上。作者做了哪些、又承认哪些没做成，值得逐条看：</p>
+      <table>
+        <thead><tr><th>对照操作</th><th>结果</th><th>排除了什么</th></tr></thead>
+        <tbody>
+          <tr><td>同位置、同朝向，但不按背</td><td>细胞不放电</td><td>排除「纯位置 / 朝向就够」——证明该细胞还需触觉输入</td></tr>
+          <tr><td>松松抱住躯干（换一种触觉）</td><td>细胞不放电</td><td>排除「任意触觉都行」——刺激的<strong>具体形式</strong>也被编码</td></tr>
+          <tr><td>关灯</td><td>反应完全消失</td><td>证明方向线索是<strong>视觉</strong>性质的</td></tr>
+          <tr><td>移动条纹卡找感受野（Hubel-Wiesel 法）</td><td>找不到经典感受野</td><td>排除「这是个普通视觉皮层式细胞」</td></tr>
+          <tr><td>平移到 H 点（朝向相近、位置不同）</td><td>反应明显变小</td><td>证明<strong>位置本身</strong>独立于朝向地起作用</td></tr>
+          <tr><td>旋转平台 / 关掉风扇、示波器等声源 / 遮挡部分视野（探查线索来源）</td><td>「均未明显成功」</td><td>未能锁定单一线索 → 引出「等势线索」推测</td></tr>
+          <tr><td>多次剧烈改变环境（如撤掉幕布）</td><td>2 个细胞的朝向偏好最终被打乱，但大鼠随即表现得像进了全新环境（持续探索）</td><td>把「地图被破坏」和「动物重建地图」联系起来</td></tr>
+        </tbody>
+      </table>
+      <p>这里有一处特别诚实、也特别重要的承认：作者明说他们<strong>「怀疑、但尚未证明」</strong>（We suspect, but have not proved）这些细胞的朝向偏好来自<strong>多个等势线索</strong>，拿掉任何单一线索都不足以破坏反应。这种把推测和证据分得清清楚楚的写法，是这篇短文经得起时间检验的原因之一。</p>
+
+      <!-- ===================== 方法论精妙之处 ===================== -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>在 1971 年，「记录一只到处乱跑的大鼠脑中单个细胞超过半小时」本身就是工程壮举。这篇论文真正的硬核创新藏在方法里：</p>
+      <table>
+        <thead><tr><th>技术环节</th><th>具体做法</th><th>为什么关键</th></tr></thead>
+        <tbody>
+          <tr><td>可移动微驱动器</td><td>永久固定在鼠颅骨上的轻量微驱动器，最多携带 8 根玻璃绝缘的铂镀钨微电极；旋钮可独立移动任一电极</td><td>能在清醒动物身上一根根微调电极，去「搜寻」并稳住单个细胞——这是看到位置细胞的物理前提</td></tr>
+          <tr><td>差分降噪</td><td>取两根相邻电极的信号，喂进直接装在微驱动器上的高输入阻抗场效应管（FET，Field-Effect Transistor）差分前置放大器</td><td>清醒动物肌肉和运动产生的电干扰极大；差分放大把「共同噪声」抵消掉，才听得清放电</td></tr>
+          <tr><td>参考电极法</td><td>较新的做法：把一根电极停在皮层白质里固定，作为其它每根电极轮流的参考</td><td>始终能确认自己「听的是哪一个」细胞，避免张冠李戴</td></tr>
+          <tr><td>穷举式行为测试</td><td>系统测试走、吃、喝、理毛、睡，以及定向、嗅探、咬聚乙烯管、压杆取食；并测听觉（咔哒声/哨声）、视觉（移动光/手/黑白条纹板）、嗅觉、触觉刺激</td><td>不预设答案，把所有可能的「细胞在乎什么」都试一遍，才能在排除后剩下「位置」</td></tr>
+          <tr><td>组织学定位</td><td>电极在终位置留置至少 24 小时形成胶质增生标记；之后灌注、用 cresyl violet 或 darrow red＋Luxol fast blue 染色，按微驱动读数反推记录点</td><td>事后确认这些细胞确实来自海马 CA1/CA4 和齿状回，而非误入邻近结构</td></tr>
+          <tr><td>纳入标准</td><td>所报告的每个细胞都被研究了<strong>至少 15 分钟，多数超过 30 分钟</strong></td><td>足够长的观察才能反复验证「某位置 → 放电」的因果，而非偶然巧合</td></tr>
+        </tbody>
+      </table>
+
+      <!-- ===================== 与已有研究的关系 ===================== -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇短文像一个枢纽，把几条原本平行的研究线接到了一起：</p>
+      <ul>
+        <li><strong>对 Tolman（1948）的「认知地图」</strong>：本文是给这个纯心理学构念找生理载体的第一次尝试。作者明说，没了这张地图，大鼠就无法像 Tolman 实验里那样「从此刻所在抄近路去某个地方」，只能退而依赖「到路口就左转、跟着这个气味走、避开强光」这类<strong>更僵硬、更不灵活</strong>的策略。</li>
+        <li><strong>对 Hubel &amp; Wiesel（1959）的「感受野」</strong>：本文用它作为<strong>反例标杆</strong>。视觉皮层细胞编码「视野中某朝向的边」，而海马位置细胞编码「动物在世界中的位置」——后者是前者在抽象层级上的一次大跳跃。</li>
+        <li><strong>对海马损毁行为学（Douglas 1967、Kimble 1968）</strong>：前人发现海马受损导致过度活跃、抗消退、固执反应、空间任务受损。本文反向提供机制：<strong>这些都是「地图丢失」的后果</strong>，从而把一堆零散症状收拢到一个解释下。</li>
+        <li><strong>对 Vinogradova 等（1970）</strong>：前人报告了海马细胞在<strong>时间维度</strong>上的「预判」（trace 现象）。本文把这种预判搬到<strong>空间维度</strong>，设想地图会提前激活「下一个位置」的细胞。</li>
+        <li><strong>对 Vanderwolf（1969）的 θ 节律</strong>：本文借用「θ＝动物在动 / 想动」这一发现，作为地图「预判」机制的动力来源。</li>
+        <li><strong>技术上承接自己（Ainsworth, Gaffan, O'Keefe &amp; Sampson 1969；Wall, Freeman &amp; Major 1967）</strong>：清醒动物记录技术是从脊髓背角细胞的记录方法改造而来的。</li>
+      </ul>
+
+      <!-- ===================== 跨领域启示 ===================== -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>站在 2026 年回看，这 5 页纸点燃的火，烧到了远比神经科学更广的地方：</p>
+      <div class="info-block">
+        <span class="ib-title">① 它改写了「记忆＝海马」的故事</span>
+        <p>本文把海马的角色从模糊的「记忆器官」具体化为「空间地图」。后续几十年，这条线发展出网格细胞（grid cell）、头朝向细胞（head-direction cell）、边界细胞等一整套「大脑导航系统」，并最终促成 2014 年诺奖（O'Keefe 与 Moser 夫妇共享）。一篇被作者称为 preliminary 的简报，成了一个学科的起点。</p>
+      </div>
+      <div class="info-block">
+        <span class="ib-title">② 它给「内部表征」提供了一个干净样板</span>
+        <p>位置细胞是「大脑里有一个关于外部世界的内部模型」最直观的证据之一：一个细胞的放电，对应的不是任何具体感官输入，而是一个抽象变量——「我在空间中的位置」。这对认知科学关于「表征」的争论，是一记实证锚点。</p>
+      </div>
+      <div class="info-block">
+        <span class="ib-title">③ 它预示了人工智能里的空间表征</span>
+        <p>「失配触发探索、把新信息更新进地图」的思路，与现代强化学习中「基于预测误差去探索」、以及导航智能体里学到的空间表征（DeepMind 曾报告人工网络自发涌现出类网格细胞的表征）遥相呼应。半个世纪前的这套语言，今天读来意外地「现代」。</p>
+      </div>
+
+      <!-- ===================== 边界和未解问题 ===================== -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>作者自己已经反复用「preliminary（初步）」给全文定调，但有些边界即使在今天回看也值得点破——其中一部分，正是后来几十年研究要去填的坑：</p>
+      <ul>
+        <li><strong>样本极小，且是「优中选优」</strong>：核心结论建立在 76 个细胞里挑出的 8 个上，详尽数据只有 1 个。作者没有给出任何统计检验、效应量或置信区间（这在 1971 年的单细胞简报中是常态，但仍是事实）。结论的分量与证据的薄度之间，张力巨大。</li>
+        <li><strong>「位置」与「朝向」「触觉」「唤醒」纠缠未解</strong>：1971 年的版本里，最干净的那个细胞其实需要「位置＋朝向＋特定触觉」三者齐备才放电——它更像一个「特定情境探测器」，而非纯粹的位置编码。「纯位置野」要等到后来在更自然、不被实验者按住的探索行为中才被分离出来。<strong>本文严格说证明的是「空间朝向野」，而非教科书里那个干净的「位置野」。</strong></li>
+        <li><strong>「唤醒」是个混淆因素</strong>：细胞需要中等唤醒才放电，意味着「位置信号」和「警觉信号」在数据里没被彻底拆开。一个谨慎的怀疑者当时完全可以问：你确定看到的是「位置」，而不是「动物到了某处时碰巧更警觉」？作者用 H 点对照部分地回应了，但没有根除这个疑问。</li>
+        <li><strong>线索来源始终没锁定</strong>：作者坦承所有「找出关键线索」的尝试「均未明显成功」，只能退到「等势线索」这个<strong>未经证明</strong>的推测。到底是什么让细胞「知道」朝向，本文没有答案。</li>
+        <li><strong>地图破坏实验只有 n=2，且解释可逆</strong>：剧烈改变环境后，2 个细胞的偏好被打乱——但也可能只是大鼠把它当成了「新房间」从而启用了新地图。「地图被破坏」和「地图被替换」在这点数据上难以区分。</li>
+        <li><strong>「预判 / 失配」基本是理论畅想</strong>：关于地图会「预测下一个位置」「失配触发探索更新」的论述，证据只有 2 个预期相关细胞（如那个「水碗被罩住就不响」的例子），其余是基于 θ 节律的合理推断，而非直接观测。它更像一份<strong>研究纲领</strong>，而非已被证实的发现。</li>
+      </ul>
+
+      <!-- ===================== 判断 ===================== -->
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都尽量挂回文中的具体证据。</p>
+      <p><strong>这是一篇「证据轻、判断重」的典范，而它赌对了。</strong>从科学方法的角度看，用 8 个细胞（详尽数据仅 1 个）去支撑「海马＝空间地图」这样一个学科级别的论断，证据是<strong>明显不足</strong>的——文中没有任何统计量，核心实验是单细胞的单次演示。如果只按「证据 → 结论」的强度打分，它远谈不上严谨。但它之所以成为经典，在于<strong>那一个细胞被刻画得极其干净</strong>：通过「不按背就不响」「关灯就消失」「H 点反应变小」「找不到 Hubel-Wiesel 感受野」这一组环环相扣的对照（见关键控制分析表），作者把「位置」从朝向、触觉、视觉感受野中一项项剥离出来。<strong>这是「深度」对冲「广度不足」的一次成功示范</strong>：把一个例子讲到无可辩驳，胜过把一百个例子讲得含糊。（依据：发现三、四与关键控制分析章节。）</p>
+      <p><strong>最值得称道的，是作者对「证据」与「推测」的诚实分界。</strong>全文反复出现 "preliminary"、"we suspect but have not proved"、对照操作"均未明显成功"这类措辞。他们没有掩盖那 31 个「无法解读」的细胞，反而把其中 15 个「沉默细胞」转化为支持论点的伏笔（可能只是位置没踩对）。这种把脏数据摊开、把推断标注清楚的写法，是它五十年后仍可被信任的根本原因。（依据：发现一、关键控制分析。）</p>
+      <p><strong>但必须指出：教科书后来「简化」了这篇论文。</strong>课本常把 1971 年说成「发现了纯粹的位置细胞」，而本文白纸黑字写的是「特定位置＋特定朝向（＋常常还需特定刺激）」。最干净的那个细胞甚至离不开实验者的手。<strong>严格讲，1971 年发现的是「空间朝向野」，是位置细胞的雏形而非成品</strong>；把它读成已经成熟的 place field 概念，是一种善意的时代误读。指出这一点，并不削弱它的开创性，反而更尊重它作为「起点」的真实样貌。（依据：发现二、三与边界章节。）</p>
+      <p><strong>它的伟大，一半在发现，一半在「框架」。</strong>本文最持久的贡献也许不是那 8 个细胞，而是它<strong>把一个心理学概念（Tolman 的认知地图）、一串行为学症状（海马损毁缺陷）、和一种生理现象（细胞放电）焊接成了一个可检验的统一假说</strong>，并顺手抛出「预判」「失配触发探索」这些日后会反复被验证、也被 AI 借用的思想。它是一份伪装成「数据报告」的研究纲领——而后来的历史证明，这份纲领大体是对的。（依据：与已有研究的关系、跨领域启示。）</p>
+
+      <!-- ===================== 一句话总结 ===================== -->
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>O'Keefe 与 Dostrovsky 用一套能在清醒大鼠身上稳住单细胞的微电极技术，从 76 个海马细胞里找出 8 个「只在特定地点＋特定朝向才放电」的细胞（最干净的 1 个：朝向 A/B＋被按背缺一不可，关灯即消失，且不具备 Hubel-Wiesel 感受野），据此大胆提出「海马是大脑的空间地图」——一篇证据单薄到只有 8 个细胞、却凭着把唯一一个例子讲到无可辩驳，最终开创了导航神经科学并通向 2014 年诺奖的传奇简报。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>O'Keefe, J., &amp; Dostrovsky, J. (1971). The hippocampus as a spatial map. Preliminary evidence from unit activity in the freely-moving rat. <em>Brain Research</em>, 34(1), 171–175.<br>
+    <strong>说明：</strong>本页为该论文的中文深度解读，正文论点与数字均取自原文；「跨领域启示」「判断」与交互组件中标注为解读者视角或模拟示意的内容，不属于原文主张。交互平台为定性示意，非论文原始数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('arenaCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  // ---- 平台几何（内框对应 24cm x 36cm 的测试台，画布留边给"幕布") ----
+  var W = canvas.width, H = canvas.height;
+  var pad = 46;
+  var arena = { x: pad, y: pad, w: W - pad*2, h: H - pad*2 };
+
+  // ---- 三个虚拟位置细胞：各有位置野(归一化坐标 0..1)、颜色、是否需要朝向 ----
+  // 朝向以"度"表示，0=右(+x),逆时针为正；dirReq 为该细胞要求的朝向中心与容差
+  var cells = [
+    { name:'细胞 A', color:'#c0392b', cx:0.22, cy:0.30, r:0.16, needDir:false },
+    { name:'细胞 B', color:'#2563eb', cx:0.74, cy:0.66, r:0.17, needDir:false },
+    { name:'细胞 C', color:'#16a34a', cx:0.50, cy:0.50, r:0.15, needDir:true, dirCenter:90, dirTol:55 }
+  ];
+
+  // 小鼠状态：位置(归一化) + 朝向(度)
+  var rat = { x:0.5, y:0.85, dir:90 };
+  var arousalEl = document.getElementById('arousal');
+  var arousalValEl = document.getElementById('arousalVal');
+  var statusEl = document.getElementById('fireStatus');
+
+  function toPx(nx, ny){
+    return { x: arena.x + nx*arena.w, y: arena.y + ny*arena.h };
+  }
+  function dirDelta(a,b){
+    var d = Math.abs(((a-b)%360+540)%360-180);
+    return d;
+  }
+
+  // 计算某细胞当前放电强度 0..1
+  function fireLevel(cell){
+    var p = toPx(cell.cx, cell.cy);
+    var rp = toPx(rat.x, rat.y);
+    var dist = Math.hypot(p.x-rp.x, p.y-rp.y);
+    var fieldPx = cell.r * Math.min(arena.w, arena.h);
+    if(dist > fieldPx) return 0;
+    var spatial = 1 - dist/fieldPx;            // 越靠中心越强
+    var arousal = (+arousalEl.value)/100;
+    // 论文：5个细胞需中等唤醒才放电 -> 设一个阈值约0.35
+    var arousalGate = arousal < 0.35 ? 0 : (arousal-0.35)/0.65;
+    var dirGate = 1;
+    if(cell.needDir){
+      var dd = dirDelta(rat.dir, cell.dirCenter);
+      dirGate = dd > cell.dirTol ? 0 : 1 - (dd/cell.dirTol)*0.6;
+    }
+    return Math.max(0, spatial * arousalGate * dirGate);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // 幕布(三面白色塑料幕) 提示
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle = '#d7dadf';
+    ctx.setLineDash([5,5]);
+    ctx.lineWidth = 1;
+    ctx.strokeRect(14,14,W-28,H-28);
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.fillText('白色幕布（三面）', 20, 30);
+
+    // 平台
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(arena.x, arena.y, arena.w, arena.h);
+    ctx.strokeStyle = '#1f2328';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(arena.x, arena.y, arena.w, arena.h);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.fillText('测试平台 24 cm × 36 cm', arena.x+6, arena.y+arena.h-8);
+
+    // 画各细胞的位置野
+    cells.forEach(function(cell){
+      var p = toPx(cell.cx, cell.cy);
+      var fieldPx = cell.r * Math.min(arena.w, arena.h);
+      var lvl = fireLevel(cell);
+      // 野范围
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, fieldPx, 0, Math.PI*2);
+      ctx.fillStyle = hexA(cell.color, 0.08 + 0.30*lvl);
+      ctx.fill();
+      ctx.strokeStyle = hexA(cell.color, 0.55);
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4,3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 朝向扇区(仅 needDir 的细胞)
+      if(cell.needDir){
+        var c0 = (cell.dirCenter - cell.dirTol);
+        var c1 = (cell.dirCenter + cell.dirTol);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        // canvas y 轴向下，朝向度数转弧度时取负
+        ctx.arc(p.x, p.y, fieldPx*0.62, -c1*Math.PI/180, -c0*Math.PI/180, false);
+        ctx.closePath();
+        ctx.fillStyle = hexA(cell.color, 0.16);
+        ctx.fill();
+      }
+
+      // 细胞核(放电时变亮变大 + 光晕)
+      var coreR = 7 + 10*lvl;
+      if(lvl > 0.02){
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, coreR+6, 0, Math.PI*2);
+        ctx.fillStyle = hexA(cell.color, 0.25*lvl);
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, coreR, 0, Math.PI*2);
+      ctx.fillStyle = lvl>0.02 ? cell.color : hexA(cell.color,0.35);
+      ctx.fill();
+
+      // 标签
+      ctx.fillStyle = cell.color;
+      ctx.font = 'bold 12px -apple-system,sans-serif';
+      var lbl = cell.name + (cell.needDir ? '（需朝向）' : '');
+      ctx.fillText(lbl, p.x - 30, p.y - coreR - 8);
+
+      // spike 抖动小竖线(放电视觉)
+      if(lvl>0.05){
+        ctx.strokeStyle = cell.color;
+        ctx.lineWidth = 1.5;
+        for(var s=0;s<Math.round(lvl*8);s++){
+          var sx = p.x - 16 + Math.random()*32;
+          var sy = p.y + coreR + 10 + Math.random()*8;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.lineTo(sx, sy - 4 - Math.random()*6);
+          ctx.stroke();
+        }
+      }
+    });
+
+    // 画小鼠(身体 + 朝向箭头)
+    var rp = toPx(rat.x, rat.y);
+    ctx.save();
+    ctx.translate(rp.x, rp.y);
+    ctx.rotate(-rat.dir*Math.PI/180);
+    // 身体
+    ctx.beginPath();
+    ctx.ellipse(0,0,15,9,0,0,Math.PI*2);
+    ctx.fillStyle = '#3a4048';
+    ctx.fill();
+    // 头/朝向
+    ctx.beginPath();
+    ctx.moveTo(15,0);
+    ctx.lineTo(28,0);
+    ctx.lineTo(23,-5);
+    ctx.moveTo(28,0);
+    ctx.lineTo(23,5);
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = '#3a4048';
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.fillText('🐀 拖我', rp.x-14, rp.y+24);
+
+    updateStatus();
+  }
+
+  function updateStatus(){
+    var active = cells.filter(function(c){ return fireLevel(c) > 0.05; });
+    var arousal = +arousalEl.value;
+    var html = '';
+    if(arousal < 35){
+      html += '<strong style="color:#c0392b;">唤醒过低：</strong>就算站在位置野里，细胞也保持沉默——这正是论文里 5 个细胞「需中等唤醒」的前提，也是 15 个细胞被误判为「沉默」的原因。<br>';
+    }
+    if(active.length === 0){
+      html += '当前没有细胞放电：小鼠不在任何位置野内（或唤醒不足 / 朝向不对）。试着把它拖到某个彩色圆圈中心。';
+    } else {
+      html += '正在放电：' + active.map(function(c){
+        return '<strong style="color:'+c.color+';">'+c.name+'</strong>（'+Math.round(fireLevel(c)*100)+'%）';
+      }).join('、') + '。同一只小鼠，到不同地点唤醒不同细胞——这就是「地图＝许多图钉」。';
+    }
+    statusEl.innerHTML = html;
+  }
+
+  // hex + alpha 工具
+  function hexA(hex, a){
+    var r = parseInt(hex.slice(1,3),16),
+        g = parseInt(hex.slice(3,5),16),
+        b = parseInt(hex.slice(5,7),16);
+    return 'rgba('+r+','+g+','+b+','+a+')';
+  }
+
+  // ---- 交互：拖动 / 点击移动小鼠 ----
+  var dragging = false;
+  function evtPos(e){
+    var rect = canvas.getBoundingClientRect();
+    var cx = (e.touches? e.touches[0].clientX : e.clientX) - rect.left;
+    var cy = (e.touches? e.touches[0].clientY : e.clientY) - rect.top;
+    // 画布可能被 CSS 缩放，换算回内部坐标
+    cx *= canvas.width / rect.width;
+    cy *= canvas.height / rect.height;
+    return {x:cx, y:cy};
+  }
+  function setRatFromPx(px,py){
+    var nx = (px - arena.x)/arena.w;
+    var ny = (py - arena.y)/arena.h;
+    rat.x = Math.max(0, Math.min(1, nx));
+    rat.y = Math.max(0, Math.min(1, ny));
+  }
+  canvas.addEventListener('mousedown', function(e){ dragging=true; var p=evtPos(e); setRatFromPx(p.x,p.y); draw(); });
+  canvas.addEventListener('mousemove', function(e){ if(dragging){ var p=evtPos(e); setRatFromPx(p.x,p.y); draw(); } });
+  window.addEventListener('mouseup', function(){ dragging=false; });
+  canvas.addEventListener('touchstart', function(e){ dragging=true; var p=evtPos(e); setRatFromPx(p.x,p.y); draw(); e.preventDefault(); }, {passive:false});
+  canvas.addEventListener('touchmove', function(e){ if(dragging){ var p=evtPos(e); setRatFromPx(p.x,p.y); draw(); e.preventDefault(); } }, {passive:false});
+  window.addEventListener('touchend', function(){ dragging=false; });
+
+  arousalEl.addEventListener('input', function(){
+    arousalValEl.textContent = arousalEl.value + '%';
+    draw();
+  });
+
+  // ---- 自动巡游：沿平台逆时针走一圈(呼应图1的 A->B->...绕行) ----
+  var touring = false, tourT = 0, tourRAF = null;
+  var path = [
+    {x:0.5, y:0.85, dir:90},  // A 底部
+    {x:0.85,y:0.70, dir:135}, // 右下
+    {x:0.85,y:0.30, dir:180}, // 右上
+    {x:0.5, y:0.15, dir:225}, // 顶部
+    {x:0.15,y:0.30, dir:270}, // 左上
+    {x:0.15,y:0.70, dir:315}, // 左下
+    {x:0.5, y:0.85, dir:360}  // 回到 A
+  ];
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function tourStep(){
+    tourT += 0.006;
+    if(tourT >= 1){ stopTour(); return; }
+    var seg = tourT * (path.length-1);
+    var i = Math.floor(seg);
+    var f = seg - i;
+    var p0 = path[i], p1 = path[Math.min(i+1, path.length-1)];
+    rat.x = lerp(p0.x, p1.x, f);
+    rat.y = lerp(p0.y, p1.y, f);
+    rat.dir = lerp(p0.dir, p1.dir, f);
+    draw();
+    tourRAF = requestAnimationFrame(tourStep);
+  }
+  function startTour(){
+    touring = true; tourT = 0;
+    document.getElementById('btnMove').textContent = '⏸ 停止巡游';
+    tourStep();
+  }
+  function stopTour(){
+    touring = false;
+    if(tourRAF) cancelAnimationFrame(tourRAF);
+    document.getElementById('btnMove').textContent = '▶ 自动巡游一圈';
+  }
+  document.getElementById('btnMove').addEventListener('click', function(){
+    if(touring) stopTour(); else startTour();
+  });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    stopTour();
+    rat = { x:0.5, y:0.85, dir:90 };
+    draw();
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>

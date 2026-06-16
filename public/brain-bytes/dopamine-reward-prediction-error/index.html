@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>奖赏预测误差的神经基质 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Reward Prediction Error <span>×</span> 多巴胺神经元发的不是「快乐」，而是「比预期好多少」</h1>
+    <div class="meta">
+      <span>📄 A Neural Substrate of Prediction and Reward</span><br>
+      <span>✍️ Wolfram Schultz, Peter Dayan, P. Read Montague</span><br>
+      <span>🏛️ 弗里堡大学生理研究所（瑞士）· 麻省理工理论神经科学中心 · 贝勒医学院神经科学部（休斯顿）</span><br>
+      <span>📅 Science 275(5306): 1593–1599 · 1997 年 3 月 14 日</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-finding1">发现一：误差的三态</a></li>
+        <li><a href="#sec-viz">交互演示：三态放电</a></li>
+        <li><a href="#sec-finding2">发现二：信号会「前移」</a></li>
+        <li><a href="#sec-finding3">发现三：凹陷里的内部时钟</a></li>
+        <li><a href="#sec-finding4">发现四：TD 把神经接上数学</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是把「单个神经元在干嘛」和「一条数学定理」严丝合缝对上号的极少数案例之一，也是现代<strong>计算神经科学</strong>与<strong>强化学习</strong>共同的奠基文献。它讲了一件反直觉的事：中脑<strong>多巴胺（dopamine）</strong>神经元——长期被当成「快乐 / 奖赏中枢」——其实根本不报告「得到了奖赏」，而是报告「这次奖赏比我预期的好多少」，也就是一个会有正、有零、有负三种取值的<span class="term">预测误差</span>信号。</p>
+        <p>更惊人的是，Schultz 多年记录到的猴子多巴胺放电的三种模式，恰好就是工程师在 1980 年代为了让机器学会预测而发明的<strong>时序差分（TD，Temporal Difference）</strong>算法里那个核心误差项 δ(t) 的逐字翻版。一边是电极扎进活猴中脑测到的脉冲，一边是黑板上的一行差分方程，两者居然是同一个东西。这篇文章就是把这座桥架起来的那块关键石头——此后二十多年关于「大脑如何学习」的研究，几乎都站在它身上。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文横跨神经生理与机器学习两套语言，下面先把会反复出现的词用「人话」讲清楚。先备好这些卡片，后面读起来会顺很多。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">多巴胺神经元（dopamine neuron）</div>
+          <div class="cdesc">脑深处<span class="term">腹侧被盖区（VTA，Ventral Tegmental Area）</span>和<span class="term">黑质（substantia nigra）</span>里的一类细胞，把轴突像喷淋系统一样广播到纹状体、伏隔核、前额叶。本文主角——它发出的不是「享受」，而是一个评分信号。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">奖赏预测误差（RPE，Reward Prediction Error）</div>
+          <div class="cdesc">「实际拿到的好处」减去「事先预期的好处」。比预期好就是正、刚好等于预期就是零、比预期差就是负。类比：你以为发 5000 元奖金结果发了 8000，惊喜的是那多出来的 3000——大脑算的就是这个差值，而不是 8000 本身。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">时序差分算法（TD，Temporal Difference）</div>
+          <div class="cdesc">Sutton 与 Barto 在 1980 年代提出的一种学预测的方法：不必等到事情全部结束才更新，而是「上一秒的预期」和「这一秒的预期＋刚发生的事」一旦不一致，就立刻拿这个差去修正。类比：导航预计到达时间，每开一段就根据当前路况悄悄改一次，而不是到家才复盘。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">价值函数 V(t)（value function）</div>
+          <div class="cdesc">站在此刻，对「从现在到结束、未来能拿到的奖赏总和」的预期估计。它是 TD 真正想学会的那个量。类比：一支股票的内在价值——不是今天涨没涨，而是把未来所有预期收益折算到今天的总和。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">条件刺激 / 非条件刺激（CS / US）</div>
+          <div class="cdesc">来自巴甫洛夫的经典条件反射：<span class="term">非条件刺激（US，Unconditioned Stimulus）</span>是天生就有价值的东西（食物、果汁）；<span class="term">条件刺激（CS，Conditioned Stimulus）</span>是本来中性、因反复先于奖赏出现而被赋予预测意义的线索（灯光、铃声）。本文里 CS＝预测线索，US＝奖赏本身。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">折扣因子 γ（discount factor）</div>
+          <div class="cdesc">介于 0 到 1 的系数，让「越晚到的奖赏越不值钱」。γ 越接近 1 越有耐心、看得越远；越接近 0 越只顾眼前。类比：今天的一百块比明年的一百块更值钱，γ 就是那个打折的力度。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">完整序列复合刺激（complete serial-compound stimulus）</div>
+          <div class="cdesc">为了让一条线索能预测「未来某个特定时刻」的奖赏，模型把它在时间上拆成一串子信号——线索出现后第 1、2、3……步各有一个分量、各带一个可调权重。类比：把一根延时引线刻上一道道刻度，每道刻度都能单独学「离爆炸还有多久」。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">时间信用分配（temporal credit assignment）</div>
+          <div class="cdesc">一个难题：奖赏（或惩罚）往往在一连串动作之后很久才出现，到底该把功劳/过错记在前面哪一步头上？类比：球队赢球，到底是中场那记妙传的功劳还是临门一脚？TD 用价值函数把功劳一格一格往前传，化解这个难题。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">策略与动态规划（policy & dynamic programming）</div>
+          <div class="cdesc"><strong>策略</strong>＝在每个状态下「该怎么做」的规则；<strong>动态规划</strong>＝通过评估每个状态的价值来改进策略的一套数学方法。文中的迷宫老鼠例子：给每个路口标上「价值」，然后总往价值升高的方向走。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">趋化运动（klinokinesis）</div>
+          <div class="cdesc">一种最朴素的导航策略：δ(t) 为正（情况在变好）就保持当前方向，δ(t) ≤ 0（情况在变差）就随机换个方向。细菌靠它找营养，TD「生物」靠它在回报多变的花朵间觅食。类比：水温变舒服就别动、变难受就乱挪，慢慢挪到最舒服的地方。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>这篇文章不是一次新实验的报告，而是一篇<strong>综述兼理论整合</strong>：它把 Schultz 实验室多年积累的猴子多巴胺记录，和 Sutton–Barto 的 TD 理论，放到同一张桌子上对齐。核心发现可以拆成四层，前三层是「神经元到底在报告什么」，第四层是「这恰好就是哪条数学」。</p>
+
+      <div class="section-head-sub" id="sec-finding1">发现一：奖赏误差的三种状态（论文 Fig. 1）</div>
+      <p>全文的实验心脏是一张三联图，记录的是清醒猴子在做带奖赏的行为任务时，单个多巴胺神经元的放电。同一个神经元，在学习的三个阶段表现出三种截然不同的模式：</p>
+      <ul>
+        <li><strong>状态一（学习前，奖赏没被预测）：</strong>在没有任何预告线索的情况下突然给一滴果汁，多巴胺神经元在<strong>奖赏出现的瞬间</strong>爆发一阵放电。原文：这是对「未被预测地出现」的奖赏的反应——一个<span class="term">正预测误差</span>。</li>
+        <li><strong>状态二（学习后，奖赏被准确预测）：</strong>反复把一个视觉/听觉线索（CS）和随后的果汁配对，训练几天后，放电的「爆发」<strong>从奖赏时刻整体搬到了线索（CS）时刻</strong>；而当奖赏真的按预期到来时，神经元<strong>不再有任何反应</strong>（放电没有变化）。原文：奖赏完全被线索预测了，奖赏本身不再携带新信息——<span class="term">误差为零</span>。</li>
+        <li><strong>状态三（学习后，预测的奖赏被省略）：</strong>同样的训练，但这一试故意不给本该到来的果汁。结果：神经元仍在 CS 时放电，然后在<strong>本该出现奖赏的那个精确时刻，放电率骤降到基线以下</strong>，形成一个「凹陷」。原文：这是对「比预期差」的反应——一个<span class="term">负预测误差</span>。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>这套反应不是个别细胞的怪癖：论文报告 <strong>55%–80%</strong> 的多巴胺神经元都表现出这类反应，而且相当<strong>同质（homogeneous）</strong>——不同神经元、不同种类的食欲性奖赏（一小块苹果、送到嘴里的果汁），反应模式几乎一致。换句话说，这是中脑多巴胺系统一个<strong>群体性、统一编码</strong>的特征，而非零星现象。</p>
+      </div>
+      <div class="info-block">
+        <span class="ib-title">一个关键的阴性对照</span>
+        <p>厌恶性刺激（往手上吹气、往嘴里滴生理盐水）<strong>不会</strong>引起这套放电激活。新异刺激能引起短暂的朝向反应，但对多数刺激这种反应只持续几次就消退。这条阴性结果非常重要：它说明多巴胺信号是专门针对<strong>食欲性（appetitive，「好东西」）事件相对于预期的好坏</strong>，而不是泛泛地对「任何重要/突然的事」都响应。</p>
+      </div>
+
+      <div class="viz-box" id="sec-viz">
+        <div class="viz-title">交互演示 · 多巴胺神经元的预测误差三态</div>
+        <div class="viz-note">复刻论文 Fig. 1 的定性模式（示意脉冲序列，非论文原始数据）。切换三种状态，看放电的「爆发」如何从奖赏时刻迁移到线索时刻，以及奖赏被省略时在原奖赏时刻出现的负向「凹陷」。</div>
+        <div class="viz-controls">
+          <button id="btn-s1" class="alt">① 学习前：奖赏未被预测</button>
+          <button id="btn-s2" class="alt">② 学习后：奖赏被预测</button>
+          <button id="btn-s3" class="alt">③ 学习后：奖赏被省略</button>
+          <span style="flex-basis:100%;height:0;"></span>
+          <button id="btn-play">▶ 重放这一试</button>
+          <label><input type="checkbox" id="chk-anim" checked> 动态扫描</label>
+        </div>
+        <canvas id="da-canvas" width="860" height="340"></canvas>
+        <div class="viz-note" id="viz-caption" style="margin-top:14px;margin-bottom:0;"></div>
+      </div>
+
+      <p>这张图为什么是「钥匙」？因为它一次性把三种取值的误差信号全展示了：正（状态一/状态二的 CS 时刻）、零（状态二的奖赏时刻）、负（状态三的奖赏时刻凹陷）。一个只报告「奖赏到了」的神经元绝不会在「奖赏被省略」时主动压低放电——这正是「它报告的是<strong>差值</strong>，而非<strong>事件本身</strong>」的决定性证据。</p>
+
+      <div class="section-head-sub" id="sec-finding2">发现二：信号会沿时间「前移」到最早的可靠线索</div>
+      <p>状态一到状态二的转变（爆发从奖赏时刻搬到 CS 时刻）不是瞬间发生的，而是<strong>随训练逐步前移</strong>的。论文用具体例子说明：一只天真的猴子被要求在小灯出现后去触碰一根杆。训练前和训练初期，多巴胺神经元在<strong>奖赏送达后</strong>放电；经过数日训练后，动物学会一看到灯就去够杆，此时多巴胺输出发生两个「引人注目」的变化：</p>
+      <ol>
+        <li><strong>初级奖赏（果汁）不再引起放电反应</strong>——它已被完全预测；</li>
+        <li><strong>预测性的灯光（CS）的出现，现在引起一次相位性放电激活</strong>。</li>
+      </ol>
+      <p>论文一句点睛：多巴胺活动的这种变化，<strong>强烈地呼应了动物的食欲性行为反应从奖赏向 CS 的转移</strong>（the transfer of an animal's appetitive behavioral reaction from the US to the CS）。也就是说，神经信号的迁移和行为上的「预期反应提前」是同步的。如果序列里有更早的线索（灯1→灯2→奖赏），信号最终会<strong>前移到最早那个可靠预测者（灯1）</strong>身上——这正是模型做出的可检验预测之一。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么这正是 TD 的指纹</span>
+        <p>TD 误差 δ(t) = r(t) + γV̂(t+1) − V̂(t)。当线索本身没被更早的东西预测时，它的出现让「未来价值的估计」突然抬升（V̂(t+1) 远大于 V̂(t)），于是 δ 在线索时刻为正——爆发就「长」在这里。而被充分预测的奖赏时刻，V̂(t+1) 与 V̂(t) 已经接得很顺，δ≈0。信号自然就一步步退到「最早的惊喜」那一刻。这与状态二里观察到的「爆发搬家」是同一回事。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-finding3">发现三：那个「凹陷」里藏着一台内部时钟</div>
+      <p>状态三的负向凹陷有一个常被忽略却极重要的细节，论文专门点了出来：当预测的奖赏被省略时，放电的压低发生在<strong>线索之后超过 1 秒、且这中间没有任何外部刺激发生</strong>的那个时刻——恰好是奖赏「本该」到来的时刻。</p>
+      <p>这意味着什么？既然在该压低的那一刻外界什么都没发生（没有「奖赏消失」这个事件可供触发），神经元却能精准地在那一刻压低放电，说明<strong>大脑内部存在一个对「奖赏预期到达时间」的表征</strong>——一台内部时钟。论文据此推断：奖赏的<strong>预期时间</strong>，也和奖赏的<strong>出现</strong>一样，被编码进了多巴胺活动的涨落里。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>关键定语是「<strong>more than 1 s</strong> after the conditioned stimulus <strong>without any intervening stimuli</strong>」。一秒，在神经科学里是很长的时间窗；在这一秒里没有任何外部事件能当「闹钟」，凹陷却准点出现。这把一个看似纯反应性的系统，升级成了一个<strong>带时间预期的预测系统</strong>——而「能预测特定时刻」正是 TD 相对于不带时间的经典条件学习模型（Rescorla–Wagner）的关键升级。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-finding4">发现四：把神经元接上 TD 的方程</div>
+      <p>论文的理论贡献，是把上面三种现象逐一对应到 TD 算法的数学结构上。TD 想学的是<strong>未来奖赏的折扣总和</strong>（公式 1）：</p>
+      <blockquote>
+        <p>V(t) = E[ r(t) + γ·r(t+1) + γ²·r(t+2) + ··· ]&nbsp;&nbsp;&nbsp;(1)</p>
+      </blockquote>
+      <p>直接学它有个麻烦：要等到一试结束、所有 r(t+1), r(t+2)… 都拿到，才能评估当初的预测对不对。TD 的妙处在于利用一个「自洽条件」（公式 2）把这个等待绕开：</p>
+      <blockquote>
+        <p>V(t) = E[ r(t) + γ·V(t+1) ]&nbsp;&nbsp;&nbsp;(2)</p>
+      </blockquote>
+      <p>「现在的价值」应当等于「刚到手的奖赏 ＋ 折扣后的下一刻价值」。如果两边对不上，差额就是可以<strong>当场拿到</strong>的误差信号——<span class="term">TD 误差</span>（公式 3）：</p>
+      <blockquote>
+        <p>δ(t) = r(t) + γ·V̂(t+1) − V̂(t)&nbsp;&nbsp;&nbsp;(3)</p>
+      </blockquote>
+      <p>这个 δ(t)，论文主张，<strong>就是多巴胺神经元在报告的东西</strong>——更精确地说，神经元的输出反映的是 δ(t) + b(t)，其中 b(t) 是基线放电率（这就解释了为什么负误差能表现为「低于基线的凹陷」：基线给了向下的空间）。价值估计本身用线索分量的加权和来表示（公式 4），权重则按「线索 × 误差」的相关去更新（公式 5）：</p>
+      <blockquote>
+        <p>V̂(t) ≡ Σᵢ wᵢ·xᵢ(t)&nbsp;&nbsp;&nbsp;(4)</p>
+        <p>Δwᵢ = αₛ · Σₜ xᵢ(t)·δ(t)&nbsp;&nbsp;&nbsp;(5)</p>
+      </blockquote>
+      <p>把三态对回方程：奖赏未预测时 V̂ 还是 0、r 突然为正，δ＞0（状态一爆发）；学会后线索把 V̂ 抬起来、奖赏时 r 与 γV̂(t+1)−V̂(t) 互相抵消，δ≈0（状态二无反应）；奖赏被省略时 r=0 但 V̂(t) 仍预期有奖赏，δ＜0（状态三凹陷）。<strong>三种实验现象，一个方程全包了。</strong></p>
+      <div class="info-block">
+        <span class="ib-title">论文给出的「神经系统要满足的四个特征」</span>
+        <p>要让一个神经系统实现类 TD 的误差信号，论文列出它至少需要：<strong>(i)</strong> 能拿到奖赏值 r(t)；<strong>(ii)</strong> 一个测量「正在进行的价值预测的时间导数」γV̂(t+1) − V̂(t) 的信号；<strong>(iii)</strong> 一个能把这些信号求和的场所；以及把误差信号<strong>送到能控制可塑性的地方</strong>。论文论证中脑多巴胺神经元——接收来自众多脑区的高度会聚输入、又把轴突广播到纹状体等可塑性位点——恰好具备这些特征。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇文章的「方法」是<strong>理论与数据的对接工程</strong>，它的精妙不在于某次实验操作，而在于一系列把「黑板上的算法」翻译成「能装进脑子的机制」的关键设计。逐条列出：</p>
+      <table>
+        <thead>
+          <tr><th>设计 / 抽象</th><th>解决了什么问题</th><th>为什么巧</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>用 δ(t)+b(t) 解释凹陷</td>
+            <td>负误差怎么用「放电率」表示——放电率不能为负</td>
+            <td>引入基线 b(t)，负误差就表现为「低于基线」的压低，与 Fig.1 状态三的凹陷严丝合缝。一个数学符号问题被一个生理事实优雅化解。</td>
+          </tr>
+          <tr>
+            <td>完整序列复合刺激表征</td>
+            <td>单一权重的线索无法表示「线索时刻」与「奖赏时刻」之间的时间差</td>
+            <td>把一条线索沿时间拆成多个延时分量 x₁, x₂…各带权重，模型才学得会「在特定时刻」预测奖赏；也才能复现凹陷的<strong>精确定时</strong>。论文坦承：大脑究竟如何表征这段时间，目前几乎一无所知。</td>
+          </tr>
+          <tr>
+            <td>两条核心假设：折扣求和 + 马尔可夫</td>
+            <td>让无限长的未来变得可计算、让预测只依赖当前状态</td>
+            <td>折扣求和（公式1）是对经典 Rescorla–Wagner 静态联结模型的<strong>重要推广</strong>；马尔可夫假设（未来只依赖现在、不依赖过去全部历史）让模型在生物上可实现，无需「记住全部历史」。</td>
+          </tr>
+          <tr>
+            <td>解剖学落位（Fig. 2A）</td>
+            <td>抽象的 r(t)、V̂、δ(t) 分别从哪来、在哪汇合</td>
+            <td>把皮层多模态输入（M1、M2）→ 时间导数信号 → VTA 求和为标量 δ(t) → 再广播回构建预测的结构，画成一张可证伪的回路图。理论因此有了「该去哪验证」的地址。</td>
+          </tr>
+          <tr>
+            <td>用模型重跑训练（Fig. 3）</td>
+            <td>理论是否真能复现「信号随训练前移」的全过程</td>
+            <td>设单一线索在第 10 步、奖赏在第 60 步。仿真显示：随训练，正向响应<strong>从第 60 步逐渐迁移到第 10 步</strong>；省略奖赏的那一试，曲面在第 60 步处塌出一个负向凹陷——与真实多巴胺神经元的学习曲线吻合。</td>
+          </tr>
+          <tr>
+            <td>从「预测」延伸到「选择」（迷宫/觅食/价值地图）</td>
+            <td>同一个 δ(t) 除了学预测，还能不能指导行动</td>
+            <td>论文展示 δ(t) 可经动态规划用于选动作（迷宫老鼠）、可作 klinokinesis 的方向开关（蜜蜂觅食）、可构建「价值地表」让简单「生物」在彩色方块世界里趋利避害。一个信号，预测与决策两用。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇文章是一次精心的「三方会师」，把三条原本各走各的线拧在一起：</p>
+      <ul>
+        <li><strong>对经典条件学习理论（巴甫洛夫、Rescorla–Wagner、阻断效应）：</strong>论文把多巴胺三态接到了行为学早就发现的现象上。最典型的是<span class="term">阻断（blocking）</span>：如果灯光已经能完全预测食物，再加一个总和灯光一起出现的声音，动物<strong>学不会</strong>声音预测食物——因为食物已被灯光「预测光了」，声音没带来新信息。这正说明学习是由<strong>预测误差</strong>而非单纯的「配对次数」驱动的。论文展示其 TD 模型能自然地复现阻断与<span class="term">次级条件化（secondary conditioning）</span>。</li>
+        <li><strong>对计算/工程理论（Sutton & Barto 的 TD、Bellman 的动态规划）：</strong>TD 算法 1980 年代提出时，本就受动物如何学预测的心理学数据启发；如今它在工程上（动态规划、最优控制）遍地开花，反过来又被用来解释灵长类多巴胺神经元的输出。论文称这种「理论与实验结果的对接」是<strong>striking（惊人的）</strong>，并为未来实验提供了量化框架。</li>
+        <li><strong>对此前的多巴胺药理与自我刺激证据：</strong>苯丙胺/可卡因延长多巴胺作用、电刺激多巴胺通路是最有效的自我刺激靶点（动物宁可选它而非食物和性）、多巴胺受体阻断剂会让动物更慢去按压取食杆——这些旧证据都把多巴胺指向「奖赏依赖的学习」，但都比较粗。本文用单神经元记录给出了<strong>远为精确</strong>的图景：它编码的不是奖赏本身，而是奖赏相对于预测的<strong>偏差/误差</strong>。</li>
+      </ul>
+      <p>一句话定位：它没有推翻「多巴胺与奖赏有关」的旧共识，而是把这个共识<strong>精确化、数学化</strong>了——从「多巴胺＝奖赏」升级到「多巴胺＝奖赏预测误差」。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇文章之所以被反复引用，是因为它的回声远超神经生理一隅：</p>
+      <ul>
+        <li><strong>对人工智能 / 强化学习：</strong>它给「机器用 TD/时序差分误差来学习」提供了一个<strong>生物学背书</strong>——大自然似乎独立发明了同一个算法。这条「δ(t) ≈ 多巴胺」的对应，后来成了把深度学习与神经科学连起来的常被援引的范例。</li>
+        <li><strong>对决策与行为经济学：</strong>论文明确把基线之上的多巴胺活动解读为一种「<strong>经济评价</strong>（economic evaluation）」——高于基线＝「比预期好」，低于基线＝「比预期差」。这给「人脑如何给选项定价、如何在不确定中权衡」提供了一个神经层面的候选机制；论文还提到人类会发展出能预测好牌坏牌的<strong>预期性皮肤电反应</strong>，呼应这一点。</li>
+        <li><strong>对精神医学与成瘾：</strong>把奖赏误差信号定位到多巴胺，为理解成瘾（药物劫持这个误差信号）、以及多巴胺异常相关的障碍，提供了计算层面的入口。论文也提到多巴胺对前额叶工作记忆、对（精神分裂相关的）前扣带回有影响。</li>
+        <li><strong>对「大脑如何度量时间」：</strong>状态三凹陷揭示的内部时钟，把一个看似只属于反应链的系统，变成了带<strong>时间预期</strong>的预测器——这本身就是认知科学里「时间表征」研究的一个有力切入点。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>难得的是，论文自己在「总结与未来问题」一节就相当坦诚地列了软肋。把它点明、未自夸的，和它没说透的，一并摆出来：</p>
+      <ul>
+        <li><strong>时间是怎么被表征的，是个空白。</strong>模型能复现奖赏被省略时的<strong>精确定时</strong>凹陷，靠的是「完整序列复合刺激」这套时间表征；但论文直言：大脑究竟如何在长达一秒的尺度上构建和使用这种时间标签，<strong>几乎一无所知</strong>，所有时间表征方案在生物上都是「欠约束」的。换言之，模型把时间「假设」进去了，而非「解释」了时间。</li>
+        <li><strong>厌恶（惩罚）事件不在此框架内。</strong>多巴胺主要报告食欲性误差；对厌恶刺激它基本不激活。论文承认这意味着<strong>必有别的（非多巴胺的）系统</strong>来分析和区分厌恶事件，「没给到预期的奖赏」是否被某个系统解读成一种「惩罚」，尚不清楚。这是一种功能上的「分工」假设，但另一半分工是谁、怎么做，文中没有答案。</li>
+        <li><strong>标量信号 vs. 向量信号的张力。</strong>多巴胺被论证为一个广播式的<strong>标量</strong>误差信号；但论文自己指出，更真实的环境里，奖赏与预测线索都有<strong>多个成分</strong>（物理属性各异）。一个单一标量误差若被无差别广播，可能让智能体在「其实口渴时却学会去找食物」这类情形下学错——因为它分不清「哪种好处」变好了。论文据此猜测：很可能存在「物理/功能属性分析」与「标量价值评估」之间的分工。</li>
+        <li><strong>注意（attention）被刻意搁置。</strong>模型不处理它所投射的结构（如伏隔核、前额叶）的注意功能；而证据表明注意机制可能也作用在多巴胺神经元层面（其对新异刺激的反应会随重复而衰减、并泛化到相似刺激）。论文把注意效应明确列为「未来工作」。</li>
+        <li><strong>（解读者观点）本质上是「相容性论证」，而非因果证明。</strong>这篇文章证明的是「多巴胺三态的现象学与 TD 误差<strong>高度吻合、相互可翻译</strong>」，这是极强的吻合，但 1997 年这篇本身并未做「干预 δ(t)→改变学习」的因果实验。「多巴胺<em>就是</em>教学信号」在此更多是一个被现象有力支持、且可证伪的<strong>假说</strong>，其因果闭环要靠后续的光遗传等操控实验去补。这一点不削弱本文价值，但读者宜把它定位为「奠基性的对接」而非「最终定论」。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面每条评价都尽量挂回文中的具体证据，并标注哪些属于解读者的外推。</p>
+      <p><strong>它配得上「奠基」二字。</strong>把「单神经元的三态放电」和「TD 误差 δ(t) 的三种取值」逐项对齐——正（状态一/CS）、零（状态二奖赏）、负（状态三凹陷）——这种「现象学与算法的逐字对应」在神经科学里极为罕见（依据：Fig.1 三态 + 公式 3 的三种情形一一咬合）。它把一个含糊的旧共识（多巴胺＝奖赏）锐化成一个可计算、可证伪的命题（多巴胺＝奖赏预测误差），这是范式级的贡献。</p>
+      <p><strong>证据的群体性与对照很硬。</strong>55%–80% 的多巴胺神经元、跨不同奖赏类型的同质反应（依据：原文报告比例与「homogeneous」描述），加上厌恶刺激不激活这条阴性对照，使「这是个系统性编码特征」站得住，而非过度解读个例。</p>
+      <p><strong>最聪明的一笔是「凹陷的定时」。</strong>奖赏被省略时、在线索后 >1 秒、且无任何外部事件的情况下出现的精确凹陷（依据：原文「more than 1 s … without any intervening stimuli」），是「这是<strong>预测</strong>误差而非<strong>反应</strong>」最难反驳的单点证据——没有内部预期，神经元没理由在那一刻自己压低放电。</p>
+      <p><strong>它对自己的边界很诚实，这反而加分。</strong>时间表征是黑箱、厌恶系统缺位、标量 vs 向量的隐患、注意被搁置——这些论文都主动写进了「未来问题」（依据：Summary and Future Questions 一节）。一篇会自曝软肋的奠基论文，比一篇把话说满的更可信。</p>
+      <p><strong>需要给它打的折扣（解读者观点）：</strong>本文是综述+理论整合，多巴胺记录数据来自先前工作，本文未给出新的因果操控；因此「多巴胺<em>就是</em>教学信号」在 1997 年仍是<strong>假说级</strong>结论，是后续一系列因果实验把它坐实的。读它时应把它当作「把神经与算法对接好的那块奠基石」，而不是「一锤定音的因果证明」。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Schultz、Dayan 与 Montague（1997）证明：中脑多巴胺神经元报告的不是「奖赏」而是「<strong>奖赏预测误差</strong>」——它在未预期的奖赏出现时爆发（正）、在被准确预测的奖赏到来时沉默（零）、在预测的奖赏被省略时于原时刻凹陷到基线以下（负）；这套<strong>正/零/负三态</strong>（55%–80% 的多巴胺神经元共有、厌恶刺激不引发）与工程上的<strong>时序差分误差 δ(t)=r(t)+γV̂(t+1)−V̂(t)</strong> 逐字吻合，从而把活体神经元和一行学习算法严丝合缝地焊在了一起，奠定了「大脑用预测误差来学习」这一现代计算神经科学的基石。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Schultz, W., Dayan, P., &amp; Montague, P. R. (1997). A Neural Substrate of Prediction and Reward. <em>Science, 275</em>(5306), 1593–1599.
+    <br>本页为深度解读，交互演示中的脉冲序列为复刻论文 Fig. 1 定性模式的示意数据，非论文原始记录；公式编号沿用原文（1)–(5)。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById('da-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // ---- 颜色 ----
+  var RED = '#c0392b';
+  var INK = '#1f2328';
+  var MUTED = '#9aa1ab';
+  var GRID = '#e6e8eb';
+  var BLUE = '#2d6a9f';
+
+  // ---- 时间轴布局（秒）：-1 .. 2 ----
+  var tMin = -1, tMax = 2;
+  var padL = 60, padR = 30, padT = 50, padB = 56;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+  // 基线（直方图从此向上画放电；凹陷向下）
+  var baseY = padT + plotH * 0.62;
+
+  function tx(t){ return padL + (t - tMin) / (tMax - tMin) * plotW; }
+
+  // 事件时间
+  var T_CS = 0.0;     // 线索出现
+  var T_R  = 1.0;     // 奖赏（或本该奖赏）时刻
+
+  // ---- 三种状态的定义 ----
+  // 每个状态给出：标题、副说明、以及一个 firing(t) -> 相对基线的放电（正=向上爆发，负=凹陷）
+  var states = {
+    s1: {
+      label: '① 学习前 · 奖赏未被预测',
+      hasCS: false,
+      caption: '没有任何预告线索。果汁在第 0 秒位置（图中标 R）突然送达，多巴胺神经元在奖赏瞬间爆发放电 —— 一个正预测误差 δ>0。',
+      // 状态一里奖赏其实就发生在“无预测”时刻；为与下图时间轴一致，把奖赏放在 T_R 处呈现爆发
+      burstAt: T_R, burstSign: +1, dip: false
+    },
+    s2: {
+      label: '② 学习后 · 奖赏被准确预测',
+      hasCS: true,
+      caption: '线索（CS）已能预测奖赏。爆发整体搬到了 CS 时刻；当奖赏按预期在 R 时刻到来，神经元不再有任何反应 —— 误差归零 δ≈0。',
+      burstAt: T_CS, burstSign: +1, dip: false
+    },
+    s3: {
+      label: '③ 学习后 · 预测的奖赏被省略',
+      hasCS: true,
+      caption: '同样训练，但这一试不给本该到来的果汁。神经元仍在 CS 时放电；到了 R 时刻（线索后 >1 秒、其间无任何外部事件），放电骤降到基线以下，形成凹陷 —— 负预测误差 δ<0。这正是“内部时钟”的证据。',
+      burstAt: T_CS, burstSign: +1, dip: true
+    }
+  };
+  var current = 's1';
+
+  // 高斯型脉冲包络
+  function gauss(t, mu, sig){ var d=(t-mu)/sig; return Math.exp(-0.5*d*d); }
+
+  // 返回某状态在时刻 t 的“放电强度”（0..1 向上；负值=向下凹陷，-1..0）
+  function firing(st, t){
+    var up = 0;
+    // CS 处爆发（状态2、3，以及状态1没有CS）
+    if(st.hasCS){
+      up += 1.0 * gauss(t, T_CS, 0.045);
+    }
+    // 奖赏处爆发（仅状态1）
+    if(st.burstAt === T_R && st.burstSign>0){
+      up += 1.0 * gauss(t, T_R, 0.045);
+    }
+    // 凹陷（状态3，在奖赏时刻向下）
+    var down = 0;
+    if(st.dip){
+      down = -0.85 * gauss(t, T_R, 0.06);
+    }
+    return up + down;
+  }
+
+  // 基于 firing 概率生成一串“脉冲”（栅格点），用于呈现 raster 质感
+  function makeSpikes(st){
+    var spikes = [];
+    var n = 520;
+    for(var i=0;i<n;i++){
+      var t = tMin + Math.random()*(tMax - tMin);
+      var f = firing(st, t);
+      // 基线随机放电 + 由 f 调制
+      var pBase = 0.12;
+      var p;
+      if(f >= 0){
+        p = pBase + f*0.9;
+      } else {
+        // 凹陷：把基线放电压低
+        p = Math.max(0.0, pBase * (1.0 + f*1.15));
+      }
+      if(Math.random() < p){
+        spikes.push(t);
+      }
+    }
+    return spikes.sort(function(a,b){return a-b;});
+  }
+
+  var spikeCache = {};
+  function getSpikes(key){
+    if(!spikeCache[key]) spikeCache[key] = makeSpikes(states[key]);
+    return spikeCache[key];
+  }
+
+  // ---- 动画状态 ----
+  var anim = { on:true, t: tMin, running:false };
+  var chk = document.getElementById('chk-anim');
+
+  function drawAxes(){
+    ctx.clearRect(0,0,W,H);
+    // 标题
+    ctx.fillStyle = INK;
+    ctx.font = '600 15px -apple-system,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Do dopamine neurons report an error in the prediction of reward?', padL, 24);
+
+    // 基线
+    ctx.strokeStyle = MUTED;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(padL, baseY); ctx.lineTo(W-padR, baseY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = MUTED;
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('基线放电', padL-8, baseY+4);
+
+    // 时间刻度
+    ctx.strokeStyle = GRID;
+    ctx.fillStyle = MUTED;
+    ctx.textAlign = 'center';
+    ctx.font = '11px -apple-system,sans-serif';
+    var ticks = [-1,0,1,2];
+    for(var i=0;i<ticks.length;i++){
+      var x = tx(ticks[i]);
+      ctx.beginPath(); ctx.moveTo(x, padT-6); ctx.lineTo(x, H-padB+4); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.fillText(ticks[i] + ' s', x, H-padB+22);
+    }
+
+    // 事件竖线：CS 与 R
+    var st = states[current];
+    // R 线
+    ctx.strokeStyle = '#cbb8b5';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2,4]);
+    ctx.beginPath(); ctx.moveTo(tx(T_R), padT-6); ctx.lineTo(tx(T_R), H-padB+4); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = RED;
+    ctx.font = '700 12px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    var rLabel = st.dip ? 'R（应有奖赏·被省略）' : (st.hasCS ? 'R（奖赏）' : 'R（奖赏出现）');
+    ctx.fillText(rLabel, tx(T_R), H-padB+40);
+
+    // CS 线
+    if(st.hasCS){
+      ctx.strokeStyle = RED;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([2,4]);
+      ctx.beginPath(); ctx.moveTo(tx(T_CS), padT-6); ctx.lineTo(tx(T_CS), H-padB+4); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = RED;
+      ctx.fillText('CS（预测线索）', tx(T_CS), padT-14);
+    } else {
+      ctx.fillStyle = MUTED;
+      ctx.font = '700 12px -apple-system,sans-serif';
+      ctx.fillText('（无 CS）', tx(T_CS), padT-14);
+    }
+
+    // y 轴说明
+    ctx.save();
+    ctx.translate(18, padT + plotH*0.32);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillStyle = MUTED;
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('放电率（脉冲/直方图）', 0, 0);
+    ctx.restore();
+  }
+
+  function drawHistogram(upToT){
+    var st = states[current];
+    // 连续包络直方图
+    var step = 0.008;
+    var maxUp = plotH*0.46;
+    var maxDown = (H - padB - baseY) * 0.9;
+    ctx.lineWidth = 0;
+    for(var t=tMin; t<tMax; t+=step){
+      if(t > upToT) break;
+      var f = firing(st, t);
+      var x = tx(t);
+      var w = Math.max(1, tx(t+step)-tx(t));
+      if(f >= 0.02){
+        var h = f * maxUp;
+        ctx.fillStyle = RED;
+        ctx.globalAlpha = 0.85;
+        ctx.fillRect(x, baseY - h, w+0.5, h);
+      } else if(f <= -0.02){
+        var hd = (-f) * maxDown;
+        ctx.fillStyle = BLUE;
+        ctx.globalAlpha = 0.8;
+        ctx.fillRect(x, baseY, w+0.5, hd);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawRaster(upToT){
+    var st = states[current];
+    var sp = getSpikes(current);
+    var rasterTop = padT + 2;
+    var rasterBot = baseY - plotH*0.50;
+    // 把栅格画在直方图上方一小条
+    var bandTop = rasterBot - 26;
+    var bandBot = rasterBot - 2;
+    ctx.strokeStyle = INK;
+    ctx.globalAlpha = 0.55;
+    ctx.lineWidth = 1;
+    for(var i=0;i<sp.length;i++){
+      var t = sp[i];
+      if(t > upToT) continue;
+      var x = tx(t);
+      ctx.beginPath();
+      ctx.moveTo(x, bandTop);
+      ctx.lineTo(x, bandBot);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = MUTED;
+    ctx.font = '10px -apple-system,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('单试脉冲（raster）', padL, bandTop - 4);
+  }
+
+  function drawScanline(t){
+    if(t >= tMax) return;
+    ctx.strokeStyle = 'rgba(192,57,43,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(tx(t), padT-6);
+    ctx.lineTo(tx(t), H-padB+4);
+    ctx.stroke();
+  }
+
+  function render(){
+    drawAxes();
+    var upTo = anim.running ? anim.t : tMax;
+    drawHistogram(upTo);
+    drawRaster(upTo);
+    if(anim.running) drawScanline(anim.t);
+  }
+
+  function setCaption(){
+    var cap = document.getElementById('viz-caption');
+    var st = states[current];
+    cap.innerHTML = '<strong style="color:#c0392b;">' + st.label + '：</strong>' + st.caption;
+  }
+
+  // 高亮当前按钮
+  function refreshButtons(){
+    [['s1','btn-s1'],['s2','btn-s2'],['s3','btn-s3']].forEach(function(pair){
+      var b = document.getElementById(pair[1]);
+      if(pair[0]===current){ b.classList.remove('alt'); }
+      else { b.classList.add('alt'); }
+    });
+  }
+
+  function selectState(key, regenerate){
+    current = key;
+    if(regenerate){ spikeCache[key] = makeSpikes(states[key]); }
+    refreshButtons();
+    setCaption();
+    if(anim.on){ startPlay(); }
+    else { anim.running=false; render(); }
+  }
+
+  var rafId = null;
+  function startPlay(){
+    if(rafId) cancelAnimationFrame(rafId);
+    anim.running = true;
+    anim.t = tMin;
+    // 每次重放重新抽一组脉冲，体现“单试”的随机性
+    spikeCache[current] = makeSpikes(states[current]);
+    var t0 = null;
+    var dur = 2200; // ms 扫完整条时间轴
+    function frame(ts){
+      if(t0===null) t0 = ts;
+      var p = (ts - t0)/dur;
+      anim.t = tMin + p*(tMax - tMin);
+      if(p >= 1){
+        anim.t = tMax;
+        anim.running = false;
+        render();
+        rafId = null;
+        return;
+      }
+      render();
+      rafId = requestAnimationFrame(frame);
+    }
+    rafId = requestAnimationFrame(frame);
+  }
+
+  // ---- 事件绑定 ----
+  document.getElementById('btn-s1').addEventListener('click', function(){ selectState('s1', true); });
+  document.getElementById('btn-s2').addEventListener('click', function(){ selectState('s2', true); });
+  document.getElementById('btn-s3').addEventListener('click', function(){ selectState('s3', true); });
+  document.getElementById('btn-play').addEventListener('click', function(){
+    if(anim.on){ startPlay(); }
+    else { anim.running=false; spikeCache[current]=makeSpikes(states[current]); render(); }
+  });
+  chk.addEventListener('change', function(){
+    anim.on = chk.checked;
+    if(!anim.on){ if(rafId) cancelAnimationFrame(rafId); anim.running=false; render(); }
+    else { startPlay(); }
+  });
+
+  // 初始
+  refreshButtons();
+  setCaption();
+  selectState('s1', true);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>定向注意的皮层网络 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Cortical Network for Attention <span>×</span> 注意力不是一个点，而是一张网</h1>
+    <div class="meta">
+      <span>📄 A Cortical Network for Directed Attention and Unilateral Neglect</span><br>
+      <span>✍️ M.-Marsel Mesulam（梅苏拉姆）</span><br>
+      <span>🏛️ Bullard and Denny-Brown Laboratories · 哈佛神经病学系 · Beth Israel 医院 · 波士顿</span><br>
+      <span>📅 Annals of Neurology（《神经病学年鉴》）· 1981 年 · 第 10 卷 · 309–325 页</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-neglect">先看一眼：什么是半侧忽略</a></li>
+        <li><a href="#sec-viz">交互演示：忽略与四个节点</a></li>
+        <li><a href="#sec-findings">核心论点</a></li>
+        <li><a href="#sec-parietal">① 顶叶 = 感觉模板</a></li>
+        <li><a href="#sec-frontal">② 额叶 = 探索程序</a></li>
+        <li><a href="#sec-cingulate">③ 扣带回 = 动机地图</a></li>
+        <li><a href="#sec-reticular">④ 网状结构 = 唤醒底座</a></li>
+        <li><a href="#sec-right">右脑为什么更要紧</a></li>
+        <li><a href="#sec-method">方法论与论证精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是一篇会改写一个学科默认地图的论文。1981 年之前，神经病学的主流问法是「这个功能住在哪个脑区」——给一个症状找一个「中心」。Mesulam 把镜头拉远，提出一个更有力的答案：像<strong>定向注意</strong>这样的复杂功能，根本没有单一中心，它是由<strong>四个分布在不同脑叶的区域、靠彼此连接协同跑出来的一张网络</strong>。任何一个节点坏掉，都会让病人「丢掉半个世界」（半侧空间忽略），但丢的方式各不相同。</p>
+        <p>这篇文章的影响力远超它的本行：它是「<strong>大脑网络观</strong>」最早、最清楚的一次正式表述，直接启发了后来整个认知神经科学用「网络/连接组」而非「功能中心」来理解大脑的范式转向。读它，你读的不只是忽略症，而是一种<strong>思考大脑的方式</strong>是怎么被立起来的。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的概念密度很高，且大量使用猴脑解剖与临床神经病学的术语。先把工具备齐，后面读正文会顺很多。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">半侧空间忽略（unilateral / hemispatial neglect）</div>
+          <div class="cdesc">脑损伤后，病人对损伤<strong>对侧</strong>那半边空间里的东西不再理睬：可能只吃一侧盘子的菜、只刮一边脸、画画时只画右半边。<span class="term">不是看不见、听不到、动不了</span>，而是「不去看、不去理」——一种注意的偏侧崩塌。本文要解释的核心现象。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">定向注意（directed attention）</div>
+          <div class="cdesc">把心智的「探照灯」<strong>主动指向</strong>外部空间某个位置的能力。本文专指对「身体之外的空间」（extrapersonal space，体外空间）的空间性注意，不含对念头、记忆的注意。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">体外空间（extrapersonal space）</div>
+          <div class="cdesc">身体表面以外、你伸手够得到或看得到的那片世界。大脑内部为它建了一份「地图」；忽略症本质上是这份内部地图的一半被抹掉或被压低了权重。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">背外侧 PG 区（dorsolateral area PG）</div>
+          <div class="cdesc">猴脑下顶叶（inferior parietal lobule，下顶小叶）背侧的一块皮层，由 von Bonin 与 Bailey 命名，约等于人脑的下顶叶（角回/缘上回一带）。本文的主角脑区，被认为存放着体外空间的<strong>感觉模板</strong>。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">额叶眼区（FEF，Frontal Eye Fields）</div>
+          <div class="cdesc">额叶第 8 区（area 8）。电刺激它会让眼睛转向对侧；它负责发起扫视、搜寻、伸够等<strong>探索性动作程序</strong>。把它想成大脑里「指挥眼睛和手去哪里找」的导演。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">扣带回 / 边缘整合（cingulate gyrus · limbic integration）</div>
+          <div class="cdesc">大脑内侧面的边缘系统皮层。它给空间里的事件贴上<strong>「这对我重不重要」的动机标签</strong>（饿了，门口更值得多看几眼）。边缘=limbic，指与情绪、动机、内驱力相关的那套古老脑系统。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">网状结构 / 唤醒（reticular structures · arousal）</div>
+          <div class="cdesc">脑干与丘脑里调节整体清醒度的系统，含<strong>板内丘脑核（intralaminar thalamic nuclei）、蓝斑（locus coeruleus）、中缝核（raphe nuclei）</strong>。它不决定「看哪」，而是决定「醒着多少、警觉度多高」——给整张网供电的底座。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">消退现象（extinction）</div>
+          <div class="cdesc">忽略的「轻症版」也是诊断关键：单独刺激坏侧对侧时病人能察觉；可一旦<strong>两侧同时刺激</strong>，对侧那个就「消失」了。说明问题不在感觉通路，而在两个事件<strong>争夺注意</strong>时坏侧总是输。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">多模态皮层（polymodal cortex）</div>
+          <div class="cdesc">不止处理一种感觉、而是把视、听、触汇到一起的高级联合皮层（如颞上沟两岸、弓状沟周围）。感觉信息要先在单模态皮层、再在多模态皮层层层加工，才有资格进入 PG 区——保证 PG 拿到的是「精炼过的世界」。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">辣根过氧化物酶示踪（HRP，Horseradish Peroxidase）</div>
+          <div class="cdesc">1970 年代的神经解剖「追踪剂」：把这种酶注入某个脑区，它会被神经末梢吸收并<strong>逆向运回</strong>发出轴突的细胞体，从而点亮「谁向这里发了投射」。本文 PG 区连接图谱的解剖证据多来自此法。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-neglect">先看一眼：什么是半侧空间忽略</div>
+      <p>在搭理论之前，先把现象本身看清楚，因为它太反直觉了。一个右脑（多半是右顶叶）受损的病人，会出现下面这些表现：</p>
+      <ul>
+        <li>刮胡子、化妆只弄<strong>右半边</strong>脸，对镜子里左半边的自己视而不见；</li>
+        <li>只吃盘子<strong>右半边</strong>的食物，吃完抱怨没吃饱，把盘子转一下又能继续吃；</li>
+        <li>读一行字只读<strong>右半</strong>，画一个钟把所有数字都挤在<strong>右半</strong>个表盘里；</li>
+        <li>轻症时自发行为看不出问题，但医生<strong>左右手同时</strong>碰他、或左右同时闪光，他只报告右边那个——这就是<span class="term">消退（extinction）</span>。</li>
+      </ul>
+      <p>关键在于：Mesulam 反复强调，这些病人的<strong>原始感觉通路是好的</strong>——眼睛能看、皮肤能感、手能动。他举了一个决定性的反例：一位 74 岁右利手男性，右顶叶胶质瘤，出现左侧触觉、视觉<strong>和嗅觉</strong>的消退。而嗅觉通路是<strong>不交叉</strong>的（同侧投射），如果忽略真是「感觉缺失」，嗅觉消退本该出现在<strong>右</strong>侧才对；可它偏偏出现在左侧。这说明被抹掉的不是「感觉」，而是<strong>左半空间这个概念本身</strong>——注意的内部表征。</p>
+      <div class="info-block">
+        <span class="ib-title">一句话抓住本质</span>
+        <p>忽略不是「眼睛瞎了一半」，而是「<strong>世界对他来说只剩了一半</strong>」。被删除的是大脑里关于半边空间的<em>内部地图</em>，连这半边可能发生什么事都不再进入他的意识——这正是为什么它能由四个完全不同的脑区损伤各自造成。</p>
+      </div>
+
+      <div class="section-head" id="sec-viz">交互演示：忽略与四个网络节点</div>
+      <p>下面这个组件把全文的核心一次性摊开。左边是病人面对的一桌物品（圆点散布在体外空间里）；切换损伤的<strong>网络节点</strong>，观察同一个「丢掉左半世界」的结果，是如何由四种<strong>不同机制</strong>分别造成的。点「让病人探画」可以看他实际会注意/划掉哪些物品。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">半侧空间忽略 · 四节点损伤模拟器</div>
+        <div class="viz-note">示意性演示，用于传达 Mesulam 网络模型的<strong>定性</strong>模式（非临床量化数据）。右脑损伤 → 左半空间被忽略；不同节点损伤的「质感」不同。</div>
+
+        <div class="viz-controls">
+          <button id="btn-healthy" class="alt">健康对照</button>
+          <button id="btn-parietal">① 顶叶损伤</button>
+          <button id="btn-frontal">② 额叶损伤</button>
+          <button id="btn-cingulate">③ 扣带回损伤</button>
+          <button id="btn-reticular">④ 网状结构损伤</button>
+        </div>
+        <div class="viz-controls">
+          <button id="btn-explore">▶ 让病人探画（扫视并划掉）</button>
+          <button id="btn-reset" class="alt">↺ 重置</button>
+          <label style="margin-left:8px;">右侧物品价值 <input type="range" id="sld-value" min="0" max="100" value="50" style="width:120px;vertical-align:middle;"></label>
+        </div>
+
+        <canvas id="neglectCanvas" width="900" height="430"></canvas>
+
+        <div id="viz-explain" style="margin-top:14px;font-size:0.92rem;color:#3a4048;line-height:1.7;"></div>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心论点</div>
+      <p>这篇文章不是一个跑出 p 值的实验，而是一次<strong>整合性论证</strong>：把猴脑的单细胞记录、轴突示踪解剖、损毁实验，和人类的临床病例对接起来，论证出一个统一模型。它的主结论可以浓缩成一句话——</p>
+      <div class="info-block">
+        <span class="ib-title">中心主张</span>
+        <p>对体外空间的<strong>定向注意，由一张包含四个皮层/皮层下节点的分布式网络支撑</strong>：后顶叶提供<strong>感觉表征</strong>、额叶眼区提供<strong>运动/探索表征</strong>、扣带回提供<strong>动机表征</strong>、网状结构提供<strong>唤醒水平</strong>。四者通过往返连接（reciprocal connections）紧密耦合，<strong>任一节点或其连接受损</strong>都会产生半侧忽略，但临床「质感」由受损区的解剖特长决定。</p>
+      </div>
+      <p>下面四节，逐个拆解这四个节点：它的解剖证据是什么、它在网络里管什么、它坏了会产生哪一种忽略。</p>
+
+      <div class="section-head-sub" id="sec-parietal">① 后顶叶（PG 区）= 体外空间的「感觉模板」</div>
+      <p>这是网络的传感器与地图绘制者。证据链分两层：</p>
+      <p><strong>生理证据（猴脑单细胞记录）。</strong>清醒猴下顶叶 PG 区的神经元，放电不只反映「有没有刺激」，更反映刺激<strong>当前的动机价值</strong>和<strong>它即将成为动作目标的可能性</strong>：猴主动伸手够一个想要的物体时神经元强烈放电，被动地把肢体摆过去则不放电；眼睛盯住或追踪一个有动机意义的物体时放电最猛，且持续到被奖励（一滴甜液）后才骤降。换句话说，PG 神经元编码的是「<strong>这个位置值不值得我去够/去看</strong>」。</p>
+      <p><strong>解剖证据（HRP 示踪）。</strong>令人意外的是，背外侧 PG 区几乎<strong>不</strong>直接接收初级感觉皮层的投射——它拿到的绝大多数感觉输入来自<strong>多模态联合皮层</strong>。也就是说，感觉信息必须先在单模态、再在多模态皮层层层精炼，才有资格抵达 PG。这保证了 PG 持有的是一份「极其精炼的体外空间表征」。Mesulam 由此把汇入 PG 的连接归为四大类——<strong>感觉联合、边缘、网状、运动</strong>（见 Fig 2），正是这四类输入的独特汇聚，定义了 PG 的功能特长。</p>
+      <div class="info-block">
+        <span class="ib-title">顶叶损伤 → 顶叶型忽略</span>
+        <p>PG 受损，这份内部感觉模板被<strong>偏向损伤同侧</strong>扭曲了。单侧出现的事件仍能被各模态正常分析；可一旦<strong>两侧同时</strong>出现等价事件（双侧同时刺激），对侧那个在整张地图里的「突触代表权」被严重压低，于是<strong>淡出意识——这就是消退（extinction）</strong>。Heilman 等人在猴身上验证：单侧顶叶损毁的猴，单独刺激能正常反应，双侧同时刺激则对侧消退。Mesulam 把这种「感觉空间内部表征被扭曲」称为 Denny-Brown 提出的<strong>形态合成障碍（morphosynthesis，形态合成）</strong>。Bisiach 等人的实验更证明它发生在<strong>内部表征</strong>层面：让右脑损伤病人透过一条窄缝逐段看图形（感觉输入居中），他们仍对图形<strong>左侧</strong>判断更差——左边在脑子里就没被建全。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-frontal">② 额叶眼区（第 8 区）= 探索空间的「运动程序」</div>
+      <p>如果说顶叶管「世界长什么样」，额叶眼区就管「派眼睛和手去哪里找」。它是网络里的<strong>输出整合（efferent integration）</strong>端。电刺激额叶眼区会引出<strong>对侧</strong>的头眼转动；其尾部的神经元会在「朝目标做扫视前」爆发放电——但前提是动物<strong>真的要扫过去</strong>，若只是注意而不动眼，这次爆发就不出现。所以额叶眼区编码的是<strong>动作意图</strong>，不是单纯感觉。</p>
+      <p>额叶眼区与上丘（superior colliculus，中脑顶盖的视觉-眼动结构）<strong>并行而互补</strong>：单独毁掉任一个只造成轻微眼动缺陷，<strong>两个一起毁</strong>才会严重损害扫视。这正是「网络/冗余」思想的一个微缩样本。</p>
+      <div class="info-block">
+        <span class="ib-title">额叶损伤 → 额叶型忽略</span>
+        <p>额叶型忽略的本质是<strong>运动性的（motor）</strong>——是「不愿/不去把动作投向对侧空间」，而<strong>不是</strong>肢体瘫痪。Watson 等人做了关键剥离实验：训练猴用对侧肢体响应触觉刺激，损毁额叶眼区后，猴在<strong>没有偏瘫</strong>的情况下自发表现出对侧忽略；让它用<strong>对侧</strong>肢体响应时错误更多（运动端在坏侧），换用<strong>同侧</strong>肢体响应同一刺激则表现更好——证明问题出在「运动输出朝向哪半空间」，而非感觉。与顶叶型不同，额叶型忽略<strong>即使单侧刺激</strong>也可能被忽略，因为它本就是主动探索的失灵；它最该在「需要系统性扫描、搜寻、临摹、找路、划字」的任务里暴露出来。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-cingulate">③ 扣带回 = 给空间贴价签的「动机地图」</div>
+      <p>第三个节点回答一个常被忽视的问题：在所有看得见的位置里，大脑凭什么决定<strong>先看哪个</strong>？答案是动机价值。扣带回是网络里的<strong>边缘整合（limbic integration）</strong>枢纽，它根据过往经验和当前需求，给空间各处事件贴上「这对我多重要」的标签。一只饿了的动物会不成比例地长时间盯着「投喂员将出现的那扇门」——关于饥饿、关于过去几次进食的信息在扣带回被整合，进而<strong>抬高</strong>了 PG 区与额叶眼区里代表「那片空间」的神经元活动，把注意优先导过去。</p>
+      <p>解剖上，扣带回向 PG 区<strong>背外侧</strong>部（而非沟内部）发出边缘投射，且其下行投射场比基底前脑「挑剔得多、更聚焦」，这种选择性使得扣带-顶叶连接在塑造 PG 功能特长上格外重要。猫的实验里，单侧刺激扣带回会引出朝向对侧空间的搜寻性头眼动作，并伴随其他活动的中止；Watson 等人也在猴身上用扣带回区损毁诱发出对侧忽略。</p>
+      <div class="info-block">
+        <span class="ib-title">扣带回损伤 → 扣带型忽略（人类证据最间接）</span>
+        <p>损伤后，对侧空间事件的<strong>生物学/动机意义被抹平</strong>了：既不再吸引「对潜在事件的预期」，也不再被赋予「对实际刺激的重要性」，于是对侧那半边吸引到的注视与扫描更少。Denny-Brown 等人最早把忽略的一个侧面描述为「左侧外感受野中刺激价值的减损」——正是这一动机成分。Mesulam 坦承：人类扣带型忽略的证据是<strong>间接且推测性的（indirect and speculative）</strong>，主要靠 Heilman & Valenstein 报告的一例内侧额叶梗死（可能累及扣带回）来佐证。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-reticular">④ 网状结构 = 给全网供电的「唤醒底座」</div>
+      <p>前三个节点决定「往哪儿看」，第四个决定「<strong>醒着多少、警觉到什么程度</strong>」。Mesulam 借用注意研究的经典二分：注意至少含两种操作——<strong>紧张性的（tonic）</strong>，调节一个刺激要多强才能进入意识的门槛（即警觉/vigilance 水平）；<strong>位相性的（phasic）</strong>，从超过门槛的众多刺激里挑出占据意识中心的那个（即选择性注意）。顶叶、额叶、扣带回三者协调的是位相性选择；而紧张性的警觉水平，<strong>取决于网状结构</strong>。</p>
+      <p>这套网状输入来自<strong>板内丘脑核、蓝斑、中缝核</strong>，向上把活化弥散送到额叶眼区、PG 区、扣带回三个皮层节点。它的强度随当前唤醒水平起落——而「注意的有效性与唤醒水平密切相关」是众所周知的事实。</p>
+      <div class="info-block">
+        <span class="ib-title">网状结构损伤 → 网状型忽略</span>
+        <p>最极端时，双侧网状结构损毁会让意识不可逆地塌陷（与选择性注意无从谈起）。但<strong>单侧、更局限</strong>的损伤会偏侧地干扰注意分布：猴的板内核或中脑网状结构单侧损毁可造成单侧忽略（Watson 等人）；大鼠里，切断从蓝斑上行的去甲肾上腺素（noradrenaline）能束会干扰注意过程。机制上，这类损伤被认为是<strong>削弱了对一侧相关皮层节点（额叶眼区、PG、扣带回）的网状活化供电</strong>，从而间接造成对侧忽略。Mesulam 顺带点出一个药理学线索：大鼠里单侧切断上行<strong>多巴胺（dopamine）</strong>连接（投向伏隔核 → 黑质 → 基底核 → 投向扣带回的皮层多巴胺）也能引出对侧忽略，提示这条多巴胺通路属于网络里的<strong>边缘成分</strong>。</p>
+      </div>
+
+      <div class="section-head" id="sec-right">右脑为什么更要紧：注意的半球不对称</div>
+      <p>这是全文除「网络观」之外最有名的论断，也是临床上为什么忽略症几乎总跟<strong>右脑</strong>挂钩的原因。证据是几条独立线索的会聚：</p>
+      <ul>
+        <li><strong>临床流行病学：</strong>右脑损伤后的左侧忽略，比左脑损伤后的右侧忽略<strong>更常见、更严重、更持久</strong>。</li>
+        <li><strong>裂脑人实验：</strong>Dimond 测试裂脑病人每个半球，右半球在<strong>警觉任务</strong>上表现更优；正常人对左侧视觉刺激（→右脑）的简单反应也更快。</li>
+        <li><strong>注意覆盖范围不同：</strong>Mesulam 提出一个简洁模型——<strong>右半球既能注意左侧也能注意右侧空间（双侧），但偏好对侧（左）；左半球几乎只管对侧（右）空间</strong>。于是左脑受损时，完好的右脑能「接管」对右侧的注意，故右侧忽略轻；而右脑受损时，左脑无力接管左侧，故左侧忽略重。更多突触空间被分配给了右半球的注意功能。</li>
+        <li><strong>为何如此进化：</strong>Kimura 指出，左半球对语言的优势<strong>幅度</strong>远大于右半球对非语言任务的优势。一个自洽的解释（LeDoux 等人）是：当语言在左半球占据了原本对称分布的突触空间，对侧（右）半球里负责类似非语言功能的突触空间便<strong>转而强化</strong>了注意等功能——右脑的注意优势是语言侧化的「副产品」。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">承认争议：Battersby 的反对意见</span>
+        <p>Mesulam 没有回避反例。Battersby 等人未能复现「统计显著的组间差异」：他们 41 例右脑损伤中 12 例有忽略，24 例可测的左脑损伤中 3 例有忽略，遂主张忽略在两侧损伤后可能<strong>同样常见</strong>、原发感觉缺失才是关键。Mesulam 反驳：这些结果<strong>偏向了更大的右脑病灶</strong>（同等大小的左脑病灶会造成失语而使病人无法受测），且 Chain 等人用「在画面各扇区停留的 15 秒注视时间」做定量后发现——右脑损伤者把几乎全部注视时间投在画面<strong>最右端</strong>、回避左侧；左脑损伤者只是略偏左侧旁正中区。频率差异虽不显著，<strong>质的差异极为鲜明</strong>。同时承认：左脑损伤<strong>确实</strong>能造成右侧忽略，只是范围和严重度远不及右脑损伤。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论与论证精妙之处</div>
+      <p>本文不靠新数据取胜，而靠一种<strong>跨证据综合</strong>的方法学：把分子级的示踪、细胞级的记录、系统级的损毁，与床边的病例对接，让它们彼此印证、互相约束，逼出一个统一模型。下表拆解它各组成部分的证据来源与功能定位：</p>
+      <table>
+        <thead>
+          <tr><th>网络节点</th><th>解剖/生理证据来源</th><th>在网络中的角色</th><th>损伤后的忽略「质感」</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>后顶叶 PG 区</td>
+            <td>猴单细胞记录（编码动机价值与动作目标）；HRP 示踪显示输入主要来自多模态皮层</td>
+            <td>感觉表征 / 体外空间模板（输入整合 afferent integration）</td>
+            <td>消退（双侧同时刺激时对侧淡出）；内部表征扭曲</td>
+          </tr>
+          <tr>
+            <td>额叶眼区（第 8 区）</td>
+            <td>电刺激引出对侧头眼动；扫视前爆发放电；与上丘并行互补损毁实验</td>
+            <td>运动 / 探索程序（输出整合 efferent integration）</td>
+            <td>运动性忽略：不向对侧探索/扫描，非偏瘫；单侧刺激也可被忽略</td>
+          </tr>
+          <tr>
+            <td>扣带回</td>
+            <td>猴扣带回损毁诱发对侧忽略；猫扣带回刺激引出搜寻动作；选择性下行投射解剖</td>
+            <td>动机 / 边缘表征（价值地图）</td>
+            <td>对侧事件的生物学意义被抹平；预期与重要性减损（人类证据间接）</td>
+          </tr>
+          <tr>
+            <td>网状结构</td>
+            <td>板内核/中脑网状单侧损毁致忽略；蓝斑去甲肾上腺素能束阻断实验（大鼠）</td>
+            <td>唤醒 / 警觉水平（紧张性注意供电）</td>
+            <td>偏侧降低警觉，间接削弱对侧皮层节点活化</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>论证上最精彩的，是文末用 <strong>Fig 4</strong> 把四种「定位哲学」并置成一张图，给自己的立场找了精确坐标：</p>
+      <table>
+        <thead>
+          <tr><th>定位观</th><th>核心主张</th><th>Mesulam 的态度</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>中心说（centrist）</td>
+            <td>每个复杂功能由专属它的特定皮层中心整合，找到中心即解释功能</td>
+            <td>对「视敏度按视野定位于纹状皮层」这类<strong>初级</strong>功能成立；对定向注意不成立</td>
+          </tr>
+          <tr>
+            <td>整体说（holistic / 等位说 equipotentiality）</td>
+            <td>每个功能近乎均匀地分布在全部皮层（Lashley 的等位性）</td>
+            <td>对「智力、创造力、人格」这类泛化属性可能成立；对定向注意过于弥散</td>
+          </tr>
+          <tr>
+            <td>网络说（network，本文立场）</td>
+            <td>复杂功能由若干<strong>分立但互联</strong>的位点组成网络共同支撑，居于两极之间</td>
+            <td><strong>本文主张</strong>：定向注意、语言、记忆都该按网络观组织</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>由网络观，Mesulam 提炼出五条可用于临床-病理相关分析的<strong>一般原则</strong>：(1) 一个复杂功能的各成分分处不同但互联的位点；(2) 同一皮层区可承担多个功能的成分，故<strong>分属多个部分重叠的网络</strong>；(3) 单一位点损伤往往造成<strong>多重</strong>缺陷；(4) 某一功能的<strong>严重而持久</strong>损害，通常需要网络<strong>多个</strong>成分同时受累；(5) <strong>同一</strong>功能可因网络中<strong>不同</strong>位点的损伤而各自受损。</p>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文最聪明的一招，是把当时<strong>互相打架</strong>的几派忽略理论<strong>统一收编</strong>——它不否定任何一派，而是论证每派各自描述了网络的一个节点：</p>
+      <ul>
+        <li><strong>形态合成障碍说</strong>（Denny-Brown）≈ 顶叶 PG 节点（内部感觉表征扭曲）；</li>
+        <li><strong>消退说</strong>（Bender）≈ 顶叶节点的双侧竞争失败；</li>
+        <li><strong>表征扭曲说</strong>（Bisiach）≈ 顶叶内部地图被偏侧化；</li>
+        <li><strong>半空间运动不能（hypokinesia）说</strong>（Heilman & Valenstein）≈ 额叶节点（运动探索失灵）；</li>
+        <li><strong>低唤醒说</strong>（Heilman 的 hypoarousal）≈ 网状节点；</li>
+        <li><strong>失连接说</strong>（disconnection，Geschwind）≈ 节点间连接被切断。</li>
+      </ul>
+      <p>Mesulam 的判语是：「这些理论各自<strong>取决于主要病灶的解剖位置而各自成立，但没有任何一个能独力解释整个现象</strong>」。这是一种典型的「更高层综合」——把领域里的论战重新框定为「盲人摸象」，而网络模型是那头象。他也清醒地处理了<strong>跨物种同源</strong>的难题：人脑与猴脑的区域对应并不确定（Brodmann 与 von Economo 对人下顶叶是否等于猴第 7 区有分歧），故人类四亚型的证据是「几条独立线索的<strong>会聚支持</strong>」，而非一一对应的解剖证明。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p><strong>对认知神经科学：</strong>本文是「大脑网络观」的奠基文本之一。今天我们习以为常的「默认网络」「注意网络」「连接组」「网络病灶定位（network localization）」等思路，其知识谱系可以直接上溯到这里的五条原则——尤其是「一区属多网」与「严重损害需多成分受累」，几乎预言了后来功能磁共振时代的网络重叠图景。</p>
+      <p><strong>对注意理论：</strong>Mesulam 借 Droogleever-Fortuyn 的隐喻挑战了「感觉是经验的基本建材」这一传统观：感觉器官更像<strong>「触手的探针（feelers of tentacles）」</strong>，主动伸出去更新一张内部表征地图——<strong>知觉既是运动现象，也是感觉现象</strong>。这与他把注意拆成「感觉端（顶叶）＋运动端（额叶）」的双重性正好呼应，也预告了后世「主动推断/具身认知」的思路。</p>
+      <p><strong>对临床神经病学：</strong>它把忽略从「一个顶叶症状」升级为「<strong>一族</strong>可由不同病灶产生的综合征」，直接改变了床边的诊断与定位推理——看到忽略，不该只想到顶叶，而要问「是网络的哪个节点、或哪段连接出了问题」。</p>
+      <p><strong>对人工智能（解读者类比）：</strong>这套「同一高级功能由多个专用模块＋它们之间的连接共同涌现、且模块可被多个功能复用」的图景，与现代多组件智能体系统（感知模块、规划模块、价值/奖励信号、整体激活预算）有耐人寻味的结构相似——这是解读者的类比，非论文原意。</p>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这是一篇 1981 年的<strong>理论综合</strong>，它的力量在框架，它的软肋也在框架。几处论文自己<strong>没有充分挑明</strong>的局限：</p>
+      <ul>
+        <li><strong>它是模型，不是被检验的实验。</strong>全文没有一个新的对照实验、没有效应量、没有 p 值；四节点的功能分工大量依赖「推测（it is conceivable / it is tempting to speculate）」这类措辞（作者本人频繁使用）。网络的<strong>解释力</strong>很强，但同样的灵活性也让它<strong>难以被证伪</strong>——几乎任何忽略表现都能被归到某个节点或某段连接，这是网络类模型的通病。</li>
+        <li><strong>人类证据强弱极不均匀。</strong>顶叶型、额叶型有较硬的人类与猴证据；但<strong>扣带型在人类是「间接且推测性的」</strong>（作者自陈），主要靠一例可能累及扣带回的内侧额叶梗死；网状型的人类证据同样薄弱。把四亚型并列呈现，容易让读者高估后两者的证据等级。</li>
+        <li><strong>跨物种同源是悬而未决的前提。</strong>整个论证把猴脑解剖直接外推到人，而作者也承认人猴区域对应「不确定」、连 PG 是否等于人第 7 区都有学派分歧。模型的人类版本因此建立在<strong>类比</strong>而非确证之上。</li>
+        <li><strong>右脑优势的反对证据未被定量驳倒。</strong>面对 Battersby 等人「频率无显著差异」的结果，Mesulam 的回应主要是<strong>定性</strong>的（质的差异鲜明）和方法学的（病灶大小偏倚），但承认「频率差异不显著」这一统计事实本身并未被推翻。</li>
+        <li><strong>四节点之外的成分被有意搁置。</strong>作者明确声明只谈「体外空间的<strong>空间性</strong>感觉注意」，把对念头、记忆、技能动作序列的注意，以及初级感觉皮层、下颞叶等也参与注意调制的事实，留在框架之外——这是合理的范围限定，但读者须知此模型<strong>不是一张完整的注意全图</strong>。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p><strong>这是一篇被历史证明了的「框架级」论文，但要分清它的两层价值。</strong>下面每条判断都标注依据。</p>
+      <p><strong>1. 作为范式它极其成功（依据：其五条原则与「网络优于中心」的论证）。</strong>它在功能磁共振、连接组学出现之前二十年，就用纯解剖-临床推理预演了「大脑网络观」，并提供了一套至今仍在用的临床-病理推理原则。把当时互相对立的六派忽略理论<strong>统一收编为同一头象的不同部位</strong>，是一流的理论整合，这一点在「与已有研究的关系」一节有充分文本支撑。</p>
+      <p><strong>2. 作为实证它是「论证」而非「证明」（依据：全文无新数据、大量 speculative 措辞、自陈扣带型证据间接）。</strong>它的说服力来自多源证据的<strong>会聚</strong>，而非任一决定性实验。这意味着它最适合被当作<strong>能产生可检验假说的脚手架</strong>来读，而不是当作已被钉死的结论——事实上它后来确实催生了大量可检验研究，这正是好框架的标志。</p>
+      <p><strong>3. 它的「右脑优势」论断方向正确但当年证据未到铁案（依据：Battersby 反例的统计事实未被定量推翻，作者以定性差异回应）。</strong>后续几十年的影像与病例大体支持了 Mesulam 的方向，但就<strong>这篇论文本身</strong>而言，该论断的强度应被理解为「有力假说＋会聚证据」，而非已定谳。</p>
+      <p><strong>4. 解读者的总评：</strong>如果要给「最值得现代读者读的神经病学综述」开单，这篇会在前列——<strong>不是因为它的每个细节都对，而是因为它教会了一个学科换一种眼光看大脑</strong>。它的可证伪性弱是真问题，但一个把混乱领域重新组织、并源源不断产出后续研究的框架，其历史价值不靠单篇可证伪性来结算。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Mesulam 用猴脑解剖加临床病例论证：<strong>对空间的定向注意不住在某个脑区，而是由后顶叶（感觉模板）、额叶眼区（探索程序）、扣带回（动机地图）、网状结构（唤醒底座）四个节点连成的一张网络</strong>跑出来的——任一节点受损都会让人「丢掉半个世界」（半侧忽略），但丢的方式各异；这张网络<strong>偏置在右半球</strong>（故左侧忽略远多于右侧）。这篇 1981 年的文章没有一个新 p 值，却凭一次跨证据的整合，把「大脑网络观」立成了一个学科此后数十年的默认地图。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Mesulam, M.-M. (1981). A cortical network for directed attention and unilateral neglect. <em>Annals of Neurology</em>, 10(4), 309–325.
+    <br><strong>说明：</strong>本页为独立深度解读，非论文原文翻译；交互组件为传达网络模型定性模式的示意演示，非临床量化数据。文中「解读者观点」均已标注。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('neglectCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 物品布局：体外空间里散布的圆点（病人视角，右脑损伤 => 左半被忽略）
+  // x<midX 为左半空间（被忽略侧）；x>midX 为右半空间（保留侧）
+  var midX = W/2;
+  var items = [];
+  function buildItems(){
+    items = [];
+    var cols = 7, rows = 4;
+    var marginX = 70, marginY = 60;
+    var gapX = (W - 2*marginX)/(cols-1);
+    var gapY = (H - 2*marginY)/(rows-1);
+    var id = 0;
+    for(var r=0;r<rows;r++){
+      for(var c=0;c<cols;c++){
+        // 加一点抖动让它像真实桌面而非网格
+        var jx = (Math.sin(id*12.9898)*43758.5453)%1; jx = (jx<0?jx+1:jx);
+        var jy = (Math.sin(id*78.233)*12543.123)%1; jy = (jy<0?jy+1:jy);
+        items.push({
+          id:id++,
+          x: marginX + c*gapX + (jx-0.5)*22,
+          y: marginY + r*gapY + (jy-0.5)*18,
+          attended:false,   // 是否被注意到
+          struck:false      // 是否被划掉
+        });
+      }
+    }
+  }
+  buildItems();
+
+  var mode = 'healthy'; // healthy | parietal | frontal | cingulate | reticular
+  var rightValue = 0.5; // 右侧物品价值滑块 0..1，演示扣带回动机调制
+  var gaze = {x: W*0.78, y: H*0.5}; // 当前注视点（探索时移动）
+  var exploring = false;
+  var exploreTimer = null;
+  var exploreOrder = [];
+  var exploreIdx = 0;
+
+  var explainEl = document.getElementById('viz-explain');
+
+  // 每种模式：返回某物品「被注意到」的概率（用于静态渲染与探索）
+  function attendProb(it){
+    var left = it.x < midX;          // 是否在被忽略半侧
+    var depth = (midX - it.x)/midX;  // 越往左越深（0..1）
+    var base;
+    switch(mode){
+      case 'healthy':
+        return 0.97; // 几乎全部注意到
+      case 'parietal':
+        // 顶叶型：感觉模板偏侧扭曲 => 左侧整体权重压低，越左越被消退
+        base = left ? Math.max(0.05, 0.62 - depth*0.72) : 0.96;
+        return base;
+      case 'frontal':
+        // 额叶型：运动探索失灵 => 不主动把扫视投向左侧，左侧近乎全失
+        base = left ? Math.max(0.03, 0.30 - depth*0.55) : 0.95;
+        return base;
+      case 'cingulate':
+        // 扣带型：动机价值被抹平 => 左侧"不值得看"；受右侧价值滑块调制
+        // 右侧价值越高，注意越被吸到右侧，左侧更被冷落
+        base = left ? Math.max(0.06, 0.50 - depth*0.50 - rightValue*0.20)
+                    : Math.min(0.99, 0.80 + rightValue*0.19);
+        return base;
+      case 'reticular':
+        // 网状型：整体唤醒下降+偏侧 => 全场都"懒得理"，左侧尤甚
+        base = left ? Math.max(0.04, 0.34 - depth*0.40) : (0.66);
+        return base;
+    }
+    return 0.9;
+  }
+
+  function modeColor(){
+    switch(mode){
+      case 'healthy': return '#2e7d32';
+      case 'parietal': return '#c0392b';
+      case 'frontal': return '#1565c0';
+      case 'cingulate': return '#8e24aa';
+      case 'reticular': return '#ef6c00';
+    }
+    return '#c0392b';
+  }
+
+  var modeText = {
+    healthy:'<strong style="color:#2e7d32">健康对照：</strong>注意均匀覆盖整张桌面，左右两半的物品都被察觉、都能划掉。这是其余四种损伤的对照基线。',
+    parietal:'<strong style="color:#c0392b">① 顶叶（PG 区）损伤 —— 感觉模板被偏侧扭曲：</strong>左半空间在内部地图里的"突触代表权"被压低，越靠左越容易在竞争中被<strong>消退（extinction）</strong>。注意它的特征：左侧不是齐刷刷地全黑，而是<strong>由弱到无、有梯度地</strong>淡出——这正是"双侧竞争时坏侧总输"的样子。',
+    frontal:'<strong style="color:#1565c0">② 额叶眼区（第 8 区）损伤 —— 运动探索失灵：</strong>问题不在"看不见"，而在<strong>不去把眼睛和手投向左侧</strong>。点"让病人探画"最能看出来：扫视轨迹几乎不踏入左半场，左侧物品因从未被探索到而整片漏掉。这是<strong>运动性（motor）忽略</strong>，非偏瘫。',
+    cingulate:'<strong style="color:#8e24aa">③ 扣带回损伤 —— 动机价值被抹平：</strong>左侧事件"不再值得在意"。试着<strong>拖动"右侧物品价值"滑块</strong>：价值越高，注意越被吸往右侧、左侧被冷落得越彻底——这演示了扣带回如何用"重不重要"来分配空间注意（饿了就盯着投喂口）。人类此型证据最间接。',
+    reticular:'<strong style="color:#ef6c00">④ 网状结构损伤 —— 唤醒底座塌陷：</strong>整张网"供电不足"。注意看：不只是左侧，<strong>连右侧（保留侧）也比健康时更稀疏</strong>——因为警觉/唤醒水平整体下降；偏侧的活化削弱让左侧雪上加霜。这是给全网供电的底座出了问题。'
+  };
+
+  function setMode(m){
+    mode = m;
+    stopExplore();
+    // 静态预览：按概率"骰一次"决定哪些被注意到
+    for(var i=0;i<items.length;i++){
+      var p = attendProb(items[i]);
+      items[i].attended = (rngStatic(items[i].id) < p);
+      items[i].struck = false;
+    }
+    explainEl.innerHTML = modeText[mode];
+    draw();
+    // 高亮按钮
+    var ids = {healthy:'btn-healthy',parietal:'btn-parietal',frontal:'btn-frontal',cingulate:'btn-cingulate',reticular:'btn-reticular'};
+    ['btn-healthy','btn-parietal','btn-frontal','btn-cingulate','btn-reticular'].forEach(function(bid){
+      var b = document.getElementById(bid);
+      if(!b) return;
+      if(bid === ids[mode]){ b.classList.remove('alt'); } else { b.classList.add('alt'); }
+    });
+  }
+
+  // 稳定伪随机（用于静态预览，避免每次重绘跳动）
+  function rngStatic(id){
+    var x = Math.sin((id+1)*9301 + 49297) * 233280;
+    return x - Math.floor(x);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // 背景：体外空间，左右两半区分
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(0,0,W,H);
+    // 中线
+    ctx.strokeStyle = '#e6e8eb';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6,6]);
+    ctx.beginPath(); ctx.moveTo(midX,12); ctx.lineTo(midX,H-12); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 左右半标签
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.fillStyle = '#c0392b';
+    ctx.textAlign = 'center';
+    ctx.fillText('← 左半空间（损伤对侧 · 易被忽略）', midX*0.5, 24);
+    ctx.fillStyle = '#2e7d32';
+    ctx.fillText('右半空间（保留侧）→', midX + midX*0.5, 24);
+
+    // 注视点（探索时显示）
+    if(exploring){
+      ctx.beginPath();
+      ctx.arc(gaze.x, gaze.y, 16, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(21,101,192,0.10)';
+      ctx.fill();
+      ctx.strokeStyle = '#1565c0';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // 十字
+      ctx.beginPath();
+      ctx.moveTo(gaze.x-22,gaze.y); ctx.lineTo(gaze.x+22,gaze.y);
+      ctx.moveTo(gaze.x,gaze.y-22); ctx.lineTo(gaze.x,gaze.y+22);
+      ctx.stroke();
+    }
+
+    // 物品
+    var col = modeColor();
+    for(var i=0;i<items.length;i++){
+      var it = items[i];
+      ctx.beginPath();
+      ctx.arc(it.x, it.y, 11, 0, Math.PI*2);
+      if(it.attended){
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.lineWidth = 2.4;
+        ctx.strokeStyle = col;
+        ctx.stroke();
+      } else {
+        // 未被注意到：极淡的灰，几乎"不存在"于病人意识
+        ctx.fillStyle = '#ececec';
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#dddddd';
+        ctx.stroke();
+      }
+      // 划掉标记（探画任务）
+      if(it.struck){
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2.6;
+        ctx.beginPath();
+        ctx.moveTo(it.x-9, it.y-9); ctx.lineTo(it.x+9, it.y+9);
+        ctx.moveTo(it.x+9, it.y-9); ctx.lineTo(it.x-9, it.y+9);
+        ctx.stroke();
+      }
+    }
+
+    // 图例
+    ctx.textAlign = 'left';
+    ctx.font = '11.5px -apple-system,sans-serif';
+    var ly = H-16;
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = col; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.arc(70,ly,7,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#3a4048'; ctx.fillText('被注意到', 84, ly+4);
+    ctx.fillStyle = '#ececec'; ctx.strokeStyle='#dddddd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(180,ly,7,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#3a4048'; ctx.fillText('被忽略（不进入意识）', 194, ly+4);
+  }
+
+  // 探索：模拟扫视序列，逐个"访问"物品并按概率注意/划掉
+  function startExplore(){
+    stopExplore();
+    // 先清空
+    for(var i=0;i<items.length;i++){ items[i].attended=false; items[i].struck=false; }
+    exploring = true;
+
+    // 扫视顺序：健康/顶叶/扣带/网状 大致从右向左扫；额叶型几乎不进入左场
+    // 用一个加权排序：右侧物品优先被访问（模拟从保留侧起手）
+    exploreOrder = items.slice().sort(function(a,b){ return b.x - a.x; });
+    exploreIdx = 0;
+    gaze.x = W*0.82; gaze.y = H*0.5;
+    draw();
+
+    exploreTimer = setInterval(function(){
+      if(exploreIdx >= exploreOrder.length){
+        stopExplore();
+        // 探索结束后保留结果展示
+        exploring = false;
+        draw();
+        appendExploreSummary();
+        return;
+      }
+      var it = exploreOrder[exploreIdx++];
+
+      // 额叶型：到达左半场的扫视会"半途而废"——有较大概率根本不移动过去
+      var goThere = true;
+      if(mode==='frontal' && it.x < midX){
+        var depth = (midX - it.x)/midX;
+        goThere = (Math.random() < Math.max(0.04, 0.26 - depth*0.5));
+      }
+      if(goThere){
+        gaze.x = it.x; gaze.y = it.y;
+        var p = attendProb(it);
+        if(Math.random() < p){
+          it.attended = true;
+          it.struck = true; // 注意到就划掉
+        }
+      }
+      draw();
+    }, 90);
+  }
+
+  function appendExploreSummary(){
+    var leftTotal=0,leftHit=0,rightTotal=0,rightHit=0;
+    for(var i=0;i<items.length;i++){
+      var it=items[i];
+      if(it.x<midX){ leftTotal++; if(it.struck) leftHit++; }
+      else { rightTotal++; if(it.struck) rightHit++; }
+    }
+    var lp = Math.round(leftHit/leftTotal*100);
+    var rp = Math.round(rightHit/rightTotal*100);
+    explainEl.innerHTML = modeText[mode] +
+      '<div style="margin-top:10px;padding:8px 12px;background:#fdecea;border-radius:6px;">' +
+      '<strong>探画结果：</strong>左半空间划掉 <strong>'+leftHit+'/'+leftTotal+'（'+lp+'%）</strong>，右半空间划掉 <strong>'+rightHit+'/'+rightTotal+'（'+rp+'%）</strong>。' +
+      '左右差距越大，半侧忽略越明显。' +
+      '</div>';
+  }
+
+  function stopExplore(){
+    if(exploreTimer){ clearInterval(exploreTimer); exploreTimer=null; }
+  }
+
+  // 绑定按钮
+  document.getElementById('btn-healthy').addEventListener('click', function(){ setMode('healthy'); });
+  document.getElementById('btn-parietal').addEventListener('click', function(){ setMode('parietal'); });
+  document.getElementById('btn-frontal').addEventListener('click', function(){ setMode('frontal'); });
+  document.getElementById('btn-cingulate').addEventListener('click', function(){ setMode('cingulate'); });
+  document.getElementById('btn-reticular').addEventListener('click', function(){ setMode('reticular'); });
+  document.getElementById('btn-explore').addEventListener('click', function(){ startExplore(); });
+  document.getElementById('btn-reset').addEventListener('click', function(){ setMode(mode); });
+  document.getElementById('sld-value').addEventListener('input', function(e){
+    rightValue = parseInt(e.target.value,10)/100;
+    if(!exploring){ setMode(mode); }
+  });
+
+  // 初始
+  setMode('parietal');
+})();
+</script>
+</body>
+</html>

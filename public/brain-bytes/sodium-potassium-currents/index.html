@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hodgkin & Huxley 1952（钠钾电流分离）— 用「换钠」把膜电流拆成两条曲线 · 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Separating I<sub>Na</sub> &amp; I<sub>K</sub> <span>×</span> 用一招「换钠」把一团膜电流拆成两条干净的曲线</h1>
+    <div class="meta">
+      <span>📄 Currents carried by sodium and potassium ions through the membrane of the giant axon of <em>Loligo</em></span><br>
+      <span>✍️ A. L. Hodgkin &amp; A. F. Huxley</span><br>
+      <span>🏛️ Laboratory of the Marine Biological Association, Plymouth；剑桥大学生理学实验室（Physiological Laboratory, University of Cambridge）</span><br>
+      <span>📅 The Journal of Physiology, 116(4), 449–472 · 1952（投稿 1951-10-24）·「钠钾电流分离」即四联篇之第二篇</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-q">他们到底在问什么</a></li>
+        <li><a href="#sec-na">发现一：换掉钠，内向电流凭空消失</a></li>
+        <li><a href="#sec-enapotential">发现二：钠电位——电流反向的那条线</a></li>
+        <li><a href="#sec-separate">发现三：把总电流减出 I<sub>Na</sub> 与 I<sub>K</sub></a></li>
+        <li><a href="#sec-viz">交互：亲手把膜电流拆成两条曲线</a></li>
+        <li><a href="#sec-conductance">发现四：从电流到电导——膜的「阀门开度」</a></li>
+        <li><a href="#sec-independence">发现五：独立原理——离子各走各的</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是 20 世纪生理学最伟大的系列工作之一（1963 年诺贝尔生理学或医学奖）的<strong>第二篇</strong>，也是整套「Hodgkin-Huxley 模型」赖以成立的<strong>实验地基</strong>。前一篇刚发明了电压钳，能把枪乌贼巨轴突的膜电压「钉死」在任意值、看电流随时间怎么流；但记录里只是一团混在一起的曲线：先是一个出乎意料的<strong>内向</strong>电流，再是一个迟来的<strong>外向</strong>电流。这团电流到底是哪些离子在搬运？本篇给出了干净利落的答案。</p>
+        <p>它的厉害之处在于一个近乎魔术的实验设计：<strong>把轴突泡在「无钠海水」（用胆碱顶替钠）里，那个内向电流就凭空消失了</strong>——证明它是钠离子搬进来的。更进一步，作者用一组简单假设和几个减法公式，把任意时刻的<strong>总膜电流，定量拆成钠电流 I<sub>Na</sub> 与钾电流 I<sub>K</sub> 两个分量</strong>，并第一次把它们写成「电导（阀门开度）」的语言。这套「换离子 + 做减法 + 化为电导」的思路，不仅解出了神经冲动的离子机制，还为下一篇用微分方程定量重建动作电位铺平了全部道路。读懂这篇，等于读懂了现代神经科学最核心的一组实验直觉是怎么来的。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文符号密、电化学概念多。先备好下面这套「人话词典」，后面读公式与曲线会顺畅得多。文中所有关键术语都在这里有卡片。</p>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">电压钳（Voltage Clamp，文中作 'voltage clamp'）</div>
+          <div class="cdesc">一种反馈电路：不管膜想怎么变，都强行把膜电压「按住」在你设定的值，然后测量为维持这个电压所需要灌入/抽出的电流。相当于把膜电压当成方向盘锁死，专心去读「油门踩了多少」。前一篇论文（Hodgkin, Huxley &amp; Katz 1952）发明，本篇靠它工作。记录里那阵极快的<strong>膜电容电流（capacity current，膜像电容器，电压一跳变就有的充放电）</strong>会被作者用「超极化记录只含电容电流」的办法估出并扣掉。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">膜电流 · 内向/外向 · 去极化（Membrane current, depolarization）</div>
+          <div class="cdesc">穿过膜的电流：正离子<strong>进</strong>细胞叫内向电流（本文画成向上），正离子<strong>出</strong>细胞叫外向电流。<strong>去极化</strong>指把膜电压从静息值往「不那么负」的方向推（文中以「降低膜电位多少 mV」量化，如「去极化 65 mV」），它是触发整套离子流的扳机——去极化时先有一阵反常的内向电流、再转为持久的外向电流，这一前一后正是本文要拆解的对象。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">无钠海水 / 胆碱替换（Sodium-free / choline sea water）</div>
+          <div class="cdesc">本文的核心工具：把海水里的钠离子（Na⁺）换成<strong>胆碱离子（choline⁺）</strong>这种「惰性」正离子（也用 30%、10% 的部分替换）。胆碱撑住了渗透压和电荷，却<strong>不参与</strong>跨膜电流、也几乎不改变静息电位——于是「有钠 vs 没钠」的对照，就把钠的贡献单独逼了出来。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">钠电流 I<sub>Na</sub> / 钾电流 I<sub>K</sub>（Sodium / Potassium current）</div>
+          <div class="cdesc">总离子电流被作者拆出的两个分量：<strong>I<sub>Na</sub></strong> 由钠离子搬运，快速、短暂，先内后转（升到峰再衰减）；<strong>I<sub>K</sub></strong> 由钾离子搬运，迟缓、持久，沿 S 形曲线升到平台。带撇号（I′）表示在低钠溶液里测的同一个量。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">能斯特方程 / 平衡电位（Nernst equation, E<sub>Na</sub> &amp; E<sub>K</sub>）</div>
+          <div class="cdesc">某种离子「内外浓度差」与「跨膜电压」恰好打平、净电流为零时的那个电压，叫该离子的<strong>平衡电位</strong>（钠的叫钠电位 E<sub>Na</sub>，钾的叫 E<sub>K</sub>）。由能斯特方程 E = (RT/F)·ln([离子]<sub>内</sub>/[离子]<sub>外</sub>) 算出。可以把它想成离子的「心理价位」：膜电压越过它，这种离子搬运的电流就会反向。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">驱动力（Driving force, E − E<sub>Na</sub>）</div>
+          <div class="cdesc">把某离子推过膜的「净动力」，等于当前膜电压减去它的平衡电位。在平衡电位处驱动力为零（无论阀门开多大都没电流）；离得越远，同样的阀门开度就给出越大的电流。是连接「电导」与「电流」的桥梁。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">膜电导 g<sub>Na</sub> / g<sub>K</sub> · 通透性（chord conductance, permeability）</div>
+          <div class="cdesc">本文的关键发明：把电流除以驱动力，<strong>g<sub>Na</sub> = I<sub>Na</sub>/(E − E<sub>Na</sub>)</strong>，得到一个「与电压差无关」的量，单位是电导（毫姆欧/cm²），称<strong>弦电导（chord conductance）</strong>。它直接度量膜「放行」该离子的容易程度即<strong>通透性（permeability）</strong>——相当于「水龙头开了多大」，而把「水压」（驱动力）剥离出去。作者强调：对带电离子，单纯按浓度定义通透性没有意义（还有电场在推），必须用电导来度量。去极化让钠、钾通透性急剧、动态变化——正是动作电位的引擎。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">分离假设 + 比例因子 k（Separation assumptions）</div>
+          <div class="cdesc">把总电流拆成 I<sub>Na</sub>、I<sub>K</sub> 所依赖的三条假设：①钾电流在两种溶液里时间进程相同；②钠电流时间进程相似（只改幅度/方向，不改时间标度）；③去极化最初约 1/3 段（钠电流升到峰之前）钾电流还几乎没起来（dI<sub>K</sub>/dt≈0）。<strong>k</strong> 是同一去极化下「低钠溶液的钠电流 ÷ 海水的钠电流」之比，用两条曲线最初的斜率定出。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">独立原理（Independence principle）</div>
+          <div class="cdesc">作者提出的一条普适假设：<strong>每个离子穿膜的概率，与其他离子在不在场无关</strong>。由它能推出一个公式（Eq.12），从海水里的钠电流预测低钠溶液里的钠电流。实验吻合（差一个常数倍率），说明离子大体是「各走各的、互不挤占」。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">枪乌贼巨轴突（Giant axon of <em>Loligo</em>）</div>
+          <div class="cdesc">枪乌贼（Loligo，一种鱿鱼）逃跑时驱动喷水的神经纤维，直径可达约 0.5–1 mm，是当年唯一粗到能插进电极、灌内电极、做电压钳的「天选实验材料」。整套 HH（Hodgkin-Huxley）工作都建立在它身上。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-q">他们到底在问什么</div>
+      <p>前一篇论文（Hodgkin, Huxley &amp; Katz 1952）用刚发明的电压钳，把枪乌贼巨轴突的膜电压突然降低（去极化）10–100 mV，记录下流过膜的电流随时间的全过程。最醒目、也最反常的一个特征是：在膜电容那阵快速充电脉冲过去之后，<strong>最初的电流竟然是内向的</strong>——方向与「同样电压变化作用在一个普通欧姆电阻上」会产生的电流<strong>相反</strong>。而且这个内向电流大小恰好够给动作电位的上升相充电。</p>
+      <p>这立刻让人怀疑：<strong>动作电位的上升相，会不会就是钠离子在浓度差与电场的合力下涌进细胞？</strong>（Hodgkin 1951 综述里已有这个猜想。）于是本篇的中心问题非常明确：</p>
+      <ul>
+        <li><strong>那团膜电流里，到底是哪些离子在搬运？</strong>早期的内向电流是钠吗？迟来的外向电流是钾吗？</li>
+        <li><strong>能不能把混在一起的总电流，定量地拆成各离子的分量曲线？</strong>——这是能否进一步建立定量模型的关键。</li>
+        <li><strong>这些离子电流和膜电压、离子浓度之间，服从什么定律？</strong>能否化成一种「与电压差无关、可外推」的描述（即电导）？</li>
+      </ul>
+      <p><strong>核心方法是一记妙招——换掉钠离子。</strong>用<term>胆碱（choline⁺）</term>这种惰性正离子顶替海水里的钠（Na⁺ = 460 mmol/kg H₂O），配出无钠、30%、10% 钠的各档溶液。胆碱关键的好处是：它能让轴突<strong>完全不可兴奋</strong>，却几乎<strong>不降低静息电位</strong>（Hodgkin &amp; Katz 1949）。这样「有钠 vs 无钠」就成了一组干净的对照，把钠的那一份电流单独逼出来。实验在 4 个轴突上量化、共记录多档去极化强度，温度多在 6–11°C。</p>
+
+      <div class="section-head" id="sec-na">发现一：把钠换成胆碱，内向电流凭空消失</div>
+      <p>这是全篇最直观、也最有说服力的一击。同一根轴突、同样去极化 65 mV，作者先在海水里记一条、换成胆碱海水（无钠）再记一条、换回海水又记一条（原文 Fig. 1）。三条记录放大倍数相同，结论一目了然：</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 钠一撤，内向电流就没了</span>
+        <p>在无钠（胆碱）溶液里，<strong>原本的内向电流彻底消失，取而代之的是一个早期的外向「驼峰」</strong>；而迟来的<strong>外向电流几乎不变</strong>——其稳态水平在无钠液里只低了约 <strong>15–20%</strong>。换回海水，内向电流又回来了，证明变化确实来自「去掉钠」、而非胆碱本身或时间流逝（对照轴突在海水里放同样久没出现这种变化）。这一组对照同时说明：<strong>早期电流由钠搬运，迟来的外向电流则基本与钠无关</strong>。</p>
+      </div>
+      <p>把去极化强度从弱到强扫一遍（原文 Fig. 2），图景更完整：在<strong>最弱</strong>的去极化（约 −14 mV）下，海水里那点早期外向电流太小测不出，而在无钠液里反而显出来了；在<strong>最强</strong>的去极化（去极化 112 mV）下，<strong>连海水里早期电流也变成了外向</strong>。这正符合一个优雅的物理图景：钠的流向由「浓度差想把它推进来」和「电场想把它推出去」两股力的合力决定。海水里外面钠浓度是里面的 5–10 倍，倾向于把钠往里推；但当膜被去极化到足够负的某个临界值，电场的外推压过了浓度的内推，净钠电流就由内向翻成外向。在无钠液里没有钠可进，自然永远是外向。</p>
+
+      <div class="section-head" id="sec-enapotential">发现二：钠电位——电流由内翻外的那条「价位线」</div>
+      <p>上面那个「净钠电流为零、再过去就反向」的临界膜电压，作者称为<term>钠电位（sodium potential，E<sub>Na</sub>）</term>。它应当由能斯特方程给出：</p>
+      <blockquote>
+        <p>E<sub>Na</sub> = (RT / F) · ln( [Na]<sub>内</sub> / [Na]<sub>外</sub> )&nbsp;&nbsp;&nbsp;&nbsp;……(式1)</p>
+      </blockquote>
+      <p>（R 是气体常数 gas constant、T 绝对温度、F 法拉第常数 Faraday constant。）这给了一个可以<strong>定量证伪</strong>的预言：如果内向电流真是钠搬的，那么把外部钠浓度从海水降到某个低值，钠电位应当<strong>按式1 精确地移动</strong>。作者实测了这个移动量并和理论值对照（原文 Table 1）：</p>
+      <table>
+        <thead>
+          <tr><th>轴突 / 温度</th><th>外钠浓度比 [Na]′ₒ/[Na]ₒ</th><th>钠电位移动 · 实测（mV）</th><th>钠电位移动 · 理论（mV）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>20 号 / 6.3°C</td><td>0.3（30% 钠）</td><td>+20</td><td>+22.0</td></tr>
+          <tr><td>20 号 / 6.3°C</td><td>0.1（10% 钠）</td><td>+55</td><td>+55.3</td></tr>
+          <tr><td>21 号 / 8.5°C</td><td>0.1（10% 钠）</td><td>+56</td><td>+55.6</td></tr>
+          <tr><td>21 号 / 8.5°C</td><td>0.1（10% 钠）</td><td>+54</td><td>+55.6</td></tr>
+        </tbody>
+      </table>
+      <p>实测与理论<strong>吻合得相当好</strong>。这是「早期内向电流由钠携带、且钠在浓度差与电场合力下穿膜」的强证据——不是定性地像，而是定量地对得上。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 顺手算出了细胞内钠浓度</span>
+        <p>既然 E<sub>Na</sub> 由式1 决定，量出它就能反推内部钠浓度。作者在新鲜纤维上测得<strong>钠电位与静息电位之差平均 −109 mV</strong>（10 个轴突，范围 −95 到 −119 mV，平均温度 8°C）；扣掉约 50 mV 的静息电位与 10–15 mV 的液接电位，要让式1 成立，<strong>轴浆内钠浓度需在 60–70 mmol/kg H₂O</strong>。这与化学法、放射示踪法测出的「新鲜轴突约 50、放置 2–3 小时后约 100 mmol/kg」吻合得很合理——一个电生理推断与独立化学测量的漂亮互证。</p>
+      </div>
+
+      <div class="section-head" id="sec-separate">发现三：用三条假设和几个减法，把总电流拆成 I<sub>Na</sub> 与 I<sub>K</sub></div>
+      <p>这是本篇的<strong>技术心脏</strong>。前面已经说明：迟来的外向电流基本与钠无关、且有独立证据（Sepia 轴突的示踪实验）表明它由钾搬运，作者称之为<term>钾电流（I<sub>K</sub>）</term>；早期那一份则是钠电流 I<sub>Na</sub>。难点在于：在<strong>海水</strong>里，这两份是叠在一起的，记录只给出它们的<strong>和</strong>。怎么把它们分开？</p>
+      <p>作者的巧思是：<strong>同一去极化下，比较海水（电流记为 Iᵢ）与低钠溶液（记为 I′ᵢ）两条总电流曲线</strong>，再加三条关于「换钠对两个分量各自影响」的假设：</p>
+      <ol>
+        <li><strong>钾电流时间进程在两种溶液里相同</strong>（钾几乎不受外钠影响）。</li>
+        <li><strong>钠电流时间进程在两种溶液里相似</strong>——幅度、有时连方向都被改了，但「时间标度」「曲线形状」不变。</li>
+        <li><strong>去极化最初约 1/3 段</strong>（钠电流升到峰所用时间的前三分之一）内，<strong>钾电流还几乎没动</strong>（dI<sub>K</sub>/dt ≈ 0）。</li>
+      </ol>
+      <p>有了这些，再定义<strong>比例因子 k = I′<sub>Na</sub>/I<sub>Na</sub></strong>（同一去极化下两溶液中钠电流之比；由两条总电流曲线在<strong>最初</strong>的斜率比定出，因为那段只有钠在动），就能用纯代数把分量解出来：</p>
+      <blockquote>
+        <p>I<sub>Na</sub> = (Iᵢ − I′ᵢ) / (1 − k)&nbsp;&nbsp;&nbsp;&nbsp;……(式5)</p>
+        <p>I<sub>K</sub> = (I′ᵢ − k·Iᵢ) / (1 − k)&nbsp;&nbsp;&nbsp;&nbsp;……(式6)</p>
+      </blockquote>
+      <p>直觉上：因为钾在两溶液里完全一样（假设1），<strong>两条总电流曲线相减（Iᵢ − I′ᵢ）就把钾消掉了，只剩钠的差，再除以 (1−k) 还原出钠电流</strong>；把钠的份额按 k 加权扣掉，剩下的就是钾电流。结果如原文 Fig. 5、Fig. 6 所示：<strong>钠电流是一个先快速升到峰、再衰减的短暂瞬变；钾电流是一个沿 S 形缓慢升起、维持在平台的持久电流</strong>。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 这套拆法自带一个「自洽性检查」</span>
+        <p>一个令人安心的特征是：拆出的曲线<strong>在所有去极化强度下形状都一致</strong>。如果时间进程的假设错了，公式(6) 就不会正确扣除钠电流，那么「远离钠电位处的钾电流曲线」就不该和「钠电位处（此时钠电流为零、I<sub>K</sub> 直接等于总电流）的钾电流曲线」长得一样——可它们确实一样，这本身就是对假设的一道验证。作者也诚实指出反例：图中 I<sub>Na</sub> 曲线在 2 毫秒后反向，是因为「海水里的迟外向电流比低钠里略大」这一已知差异所致，提醒读者后段分析会带入误差。</p>
+      </div>
+      <p>顺带一提，作者把这个分量分离的现象单独拿出一例（原文 Fig. 7）：在胆碱海水里去极化 84 mV，由于此时<strong>钠电流是外向</strong>的，它叠加在钾电流上，使总电流在约 0.2 毫秒处先冲出一个外向「驼峰」、再回落、最后才升上钾的平台——这种「双峰」形状只能用「钠电流先升后降」来解释，反过来又印证了 I<sub>Na</sub> 升到峰后会衰减（即后续论文的「失活」苗头）。</p>
+
+      <div class="section-head" id="sec-viz">交互：亲手把一团膜电流拆成 I<sub>Na</sub> 与 I<sub>K</sub> 两条曲线</div>
+      <p>上面那套「比较两种溶液、相减、还原」的逻辑，文字读来抽象。下面这个组件让你<strong>亲手走一遍这场实验</strong>：先看海水里那团说不清的总电流，再叠上无钠溶液里的总电流，然后让程序按式5、式6 做减法，把藏在里面的<strong>内向钠电流</strong>和<strong>外向钾电流</strong>两条曲线显形。再拖动去极化强度滑块，亲眼看「越往强了去极化、早期那一峰怎么从内向翻成外向、最后越过钠电位」。</p>
+      <div class="viz-box">
+        <div class="viz-title">膜电流分离器 · 换钠实验交互模拟（复刻原文 Fig. 1 / Fig. 5 的逻辑）</div>
+        <div class="viz-note">模拟数据基于论文报告的定性模式（钠电流：快速升峰后衰减的瞬变；钾电流：S 形升至平台；钠的方向由膜电位与钠电位之差决定；去极化越强电导越大），仅展示定性规律，非原始电流记录。约定：内向电流向上（与原文一致）。</div>
+        <div class="viz-controls">
+          <label>去极化强度：<strong><span id="depLabel">56</span> mV</strong></label>
+          <input type="range" id="depSlider" min="20" max="120" value="56" step="1" style="width:240px;">
+          <button id="sweepBtn">▶ 自动扫过强度</button>
+        </div>
+        <div class="viz-controls">
+          <span style="font-size:0.85rem;color:var(--ink-soft);">分步演示：</span>
+          <button class="alt" id="step1Btn">① 海水总电流</button>
+          <button class="alt" id="step2Btn">② 叠上无钠总电流</button>
+          <button class="alt" id="step3Btn">③ 相减 → 拆出 I<sub>Na</sub> + I<sub>K</sub></button>
+          <label style="margin-left:6px;"><input type="checkbox" id="allChk"> 全部同时显示</label>
+        </div>
+        <canvas id="sepCanvas" width="860" height="430"></canvas>
+        <div class="viz-note" id="sepReadout" style="margin-top:12px;text-align:center;font-size:0.95rem;color:var(--ink-soft);"></div>
+      </div>
+      <p>玩几下你会得到论文里最核心的几个直觉：（1）<strong>海水里的总电流（黑）确实「说不清」</strong>——它是一个内向起步、再转外向的混合体，单看它你无法知道有几种离子；（2）<strong>无钠溶液里的总电流（灰）几乎只剩钾的那条 S 形</strong>，早期那一份内向电流不见了；（3）<strong>两条相减、按 k 还原，钠（红）与钾（蓝）就分别现形</strong>：钠是先升后降的尖瞬变，钾是缓升到平台的持久流；（4）把去极化推到约 <strong>110 mV 以上</strong>，早期钠峰会<strong>从内向（向上）翻成外向（向下）</strong>——你正越过了那条「钠电位」价位线，和原文 Fig. 2 最强去极化时如出一辙。</p>
+
+      <div class="section-head" id="sec-conductance">发现四：从电流到电导——把「水压」剥掉，只看「阀门开度」</div>
+      <p>拆出 I<sub>Na</sub> 和 I<sub>K</sub> 还不够。电流的大小同时取决于两件事：膜对该离子「开了多大的门」（通透性），以及推它过门的「驱动力」有多大。这两者纠缠在一起，电流本身不是描述「门」的好量。作者于是引入一个更纯净的量——<term>电导（conductance）</term>：</p>
+      <blockquote>
+        <p>g<sub>Na</sub> = I<sub>Na</sub> / (E − E<sub>Na</sub>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g<sub>K</sub> = I<sub>K</sub> / (E − E<sub>K</sub>)</p>
+      </blockquote>
+      <p>这里 (E − E<sub>Na</sub>) 就是钠的驱动力（膜电位减钠电位）。把电流除以驱动力，得到的电导<strong>剥掉了「水压」、只剩「水龙头开度」</strong>，直接度量膜对该离子的通透性。作者称之为<strong>弦电导（chord conductance）</strong>，以区别于按斜率定义的<strong>斜率电导（slope conductance，G = ∂I/∂E）</strong>。这一步是承上启下的关键：它把混乱的电流-电压关系，翻译成一种「干净、可外推、可写进方程」的语言（下一篇 1952a 会证明 g<sub>Na</sub>、g<sub>K</sub> 确实与驱动力无关，即电流-电压瞬时关系是线性的，这正是电导定义有意义的前提）。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 阀门开度的几个硬数字</span>
+        <p>在去极化 100 mV 下（原文 Table 2，作为单位 1 的参照点）：充分分析的实验里钠、钾<strong>峰值电导均值约 g<sub>Na</sub>=20、g<sub>K</sub>=25 毫姆欧/cm²（m.mho/cm²）</strong>；而在新鲜纤维上、变质之前测得更高，<strong>两者都约 30–35 毫姆欧/cm²</strong>，相当于 1 cm² 膜约 <strong>30 欧姆（Ω，ohm）</strong> 的电阻——对比静息时约 1000 Ω·cm²，峰值时膜电阻塌缩到约 1/30。更关键的是电导对电压的<strong>陡峭依赖</strong>：去极化每增加约 <strong>4 mV，g<sub>Na</sub> 就增大到 e 倍</strong>；钾稍缓，每 <strong>5 mV</strong> 增大到 e 倍。也就是说，电导在对数坐标上随去极化近乎直线上升——一个指数级敏感的「门」。这组数字日后直接喂进了下一篇的微分方程。</p>
+      </div>
+      <p>作者还分别给出 g<sub>Na</sub>、g<sub>K</sub> 随去极化的<strong>最大值曲线（Fig. 9、10）</strong>和<strong>最大上升速率曲线（Fig. 11、12）</strong>，发现两件事：电导的峰值和它<strong>上升的快慢</strong>都随去极化增强而增大，而且上升速率的增大「即使在峰值本身已基本封顶之后仍在继续」——暗示「门开多大」和「门开多快」是两个可分的维度，这为后续用独立的「激活变量」建模埋下伏笔。一个重要的形态差异：钠电导在越过钠电位时<strong>不发生明显变化</strong>（因为电导只关乎「门」，与驱动力方向无关），而电流却在此处反向——这恰恰反证了「用电导描述比用电流描述更接近膜的真实性质」。</p>
+
+      <div class="section-head" id="sec-independence">发现五：独立原理——离子各走各的，互不挤占</div>
+      <p>最后，作者追问一个更基础的问题：<strong>钠电流如何依赖外部钠浓度？</strong>他们提出一条很普适的假设——<term>独立原理（independence principle）</term>：任一离子穿膜的概率，与膜上有没有别的离子<strong>无关</strong>。在这个假设下（仅设内向流 M₁ 正比于外浓度、外向流 M₂ 正比于内浓度，且各自只受膜状态与电压影响），可以推导出一个把「低钠溶液钠电流 I′<sub>Na</sub>」与「海水钠电流 I<sub>Na</sub>」联系起来的公式：</p>
+      <blockquote>
+        <p>I′<sub>Na</sub> / I<sub>Na</sub> = { ([Na]′ₒ/[Na]ₒ)·exp[(E−E<sub>Na</sub>)F/RT] − 1 } / { exp[(E−E<sub>Na</sub>)F/RT] − 1 }&nbsp;&nbsp;……(式12)</p>
+      </blockquote>
+      <p>用海水里测的钠电流，代入式12 去<strong>预测</strong>低钠溶液里的钠电流，再和实测对照（原文 Fig. 13）：预测曲线与实测<strong>形状高度一致，但实测幅度偏大，需乘一个常数倍率</strong>（30% 钠为 1.20、10% 钠为 1.333、胆碱海水为 1.60）。作者坦率地说：这个常数倍率「乍看像是与理论不符」，但它能被另一个独立效应定量解释——低钠溶液里静息电位偏高，使得后续去极化产生的钠电流比本该有的更大；这个修正留到第四篇（Hodgkin &amp; Huxley 1952b）讲清。扣掉这层，钠电流与外钠浓度的关系就在实验误差内服从式12。</p>
+      <div class="info-block">
+        <span class="ib-title">解读者提醒 · 「独立原理」说了什么、又没说什么</span>
+        <p>式12 与 Ussing (1949)、Behn (1897)、Teorell (1949) 等人的通量比公式同源，但 Hodgkin-Huxley 的推导<strong>更一般</strong>（不预设膜内电场形状），代价是对「阻力的本质」不作规定。作者明确强调（原文原话）：独立原理成立<strong>并不告诉我们离子穿膜的物理机制</strong>——「恒定场」模型（Goldman 1943）、「少量载体分子」模型等多种机制都能满足它。换句话说，这是一条<strong>唯象（phenomenological）</strong>规律：它说「离子大体互不挤占」，但没说它们是怎么过去的。这种「先抓住可测的定律、把机制存疑」的克制，是整套 HH 工作的方法论底色。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文的说服力，几乎全部来自方法上的硬功夫——它示范了「如何把一团混在一起的生理信号，一步步逼成两条干净、可定量、可写进方程的曲线」。</p>
+      <table>
+        <thead>
+          <tr><th>手法</th><th>怎么做</th><th>解决了什么问题</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>离子替换作为「化学手术刀」</td>
+            <td>用惰性的胆碱离子顶替海水里的钠，配出无钠、30%、10% 钠各档；胆碱撑住渗透压与电荷却不导电流、不降静息电位</td>
+            <td>把「钠的贡献」单独切出来——有钠 vs 无钠的对照，直接让内向电流出现/消失，是整篇因果链的第一锚点</td>
+          </tr>
+          <tr>
+            <td>钠电位的定量证伪</td>
+            <td>由能斯特方程预言「降外钠 → 钠电位移动多少 mV」，再实测对照（Table 1：实测 +20/+55/+56/+54 vs 理论 +22/+55.3/+55.6/+55.6）</td>
+            <td>把「内向电流是钠」从定性猜想升级为定量检验——不是「像」，而是数值对得上，几乎排除了其他离子的可能</td>
+          </tr>
+          <tr>
+            <td>扣除膜电容电流</td>
+            <td>利用「阳极（超极化）记录只含电容电流」，按电压幅度比例缩放后从总电流里减去</td>
+            <td>先把非离子的快速充放电成分清掉，得到纯离子电流，才谈得上后续的分量分离</td>
+          </tr>
+          <tr>
+            <td>两溶液相减 + 比例还原（式4–6）</td>
+            <td>同一去极化下取海水与低钠两条总电流，配三条时间进程假设、用初始斜率定出 k = I′<sub>Na</sub>/I<sub>Na</sub>，代数解出 I<sub>Na</sub>、I<sub>K</sub></td>
+            <td>把叠在一起、无法直接观测的两个分量，纯靠对照与代数拆开——本篇的技术心脏，也是 HH 模型的数据来源</td>
+          </tr>
+          <tr>
+            <td>自洽性交叉检验</td>
+            <td>检查拆出的曲线是否在所有去极化强度下形状一致；并与「钠电位处钾电流直接等于总电流」的独立测量对照</td>
+            <td>分离假设无法直接证明，只能靠「它导出的结果是否互相自洽」来背书——作者用形状一致性给了这道检验</td>
+          </tr>
+          <tr>
+            <td>化电流为电导</td>
+            <td>定义弦电导 g = I/(E−E_平衡)，把驱动力除掉，单独刻画通透性；并区分弦电导与斜率电导</td>
+            <td>把电流-电压的纠缠关系翻译成「与电压差无关、可外推、可入方程」的量——为下一篇的定量重建铺路</td>
+          </tr>
+          <tr>
+            <td>多轴突重复 + 变质校正</td>
+            <td>关键量在 4 个轴突上量化；同一强度的第一、三组曲线取平均以补偿实验中纤维的缓慢变质；用插值补偿两溶液静息电位差</td>
+            <td>电压钳实验里轴突会随时间劣化、两溶液静息电位也不同；这些系统误差被显式建模与校正，而非视而不见</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p><strong>把「钠学说」从猜想钉成定论。</strong>Hodgkin &amp; Katz（1949）已提出动作电位上升相靠钠内流、并发现胆碱替换使轴突不可兴奋却不降静息电位；Hodgkin（1951）的综述把这条线索整理成假说。本篇是它的<strong>定量兑现</strong>：不仅让内向电流随换钠出现/消失，还用钠电位的移动量（Table 1）把它锁死在能斯特方程上。</p>
+      <p><strong>站在自己上一篇的肩膀上。</strong>电压钳本身、以及那团待解释的电流记录，来自紧邻的前一篇（Hodgkin, Huxley &amp; Katz 1952）。本篇的全部工作，是对那篇记录的「化学解码」；而它产出的 I<sub>Na</sub>、I<sub>K</sub> 与电导曲线，又成为后两篇（1952a 论电导成分、1952c 用微分方程定量重建动作电位）的输入。四篇环环相扣，本篇是承上启下的<strong>关节</strong>。</p>
+      <p><strong>与通量比理论传统接轨又超越。</strong>独立原理导出的式12，与 Ussing（1949）的通量比公式、Behn（1897）、Teorell（1949b）的电扩散理论同源；Hodgkin-Huxley 的推导更一般（不预设膜内电场分布），但在「不规定阻力本质」上更克制。它也与 Goldman（1943）的「恒定场」整流模型相容——后者只是满足独立原理的一种特例。</p>
+      <p><strong>呼应早期膜电阻测量。</strong>峰值膜电阻约 30 Ω·cm² 的结论，与 Cole &amp; Curtis（1939）在动作电位峰处测得的约 25 Ω·cm²、以及 Cole &amp; Hodgkin（1939）的静息约 1000 Ω·cm² 相互印证——独立的阻抗测量与本文的电导推断在数量级上对得上。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p><strong>给神经科学：离子通道概念的实验源头。</strong>本文虽未提「通道（channel）」二字，但「膜对不同离子有各自独立、可被电压急剧调控的通透性」这一图景，正是后来离子通道生物物理学的起点。「换离子 → 分离电流分量 → 化为电导」三步，至今仍是研究任何一种新电流（钙电流、氯电流、各种钾电流亚型）的标准操作流程。</p>
+      <p><strong>给系统建模：先唯象、后机制的范式。</strong>HH 没有等到搞清离子「怎么」过膜，就先用电导这个唯象量把规律抓住、写成可外推的形式。这种「抓住可测的有效描述、把微观机制存疑」的策略，后来成为计算神经科学乃至整个定量生物学的通用方法论——模型不必先有分子解释，只要能预测就先用起来。</p>
+      <p><strong>给实验设计：对照即手术刀。</strong>用一个「惰性替身」（胆碱）做最小扰动的对照，把一个变量（钠）单独拎出来，这是干净因果推断的典范。它提醒任何领域：好的对照不是多设几组，而是设计出一个「只差你关心的那一个因素」的孪生条件。</p>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>除了作者自陈的若干误差来源，还有几处论文受当年条件所限、或刻意悬置的局限，值得读者自己点破：</p>
+      <ul>
+        <li><strong>分离三假设是「能自洽」，不是「被证明」。</strong>把总电流拆成 I<sub>Na</sub>、I<sub>K</sub> 全靠那三条时间进程假设，作者明说它们「只是能做的最简单假设」、其正当性「只能来自所导结果的自洽性」。曲线形状一致是间接旁证，并非直接验证；作者也提示后段（2 毫秒后）分析必然带入误差。今天看，这套分离对「钠电流升到峰后究竟是衰减还是被钾盖过」一度判断不清（作者在 Fig. 7 处才确信钠电流真的会下降）。</li>
+        <li><strong>常数倍率 1.20–1.60 是「补丁」。</strong>独立原理的式12 预测的钠电流形状对、幅度偏小，要乘一个并非 1 的常数才贴合。作者把它归给「低钠溶液静息电位偏高」并推到第四篇解释——但这意味着<strong>本篇范围内，独立原理并未被干净地验证</strong>，是带着一个待解释的系统偏差通过的。</li>
+        <li><strong>「钾电流」是个筐，可能混入其他离子。</strong>作者坦承：迟来的外向电流 I<sub>K</sub> 是按「不随时间也不随外钠变化」定义出来的，<strong>任何其他离子的恒定通透成分都会被算进 I<sub>K</sub></strong>。他明确说这部分「可能解释了电压脉冲起始时 I<sub>K</sub> 的那个台阶」。所以 I<sub>K</sub> 并非纯钾，而是「钾 + 其他恒定漏流」的合称。</li>
+        <li><strong>弦电导掩盖了机制。</strong>g = I/(E−E_平衡) 是个有用的<strong>描述</strong>，但作者也清楚：它只在「电流-电压瞬时线性」时才干净度量通透性（该前提留到下一篇验证），且电导的数值随纤维变质漂移很大（Table 2 的值「必然被纤维劣化压低」，新鲜纤维高出约 50%）。所谓「30 m.mho/cm²」更像一个量级而非精确常数。</li>
+        <li><strong>样本与材料边界。</strong>关键定量只来自 <strong>4 个</strong>枪乌贼轴突、低温（6–11°C）、且用了「未补偿反馈」的电压钳（作者自陈这会使膜上实际电压变化被低估，是低钠/海水差异的误差来源之一）。向哺乳动物、生理温度、其他可兴奋细胞的推广，本篇无法回答。</li>
+        <li><strong>「门」为何如此陡峭，本篇只测不解。</strong>电导随去极化每 4–5 mV 变 e 倍，是惊人的电压敏感性，但本篇只报告这个经验规律，对「膜里什么东西在感受电压、如何把它转成通透性变化」完全不置一词——这要到分子时代（电压门控通道、门控电荷）才有答案。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p><strong>这是一篇「实验设计、定量严谨、理论铺垫」三者都达到顶级、且为后续整套理论提供了不可替代地基的论文。</strong>下面每条评价都对应文中证据：</p>
+      <ul>
+        <li><strong>因果证据极硬。</strong>「换钠 → 内向电流出现/消失」是教科书级的干净因果操作；而钠电位移动量实测（+20/+55/+56/+54 mV）与能斯特理论（+22/+55.3/+55.6/+55.6 mV）的逐项吻合，把「内向电流是钠」从猜想钉成了定量结论。这是「判断有据」最坚实的部分。</li>
+        <li><strong>分离方法是真正的原创，但作者对其限度极其诚实。</strong>用「两溶液相减 + 比例还原」把不可直接观测的两个分量拆开，是方法论上的高光；同时作者反复标注假设的试探性、2 毫秒后的误差、常数倍率的未解释——<strong>没有把脆弱处藏起来</strong>，这种克制本身值得高分。</li>
+        <li><strong>「化为电导」是承上启下的点睛之笔。</strong>把电流除以驱动力、得到可外推的电导，并测出「每 4–5 mV 变 e 倍」的指数敏感性，直接为下一篇的微分方程供料。没有这一步，HH 模型无从谈起。其价值是用一个干净的有效量，把混乱的电流-电压关系翻译成了可计算的语言。</li>
+        <li><strong>局限是数据里看得见、或作者自陈的，不是被结论光环掩盖的。</strong>常数倍率的补丁、I<sub>K</sub> 混入漏流、电导随变质漂移、未补偿反馈的系统误差、仅 4 个轴突——这些弱点要么白纸黑字写出，要么从表格里一目了然。论文把自己的不确定性摆在明处。</li>
+      </ul>
+      <p>一句话评价（解读者观点）：<strong>如果说前一篇电压钳论文造出了「看见膜电流」的显微镜，这一篇就造出了「读懂膜电流」的解码器。</strong>它示范的不只是一个结论（神经冲动靠钠进钾出），更是一整套「用化学对照拆信号、用唯象电导抓规律」的研究语法——这套语法此后统治了离子电生理学半个多世纪。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Hodgkin 与 Huxley 用电压钳把枪乌贼巨轴突的膜电压钉死、再用<strong>胆碱顶替钠</strong>做对照，发现「换钠后内向电流凭空消失」，从而证明早期内向电流由<strong>钠</strong>搬运（钠电位移动量实测 +20~+56 mV 与能斯特理论几乎逐项吻合）、迟来的外向电流由<strong>钾</strong>搬运；他们再用三条时间进程假设和一组减法公式（I<sub>Na</sub>=(Iᵢ−I′ᵢ)/(1−k) 等），把任意时刻的总膜电流<strong>定量拆成内向钠电流与外向钾电流两条曲线</strong>，并首次把它们写成「电导」语言（去极化 100 mV 下 g<sub>Na</sub>、g<sub>K</sub> 约 20–35 m.mho/cm²，且每 4–5 mV 增大到 e 倍）。这套「换离子 → 做减法 → 化为电导」的工作，正是下一篇用微分方程定量重建动作电位的全部地基。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Hodgkin, A. L. &amp; Huxley, A. F. (1952). Currents carried by sodium and potassium ions through the membrane of the giant axon of <em>Loligo</em>. <em>The Journal of Physiology</em>, 116(4), 449–472.<br>
+    本文为深度解读，所有数字与论断均出自原论文；标注「解读者观点」「解读者提醒」处为解读者的独立评价。交互组件为基于论文报告之定性模式的教学模拟，非原始数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('sepCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  var depSlider = document.getElementById('depSlider');
+  var depLabel  = document.getElementById('depLabel');
+  var allChk    = document.getElementById('allChk');
+  var readout   = document.getElementById('sepReadout');
+  var sweepBtn  = document.getElementById('sweepBtn');
+  var step1Btn  = document.getElementById('step1Btn');
+  var step2Btn  = document.getElementById('step2Btn');
+  var step3Btn  = document.getElementById('step3Btn');
+
+  var RED   = '#c0392b';   // I_Na
+  var BLUE  = '#2563aa';   // I_K
+  var INK   = '#1f2328';   // 海水总电流
+  var GREY  = '#9aa1ab';   // 无钠总电流
+  var MUTED = '#9aa1ab';
+  var LINE  = '#e6e8eb';
+
+  // ---- 物理常数（定性）----
+  // 钠电位对应的去极化（相对静息）约 110 mV：越过它，早期钠电流由内向翻外向
+  var E_NA_DEP = 110;   // mV (depolarization at which Na current reverses)
+  // 时间轴 0..6 ms
+  var T_MAX = 6;
+
+  // 钠电流时间进程（定性）：快速上升、达峰后衰减的瞬变（形状不随强度变，只变幅度/方向）
+  // 用 alpha 函数差的形式造一个先升后降的钟形偏尖
+  function naShape(t){
+    // 峰约在 0.6 ms，衰减到 ~2.5 ms 基本归零
+    var rise = 1 - Math.exp(-t/0.30);
+    var decay = Math.exp(-t/0.85);
+    var v = rise*decay;
+    return v;
+  }
+  // 归一化钠形状峰值=1
+  var NA_PEAK_T = 0.6;
+  var NA_NORM = (function(){
+    var m=0; for(var t=0;t<=T_MAX;t+=0.005){ var v=naShape(t); if(v>m)m=v; } return m;
+  })();
+  function naUnit(t){ return naShape(t)/NA_NORM; } // 0..1，峰=1
+
+  // 钾电流时间进程（定性）：S 形（n^4 样）缓慢升到平台并维持
+  function kUnit(t){
+    // 用 (1-exp(-t/tau))^4 造 S 形延迟上升
+    var tau = 1.1;
+    var x = 1 - Math.exp(-t/tau);
+    return Math.pow(x,4);
+  }
+
+  // 幅度随去极化：电导随去极化指数增长（钠每~4mV、钾每~5mV 变 e 倍），此处压缩成可视范围
+  // 用相对 100mV 的比例，封顶到 1.0 附近
+  function gNaRel(dep){
+    // 以 dep=100 为 ~0.85，饱和形
+    var v = Math.exp((dep-100)/14);   // 平缓些以便可视
+    return v/(1+v) * 1.7;             // 0..~1.5
+  }
+  function gKRel(dep){
+    var v = Math.exp((dep-100)/18);
+    return v/(1+v) * 1.7;
+  }
+
+  // 驱动力符号：钠电流方向 ∝ (E_NA_DEP - dep)；dep<110 内向(+,向上)，dep>110 外向(-,向下)
+  function naDriveSign(dep){ return (E_NA_DEP - dep)/E_NA_DEP; } // 1→ -? 线性，过110变号
+
+  // 钾恒为外向（向下），幅度随去极化增大
+  // ---- 计算各电流（任意单位，统一标度）----
+  var SCALE_NA = 1.05;
+  var SCALE_K  = 0.92;
+
+  function I_Na(t, dep){
+    return SCALE_NA * gNaRel(dep) * naDriveSign(dep) * naUnit(t);   // +向上(内向)
+  }
+  function I_K(t, dep){
+    return -SCALE_K * gKRel(dep) * kUnit(t);                        // -向下(外向)
+  }
+  // k 比例因子：10% 钠时 I'_Na/I_Na ≈ 外钠比 0.1（近似），这里取一个定性值
+  var K_FACTOR = 0.18;
+  function I_Na_low(t, dep){ return K_FACTOR * I_Na(t, dep); }      // 低钠里的钠电流
+  function I_total_sea(t, dep){ return I_Na(t,dep) + I_K(t,dep); }  // 海水总电流 I_i
+  function I_total_low(t, dep){ return I_Na_low(t,dep) + I_K(t,dep); } // 无钠/低钠总电流 I'_i
+
+  // ---- 绘图坐标 ----
+  var PADL=70, PADR=24, PADT=40, PADB=64;
+  var gx0=PADL, gy0=PADT, gx1=W-PADR, gy1=H-PADB;
+  var gw=gx1-gx0, gh=gy1-gy0;
+  var ZERO_Y = gy0 + gh*0.46; // 0 电流的纵向位置（让内向有上方空间、外向有下方空间）
+
+  // 纵轴幅度范围（任意单位）
+  var AMP = 1.7;
+  function px(t){ return gx0 + (t/T_MAX)*gw; }
+  function py(I){ return ZERO_Y - (I/AMP)*(gh*0.46); }
+
+  function plotCurve(fn, dep, color, width, dash){
+    ctx.strokeStyle=color; ctx.lineWidth=width;
+    if(dash) ctx.setLineDash(dash); else ctx.setLineDash([]);
+    ctx.beginPath();
+    var first=true;
+    for(var t=0;t<=T_MAX+0.0001;t+=0.02){
+      var X=px(t), Y=py(fn(t,dep));
+      if(first){ctx.moveTo(X,Y);first=false;} else ctx.lineTo(X,Y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  var mode = 1; // 1,2,3 分步；allChk 时全显
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    var dep = parseFloat(depSlider.value);
+    depLabel.textContent = dep;
+    var showAll = allChk.checked;
+
+    // ---- 标题 ----
+    ctx.fillStyle=INK; ctx.font='600 14px -apple-system,system-ui,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('膜电流随时间的变化（电压钳去极化后）', (gx0+gx1)/2, 22);
+
+    // ---- 坐标轴 ----
+    // 网格
+    ctx.strokeStyle=LINE; ctx.lineWidth=1; ctx.textAlign='center';
+    ctx.fillStyle=MUTED; ctx.font='11px -apple-system,system-ui,sans-serif';
+    for(var tt=0;tt<=T_MAX;tt++){
+      var X=px(tt);
+      ctx.beginPath(); ctx.moveTo(X,gy0); ctx.lineTo(X,gy1); ctx.stroke();
+      ctx.fillText(tt, X, gy1+16);
+    }
+    ctx.fillStyle=INK; ctx.font='12px -apple-system,system-ui,sans-serif';
+    ctx.fillText('时间（毫秒）', (gx0+gx1)/2, gy1+38);
+
+    // y 轴框
+    ctx.strokeStyle='#cfd4da'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(gx0,gy0); ctx.lineTo(gx0,gy1); ctx.stroke();
+
+    // 0 电流线
+    ctx.strokeStyle='#b9bfc7'; ctx.lineWidth=1.4; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(gx0,ZERO_Y); ctx.lineTo(gx1,ZERO_Y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=MUTED; ctx.textAlign='left'; ctx.font='11px -apple-system,system-ui,sans-serif';
+    ctx.fillText('0', gx0-16, ZERO_Y+4);
+
+    // 内向/外向标注
+    ctx.save();
+    ctx.translate(gx0-46, ZERO_Y - gh*0.20);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillStyle=RED; ctx.font='600 12px -apple-system,system-ui,sans-serif';
+    ctx.fillText('内向 ▲', 0, 0);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(gx0-46, ZERO_Y + gh*0.22);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillStyle=BLUE; ctx.font='600 12px -apple-system,system-ui,sans-serif';
+    ctx.fillText('外向 ▼', 0, 0);
+    ctx.restore();
+
+    // 纵轴单位
+    ctx.save();
+    ctx.translate(gx0-58, (gy0+gy1)/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillStyle=INK; ctx.font='12px -apple-system,system-ui,sans-serif';
+    ctx.fillText('膜电流（任意单位）', 0, 0);
+    ctx.restore();
+
+    // 钠电位提示
+    var overEna = dep > E_NA_DEP;
+
+    // ---- 按模式画曲线 ----
+    var legend = [];
+    function L(color,text,dash){ legend.push({c:color,t:text,d:dash}); }
+
+    if(showAll || mode>=1){
+      plotCurve(I_total_sea, dep, INK, 3.0, null);
+      L(INK,'① 海水总电流 Iᵢ（钠+钾，混在一起）', null);
+    }
+    if(showAll || mode>=2){
+      plotCurve(I_total_low, dep, GREY, 2.6, [7,5]);
+      L(GREY,'② 无钠/低钠总电流 I′ᵢ（钠几乎没了）', [7,5]);
+    }
+    if(showAll || mode>=3){
+      plotCurve(I_Na, dep, RED, 2.8, null);
+      plotCurve(I_K,  dep, BLUE, 2.8, null);
+      L(RED,'③ 拆出的钠电流 I_Na（先升后降的瞬变）', null);
+      L(BLUE,'③ 拆出的钾电流 I_K（S 形升至平台）', null);
+    }
+
+    // 标注钠峰位置
+    if((showAll||mode>=3)){
+      var naPeakV = I_Na(NA_PEAK_T, dep);
+      var pxp=px(NA_PEAK_T), pyp=py(naPeakV);
+      ctx.fillStyle=RED;
+      ctx.beginPath(); ctx.arc(pxp,pyp,4,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle=RED; ctx.font='italic 11px -apple-system,system-ui,sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText(overEna?'钠峰（已翻为外向）':'钠峰（内向）', pxp+8, pyp + (overEna? 14 : -8));
+    }
+
+    // ---- 图例 ----
+    var lx=gx0+14, ly=gy0+14;
+    ctx.textAlign='left';
+    ctx.font='12px -apple-system,system-ui,sans-serif';
+    for(var i=0;i<legend.length;i++){
+      var item=legend[i];
+      ctx.strokeStyle=item.c; ctx.lineWidth=3;
+      if(item.d) ctx.setLineDash(item.d); else ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(lx,ly+i*19); ctx.lineTo(lx+30,ly+i*19); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=INK; ctx.fillText(item.t, lx+38, ly+i*19+4);
+    }
+
+    // ---- 钠电位横幅提示 ----
+    ctx.textAlign='right';
+    ctx.font='600 12px -apple-system,system-ui,sans-serif';
+    ctx.fillStyle = overEna ? RED : '#7a828c';
+    ctx.fillText('钠电位 E_Na ≈ 去极化 110 mV', gx1-6, gy0+14);
+
+    // ---- 读数 ----
+    var msg='';
+    if(!showAll && mode===1){
+      msg='这是<strong>海水</strong>里记到的总电流——先内向（向上）起步、再转外向（向下）的一团混合电流。<strong>单看它，你说不清里面有几种离子。</strong>点「②」叠上无钠溶液的记录。';
+    } else if(!showAll && mode===2){
+      msg='灰色虚线是<strong>无钠（胆碱）溶液</strong>里的总电流：早期那份内向电流<strong>几乎消失了</strong>（钠被换走），只剩钾的 S 形。两条曲线的差，就藏着钠的信息。点「③」做减法。';
+    } else if(!showAll && mode===3){
+      msg='程序按式5、式6 把两条相减、再用 k 还原：<strong style="color:'+RED+'">红 = 钠电流 I_Na</strong>（快速升峰后衰减的瞬变）、<strong style="color:'+BLUE+'">蓝 = 钾电流 I_K</strong>（缓慢升到平台）。一团电流，就这样被拆成了两条干净曲线。';
+    } else {
+      msg='全部叠加：<strong>黑=海水总电流</strong>、<strong>灰虚=无钠总电流</strong>、<strong style="color:'+RED+'">红=钠</strong>、<strong style="color:'+BLUE+'">蓝=钾</strong>。可见 黑 ≈ 红+蓝，灰 ≈ (k·红)+蓝。';
+    }
+    if(overEna){
+      msg += ' ⚠ 当前去极化 <strong>'+dep+' mV 已越过钠电位（≈110 mV）</strong>，早期钠峰<strong>翻成了外向</strong>（向下）——正如原文 Fig. 2 最强去极化时所见。';
+    } else if(dep>95){
+      msg += ' （继续把强度推过 110 mV，看钠峰怎样反向。）';
+    }
+    readout.innerHTML = msg;
+  }
+
+  // ---- 交互 ----
+  depSlider.addEventListener('input', draw);
+  allChk.addEventListener('change', draw);
+  step1Btn.addEventListener('click', function(){ mode=1; allChk.checked=false; draw(); });
+  step2Btn.addEventListener('click', function(){ mode=2; allChk.checked=false; draw(); });
+  step3Btn.addEventListener('click', function(){ mode=3; allChk.checked=false; draw(); });
+
+  var sweeping=false, sweepDir=1;
+  sweepBtn.addEventListener('click', function(){
+    if(sweeping){ sweeping=false; sweepBtn.textContent='▶ 自动扫过强度'; return; }
+    sweeping=true; sweepBtn.textContent='⏸ 暂停';
+    mode=3; // 扫强度时直接看分量最直观
+    function step(){
+      if(!sweeping) return;
+      var v=parseFloat(depSlider.value)+sweepDir*0.8;
+      if(v>=120){v=120;sweepDir=-1;}
+      if(v<=20){v=20;sweepDir=1;}
+      depSlider.value=v;
+      draw();
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+
+  draw();
+})();
+</script>
+
+</body>
+</html>

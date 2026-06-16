@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>性能优化的层级模型预测视觉皮层 IT 神经响应 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Performance-Optimized Models <span>×</span> 不拿神经数据训练，却养出了迄今最像视觉皮层的网络</h1>
+    <div class="meta">
+      <span>📄 Performance-optimized hierarchical models predict neural responses in higher visual cortex</span><br>
+      <span>✍️ Daniel L. K. Yamins, Ha Hong, Charles F. Cadieu, Ethan A. Solomon, Darren Seibert, James J. DiCarlo</span><br>
+      <span>🏛️ 麻省理工学院 McGovern 脑研究所 · 脑与认知科学系 ＆ 哈佛-麻省理工健康科学与技术部</span><br>
+      <span>📅 PNAS（美国科学院院刊） · 2014 · vol. 111, no. 23, 8619–8624</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-setup">研究框架：一句话与一张图</a></li>
+        <li><a href="#sec-viz">交互：任务越强，越像大脑</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-f1">① 任务性能强相关于 IT 预测力</a></li>
+        <li><a href="#sec-f2">② HMO 顶层＝迄今最准的 IT 模型</a></li>
+        <li><a href="#sec-f3">③ 层级对应：中间层预测 V4</a></li>
+        <li><a href="#sec-f4">④ 超越「仅靠类别选择性」</a></li>
+        <li><a href="#sec-control">关键控制：排除「捷径」解释</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是把「深度学习」和「视觉神经科学」正式焊在一起的奠基性论文之一，被后续无数「用神经网络当大脑模型」的研究奉为起点。在 2014 年之前，研究高级视觉皮层一直是块硬骨头：人们能给初级视觉皮层（V1，Visual Area 1）写出漂亮的数学模型，但对更高级的视觉第四区（V4，Visual Area 4）、下颞叶皮层（IT，Inferior Temporal Cortex），所有基于「显式特征假设」搭出来的模型都<strong>预测不准</strong>真实神经元的响应。Yamins 等人换了个根本思路：<strong>不去手工设计「皮层应该提取什么特征」，而是让一大批深度卷积网络去比赛「谁更会认物体」，再看谁顺带最像大脑。</strong>结果惊人——一个<strong>从未用任何神经数据训练过</strong>、纯粹为「物体识别任务性能」优化出来的网络（作者用分层模块化优化算法 HMO 搜出，详见下文），它的顶层竟成了迄今最准的 IT 神经元预测器（解释 <strong>48.5%</strong> 的可解释方差，比当时最好的模型几乎翻倍），而且它的<strong>中间层自动对应到 V4</strong>。这条「任务性能↑ ⇒ 神经预测力↑」的强正相关（<strong>r ≈ 0.78</strong>），第一次把「为什么皮层长成这样」从「描述」推向了「解释」：也许是「在严酷识别任务上追求高性能」这件事本身，塑造了腹侧视觉通路的层级结构。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文横跨神经生理学与计算机视觉两个领域，术语来自两边。先把下面这些「零件」装进脑子，后面读起来会顺很多。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">腹侧视觉通路（Ventral Visual Stream）</div>
+          <div class="cdesc">大脑里负责「认出这是什么东西」的一条加工流水线，从初级视觉皮层 V1 出发，依次经过视觉第二区（V2，Visual Area 2）、V4，最后到达下颞叶皮层 IT。它被认为是一连串<strong>层级加工站</strong>，越往后，对「物体身份与类别」的编码越显式。把它想成一条「从像素到概念」的传送带。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">下颞叶皮层（IT，Inferior Temporal Cortex）</div>
+          <div class="cdesc">腹侧通路的<strong>最高层</strong>、本文的主角脑区。这里的神经元群体可以「直接读出」物体类别，对姿态、位置、大小、光照的剧烈变化都相当<strong>耐受（容差）</strong>。本文的目标就是：造一个能逐个预测 IT 神经元响应的模型。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">V4 区（V4，Visual Area 4）</div>
+          <div class="cdesc">腹侧通路的<strong>中间层</strong>，是输入 IT 的主要皮层来源。它的编码比 IT「更不像类别、更像中级视觉特征」（如曲率、纹理片段），选择性和容差都处于中等水平。本文的一个关键预言：模型的<strong>中间层</strong>应该对应 V4。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">卷积神经网络（CNN，Convolutional Neural Network）</div>
+          <div class="cdesc">本文用的模型家族。它在图像上<strong>滑动同一套滤波器</strong>做局部加权求和，天然契合视觉皮层「同一种感受野铺满整个视野」的视网膜拓扑组织。每个卷积层＝滤波（线性）＋阈值＋池化＋归一化（非线性），多层堆叠就成了深网络。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">分层模块化优化（HMO，Hierarchical Modular Optimization）</div>
+          <div class="cdesc">作者自创的「找网络」算法。面对「成千上万种网络结构哪种最好认物体」这个超大搜索空间，HMO 像<strong>自适应提升（boosting）＋超参数搜索</strong>的混合体：逐步发现并组合「各有所长的子网络」，无需事先指定子任务。最终选出的那个四层网络就叫 <strong>HMO 模型</strong>。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">神经预测力 / 可解释方差（Neural Predictivity / Explained Variance）</div>
+          <div class="cdesc">衡量「模型有多像大脑」的尺子。做法：用<strong>线性回归</strong>把模型某层的输出加权组合，去拟合某个真实神经位点对一批训练图像的响应，再在<strong>全新图像</strong>上检验预测准不准（决定系数 r²）。结果按该位点自身的「试次间可靠度」归一化，得到「占<strong>可解释</strong>方差的百分比」。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">分层线性-非线性假设（HLN，Hierarchical Linear-Nonlinear hypothesis）</div>
+          <div class="cdesc">一个前提性假设：高级神经元（如 IT）的响应 ≈ 对若干中级神经元（如 V4）输出做<strong>线性加权再过一个简单非线性</strong>。本文的整套「线性回归＋分层网络」框架正建立在它之上，并进一步证明：层级结构 ＋ 性能优化，比单纯的 HLN 更能逼近真实皮层。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">类别理想观察者（Category Ideal Observer）</div>
+          <div class="cdesc">一个「作弊基准」：假设模型能<strong>完美拿到每张图的真实类别标签</strong>，纯靠类别信息去预测神经响应。它用来回答一个尖锐的反问——IT 的高预测力会不会只是「类别选择性」的副产品？本文发现它只能解释 IT 的 <strong>15%</strong> 方差，远低于 HMO 的 48.5%。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-setup">研究框架：一句话与一张图</div>
+      <p>论文的逻辑出奇地干净，可以浓缩成一句话：<strong>把「会不会认物体」当成唯一的选拔标准，从一大堆深度网络里挑出最能打的那个，然后去检验它顺带有多像视觉皮层。</strong>整个研究分两步走（对应原文图 2A；下文 Fig. 即原论文配图编号）：</p>
+      <ul>
+        <li><strong>第一步——为任务性能优化模型。</strong>在一个高难度的物体识别任务上，用 HMO 算法搜索卷积网络的结构与参数（57 个超参数：层数、每层卷积核数、感受野大小、池化指数、归一化等），目标只有一个：分类准确率越高越好。<strong>全程不碰任何神经数据。</strong></li>
+        <li><strong>第二步——逐位点检验神经预测。</strong>把选出来的网络（HMO）各层输出，用线性回归去拟合真实记录到的 IT 与 V4 神经元响应，在新图像上看预测得准不准。</li>
+      </ul>
+      <p>神经数据来自<strong>两只清醒行为中的恒河猴</strong>（Macaca mulatta，体重 7、9 公斤），用并行多电极阵列长期植入记录：<strong>168 个 IT 位点、128 个 V4 位点</strong>（另有 296 个 IT 位点用于神经拟合实验）。刺激呈现 100 毫秒，取刺激后 <strong>70–170 毫秒</strong>窗口的平均放电率。识别任务用的图像集含 <strong>5,760 张</strong>来自 8 个自然类别（动物、船、车、椅子、人脸、水果、飞机、桌子）的真实感 3D 物体图，刻意加入剧烈的姿态/大小/位置变化，并贴在杂乱自然背景上（背景与物体身份<strong>不相关</strong>，防止「靠背景作弊」）。分类性能用支持向量机（SVM，Support Vector Machine）线性分类器在模型顶层输出上交叉验证测得。</p>
+
+      <div class="info-block">
+        <span class="ib-title">为什么「不用神经数据训练」是点睛之笔</span>
+        <p>这正是全文最反直觉、也最关键的设计。如果直接拿神经数据去训练模型，那「模型很像大脑」就不稀奇——你本来就是照着大脑捏的。本文偏偏<strong>把大脑数据藏起来</strong>，只用「认物体认得好不好」当指挥棒，最后才把藏起来的神经数据掏出来当考卷。于是「最会认物体的网络恰好最像 IT」这个结果，就不可能是「拟合出来的」，而只能说明：<strong>追求识别性能这件事，本身就会逼出一个像皮层的内部结构。</strong>这是从「相关」迈向「解释」的逻辑支点。</p>
+      </div>
+
+      <div class="viz-box" id="sec-viz">
+        <div class="viz-title">交互：任务性能越高 → IT 神经预测力越高</div>
+        <div class="viz-note">模拟数据，定性复现论文 Fig. 1A/1B 报告的模式。横轴＝模型的物体分类性能（平衡准确率，机会水平 0.5）；纵轴＝该模型对 IT 神经元的预测力（解释方差 %）。每个点＝一个不同的卷积网络。模拟数据基于论文报告的相关系数（r≈0.78）与端点位置（HMO 约 48.5%），仅展示定性趋势，非原始散点。</div>
+
+        <div class="viz-controls">
+          <button id="btnRand" class="alt">随机采样 (r≈0.55)</button>
+          <button id="btnPerf">为任务性能优化 (r≈0.78)</button>
+          <label><input type="checkbox" id="chkFit"> 叠加「直接为神经预测优化」一组</label>
+        </div>
+        <div class="viz-controls">
+          <label>当前选拔方式：<strong><span id="modeLabel">随机采样</span></strong></label>
+          <label>相关系数 r ≈ <strong><span id="rLabel">0.55</span></strong></label>
+          <label>该组最佳模型 IT 预测力：<strong><span id="bestLabel">—</span>%</strong></label>
+        </div>
+
+        <canvas id="scatterCanvas" width="820" height="440"></canvas>
+      </div>
+
+      <div class="info-block">
+        <p>切换两个按钮感受论文的核心动态：<strong>随机采样</strong>的网络云团松散、性能与预测力只是<strong>弱</strong>正相关（r≈0.55）；一旦改用<strong>为任务性能定向优化</strong>，云团被「拉」向右上角，相关明显收紧（r≈0.78），并且<strong>右上角顶点</strong>站着那个又最会认物体、又最像 IT 的网络——它就是后文要重点讲的 HMO。注意：右上角的点是「优化」推上去的，而<strong>纵轴（神经预测力）从未参与优化</strong>，这正是结论的分量所在。</p>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>论文的结果可以收束成四条层层递进的发现。前两条建立「性能能预言神经预测力，且最优网络确实最准」；后两条把这个对应关系<strong>展开到层级</strong>、并<strong>排除掉一个偷懒的替代解释</strong>。</p>
+
+      <div class="section-head-sub" id="sec-f1">① 物体识别性能，强相关于 IT 神经预测力</div>
+      <p>这是全文的「头条」。作者在一个巨大的卷积网络参数空间里，用三种不同方式各采集上千个模型，对每个模型都测两个量：物体分类性能（横轴）与 IT 神经预测力（纵轴）。三组采样方式是：</p>
+      <ul>
+        <li><strong>随机采样</strong>（在参数空间里均匀乱抓，n = 2,016）：性能-预测力相关 <strong>r = 0.55</strong>。</li>
+        <li><strong>为高难度分类任务优化</strong>（n = 2,043）：相关收紧到 <strong>r = 0.78</strong>。</li>
+        <li><strong>直接为 IT 预测力优化</strong>（n = 1,876）：作为对照，看「反过来挑」会怎样。</li>
+      </ul>
+      <p>结论非常硬：在<strong>所有三种选拔方式下</strong>，性能与神经预测力都显著正相关。把控制模型与已发表模型也一并放进来统计（Fig. 1B），跨越极宽性能范围的相关达到 <strong>r = 0.87 ± 0.15</strong>。而且方向是<strong>不对称</strong>的：为「性能」优化出的网络，同时也是好的「神经预测器」；但反过来为「神经预测力」直接优化，并不能反向地把性能也顶到最高。这暗示<strong>性能是更基本、更高效的「指挥棒」</strong>——盯着性能找，就能高效地定位到「像 IT」的那片参数区域。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：0.55 → 0.78 意味着什么</span>
+        <p>相关系数从 0.55 升到 0.78，看着只是一个小数点后的变化，但它对应「定向优化」把一团散乱的点显著地<strong>拧紧成一条上升带</strong>。更关键的是作者强调：这个相关<strong>不能</strong>用简单的机械因素解释（比如「顶层感受野更大所以又会认物体又像 IT」——他们检验过，没有任何单一架构参数能像「性能」这样强地预测神经预测力）。也就是说，是<strong>整体的功能能力</strong>、而非某个零件尺寸，在驱动「像大脑」。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f2">② HMO 模型的顶层，是迄今最准的 IT 神经预测器</div>
+      <p>既然「性能能预言像不像 IT」，那就该顺着这条线去<strong>造一个尽量会认物体的网络</strong>，看它能把 IT 预测推到多高。但简单的三层网络在「高变异」识别任务上力不从心，于是作者把模型类扩展到「深层 CNN 的组合/混合」，并用 <strong>HMO（分层模块化优化）</strong>算法在这个庞大空间里搜索。HMO 先在一个「筛选任务」上预训练（用的是<strong>完全不同</strong>的物体与背景，确保学到的是可迁移的通用能力），最终锁定一个<strong>四层、顶层 1,250 个输出</strong>的卷积网络——这就是 HMO 模型。</p>
+      <p>把 HMO 顶层输出拿去线性回归预测 168 个 IT 位点对约 6,000 张复杂图像的响应，结果是全文最响亮的数字：</p>
+      <ul>
+        <li>HMO 顶层解释了 IT 单位点<strong>可解释方差</strong>的 <strong>48.5% ± 1.3%</strong>。</li>
+        <li>这比当时最好的对照模型几乎<strong>翻倍</strong>（提升近 100%），并可媲美 V1 这类<strong>低级</strong>皮层模型在复杂图上的拟合精度。</li>
+        <li>对照模型则远远落后：V2 型 26%、HMAX（一个专门针对高级视觉、感受野尺寸接近 IT 的经典分层模型，名称取自其结构而非缩写）较低、V1 型 16%、SIFT（尺度不变特征变换，SIFT，Scale-Invariant Feature Transform，一种经典计算机视觉特征）也低；HMO 与 V2 型、SIFT 的差距均达统计显著。</li>
+      </ul>
+      <p>更重要的是<strong>泛化性</strong>。作者做了两种更严苛的检验：<strong>物体级泛化</strong>（回归只在每类的部分样例上训练，到全新样例上测）与<strong>类别级泛化</strong>（回归只在一半类别上训练，到另一半<strong>从未见过的类别</strong>上测）。HMO 的预测都稳健成立（Fig. 4B/C），说明它捕捉到的不是某些图的死记硬背，而是 IT 表征的<strong>通用布局</strong>。在群体层面，用<strong>表征差异矩阵（RDM，Representational Dissimilarity Matrix）</strong>比较时，HMO 顶层预测出的群体结构与真实 IT 群体高度相似，接近 IT 自身「分半噪声上限」。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：48.5% 高不高？为什么不是 100%</span>
+        <p>这里的 48.5% 是占「<strong>可解释</strong>方差」的比例——已经扣掉了神经元本身试次间的随机抖动（噪声）。在高级皮层单神经元预测这个出了名难的问题上，此前模型常年卡在「显著但很低」，能把可解释方差做到近一半，且对全新类别仍成立，在 2014 年是质的突破。剩下没解释的一半，部分来自单位点层面、对群体编码未必重要的噪声（作者发现群体层面的相似度反而更高）；部分则是模型确实还不够好——这给后续更深的网络留足了爬升空间。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f3">③ 层级对应：HMO 的中间层，最能预测 V4</div>
+      <p>如果 HMO 真的「像」腹侧通路，那它就不该只在顶层像 IT，还应该在<strong>中间层像 V4</strong>——因为 V4 正是输入 IT 的中级加工站。这是一个比「顶层像 IT」更强、更具体的预言，而它成立了：</p>
+      <ul>
+        <li>HMO 的<strong>倒数第二层（layer 3）</strong>对 128 个 V4 位点的预测力最高，解释 <strong>51.7% ± 2.3%</strong> 的 V4 可解释方差。</li>
+        <li>这个中间层对 V4 的拟合，<strong>显著优于</strong> HMO 自己的顶层或底层——也就是说，层级是<strong>对齐</strong>的：底层↔早期视觉、中层↔V4、顶层↔IT。</li>
+        <li>逐层定性观察也吻合（Fig. 3A 上排）：沿层级上行，单元的<strong>类别选择性逐渐显现</strong>、对姿态/位置变换的<strong>容差逐渐增强</strong>，表征越来越「解开纠缠（untangled）」——这正是神经科学描述腹侧通路时用的语言。</li>
+      </ul>
+      <p>对照模型在 V4 上同样不及 HMO：V2 型 34%、HMAX 24%、V1 型 11%。值得玩味的是，<strong>语义模型（如类别理想观察者）几乎解释不了任何 V4 方差</strong>（约 8%）——这和「V4 编码远不如 IT 那么类别化」的已知事实一致。换句话说，HMO 之所以能同时拿下 V4 和 IT，靠的不是「类别信息」，而是性能优化在中间层<strong>塑造出的、能支撑下游识别的非语义特征表征</strong>。</p>
+
+      <div class="info-block">
+        <span class="ib-title">这条发现为什么分量很重</span>
+        <p>「顶层像 IT」可能还能用别的方式凑出来；但「<strong>同一个网络</strong>，顶层最像 IT、且<strong>中间层恰好最像 V4</strong>、底层最像早期视觉」——这种<strong>整条流水线的逐级对应</strong>，是很难靠巧合或拟合得到的。它把论文从「我造了个像 IT 的黑箱」升级为「我造的<strong>层级</strong>恰好映射了真实的<strong>皮层层级</strong>」。这也直接支持了一个更大的主张：是<strong>自上而下的性能约束</strong>，塑造了中间层（V4）的表征形态。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f4">④ 不止是「类别选择性」：性能优化带来了额外结构</div>
+      <p>这里要回答一个最尖锐的反问：IT 神经元出了名地有<strong>类别选择性</strong>（对人脸、物体等成类反应），那 HMO 的高预测力，会不会只是「它也学会了分类、于是顺带有类别选择性」的<strong>平凡副产品</strong>？为排除这点，作者请出了「作弊基准」——<strong>类别理想观察者</strong>：假设它能完美拿到每张图的真实类别标签，纯靠类别信息去预测神经响应。如果 IT 预测力只是类别选择性，那这个「开了天眼」的观察者应该表现极好。结果恰恰相反：</p>
+      <ul>
+        <li>类别理想观察者只能解释 IT 的 <strong>约 15%</strong> 可解释方差——虽然高于机会，但<strong>远低于</strong> HMO 顶层的 48.5%。</li>
+        <li>这说明 IT 表征里存在大量<strong>非语义</strong>的结构（与具体类别无关的几何/外观信息），<strong>高分类性能并不会自动带来高 IT 预测力</strong>。</li>
+        <li>而 HMO 能把这部分非语义结构也预测出来——说明<strong>「高性能 ＋ 层级网络架构」共同协作</strong>才产生了类 IT 的群体，单靠任一约束都不够。</li>
+      </ul>
+
+      <div class="info-block">
+        <span class="ib-title">一句话点透这条控制</span>
+        <p>「会认物体」≠「像 IT」。一个开了天眼、直接知道答案的分类器，反而离 IT 很远（只有 15%）。真正像 IT 的，是那个<strong>通过层级结构、一步步从像素算出答案</strong>的网络。所以塑造皮层的不只是「要分对类」这个目标，还包括「<strong>用一条分层流水线去分对类</strong>」这个结构性约束——目标与结构缺一不可。</p>
+      </div>
+
+      <div class="section-head" id="sec-control">关键控制：排除「捷径」解释</div>
+      <p>这篇论文的说服力，很大程度来自它把各种「会不会其实是因为别的」逐一堵死。把这些控制摆在一起看，才能体会结论有多干净：</p>
+      <table>
+        <thead>
+          <tr><th>担心的「捷径」</th><th>论文怎么堵死它</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>会不会是「拿神经数据训出来的」？</td><td>模型<strong>全程不碰神经数据</strong>，只为分类性能优化；神经数据只在最后当「考卷」。所以相似不是拟合出来的。</td></tr>
+          <tr><td>会不会只是某个架构参数（如顶层感受野更大）同时利好二者？</td><td>检验了所有单一架构参数，<strong>没有任何一个</strong>能像「整体性能」那样强地预测神经预测力（Fig. S4）。是功能能力、不是零件尺寸。</td></tr>
+          <tr><td>会不会只是「类别选择性」的副产品？</td><td>类别理想观察者（开天眼拿标签）仅解释 IT 的 <strong>15%</strong>、V4 的 <strong>8%</strong>，远不及 HMO。高分类≠像皮层。</td></tr>
+          <tr><td>会不会是「死记」了这批图？</td><td>做<strong>物体级</strong>与<strong>类别级泛化</strong>：回归在部分样例/部分类别上训练，到<strong>全新</strong>样例与<strong>从未见过的类别</strong>上仍预测成立（Fig. 4B/C）。</td></tr>
+          <tr><td>会不会是「靠背景认物体」？</td><td>识别任务的图像<strong>背景与物体身份不相关</strong>且随机贴，物体还带剧烈姿态/位置/大小变化，逼模型学真正的物体表征。</td></tr>
+          <tr><td>层级对应会不会是偶然？</td><td>不仅顶层↔IT，<strong>中间层↔V4</strong>且显著优于本网络的顶/底层（51.7%）；整条流水线逐级对齐，难以归于巧合。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文在方法上的几处选择，单拎出来都值得学习——它们共同构成了「让结论可信」的工程。</p>
+      <table>
+        <thead>
+          <tr><th>精妙之处</th><th>具体做法与意义</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>性能当指挥棒，数据藏到最后</td><td>把神经数据从训练里彻底剥离，使「像大脑」成为<strong>可被证伪的预测</strong>而非拟合结果。这是全文逻辑的基石。</td></tr>
+          <tr><td>高通量筛选 ＋ HMO 搜索</td><td>用<strong>高通量计算</strong>评估成千上万候选网络，再用 HMO（类提升＋超参搜索）在巨大空间里高效组装高性能架构，无需人工预设子任务。</td></tr>
+          <tr><td>线性回归 ＋ 跨图像交叉验证</td><td>沿用成熟的神经预测范式：在训练图上拟合「合成神经元」，到<strong>全新图</strong>上算 r²，并按试次可靠度<strong>归一化</strong>为可解释方差百分比，可与他人结果横向比较。</td></tr>
+          <tr><td>高变异识别任务</td><td>刻意制造姿态/大小/位置剧变 ＋ 杂乱不相关背景，把任务难度顶到「人能做、机器很难」的区间，确保高性能必须依赖真正的不变性表征。</td></tr>
+          <tr><td>群体层面用 RDM 交叉验证</td><td>除单位点预测，还用<strong>表征差异矩阵</strong>比较模型与真实群体的整体几何，并对比 IT 自身的分半噪声上限，证明相似直达「可达天花板」。</td></tr>
+          <tr><td>多重严苛对照</td><td>同时纳入随机采样、性能优化、神经预测优化三套采样，外加 V1 型/V2 型/HMAX/SIFT/理想观察者等已发表模型作横向标尺。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文站在两条传统的交汇处，并把它们推进了一大步。</p>
+      <p><strong>对「分层线性-非线性（HLN）」传统的继承与超越。</strong>此前用线性回归从中级单位预测高级神经元（如 DiCarlo 组、Kriegeskorte 等的工作）已是成熟范式，但模型的「中级特征」要么手工设定、要么来自浅层模型，对 V4/IT 预测力有限。本文不再<strong>单独调每层的滤波器或非线性</strong>，而是让它们在「整网追求性能」中被<strong>间接</strong>确定——只把最后那一层线性权重留给回归。这是从「描述性拟合」转向「生成式解释」的关键一跃。</p>
+      <p><strong>对计算机视觉深度学习的呼应。</strong>本文的卷积网络思路上承 Fukushima 的 Neocognitron、LeCun 的卷积网络，并与同期 Krizhevsky 等 2012 在 ImageNet 上引爆深度学习的工作遥相呼应。但它的问题不是「让机器认得更准」，而是反过来问「<strong>这套能认物体的结构，是否揭示了大脑</strong>」——把工程进展转译为神经科学假设。</p>
+      <p><strong>对高级视觉建模困境的回应。</strong>过去针对 V4/IT 的显式模型（如曲率调谐、稀疏编码等）在一般图像上预测力很有限（如 Cadieu、Rust 等指出的）。本文给出的答案是：与其猜「皮层提取什么特征」，不如让「<strong>功能性能</strong>」来反推特征。这与「自下而上先理解 V1/V2 才能理解高级区」的常规假设形成<strong>对照</strong>——作者主张自上而下的视角同样必要，甚至 V4 可被理解为「为支撑 IT 的下游计算而被选择成现在这样」。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇论文的影响早已溢出它的具体结论，提供了一个<strong>方法论范式</strong>。</p>
+      <ul>
+        <li><strong>「目标驱动建模」成为一种通用策略。</strong>不预设大脑在算什么，而是让模型在<strong>生态相关的任务</strong>上追求高性能，再看它是否自发地像大脑。此后这套思路被推广到听觉皮层、运动控制、导航（网格细胞）、甚至前额叶认知任务。</li>
+        <li><strong>给「为什么脑长成这样」一个候选答案。</strong>本文把「演化/发育层面的<strong>性能优化压力</strong>」提名为塑造皮层结构的力量：是「在严酷识别任务上要表现好」这个约束，连同「分层架构」这个结构约束，共同雕刻出腹侧通路。这是一种<strong>规范性（normative）</strong>解释。</li>
+        <li><strong>为脑机接口与类脑视觉提供蓝图。</strong>既然不必逐个测量就能预测任意新位点（模型对随机抽样的位点都成立），这类模型原则上可作为<strong>视觉皮层的可计算代理</strong>，用于设计刺激、解码、乃至神经假体。</li>
+        <li><strong>反哺人工智能的可解释性。</strong>「深网络中间层↔V4、顶层↔IT」的对应，反过来给「深度网络内部到底在算什么」提供了<strong>神经科学锚点</strong>，催生了用大脑数据评估/约束人工智能（AI，Artificial Intelligence）表征的整条研究线。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>论文本身相当克制（作者也明说「要确证这类解释仍有大量工作」），但有几处边界值得读者自己点明：</p>
+      <ul>
+        <li><strong>「预测」不等于「机制」。</strong>模型能逐位点预测响应，并不意味着皮层就<strong>按这套卷积运算</strong>工作。线性回归这层映射也可能「替模型补了课」——真实神经元的非线性、时间动态、反馈连接都未被建模（本文只取 70–170 ms 的前馈窗口、用平均放电率，回避了时间维度）。</li>
+        <li><strong>剩下的一半方差是什么？</strong>48.5% 虽是突破，但仍有过半未解释。多少是噪声、多少是模型缺陷、多少是反馈/注意/任务状态等本研究未触及的因素，论文无法区分。</li>
+        <li><strong>相关性证据，难证因果。</strong>「性能↑伴随预测力↑」是观察到的强相关；「<strong>是性能优化塑造了皮层</strong>」则是更强的因果主张，本研究<strong>无法直接验证</strong>（无法对演化做实验）。作者把它谨慎地表述为假设。</li>
+        <li><strong>架构的「生物合理性」是有限的。</strong>HMO 网络只在<strong>粗粒度</strong>上类皮层（卷积、阈值、池化、归一化、分层），并未对应具体的细胞类型、突触、抑制回路或学习规则；它对「皮层如何<strong>学到</strong>这套权重」沉默。</li>
+        <li><strong>V1/V2 仍是缺口。</strong>本文重点在 V4 与 IT；对最底层 V1/V2 的对应只是定性提及，作者把「向下连到 V1/V2」列为未来工作。整条流水线尚未端到端验证。</li>
+        <li><strong>样本与刺激的局限。</strong>神经数据来自<strong>两只猴子</strong>、有限位点；刺激是静态、孤立的真实感渲染物体，离自然视觉的动态、语境、社会性还有距离。结论在更生态的条件下是否同样成立尚待检验。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下为解读者评价，每条都尽量对应文中证据。</p>
+      <p><strong>这是一篇范式级的论文，其价值首先在「方法论的转向」而非单一数字。</strong>把神经数据藏到最后、只用性能当指挥棒（Fig. 1A 的三套采样、Fig. 2A 的两步设计），使「像大脑」成为可证伪的预测——这一逻辑结构本身，比 48.5% 这个数字更具开创性，也解释了它为何成为整个「目标驱动神经建模」领域的起点。</p>
+      <p><strong>核心证据链扎实、互相加固。</strong>「性能-预测力强相关（r=0.78，乃至纳入对照的 0.87±0.15）」+「顶层 48.5% 预测 IT 且对全新类别泛化」+「中间层 51.7% 预测 V4 且显著优于本网络其他层」+「类别理想观察者仅 15% 的反证」——四条证据从不同角度收敛到同一结论，且每条都配了对照。这种「多路包抄」让结论很难被轻易推翻。</p>
+      <p><strong>作者对边界的把握是诚实的。</strong>论文反复用「假设」「仍需大量工作确证」「这是一种可能的解释」这类措辞，把「性能优化塑造了皮层」明确标为待验证的<strong>规范性假设</strong>，而非已证事实；并主动承认 V1/V2 尚未连通、机制层面仍是黑箱。这种克制反而增强了可信度。</p>
+      <p><strong>最大的开放性风险在于「预测≠机制」与「相关≠因果」。</strong>（此为解读者观点）这是该范式与生俱来的天花板：再高的预测力，也不能直接证明皮层就这么算、或皮层就是被这股压力塑造的。后续领域的争论（线性回归是否「太强」、深网络是否只是「足够灵活的拟合器」）正源于此。本文没有、也不可能在六页里解决它，但它把问题<strong>提得足够清楚</strong>，本身就是贡献。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Yamins 等人证明：一个<strong>从不看神经数据、只为「认物体」而优化</strong>的深度卷积网络（HMO），其顶层成了迄今最准的下颞叶皮层（IT）神经预测器（解释 <strong>48.5%</strong> 可解释方差，对全新类别仍成立），其中间层又恰好最能预测 V4（<strong>51.7%</strong>）；而「任务性能↑ ⇒ 神经预测力↑」的强正相关（<strong>r≈0.78</strong>），把「为什么腹侧视觉通路长成这样」从描述推向了一个可证伪的解释——也许正是<strong>「在严酷识别任务上追求高性能」这件事本身，连同分层架构，雕刻出了皮层的层级结构</strong>。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Yamins, D. L. K., Hong, H., Cadieu, C. F., Solomon, E. A., Seibert, D., &amp; DiCarlo, J. J. (2014). Performance-optimized hierarchical models predict neural responses in higher visual cortex. <em>Proceedings of the National Academy of Sciences (PNAS)</em>, 111(23), 8619–8624.
+    <br><br>
+    <strong>说明：</strong>本文为基于原始论文的中文深度解读，交互散点图为<strong>模拟数据</strong>，定性复现论文 Fig. 1 报告的相关模式（r、端点位置），非原始数据点；核心数字（48.5%、51.7%、r=0.78、15% 等）均引自原文。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('scatterCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 绘图区边距
+  var padL = 64, padR = 24, padT = 28, padB = 56;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+
+  // 坐标范围：x = 分类性能 [0.45, 1.0]；y = IT 预测力 [0, 55]
+  var xMin = 0.45, xMax = 1.0;
+  var yMin = 0, yMax = 55;
+
+  function sx(v){ return padL + (v - xMin) / (xMax - xMin) * plotW; }
+  function sy(v){ return padT + (1 - (v - yMin) / (yMax - yMin)) * plotH; }
+
+  // 确定性伪随机（保证每次重绘一致、可复现）
+  function makeRng(seed){
+    var s = seed >>> 0;
+    return function(){
+      s = (s * 1664525 + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+  function gauss(rng){
+    // Box-Muller
+    var u = Math.max(1e-9, rng()), v = Math.max(1e-9, rng());
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  }
+
+  // 生成一组点：给定相关强度、点数、x 分布中心，返回 {pts, best}
+  function genGroup(seed, n, xCenter, xSpread, noiseY, slope, intercept){
+    var rng = makeRng(seed);
+    var pts = [];
+    var best = null;
+    for(var i=0;i<n;i++){
+      var x = xCenter + gauss(rng)*xSpread;
+      if(x < xMin+0.01) x = xMin+0.01;
+      if(x > xMax-0.005) x = xMax-0.005;
+      // y 沿回归线 + 噪声
+      var y = intercept + slope*(x - 0.5) + gauss(rng)*noiseY;
+      if(y < 1) y = 1 + Math.abs(gauss(rng))*1.5;
+      if(y > 53) y = 53 - Math.abs(gauss(rng))*1.5;
+      pts.push({x:x, y:y});
+      if(best === null || (x > best.x)) best = {x:x, y:y};
+    }
+    return {pts:pts, best:best};
+  }
+
+  // 三组数据（参数调成定性复现论文：rand 弱相关；perf 强相关并偏右上；fit 直接预测优化）
+  // rand: 中心偏左、纵向噪声大 -> 视觉上 r≈0.55
+  var randG = genGroup(7,  220, 0.60, 0.075, 9.0, 40, 14);
+  // perf: 中心偏右、噪声小、斜率明显 -> r≈0.78，最佳点接近右上 (≈0.92, ≈48.5)
+  var perfG = genGroup(31, 220, 0.74, 0.085, 6.0, 70, 12);
+  // 手动把 perf 的最佳点钉到 HMO 位置附近
+  perfG.best = {x:0.93, y:48.5};
+  // fit: 直接为神经预测优化 -> y 偏高但 x 不一定最高（橙色）
+  var fitG  = genGroup(53, 160, 0.66, 0.07, 6.5, 55, 18);
+
+  var COL = {
+    rand: 'rgba(60,140,90,0.55)',     // 绿
+    perf: 'rgba(60,110,190,0.55)',    // 蓝
+    fit:  'rgba(225,150,40,0.6)',     // 橙
+    hmo:  '#c0392b',
+    axis: '#9aa1ab',
+    grid: '#eef0f2',
+    text: '#3a4048',
+    line: 'rgba(192,57,43,0.5)'
+  };
+
+  var mode = 'rand';        // 'rand' | 'perf'
+  var showFit = false;
+
+  function drawAxes(){
+    ctx.clearRect(0,0,W,H);
+    // 网格
+    ctx.strokeStyle = COL.grid;
+    ctx.lineWidth = 1;
+    var yt = [0,10,20,30,40,50];
+    for(var i=0;i<yt.length;i++){
+      var y = sy(yt[i]);
+      ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    }
+    var xt = [0.5,0.6,0.7,0.8,0.9,1.0];
+    for(var j=0;j<xt.length;j++){
+      var x = sx(xt[j]);
+      ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,H-padB); ctx.stroke();
+    }
+    // 轴线
+    ctx.strokeStyle = COL.axis;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+
+    // 刻度文字
+    ctx.fillStyle = COL.text;
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for(i=0;i<yt.length;i++){ ctx.fillText(yt[i]+'', padL-8, sy(yt[i])); }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for(j=0;j<xt.length;j++){ ctx.fillText(xt[j].toFixed(1), sx(xt[j]), H-padB+8); }
+
+    // 轴标题
+    ctx.fillStyle = '#1f2328';
+    ctx.font = '13px -apple-system,sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('物体分类性能（平衡准确率，机会 = 0.5）', padL + plotW/2, H-20);
+    ctx.save();
+    ctx.translate(16, padT + plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('IT 神经预测力（解释方差 %）', 0, 0);
+    ctx.restore();
+
+    // 机会水平虚线
+    ctx.strokeStyle = 'rgba(150,150,150,0.5)';
+    ctx.setLineDash([5,4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(sx(0.5),padT); ctx.lineTo(sx(0.5),H-padB); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('机会水平', sx(0.5)+4, padT+2);
+  }
+
+  function drawPoints(grp, color, r){
+    ctx.fillStyle = color;
+    for(var i=0;i<grp.pts.length;i++){
+      var p = grp.pts[i];
+      ctx.beginPath();
+      ctx.arc(sx(p.x), sy(p.y), r, 0, 2*Math.PI);
+      ctx.fill();
+    }
+  }
+
+  function drawTrendLine(grp){
+    // 简单最小二乘拟合一条线（基于当前组的点），画出来辅助"相关"直觉
+    var n=grp.pts.length, sX=0,sY=0,sXY=0,sXX=0;
+    for(var i=0;i<n;i++){ var p=grp.pts[i]; sX+=p.x; sY+=p.y; sXY+=p.x*p.y; sXX+=p.x*p.x; }
+    var mx=sX/n, my=sY/n;
+    var b=(sXY - n*mx*my)/(sXX - n*mx*mx);
+    var a=my - b*mx;
+    var x1=xMin+0.05, x2=xMax-0.01;
+    ctx.strokeStyle = COL.line;
+    ctx.lineWidth = 2; ctx.setLineDash([7,5]);
+    ctx.beginPath();
+    ctx.moveTo(sx(x1), sy(a+b*x1));
+    ctx.lineTo(sx(x2), sy(a+b*x2));
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawHMO(grp){
+    var b = grp.best;
+    var X = sx(b.x), Y = sy(b.y);
+    ctx.fillStyle = COL.hmo;
+    ctx.beginPath();
+    ctx.arc(X, Y, 7, 0, 2*Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(X, Y, 7, 0, 2*Math.PI); ctx.stroke();
+    // 标签
+    ctx.fillStyle = COL.hmo;
+    ctx.font = 'bold 13px -apple-system,sans-serif';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText('HMO 模型 (≈48.5%)', X-12, Y-2);
+  }
+
+  function legend(){
+    var lx = W - padR - 178, ly = padT + 6;
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    function row(c, t, dy){
+      ctx.fillStyle = c;
+      ctx.beginPath(); ctx.arc(lx+6, ly+dy, 5, 0, 2*Math.PI); ctx.fill();
+      ctx.fillStyle = '#3a4048';
+      ctx.fillText(t, lx+18, ly+dy);
+    }
+    var dy = 0;
+    if(mode==='rand'){ row(COL.rand, '随机采样的网络', dy); dy+=20; }
+    else { row(COL.perf, '为性能优化的网络', dy); dy+=20; }
+    if(showFit){ row(COL.fit, '为神经预测优化', dy); dy+=20; }
+    row(COL.hmo, 'HMO（最优模型）', dy);
+  }
+
+  function render(){
+    drawAxes();
+    var grp = (mode==='rand') ? randG : perfG;
+    if(showFit){ drawPoints(fitG, COL.fit, 3.2); }
+    drawPoints(grp, (mode==='rand'?COL.rand:COL.perf), 3.4);
+    drawTrendLine(grp);
+    if(mode==='perf'){ drawHMO(perfG); }
+    legend();
+
+    // 更新文字状态
+    document.getElementById('modeLabel').textContent = (mode==='rand') ? '随机采样' : '为任务性能优化';
+    document.getElementById('rLabel').textContent = (mode==='rand') ? '0.55' : '0.78';
+    document.getElementById('bestLabel').textContent = (mode==='rand')
+      ? grp.best.y.toFixed(0)
+      : '48.5';
+  }
+
+  document.getElementById('btnRand').addEventListener('click', function(){
+    mode='rand'; render();
+  });
+  document.getElementById('btnPerf').addEventListener('click', function(){
+    mode='perf'; render();
+  });
+  document.getElementById('chkFit').addEventListener('change', function(e){
+    showFit = e.target.checked; render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

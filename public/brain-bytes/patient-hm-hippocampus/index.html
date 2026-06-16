@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H.M. 与海马：双侧内侧颞叶切除后的记忆崩塌 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>H.M. &amp; Hippocampus <span>×</span> 切掉两侧海马，他的「现在」从此再也存不进昨天</h1>
+    <div class="meta">
+      <span>📄 Loss of Recent Memory After Bilateral Hippocampal Lesions</span><br>
+      <span>✍️ William Beecher Scoville &amp; Brenda Milner</span><br>
+      <span>🏛️ 哈特福德医院神经外科；麦吉尔大学神经病学与神经外科系 / 蒙特利尔神经病学研究所（加拿大）</span><br>
+      <span>📅 Journal of Neurology, Neurosurgery &amp; Psychiatry · 1957, 20, 11</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-f1">① 一个被时间困住的人：H.M.</a></li>
+        <li><a href="#sec-f2">② 记忆不是一整块：双重分离</a></li>
+        <li><a href="#sec-f3">③ 剂量—损害曲线</a></li>
+        <li><a href="#sec-f4">④ 锁定海马：决定性对照</a></li>
+        <li><a href="#sec-viz">交互：切多深 → 记忆损多重</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是整个记忆神经科学的<strong>奠基论文</strong>。在 1957 年之前，主流观点认为记忆像电流一样弥散在整个大脑皮层，没有专门的「器官」。这篇论文用一组人类脑外科的「意外」推翻了它：把两侧<span class="term">内侧颞叶（含海马）</span>切掉之后，病人的智商、性格、知觉、推理、说话能力<strong>全部完好</strong>，唯独失去了一种能力——把新经历转存成持久记忆。其中编号 Case 1 的年轻人 <strong>H.M.</strong>，后来成为科学史上被研究得最透彻的单个病人，他的故事直接催生了「记忆有多个系统」这一现代认知科学的基本框架。</p>
+        <p>它值得深读，不仅因为结论重要，更因为它示范了一种极其朴素却致命有力的论证方式：当大自然（这里是外科刀）替你做了一次不可能在伦理上故意做的「敲除实验」，你要做的就是<strong>精确测量、诚实对照、不夸大</strong>。这篇论文也因此成了一面镜子——既照出脑损伤研究的威力，也照出它在伦理上的沉重代价。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>读这篇论文前，先把下面这些词在脑子里安顿好。它们大多是解剖名词或记忆心理学术语，论文反复使用，看懂它们这篇论文就通了大半。</p>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">内侧颞叶（MTL，Medial Temporal Lobe）</div>
+          <div class="cdesc">大脑两侧颞叶朝向中线、藏在最深处的一片区域，像耳朵内侧往脑中心塞进去的一块。本文切除的就是它，里面打包着海马、海马旁回、钩回、杏仁核这几个关键结构。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">海马 / 海马复合体（Hippocampus）</div>
+          <div class="cdesc">内侧颞叶里一条卷曲的细长结构，形状像海马（海洋生物）而得名。本文的主角：它被双侧破坏，记忆就崩。可以把它理解成把「短暂体验」刻录成「长久档案」的<strong>刻录机</strong>，而不是档案柜本身。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">海马旁回（Hippocampal Gyrus）</div>
+          <div class="cdesc">紧贴海马、包在它外面的一圈皮层，是信息进出海马的主要门户。本文中它常与海马一起被切除，作者认为两者「单独或一起」都对记忆至关重要。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">钩回与杏仁核（Uncus &amp; Amygdala）</div>
+          <div class="cdesc">内侧颞叶最前端的钩状结构（钩回）和它下方的杏仁核，主要管情绪和嗅觉。本文一个关键对照点：只切掉它们、保住海马，记忆<strong>毫发无损</strong>——这正好把「祸首」从杏仁核身上摘清。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">顺行性遗忘（Anterograde Amnesia）</div>
+          <div class="cdesc">手术/损伤之后<strong>新发生</strong>的事记不住，「现在」不断从手心漏走。H.M. 的核心症状。注意它管的是「往后」——损伤那一刻像时间的一道闸门，闸门之后的水蓄不起来。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">逆行性遗忘（Retrograde Amnesia）</div>
+          <div class="cdesc">手术/损伤<strong>之前</strong>已经发生的事被抹掉。H.M. 只有「部分逆行性遗忘」——丢了术前约三年的记忆（如三年前去世的舅舅），但更早的童年往事鲜活如初。这个「时间梯度」本身就是重要线索。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">近期记忆 vs 远期记忆（Recent vs Remote Memory）</div>
+          <div class="cdesc">论文标题里的「recent memory」指<strong>新近形成、尚未巩固</strong>的记忆能力；远期记忆指早已巩固的陈年旧事。本文最震撼之处：前者被彻底摧毁，后者完好无损——说明二者是<strong>可分离</strong>的两套机制。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">即时记忆 / 注意广度（Immediate Memory）</div>
+          <div class="cdesc">能在脑子里「当场」抓住并维持几秒到几分钟的信息，比如刚听到的一串数字。H.M. 这部分正常——只要不被打断，他能记住一个三位数好几分钟。但注意力一转移，内容立刻蒸发，<strong>无法转成长久记忆</strong>。今天叫它「工作记忆」的雏形。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">韦氏量表：IQ 与 记忆商（Wechsler Scale: IQ &amp; Memory Quotient）</div>
+          <div class="cdesc">当年标准化的智力与记忆测验。本文用它把「智力」和「记忆」拆成两个独立分数来量化。H.M. 智商 112（属正常偏上），记忆商却只有 67——这道两个数字之间的<strong>巨大鸿沟</strong>，是全文最有力的硬证据。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">乳头体与穹窿（Mammillary Bodies &amp; Fornix）</div>
+          <div class="cdesc">海马通过穹窿（一束纤维）把信号投射到乳头体。讨论里作者权衡：穹窿被切断似乎不致遗忘，但乳头体受损（如柯萨可夫综合征）也与记忆障碍有关——提示记忆依赖一整条「回路」，而非单一节点。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>论文报告了 10 例双侧内侧颞叶切除病人（9 例为治疗严重精神病、1 例为治疗顽固性癫痫），术后用正式的记忆与智力测验逐一评估。下面分四个层层递进的发现来讲：从一个具体的人，到一条普适的规律，再到对祸首的精确锁定。</p>
+
+      <div class="section-head-sub" id="sec-f1">① 一个被时间困住的人：H.M.</div>
+      <p>Case 1，<strong>H.M.</strong>，一名 27 岁手术、随访时 29 岁的电机绕线工、高中毕业生。他自 10 岁起有小发作、16 岁起有大发作的顽固性癫痫，多年重药也压不住，已无法工作。1953 年 9 月 1 日，Scoville 对他做了<strong>双侧内侧颞叶切除，沿颞极向后切除约 8 厘米</strong>，连同两侧颞角（侧脑室的延伸）一并构成切除的外侧边界。手术止住了大部分发作——但换来了一个谁也没料到的代价。</p>
+      <p>术后他的世界冻结在了手术那一刻。书中给出的细节读来令人心惊：</p>
+      <ul>
+        <li>他<strong>认不出医院的工作人员</strong>，找不到去卫生间的路，记不住医院日常生活里任何一天发生的事。</li>
+        <li>家里在手术后约 10 个月搬到了同一条街几个街区外的新家，他<strong>至今没学会新地址</strong>，也记不住旧家的样子，更不能让他独自找回家。</li>
+        <li>他会<strong>一天又一天反复拼同一副拼图、反复读同一本杂志</strong>，每次都像第一次见，内容从不会变得熟悉。</li>
+        <li>正式检查时，他刚跟 Karl Pribram 医生谈过话，转头就完全否认见过这个人。</li>
+        <li>另一位作者（B.M.，即 Brenda Milner）当面看着他吃完午餐，<strong>半小时后他既说不出吃了什么，甚至坚称自己根本没吃过午餐</strong>。</li>
+      </ul>
+      <p>然而——这是全文的转折——「在一个不经意的旁观者看来，这个人像个相当正常的人，因为他的理解力和推理能力毫无削弱」。他智商不降反升。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：智力与记忆的「裂谷」</span>
+        <p>在韦氏-贝尔维智力量表（Wechsler-Bellevue）上，H.M. 术后全量表智商达 <strong>112</strong>，甚至<strong>高于</strong>术前的 104——算术分测验进步尤其明显（因为他不再被癫痫和重镇静药拖累、变得不那么昏沉）。可在韦氏记忆量表（Wechsler Memory Scale）上，他的<strong>记忆商只有 67</strong>。智商 112 对记忆商 67，这道约 <strong>45 分</strong>的鸿沟，把「智力」和「形成新记忆的能力」干净利落地切成了两件事。更关键的是：他对故事、图画的即时复述远低于常人，词对联想得零分且<strong>反复练习也不见任何进步</strong>——曾经做过的任务一旦切换，就再也认不出自己做过。</p>
+      </div>
+      <p>同时，他保留着术前约 3 年以前的全部记忆（早年往事「鲜活而完整」），只对术前最后约 3 年有部分逆行性遗忘。换句话说：<strong>闸门之前的水库满的，闸门之后一滴存不住，而当下那一捧水还能在手里端几分钟。</strong></p>
+
+      <div class="section-head-sub" id="sec-f2">② 记忆不是一整块：被精确切开的「双重分离」</div>
+      <p>H.M. 这个个案之所以是「重磅炸弹」，在于他同时展示了一组互相独立的能力：哪些坏了、哪些好着，对比得极其干净。这种「A 损 B 存」的格局，是认知神经科学最看重的<strong>分离（dissociation）</strong>证据。</p>
+      <table>
+        <thead>
+          <tr><th>能力维度</th><th>H.M. 的状态</th><th>说明了什么</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>形成新长期记忆（近期记忆）</td><td>彻底丧失</td><td>这是被切掉的那块功能</td></tr>
+          <tr><td>即时记忆 / 注意广度</td><td>正常（数分钟，需不被打断）</td><td>「短暂留住」和「转成长久」是两套系统</td></tr>
+          <tr><td>远期 / 童年记忆</td><td>完好</td><td>旧档案的存取不依赖被切的结构</td></tr>
+          <tr><td>一般智力（IQ）</td><td>112，略升</td><td>记忆 ≠ 智力</td></tr>
+          <tr><td>知觉、抽象思维、推理</td><td>完好</td><td>损伤高度特异，不是「整体变笨」</td></tr>
+          <tr><td>性格、人格</td><td>无明显改变</td><td>与切除前额叶的精神外科后果截然不同</td></tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">为什么这叫「双重分离」而不只是「单分离」</span>
+        <p>单看 H.M.，我们知道损伤海马 → 近期记忆坏、即时记忆好。但论文里还有反向的一极：作者明确指出，记忆障碍最重的几位病人「都<strong>能</strong>把一个三位数或一对词记住好几分钟，只要这段时间里不分散他们的注意」。也就是说，<strong>近期记忆崩溃的同时，即时记忆这条通道仍然畅通</strong>。一边坏一边好、且方向可对调，这就构成了「即时记忆」与「长期记忆形成」两套机制彼此独立的强证据——这正是后来「多重记忆系统」理论的起点。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f3">③ 不是「有或无」，而是一条剂量—损害曲线</div>
+      <p>如果只有 H.M. 一个人，怀疑者大可说「也许他本来就有别的问题」。这篇论文的厉害之处在于它有<strong>整整 10 例</strong>，且切除深度各不相同——于是作者能把「切多深」和「记忆损多重」对应起来，画出一条剂量反应关系。他们按损害程度把病人分成三组：</p>
+      <table>
+        <thead>
+          <tr><th>分组</th><th>典型病例</th><th>切除沿内侧颞叶向后的深度</th><th>记忆结局</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>组 I：严重</td><td>Case 1 (H.M.)、2 (D.C.)、3 (M.B.)</td><td>约 8 cm，或最少 5.5 cm 的彻底切除</td><td>像 H.M. 一样，新事「发生多快忘多快」</td></tr>
+          <tr><td>组 II：中度</td><td>Case 4–8</td><td>约 5–6 cm</td><td>对新地点新事件有些印象，但学不会人名等任意新联想</td></tr>
+          <tr><td>组 III：无</td><td>Case 9 (I.S.)、10 (E.G.)</td><td>仅 4 cm 钩回切除 / 单侧手术</td><td>记忆基本正常，记忆商高达 125 / 90</td></tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：后界 8 厘米是「记忆崩溃」的临界线</span>
+        <p>作者反复强调，当切除的<strong>后界达到距颞极约 8 cm</strong>、足以双侧破坏海马及海马旁回时，记忆障碍「特别严重，且术后两三年都<strong>毫无改善</strong>」。组 II 的 5–6 cm 仍有可恢复或较轻的损害；而只切 4 cm 钩回的 Case 9 完全没事。一个有意思的「打破完美相关」的反例是 Case 2（D.C.）：他只切了 5.5 cm，记忆损害却和最彻底的切除一样重——作者诚实地承认「这个相关并不完美」。即便如此，<strong>切得越靠后、海马毁得越多、记忆损得越重</strong>这条主趋势非常清楚。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f4">④ 锁定海马：把祸首从杏仁核身上摘清</div>
+      <p>内侧颞叶切除会一口气拿掉好几个结构：钩回、杏仁核、海马、海马旁回。那么，到底是<strong>哪一个</strong>的破坏导致了遗忘？这篇论文给出了一个堪称「天作之合」的对照——</p>
+      <p>Case 9（I.S.），一位 54 岁妄想型精神分裂症患者，接受的是<strong>双侧钩回切除（uncectomy）</strong>：只切掉了两侧颞极、钩回和杏仁核，<strong>有意保住了海马旁回与海马</strong>，切除深度约 4 cm。结果她「记忆功能极佳」，记忆商高达 <strong>125</strong>，对故事、图画的即时与延迟回忆都拿到优秀分数，能准确描述术后早期的事件——尽管她有长期精神病史、做过大量电击治疗、脑干还有不明范围的损伤。</p>
+      <div class="info-block">
+        <span class="ib-title">这就是论文论证的「逻辑支点」</span>
+        <p>把 H.M.（切了海马 → 严重遗忘）和 Case 9（保住海马、只切杏仁核与钩回 → 记忆完好）并排，结论几乎是被「逼」出来的：<strong>导致遗忘的不是杏仁核、不是钩回，而恰恰是海马（连同海马旁回）的双侧破坏。</strong>作者由此写下论文的核心断言——「前部海马与海马旁回，单独或一起，对新经验的保持起着关键作用」。这一对照是全文最不可替代的一块砖；抽掉它，「海马 = 记忆刻录机」这个结论就立不住。（作者也谨慎补充：因为从没有「只切海马、留住杏仁核」的病例，杏仁核是否也参与其中尚不能完全排除。）</p>
+      </div>
+      <p>更妙的是，这条逻辑还经得起「侧脑切除」这一干扰项的检验：所有这些手术<strong>只动内侧颞叶、不碰颞叶外侧新皮层</strong>，病人却仍然出现严重遗忘——说明遗忘来自内侧结构本身，而不是顺带损伤了管语言、知觉的外侧皮层。这与同期 Terzian &amp; Ore（他们连外侧颞叶皮层一起切，病人「全面恶化」）形成鲜明对照，反衬出本研究损伤定位之「干净」。</p>
+
+      <!-- ============ 交互可视化 ============ -->
+      <div class="viz-box" id="sec-viz">
+        <div class="viz-title">交互演示一：切多深 → 海马毁多少 → 记忆损多重</div>
+        <div class="viz-note">拖动滑块改变沿内侧颞叶向后的切除深度（cm）。左图示意切除范围吃进海马的多少，右侧条形显示对应的记忆商与所属分组。模拟数据按论文报告的分组阈值与各病例记忆商定性绘制，用于展示「剂量—损害」的定性模式，非逐点拟合。</div>
+        <div class="viz-controls">
+          <label>切除后界深度：<strong><span id="depthVal">8.0</span> cm</strong></label>
+          <input type="range" id="depthSlider" min="2" max="8" step="0.5" value="8" style="width:240px;">
+          <button class="alt" id="depthHM">跳到 H.M.（8.0 cm）</button>
+          <button class="alt" id="depthIS">跳到 Case 9（4.0 cm，保海马）</button>
+        </div>
+        <canvas id="depthCanvas" width="860" height="300"></canvas>
+        <div class="viz-note" id="depthCaption" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="viz-box">
+        <div class="viz-title">交互演示二：即时记忆「在」，长期记忆「存不进」</div>
+        <div class="viz-note">点击「呈现一串数字」让 H.M.「看到」信息：它会进入即时记忆并维持几分钟。点「分散注意（切换话题）」模拟把他的注意力引开——观察健康人与 H.M. 的不同命运。该演示图示论文的定性描述（保留三位数数分钟、注意一转移即蒸发、长期通道阻断），非实测时程数据。</div>
+        <div class="viz-controls">
+          <button id="memPresent">呈现一串数字</button>
+          <button class="alt" id="memDistract">分散注意（切换话题）</button>
+          <button class="alt" id="memReset">重置</button>
+        </div>
+        <canvas id="memCanvas" width="860" height="280"></canvas>
+        <div class="viz-note" id="memCaption" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文在方法上有几处值得专门拎出来看的「妙手」，也有不得不正视的伦理与设计软肋。先看妙处：</p>
+      <table>
+        <thead>
+          <tr><th>设计选择</th><th>为什么聪明 / 重要</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>把「智力」与「记忆」分开量化</td><td>不靠主观印象，用韦氏 IQ 与记忆商两个独立分数，让「智商 112 / 记忆商 67」这种<strong>反差</strong>变成可比的硬数字，杜绝了「他只是变笨了」的反驳。</td></tr>
+          <tr><td>用切除深度的天然变异做「剂量梯度」</td><td>10 例切除深度从 4 cm 到 8 cm 不等，等于得到了一条人体「剂量反应曲线」，把因果关系从「单个病例的巧合」升级为「随损伤增大而加重的规律」。</td></tr>
+          <tr><td>设置关键内部对照（Case 9 钩回切除）</td><td>「保住海马只切杏仁核 → 无遗忘」是把祸首精确定位到海马的<strong>逻辑支点</strong>，而不是泛泛地说「内侧颞叶重要」。</td></tr>
+          <tr><td>限定在内侧、不碰外侧新皮层</td><td>排除了「遗忘其实来自外侧颞叶皮层损伤」的混淆，使损伤定位异常干净（对比 Terzian &amp; Ore 的全面恶化）。</td></tr>
+          <tr><td>用术后颅骨 X 线银夹标记切除范围</td><td>切除边界不是凭口述，而是用银夹在 X 线片上客观标定（Figs. 3–4），让「切了多深」可被旁人核验。</td></tr>
+          <tr><td>正式、可重复的神经心理测验</td><td>由 Brenda Milner 用标准化测验做系统评估，而非外科医生的随手观察——这正是这篇论文区别于零散个案报告、能成为学科基石的关键。</td></tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">一个常被忽略的署名细节</span>
+        <p>论文脚注写明：心理学检查由作者之一 B.M.（Brenda Milner）完成，且「得益于 Wilder Penfield 医生的关照」。正是 Milner 严谨的认知测量，把 Scoville 手术台上的「意外」变成了可量化、可推广的科学发现。神经外科提供了不可复制的「实验条件」，神经心理学提供了读出结果的「尺子」——两者缺一不可。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>作者把自己的发现仔细地放进了当时的文献网里，既找盟友也辨对手：</p>
+      <ul>
+        <li><strong>呼应 Glees &amp; Griffith（1952）</strong>：他们曾提出双侧海马破坏会导致近期记忆丧失与精神错乱，但所引证据较弱。本研究为这一假说「提供了强有力的支持」。</li>
+        <li><strong>与 Terzian &amp; Ore（1955）划清界限</strong>：后者做双侧颞叶切除后病人出现影响记忆、知觉、性行为的全面恶化（近似动物的 Klüver-Bucy 综合征）。作者指出关键差别在于 Terzian 连<strong>外侧颞叶皮层</strong>一并切除；而本研究只动内侧，并不产生知觉障碍——从反面强化了「是内侧海马、不是外侧皮层」。</li>
+        <li><strong>解释 Penfield &amp; Milner（1955）的单侧病例</strong>：他们报告过两例<strong>单侧</strong>颞叶切除却出现记忆障碍的「反常」病例（而另外 90 多例单侧切除都没事）。作者推断这两人对侧半球本就有一个未被发现的、毁损海马的病变——于是单侧手术等于让海马功能「双侧」丧失。这个解释既自洽，又反过来支持「双侧海马受损才致遗忘」。</li>
+        <li><strong>牵出乳头体与穹窿这条回路</strong>：海马经穹窿投射到乳头体；而乳头体受损正是柯萨可夫型遗忘（酗酒所致）的病理基础（Gamper 1928）。耐人寻味的是，单独切断穹窿（Dott）似乎对行为影响不大。这些线索合起来提示：记忆依赖一整条<strong>回路</strong>，海马是其中关键的一环，但不是唯一的环。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇 1957 年的论文，影响早已溢出神经外科，渗进了好几个学科：</p>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">认知心理学：记忆的「多系统」框架</div>
+          <div class="cdesc">即时记忆完好而长期记忆形成崩溃，直接催生了「短时记忆 vs 长时记忆」「陈述性 vs 非陈述性记忆」等多重记忆系统理论。今天教科书里的记忆分类，源头几乎都能追到这一例。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">系统巩固理论：记忆会「搬家」</div>
+          <div class="cdesc">H.M. 丢了术前约 3 年、却保住童年记忆的「时间梯度」，提示记忆起初依赖海马、随时间逐渐转存到皮层「独立存档」。这成为「系统巩固（systems consolidation）」假说的经验基石。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">人工智能：记忆该不该和计算分开</div>
+          <div class="cdesc">「能推理但存不进新记忆」这一解离，启发了把<strong>快速写入的情景记忆</strong>与<strong>慢速学习的皮层网络</strong>分开设计的思路——与今天给大模型外挂「记忆库 / 检索增强」以弥补权重难以即时更新的工程实践，遥相呼应。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">医学伦理：不可逆手术的红线</div>
+          <div class="cdesc">本研究本质上是一次无法在伦理上故意复制的「人体敲除实验」。H.M. 付出了终身代价。它既奠定了科学，也成为知情同意、精神外科边界等现代医学伦理讨论中反复被引用的警示案例。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文伟大，但绝非无懈可击。有些局限作者坦承，有些则需读者替它点破：</p>
+      <ul>
+        <li><strong>没有尸检解剖，切除范围靠推算。</strong>作者自己明说「在没有尸检材料的情况下，我们无法确定切除区域究竟移除了多少」。所有「8 cm」「破坏海马」都是据手术记录与 X 线银夹的<strong>估计</strong>，并非组织学证实——这是全文最大的不确定来源。</li>
+        <li><strong>样本几乎全是重病精神病人，基线本就不正常。</strong>10 例里 9 例是慢性精神分裂或躁郁症患者，长期接受电击治疗、有的脑干还有损伤。在这样一群「本来大脑就不健康」的人身上测记忆，再去外推到正常人，存在明显的<strong>样本代表性</strong>问题。真正「干净」的病例其实只有 H.M. 一个（非精神病、智力与人格完好）。</li>
+        <li><strong>相关并不完美，机制留白。</strong>作者诚实指出 Case 2（D.C.）只切 5.5 cm 却损害极重，打破了「切得越多损得越重」的完美对应。论文只能定位到「海马很重要」，但<strong>海马如何把经验刻成记忆</strong>，本文完全没有也无法回答。</li>
+        <li><strong>杏仁核的角色没能彻底排除。</strong>作者自己承认：因为从未有过「只切海马、保住杏仁核」的病例，所以「不能断定杏仁核在此机制中不起作用」。结论里把海马列为祸首，但杏仁核的「不在场证明」其实并不完整。</li>
+        <li><strong>「记忆完好」的判断依赖当年的测验工具。</strong>后续数十年对 H.M. 的研究揭示，他其实<strong>还能学会某些技能</strong>（如镜像描图），只是学完不记得自己学过——也就是说，1957 年说他「记忆能力被彻底摧毁」其实是过强的表述，遗漏了非陈述性（程序性）记忆这一整条完好的通道。这不是作者的失误，而是当年测验<strong>看不到</strong>的盲区，提醒我们「测不出」不等于「不存在」。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都尽量贴着文中证据，并标明哪里是延伸观点。</p>
+      <p><strong>这是一篇配得上「奠基」二字的论文，且方法上的克制远超它的时代。</strong>它的杀手锏不是任何单一发现，而是把「个案的戏剧性」（H.M.）、「群体的规律性」（10 例剂量梯度）、「逻辑的封闭性」（Case 9 内部对照）三者叠在一起，使「双侧海马损伤 → 近期记忆丧失」这个因果链几乎无从反驳。论文里「智商 112 / 记忆商 67」「后界 8 cm」「记忆商 125 的钩回切除对照」这些数字，至今读来仍是教科书级别的硬证据。</p>
+      <p><strong>它最诚实、也最该被效仿的地方，是反复给自己泼冷水。</strong>「相关并不完美」「没有尸检无法确证」「不能排除杏仁核」——这些自我设限不是软弱，而正是它经得起七十年检验的原因。许多被时间淘汰的脑损伤研究，恰恰栽在过度解读上；本文没有。（此为解读者观点，依据是文中 Discussion 多处主动标注不确定性。）</p>
+      <p><strong>但必须看清它的代价与边界。</strong>从今天的标准看，这是一组在伦理上无法被故意复制的手术，科学收益建立在 H.M. 终身丧失「形成新记忆」能力之上——这一点本文以「totally unexpected（完全未曾预料）」一笔带过，未作伦理反思，是时代的局限。而从科学上，它对「记忆能力被彻底摧毁」的论断，后来被证明只覆盖了陈述性记忆，漏掉了程序性记忆这条完好通道（此为延伸，依据后续对 H.M. 的研究文献，非本文内容）。因此更准确的总结应是：<strong>它精确地发现了一种记忆系统的崩溃，却把它误当成了「记忆」整体的崩溃。</strong>这非但不削弱它的地位，反而正是它最深远的遗产——它逼出了「记忆到底有几种」这个问题。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>当两侧海马被外科刀拿掉，一个智商 112、谈吐如常的年轻人却只剩下 67 的记忆商——他能推理、能聊天、能记住三位数好几分钟，却再也无法把任何新经历存进明天；而只切杏仁核、保住海马的对照病人记忆商高达 125。Scoville 与 Milner 用这道「智力完好、记忆崩塌」的裂谷，第一次把<strong>海马</strong>钉死为「将体验刻录成长久记忆」的关键器官，也第一次让世界看清：<strong>记忆，不是一整块，而是好几套可以被分别敲掉的系统。</strong></p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Scoville, W. B., &amp; Milner, B. (1957). Loss of recent memory after bilateral hippocampal lesions. <em>Journal of Neurology, Neurosurgery &amp; Psychiatry</em>, 20(1), 11–21.<br>
+    <strong>说明：</strong>本页为该论文的中文深度解读，所有结论与数字均依据原文；标注为「解读者观点 / 延伸」处为作者评注，不属原文主张。两处交互演示使用按论文报告的分组阈值与定性描述构造的示意数据，仅展示定性模式。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+/* ============================================================
+   交互演示一：切除深度 → 海马毁损 → 记忆商 / 分组
+   定性映射，基于论文：仅4cm钩回(保海马)无损；5-6cm中度；
+   ~8cm(及最少5.5cm彻底切除)严重。记忆商锚点取自原文病例。
+   ============================================================ */
+(function(){
+  var canvas = document.getElementById('depthCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var slider = document.getElementById('depthSlider');
+  var depthVal = document.getElementById('depthVal');
+  var caption = document.getElementById('depthCaption');
+  var RED = '#c0392b', INK = '#1f2328', MUT = '#6b7280', SOFT = '#fdecea', LINE='#e6e8eb';
+
+  // 由切除深度(cm)定性映射到 记忆商 与 分组
+  function profile(d){
+    // 海马被吃进的比例：4cm 以内基本不碰海马；越往后吃得越多，8cm 近乎全毁
+    var hippo = Math.max(0, (d - 4) / (8 - 4)); // 0..1
+    hippo = Math.min(1, hippo);
+    var mq, grp, grpColor, note;
+    if(d <= 4){
+      mq = 125; grp = '组 III：无持续记忆障碍'; grpColor = '#2e7d32';
+      note = '仅切钩回与杏仁核、保住海马（对应 Case 9 / I.S.）。记忆商约 125，记忆基本正常——这正是把「祸首」从杏仁核摘清的关键对照。';
+    } else if(d < 7){
+      mq = Math.round(84 - (d-5)*4); // 5cm≈84,6cm≈80 区间
+      grp = '组 II：中度记忆障碍'; grpColor = '#e08a00';
+      note = '切除约 ' + d.toFixed(1) + ' cm，海马部分受损（对应 Case 4–8）。对新地点新事有些印象，但学不会人名等任意新联想；记忆商约 ' + mq + '。';
+    } else {
+      mq = 67; grp = '组 I：严重记忆障碍'; grpColor = RED;
+      note = '后界达约 ' + d.toFixed(1) + ' cm，双侧海马及海马旁回严重破坏（对应 Case 1 / H.M.）。新事「发生多快忘多快」，术后两三年毫无改善；记忆商约 67，而智商仍达 112。';
+    }
+    return {hippo:hippo, mq:mq, grp:grp, grpColor:grpColor, note:note};
+  }
+
+  function draw(){
+    var d = parseFloat(slider.value);
+    depthVal.textContent = d.toFixed(1);
+    var p = profile(d);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // ---- 左半：内侧颞叶切除示意（侧视，颞极在左） ----
+    var ox=40, oy=60, len=320, h=120;
+    // 标题
+    ctx.fillStyle = INK; ctx.font = '600 14px -apple-system,sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText('内侧颞叶（颞极在左 → 向后）', ox, oy-22);
+
+    // 颞叶底色条
+    ctx.fillStyle = '#eef0f2';
+    roundRect(ctx, ox, oy, len, h, 14); ctx.fill();
+    ctx.strokeStyle = LINE; ctx.lineWidth=1; roundRect(ctx, ox, oy, len, h, 14); ctx.stroke();
+
+    // 海马：从约 4cm 处开始的一条卷曲带（用 8cm 对应整条长度）
+    var cmToX = len/8; // 每 cm 像素
+    var hippoStartCm = 3.0; // 海马起始位置(示意)
+    var hx0 = ox + hippoStartCm*cmToX;
+    var hippoW = (8-hippoStartCm)*cmToX;
+    ctx.strokeStyle = '#7aa6c2'; ctx.lineWidth = 14; ctx.lineCap='round';
+    ctx.beginPath();
+    var hy = oy + h*0.62;
+    ctx.moveTo(hx0, hy);
+    var steps=40;
+    for(var i=0;i<=steps;i++){
+      var t=i/steps;
+      var x = hx0 + hippoW*t;
+      var y = hy + Math.sin(t*Math.PI*2.2)*10;
+      ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#5b7e96'; ctx.font='600 11px -apple-system,sans-serif';
+    ctx.fillText('海马', hx0+hippoW*0.5-14, hy-16);
+
+    // 钩回/杏仁核：最前端的小球
+    ctx.fillStyle = '#caa3d6';
+    ctx.beginPath(); ctx.arc(ox+18, oy+h*0.6, 13, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#7a5b86'; ctx.font='600 10px -apple-system,sans-serif';
+    ctx.fillText('钩回/杏仁核', ox+2, oy+h+16);
+
+    // 切除范围阴影（从颞极 0 到 d cm）
+    var cutW = d*cmToX;
+    ctx.fillStyle = 'rgba(192,57,43,0.16)';
+    roundRect(ctx, ox, oy, cutW, h, 14); ctx.fill();
+    ctx.strokeStyle = RED; ctx.lineWidth=2.5;
+    ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(ox+cutW, oy-6); ctx.lineTo(ox+cutW, oy+h+6); ctx.stroke();
+    ctx.setLineDash([]);
+    // 切除深度标注
+    ctx.fillStyle = RED; ctx.font='700 13px -apple-system,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('切除后界 ' + d.toFixed(1) + ' cm', ox+cutW, oy+h+34);
+    ctx.textAlign='left';
+
+    // 海马被切比例条
+    ctx.fillStyle = MUT; ctx.font='12px -apple-system,sans-serif';
+    ctx.fillText('海马被破坏程度：', ox, oy+h+58);
+    var barX=ox+128, barY=oy+h+48, barW=180, barH=14;
+    ctx.fillStyle = '#eef0f2'; roundRect(ctx,barX,barY,barW,barH,7); ctx.fill();
+    ctx.fillStyle = p.hippo>0.66?RED:(p.hippo>0?'#e08a00':'#2e7d32');
+    roundRect(ctx,barX,barY,Math.max(2,barW*p.hippo),barH,7); ctx.fill();
+    ctx.fillStyle = INK; ctx.font='700 12px -apple-system,sans-serif';
+    ctx.fillText(Math.round(p.hippo*100)+'%', barX+barW+10, barY+11);
+
+    // ---- 右半：记忆商 vs 智商 对照柱 ----
+    var rx=560, ry=70, rw=70, rmaxH=150, baseY=ry+rmaxH;
+    ctx.strokeStyle=LINE; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(rx-20, baseY); ctx.lineTo(rx+220, baseY); ctx.stroke();
+    // 智商柱（IQ 112 固定，强调它不随切除而降）
+    var iq=112; var iqH=rmaxH*(iq/140);
+    ctx.fillStyle='#c9ced4';
+    roundRect(ctx, rx, baseY-iqH, rw, iqH, 5); ctx.fill();
+    ctx.fillStyle=INK; ctx.font='700 13px -apple-system,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('IQ '+iq, rx+rw/2, baseY-iqH-8);
+    ctx.fillStyle=MUT; ctx.font='12px -apple-system,sans-serif';
+    ctx.fillText('智力', rx+rw/2, baseY+18);
+    // 记忆商柱（随深度变化）
+    var mqX=rx+110; var mqH=rmaxH*(p.mq/140);
+    ctx.fillStyle=p.grpColor;
+    roundRect(ctx, mqX, baseY-mqH, rw, mqH, 5); ctx.fill();
+    ctx.fillStyle=INK; ctx.font='700 13px -apple-system,sans-serif';
+    ctx.fillText('MQ '+p.mq, mqX+rw/2, baseY-mqH-8);
+    ctx.fillStyle=MUT; ctx.font='12px -apple-system,sans-serif';
+    ctx.fillText('记忆商', mqX+rw/2, baseY+18);
+    ctx.textAlign='left';
+    // 分组标签
+    ctx.fillStyle=p.grpColor; ctx.font='700 15px -apple-system,sans-serif';
+    ctx.fillText(p.grp, rx, ry-22);
+
+    caption.textContent = p.note;
+  }
+
+  function roundRect(ctx,x,y,w,h,r){
+    if(w<2*r) r=w/2; if(h<2*r) r=h/2;
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  slider.addEventListener('input', draw);
+  document.getElementById('depthHM').addEventListener('click', function(){ slider.value=8; draw(); });
+  document.getElementById('depthIS').addEventListener('click', function(){ slider.value=4; draw(); });
+  draw();
+})();
+
+/* ============================================================
+   交互演示二：即时记忆维持 vs 长期记忆形成阻断
+   定性模拟论文描述：能记三位数数分钟、注意一转移即蒸发、
+   长期通道在 H.M. 处被阻断。
+   ============================================================ */
+(function(){
+  var canvas = document.getElementById('memCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var caption = document.getElementById('memCaption');
+  var RED='#c0392b', INK='#1f2328', MUT='#6b7280', LINE='#e6e8eb';
+
+  var state = {
+    healthy: {imm:0, ltm:0},   // 即时记忆强度 / 长期记忆强度
+    hm: {imm:0, ltm:0},
+    item: null,                // 当前呈现的数字
+    consolidating: false,      // 健康人是否正在巩固
+    label: '点击「呈现一串数字」开始'
+  };
+  var anim;
+
+  function present(){
+    state.item = String(Math.floor(100+Math.random()*900)); // 三位数
+    state.healthy.imm = 1; state.hm.imm = 1;
+    state.consolidating = true;
+    state.label = '信息进入即时记忆。健康人会逐步把它「刻」进长期记忆；H.M. 的长期通道被阻断，只能靠即时记忆硬撑。';
+  }
+  function distract(){
+    if(state.item===null){ state.label='先呈现一串数字，再试试分散注意。'; return; }
+    // 注意力转移：两人的即时记忆都清空；健康人此前已巩固的长期记忆保留，H.M. 一无所获
+    state.healthy.imm = 0; state.hm.imm = 0;
+    state.consolidating = false;
+    state.label = '注意力被引开。即时记忆里的内容瞬间蒸发——健康人靠已巩固的长期痕迹仍记得；H.M. 则彻底空白，仿佛从未见过这串数字。';
+  }
+  function reset(){
+    state.healthy={imm:0,ltm:0}; state.hm={imm:0,ltm:0};
+    state.item=null; state.consolidating=false;
+    state.label='已重置。点击「呈现一串数字」开始。';
+  }
+
+  function step(){
+    // 健康人：呈现期间长期记忆缓慢上升
+    if(state.consolidating){
+      state.healthy.ltm = Math.min(1, state.healthy.ltm + 0.012);
+      // H.M. 的长期记忆几乎不动（通道阻断）
+      state.hm.ltm = Math.min(0.04, state.hm.ltm + 0.0005);
+    }
+    draw();
+    anim = requestAnimationFrame(step);
+  }
+
+  function bar(x,y,w,maxH,val,color,labelTop){
+    var baseY=y+maxH;
+    ctx.fillStyle='#eef0f2'; roundRect(ctx,x,y,w,maxH,6); ctx.fill();
+    var hh=maxH*val;
+    ctx.fillStyle=color; roundRect(ctx,x,baseY-hh,w,Math.max(0,hh),6); ctx.fill();
+    ctx.fillStyle=INK; ctx.font='700 12px -apple-system,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(labelTop, x+w/2, y-8);
+  }
+  function panel(cx, title, who){
+    var topY=54;
+    ctx.fillStyle=INK; ctx.font='700 15px -apple-system,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(title, cx, 34);
+    bar(cx-92, topY, 60, 150, who.imm, '#7aa6c2', '即时记忆');
+    bar(cx+32, topY, 60, 150, who.ltm, who===state.hm?RED:'#2e7d32', '长期记忆');
+    ctx.fillStyle=MUT; ctx.font='11px -apple-system,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('即时', cx-62, topY+150+16);
+    ctx.fillText('长期', cx+62, topY+150+16);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // 当前数字
+    ctx.fillStyle = state.item? RED : '#c9ced4';
+    ctx.font='800 26px -apple-system,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(state.item? ('呈现的数字：'+state.item) : '（无）', canvas.width/2, 24);
+    panel(220, '健康人', state.healthy);
+    panel(640, 'H.M.（双侧海马切除）', state.hm);
+    // 中间分隔
+    ctx.strokeStyle=LINE; ctx.beginPath(); ctx.moveTo(430,40); ctx.lineTo(430,230); ctx.stroke();
+    caption.textContent = state.label;
+    ctx.textAlign='left';
+  }
+
+  function roundRect(ctx,x,y,w,h,r){
+    if(w<2*r) r=w/2; if(h<2*r) r=h/2;
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  document.getElementById('memPresent').addEventListener('click', present);
+  document.getElementById('memDistract').addEventListener('click', distract);
+  document.getElementById('memReset').addEventListener('click', reset);
+  draw();
+  step();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大规模记录神经元集群 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Neuronal Ensembles <span>×</span> 别再只听一件乐器，去录下整支乐队的合奏</h1>
+    <div class="meta">
+      <span>📄 Large-scale recording of neuronal ensembles</span><br>
+      <span>✍️ György Buzsáki</span><br>
+      <span>🏛️ 分子与行为神经科学中心，罗格斯大学（Rutgers, The State University of New Jersey）</span><br>
+      <span>📅 Nature Neuroscience · 第 7 卷第 5 期 · 446–451 页 · 2004 年 5 月（线上 4 月 27 日）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-orchestra">核心论点：乐队的隐喻</a></li>
+        <li><a href="#sec-physics">一根电极能"听见"多少神经元</a></li>
+        <li><a href="#sec-viz">交互：从单电极到阵列</a></li>
+        <li><a href="#sec-sorting">把声音分回各自的乐器（峰分类）</a></li>
+        <li><a href="#sec-identify">从波形到身份：谁是兴奋、谁是抑制</a></li>
+        <li><a href="#sec-assembly">细胞集群：合奏里自发涌现的旋律</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是一篇 2004 年的 Perspective（前瞻评论），却像一份"为什么我们必须同时记录成百上千个神经元"的纲领宣言，作者是把"脑节律 / 神经集群"思想推向主流的 György Buzsáki。它做了三件事：(1) 用一个极其好用的<strong>乐队隐喻</strong>把脑成像三大流派（场电位、能量代谢、单细胞）放进同一张地图，并指出每种方法各自"听不见"什么；(2) 给出一根电极在物理上到底能"听见"多大范围神经元的<strong>硬核数字</strong>（半径 140 µm 内约 1,000 个细胞），从而把"为什么单根电极不够"讲成几何问题；(3) 诚实地把整条技术链上的<strong>三个瓶颈</strong>（神经元–电极界面、峰分类、网络分析数学）一一摆开，并坦承当时的峰分类"没有客观标准、无法跨实验室比较"。今天的 Neuropixels 高密度探针、自动峰分类、神经假体，几乎都在沿着这篇文章画出的路线图前进——读它，等于读一份"大规模神经记录"领域的奠基地图。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">神经集群 / 细胞集群（Neuronal Ensemble / Cell Assembly）</div>
+          <div class="cdesc">一群"经常一起放电"的神经元，被认为是大脑处理信息的真正单元。类比：合唱团里固定一起进声部的那几个人——单独听某一个嗓子说明不了什么，他们的"协同"才是旋律。本文的核心主张是：认知可能就藏在这种协同里，而不是单个神经元里。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">动作电位 / 峰（Action Potential / Spike）</div>
+          <div class="cdesc">神经元放电时产生的瞬时电脉冲，是大脑的"基本货币"。类比：乐手拨动琴弦发出的那一下音。本文强调，一切间接观测（血流、场电位）最终都该"翻译回"峰序列这种共同语言来理解大脑。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">胞外记录（Extracellular Recording）</div>
+          <div class="cdesc">把一根绝缘金属丝的裸尖端放到神经元附近的组织里，"偷听"细胞放电在胞外造成的微小电压变化——不刺破细胞、可长期清醒记录。类比：把麦克风放在乐手身边而不是塞进他喉咙。代价是：尖端附近所有放电的细胞它都听得见，得事后再分开。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">锥体细胞 / 中间神经元（Pyramidal Cell / Interneuron）</div>
+          <div class="cdesc">皮层与海马里两大类神经元：锥体细胞多为兴奋性"主细胞"（约占记录到细胞的 80%），中间神经元多为抑制性"调度员"，一个就能管住一群锥体细胞。类比：乐队里大批弦乐手 vs 少数指挥/打击乐手——后者数量少但对全局节奏影响巨大。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">四极电极（Tetrode）</div>
+          <div class="cdesc">把四根记录丝捆在一起（尖端约 50 µm 散布）的电极。同一个峰在四个点上幅度不同，靠这"四个视角"做三角定位，从而把挨得很近、波形相似的细胞分开。类比：四个麦克风环绕舞台，靠每个麦克风听到的响度差，反推每件乐器的位置。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">硅探针（Silicon Probe）</div>
+          <div class="cdesc">用微加工（类似芯片制造）做出的多触点电极，体积更小、触点可沿很长一条线密集排布。本文提到八柄探针可记录上百个分得清的神经元、触点垂直间距 20 µm。类比：把几十个麦克风按精确坐标焊在一块"梳子"上插进乐池，既知道听到了谁，还知道他坐在哪。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">峰分类（Spike Sorting）</div>
+          <div class="cdesc">把胞外录到的一团混合放电，按波形/幅度特征聚类，归还给各自的"源神经元"。类比：从合奏录音里把小提琴、单簧管、双簧管的声音分轨。这是单细胞分析的第一步，也是本文反复点名的薄弱环节。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">三角定位 / 点源假设（Triangulation / Point-source Assumption）</div>
+          <div class="cdesc">一种峰分类思路：假设每个细胞的峰像从一个"点"发出，幅度随距离衰减，于是用多触点上的幅度比反推位置。类比：靠几个观察哨听到雷声响度差来定位闪电。本文指出这是简化——神经元整个膜都能产生动作电位，并非真的点源。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">单突触连接（Monosynaptic Connection）</div>
+          <div class="cdesc">两个神经元之间一步直达的突触联系。在毫秒级互相关图上，一个细胞放电后另一个紧跟着被"点燃"（兴奋）或"压住"（抑制），就能读出这条连线。类比：看监控录像里 A 一抬手 B 立刻应声，推断 A 直接指挥 B。本文用它把记录到的细胞分成兴奋/抑制两族。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">隔离距离（Isolation Distance）</div>
+          <div class="cdesc">衡量一个被分出来的神经元"分得有多干净"的客观指标，用马氏距离（Mahalanobis distance，一种考虑数据散布形状的"加权距离"）计算：值越大，说明这簇放电离别的簇越远、越可信。类比：给分轨质量打分——人声轨里混进了多少别的乐器。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-orchestra">核心论点：乐队的隐喻</div>
+
+      <p>整篇文章的"骨架"是一个贯穿始终的比喻：理解大脑，就像在不拆开任何乐器的前提下，去搞懂一支乐队是怎么奏出音乐的。Buzsáki 用它把当代认知–行为神经科学的几大工具排成一张地图，并尖锐地指出每种方法各自的盲区。</p>
+
+      <div class="info-block">
+        <span class="ib-title">三种"录乐队"的办法，对应三大流派</span>
+        <p><strong>办法一·只录总噪音</strong>：录下整支乐队发出的声压总和，但分不清是哪件乐器、哪位乐手。这对应<strong>脑电图（EEG，Electroencephalography）</strong>与<strong>脑磁图（MEG，Magnetoencephalography）</strong>——Buzsáki 称之为"时间整合的场"方法，能分析时间与频率，却几乎看不出"配器"。</p>
+        <p><strong>办法二·拍红外热像</strong>：在演奏某些段落时拍乐队的红外照片，亮点标出此刻哪片区域最活跃。这对应<strong>功能性磁共振成像（fMRI，functional Magnetic Resonance Imaging）</strong>与<strong>正电子发射断层成像（PET，Positron Emission Tomography）</strong>——它测的是肌肉活动产生的热（能量代谢），但抓不住音乐的本质：随时间展开的动态。</p>
+        <p><strong>办法三·听单件乐器，跨场次拼</strong>：每次只盯一件乐器测它的声压，越过阈值就给观察者发一个脉冲（对应一个动作电位 / 峰）。在许多场演出里逐件乐器分别听，再把数据汇总，仿佛它们是同时录的——这就是经典的<strong>"单细胞"方法</strong>。它在系统神经科学里立下大功。</p>
+      </div>
+
+      <p>但 Buzsáki 紧接着点破第三种办法的两个致命软肋——这正是全文要解决的问题：</p>
+      <ul>
+        <li><strong>它假定旋律是固定的。</strong>把不同场次的单乐器录音拼起来能还原乐谱，<em>前提是</em>每次演的是同一首、各乐手照谱演奏。这对"不变的旋律"（如对刺激稳定的反应）成立。</li>
+        <li><strong>它在"爵士即兴"面前失效。</strong>当旋律是乐手之间<em>临场互动</em>当场即兴出来的、每场都不同时（这正是<strong>中枢回路</strong>里多个神经集群在多个时空尺度上协同的样子），逐件拼录就抓不住了——因为关键信息恰恰在"谁此刻在配合谁"这种<strong>变量（脑生成的特征）</strong>里，而不在任何单件乐器里。</li>
+      </ul>
+
+      <p>由此引出全文的中心命题：脑对外界的"加工/解读"——也就是<span class="term">认知</span>——很可能是皮层神经元<strong>自组织</strong>出来的协同活动；放电的变异性（spike variability）不是要被平均掉的噪声，而可能正是这种中枢协同的<em>信号</em>。要在这两种相互竞争的框架（"变异=噪声" vs "变异=认知之源"）之间做裁决，唯一的办法是：<strong>同时录下大量乐手的合奏</strong>——即大规模神经集群记录。</p>
+
+      <div class="section-head" id="sec-physics">一根电极能"听见"多少神经元</div>
+
+      <p>论点立住后，文章转入硬核物理：一根电极在组织里到底能"偷听"多大范围？这决定了"为什么单根电极远远不够"。锥体细胞放电时，胞体附近会产生很大的跨膜电位，向外形成可被裸尖端探测的电压差。问题是——尖端附近<em>所有</em>在放电的细胞，它都听得见，而且同一类细胞的动作电位长得几乎一样（"所有第一小提琴拉出来都一个味"）。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：电极的"听力半径"（基于 Fig 1，数据源自同一锥体细胞的胞内+胞外同步记录）</span>
+        <p>一根电极能"听见"海马 CA1 区锥体细胞放电，最远可达约 <strong>140 µm</strong>（胞体侧向距离）；但胞外峰幅度随距离<em>迅速</em>衰减。</p>
+        <p>• 半径 <strong>50 µm</strong> 的"灰色圆柱"内（峰幅度 &gt; 60 µV）约含 <strong>100 个</strong>神经元——足够大、可被现有聚类方法分开。<br>
+        • 半径 <strong>140 µm</strong> 的圆柱内，在大鼠皮层约含 <strong>1,000–1,100 个</strong>神经元——这是单根电极<em>理论上</em>能记录的细胞数。</p>
+        <p>但<strong>实践中只有一小部分</strong>能被可靠分离。其余的要么离尖端太远、幅度太小，要么被钝头电极的机械损伤弄"哑"了，要么挤在一起分不开。理论可录数与实际可录数之间，存在一道巨大的鸿沟。</p>
+      </div>
+
+      <p>这就解释了为什么"加电极"是绕不开的。如果只有一个记录点，距离相同的两个细胞产生的峰幅度一样大，根本没法区分；想确认录到的是<em>另一个</em>新细胞，要么把尖端挪到距它胞体 <strong>&lt; 20 µm</strong>（皮层里）的位置，要么干脆<strong>再加一根电极</strong>。多个记录点之所以管用，是因为<strong>同一个峰在不同触点上的幅度不同</strong>，幅度比给出了到细胞的距离差，于是可以在三维空间里做三角定位。</p>
+
+      <p>这正是<span class="term">四极电极</span>（四根丝、约 50 µm 散布）的原理；而<span class="term">硅探针</span>把这一思路推到极致：用微加工把许多触点按精确坐标排在一条长线上，八柄探针就能录到<strong>上百个</strong>分得清的神经元。文章特别强调一个常被忽视的红利——因为触点的几何坐标是<em>已知</em>的（垂直间距 20 µm，柄间距 ≥ 200 µm 时记录的是<em>不同</em>细胞群），你不仅知道"录到了谁"，还能反推"他坐在哪"，从而研究神经集群的<strong>空间组织</strong>。代价则是：触点越多、连线越宽，对"硬接线"般精密的神经组织损伤越大——这是一对天生矛盾的需求（要尽量小以减少损伤，又要尽量多触点以监测更多细胞）。</p>
+
+      <div class="section-head" id="sec-viz">交互：从单电极到阵列，集群是如何"显形"的</div>
+
+      <div class="viz-box">
+        <div class="viz-title">🎛️ 一根麦克风 → 一片麦克风阵列：神经元如何被"听见"并分开</div>
+        <div class="viz-note">模拟示意，几何与衰减关系基于论文报告的定性模式（听力半径 ~140 µm、可分离半径 ~50 µm、触点垂直间距 20 µm），非论文原始数据。左：组织切面俯视，圆点=神经元，越靠近探针的越易被听见。右：随你增加触点，能<em>可靠分离</em>的神经元数量、以及"集群协同模式"能否显形，会随之变化。</div>
+
+        <div class="viz-controls">
+          <button id="vz-mode-single" class="">单触点电极</button>
+          <button id="vz-mode-tetrode" class="alt">四极电极</button>
+          <button id="vz-mode-probe" class="alt">硅探针阵列</button>
+          <span style="width:14px;"></span>
+          <label>探测半径 r = <span id="vz-rlabel">140</span> µm</label>
+          <input type="range" id="vz-radius" min="50" max="180" value="140" style="width:150px;">
+          <span style="width:14px;"></span>
+          <button id="vz-play" class="alt">▶ 播放一次"合奏"</button>
+        </div>
+
+        <canvas id="vz-canvas" width="980" height="430"></canvas>
+
+        <div class="viz-note" id="vz-readout" style="margin-top:14px;font-size:0.9rem;color:var(--ink-soft);"></div>
+      </div>
+
+      <p>把玩这个组件，你能直觉地体会三件本文的核心事实：(1) <strong>探测半径越大，圈进来的神经元越多，但"听得清"的只是最近的一小撮</strong>——这正是 140 µm 内 ~1,000 个细胞却只能分离一小部分的鸿沟；(2) <strong>从单触点到四极再到阵列，可<em>可靠分离</em>的神经元数量阶梯式上升</strong>；(3) 点"播放合奏"——只有当被分离的神经元足够多时，右侧的"集群协同模式"（哪几个细胞反复一起亮）才会从一团随机放电里<strong>显形</strong>；触点太少时，你看到的只是零散的火花，根本读不出旋律。这就是"为什么单根电极看不见集群编码"的可视化答案。</p>
+
+      <div class="section-head" id="sec-sorting">把声音分回各自的乐器（峰分类）</div>
+
+      <p>录到一团混合放电之后，下一步是<span class="term">峰分类</span>：把每个峰归还给它的源神经元。Buzsáki 把现有方法归为两大类：</p>
+      <ul>
+        <li><strong>波形/幅度聚类</strong>：假设相邻神经元产生<em>不变的</em>峰特征，于是按波形形状和幅度把放电聚成簇。文章指出这个假设"在多数情况下难以成立"。</li>
+        <li><strong>三角定位（点源假设）</strong>：假设峰从一个点源发出、幅度随距离衰减，用多触点幅度比反推位置。文章直言这是简化——神经元<em>整个</em>膜都能产生动作电位，并非点源；而且动作电位沿树突的"回传"幅度，还会随兴奋/抑制输入而变。</li>
+      </ul>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：峰幅度会"自己变"，这是分类出错的头号元凶（Fig 4）</span>
+        <p>同一个被分得很干净的 CA1 锥体细胞，幅度并不恒定：<br>
+        • 当它发出<strong>复杂峰簇（complex spike burst）</strong>时，因钠通道失活（Na⁺ channel inactivation），胞外峰幅度可骤降<strong>多达 80%</strong>；<br>
+        • 当动物反复进入该细胞的<strong>位置野（place field）</strong>、它高频放电时，幅度可减小<strong>≥ 50%</strong>。</p>
+        <p>后果：同一个神经元在不同行为状态下"换了张脸"，聚类算法可能把它误判成两个细胞（虚报/commission error），或漏掉（漏报/omission error）。所以好的峰分类不能只看幅度，还得分析波形<em>形状</em>的变化。在灵长类脑里更糟——动作电位可在距大锥体胞体几百微米外被录到，单电极根本分不清是 4 层的胞体还是更深层细胞的树突。</p>
+      </div>
+
+      <p>更要命的是一个方法论上的硬伤：当时<strong>没有独立的"标准答案"</strong>来评估漏报与虚报。也就是说，峰分类质量的好坏"不由客观度量引导"，跨实验室无法比较，结果解读充满争议。文章提到的破局点是引用 19——通过对<em>同一个</em>锥体细胞同时做胞内+胞外记录（胞内记录知道"真值"），建立起一套带标准答案的数据库，并据此开发出更优的半自动聚类算法，还能反过来给峰分类的错误率打分（这就是<span class="term">隔离距离</span>这类指标的来源）。</p>
+
+      <div class="section-head" id="sec-identify">从波形到身份：谁是兴奋、谁是抑制</div>
+
+      <p>分出"几个细胞"还不够，神经科学真正想知道的是这些细胞<strong>属于哪一类</strong>（兴奋还是抑制、哪种中间神经元）。Buzsáki 指出一个悖论：当前实践很少区分细胞类型，单元类别往往是<em>事后（post hoc）</em>按它与行为的关系定的，而不参照"是什么神经元生成了它"。他举了个犀利的例子：一个实验若报告"所有皮层锥体细胞做了一件事、所有中间神经元做了另一件事"，远比只说"<strong>80%</strong>（未分类的）细胞和其余的行为不同"<em>定性上</em>更有信息量——但后者正是不区分类型时你能得到的全部。</p>
+
+      <div class="info-block">
+        <span class="ib-title">大规模记录如何帮忙分类</span>
+        <p>当你同时录到很多细胞，就有机会用<strong>单突触连接</strong>来给细胞"验明正身"：只有一小部分细胞对，会在<strong>毫秒级互相关图</strong>上表现出稳健的短时程相关——A 放电后 B 短延迟内被兴奋，说明 A 是兴奋性；B 被压制，说明 A 是抑制性。被这样"抓现行"识别出身份的少数细胞，可反过来当作<strong>模板</strong>，去归类其余的细胞。本文把"在兴奋族与抑制族<em>内部</em>继续细分"列为下一个关键步骤，需要胞内/胞外旁细胞标记、分子生物学工具等多种手段配合。</p>
+      </div>
+
+      <p>这里还藏着大规模、高密度记录的另一个红利：因为触点几何已知，可以算出整群细胞的<strong>功能拓扑</strong>（哪个兴奋谁、哪个抑制谁、各自坐在哪），从而研究输入是如何被神经集群"加工/变换"的。文章顺带提出一个有意思的折中——与其奢望同时监测一个神经元在所有树突和棘上的<em>全部</em>输入（没有方法做得到），不如同时录下它的一群<em>突触前</em>细胞集群的放电（即"看它的输入端有谁在叫"），来近似它接收到了什么。</p>
+
+      <div class="section-head" id="sec-assembly">细胞集群：合奏里自发涌现的旋律</div>
+
+      <p>全文的高潮，是说明大规模记录揭示了纯单细胞记录<em>原则上看不到</em>的东西——<span class="term">细胞集群</span>的协同动力学。Buzsáki 给出一个掷地有声的论断：</p>
+
+      <blockquote>
+        <p>无论多长的、逐个神经元串起来的单细胞记录，都无法揭示神经元的协同信息（cooperative information）。</p>
+        <p>正如在音乐里，时间上的"音序"才承载信息——大规模记录让你能追踪复杂的放电模式，判断它是否会因经验而被改写。</p>
+      </blockquote>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：自发"重放"的集群（Fig 5）</span>
+        <p>海马锥体细胞在清醒探索时形成的<strong>放电序列</strong>（如 0→1→2→3 号细胞依次放电），会在随后的<strong>睡眠</strong>中自发<em>复现</em>，而且是<strong>时间压缩</strong>的版本（睡眠中的序列比清醒时跑得快）。</p>
+        <p>关键证据：集群成员的放电时序<strong>与环境输入的相关性很差</strong>，反而能由"同时活跃的其它神经元"预测出来——这说明这些模式是<strong>内部驱动、自组织</strong>的，不是外界刺激牵着走的。集群的"寿命"还与<strong>γ 振荡（gamma oscillation，约 30–100 Hz 的快节律）</strong>的周期相匹配。这种内生的协同，可能正是认知现象的物质基础。</p>
+      </div>
+
+      <p>文章给"细胞集群"下了一个可检验的<strong>操作定义</strong>：一个集群的成员，即便在<em>没有</em>外部输入时，也表现出比与"非成员"更高的<strong>共同放电概率</strong>。验证这个由 Hebb 提出、悬置半个多世纪的老假说，恰恰<em>必须</em>同时记录一大池局部神经元 + 配套的新数学工具——这就把全文的两条线（为什么要大规模记录 / 怎么做）收束到了一起：<strong>集群编码不是单电极的分辨率问题，而是单电极在原理上就够不着的维度。</strong></p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+
+      <p>这是一篇方法论前瞻，它的"精妙"不在某个实验，而在把一条复杂技术链拆解清楚、并诚实标出每段的瓶颈。下表整理其关键技术抉择与权衡：</p>
+
+      <table>
+        <thead>
+          <tr><th>环节</th><th>关键做法 / 数字</th><th>解决了什么 · 代价是什么</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>多触点几何</td>
+            <td>四极电极 ~50 µm 散布；硅探针触点垂直间距 20 µm、柄间距 ≥200 µm</td>
+            <td>靠"同一峰在多触点上幅度不同"做三角定位，分开邻近相似细胞；并因坐标已知而能重建空间拓扑。代价：触点越多、连线越宽，组织损伤越大。</td>
+          </tr>
+          <tr>
+            <td>微加工（MEMS，Micro-Electro-Mechanical System，微机电系统）</td>
+            <td>硅探针 + 2 µm 宽连线（2 µm 间距）；未来 0.18 µm 线宽可期</td>
+            <td>同样的组织位移下大幅增加监测点数；体积比四极小很多。代价：连线宽度是增加触点数的主要限制。</td>
+          </tr>
+          <tr>
+            <td>峰分类</td>
+            <td>两类：波形/幅度聚类 vs 三角定位（点源假设）；幅度可因复杂峰簇降 80%、位置野降 ≥50%</td>
+            <td>把混合放电分回源神经元。代价：两类方法的核心假设都被作者点名为"简化/难成立"，幅度自变是头号错误来源。</td>
+          </tr>
+          <tr>
+            <td>质量度量</td>
+            <td>用马氏距离算"隔离距离"；引用 19 用胞内+胞外同步记录建标准答案</td>
+            <td>第一次让"分得干不干净"有了客观分数、可跨实验室比较。代价：在新皮层等区域，定量标准当时仍不可得。</td>
+          </tr>
+          <tr>
+            <td>细胞身份识别</td>
+            <td>毫秒级互相关图找单突触连接 → 标记兴奋/抑制族 → 当模板归类其余细胞</td>
+            <td>把"几个细胞"升级为"哪类细胞"。代价：只有一小部分细胞对能被直接抓到连接，族内细分还需多种标记手段。</td>
+          </tr>
+          <tr>
+            <td>集群分析</td>
+            <td>统计代表性采样 + 新数学；睡眠中时间压缩重放、与外输入相关性低</td>
+            <td>揭示单细胞原理上看不到的协同/内生序列。代价：需要"数据挖掘"级的工具与多实验室协作。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+
+      <p><strong>站在群体编码的肩膀上。</strong>文章呼应了一条系统神经科学传统：Georgopoulos 的"群体向量"、Wilson &amp; McNaughton 对海马位置编码的群体研究，都已表明"多个神经元一起"能读出单个神经元读不出的量（如运动方向、空间位置）。Buzsáki 的推进在于：把这件事从"多录几个会更准"上升为"协同本身就是被编码的信息，且是内生的"。</p>
+
+      <p><strong>与 Hebb 的隔空对话。</strong>"细胞集群"概念直接来自 Donald Hebb 1949 年《行为的组织》。本文的贡献是给这个半个多世纪的思辨假说配上了可检验的操作定义和实验路径（大规模并行记录 + 重放分析）。</p>
+
+      <p><strong>与同期假体研究并肩。</strong>文章多次把读者指向同一期 Chapin（452–455 页）关于"运动行为与假体机器协同"的综述，说明大规模记录当时正同时朝"理解大脑"与"驱动神经假体"两个方向爆发。</p>
+
+      <p><strong>对单细胞范式的再定位（而非否定）。</strong>Buzsáki 明确承认单细胞方法"在系统神经科学里取得了重大进展"，它对"不变特征"依然有效；他要否定的只是把它当作<em>唯一</em>钥匙、以及把放电变异一律当噪声平均掉的旧习惯。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+
+      <ul>
+        <li><strong>对神经假体与脑机接口（BMI，Brain–Machine Interface）。</strong>"能同时、可靠地分离大量单神经元"正是高带宽假体的前提。文章设想的片上放大、时分复用（time-division multiplexing）、可编程微刺激，几乎就是后来高密度探针与闭环刺激系统的设计说明书。</li>
+        <li><strong>对机器学习与信号处理。</strong>峰分类本质是"高维聚类 + 无监督标注 + 缺乏真值"的难题——和今天许多弱监督/自监督场景同构。"先用胞内记录造一小批标准答案、再训练自动分类器"的思路，正是当代用少量金标准引导大规模无标注数据的范式。</li>
+        <li><strong>对"涌现"与复杂系统科学。</strong>"成员在没有外部输入时仍更高概率共同放电"是一个干净的涌现/自组织判据，可迁移到任何"想区分外驱与内生协同"的系统（社交网络、经济、生态）。</li>
+        <li><strong>对开放科学。</strong>文章末尾直言：大规模数据集的分析是"数据挖掘"级任务，可能需要多个实验室协作，<strong>共享与汇集数据库是进步的必经之路</strong>——这在 2004 年是相当前瞻的开放数据主张。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+
+      <p>作为一篇前瞻评论，本文的"局限"既包括它<em>自己点名</em>的技术瓶颈，也包括一些它没明说、但值得读者警惕的地方：</p>
+      <ul>
+        <li><strong>它自己承认的三大瓶颈。</strong>进展取决于三件事的发展：神经元–电极界面、峰分类/识别、以及分析解读用的数学工具——而当时三者都未成熟，尤其峰分类"耗时、主观、无客观标准"。</li>
+        <li><strong>采样偏倚被一笔带过。</strong>电极优先听见离得近、个头大、放电频繁的细胞（如锥体胞体），而沉默细胞、远处细胞、小中间神经元系统性地被低估。文章承认理论可录数远大于实际可录数，但对"我们看到的集群是否就是有偏样本"着墨不多——这会直接影响对"集群编码"的结论。</li>
+        <li><strong>损伤–产量的根本矛盾无解。</strong>触点越多越伤组织，越伤组织被记录的细胞越可能"哑"或死。文章寄望于微加工把连线做细，但这只是缓解而非消除这对物理矛盾。</li>
+        <li><strong>"协同=认知"仍是主张而非定论。</strong>"放电变异是认知之源"是本文的核心立场，但它本质上仍是一个<em>有待大规模记录去检验</em>的假说；文章呈现的重放等证据强烈支持"内生协同存在"，却尚未证明这些协同<em>就是</em>认知本身。这点需读者自行把握分寸（此为解读者观点）。</li>
+        <li><strong>"读得出连线"不等于"读得出因果回路"。</strong>互相关图能标出单突触连接，但要从一堆两两连线拼出真正的<em>计算回路</em>、并确证某模式驱动了行为，文章只指出方向，未给出方法（此为解读者观点）。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+
+      <p><strong>这是一篇"地图级"的奠基前瞻，而非数据论文，应按其定位评价。</strong>它的价值不在新数据（图表多引自作者团队既有工作），而在把"为什么 + 如何"大规模记录这件事讲成了一张清晰、诚实、可执行的路线图——下游近二十年的技术演进（高密度硅探针、自动峰分类、神经假体、共享数据库）大体沿着它画的线推进，这是它分量的最好证明（依据：文中三大瓶颈、片上放大/多路复用/微刺激等设想，与后续主流发展方向一致）。</p>
+
+      <p><strong>论证最强处：把抽象立场落到硬几何与硬数字上。</strong>"为什么单电极不够"不是空谈，而是被算成"140 µm 内 ~1,000 个细胞、只能分离一小撮"的几何鸿沟；"为什么峰分类不可靠"被钉在"复杂峰簇降幅 80%、位置野降幅 ≥50%、且无独立真值"这些具体事实上。这种"把哲学命题翻译成可测量瓶颈"的写法，是全文最有说服力的地方（依据：Fig 1、Fig 4 及正文相应数字）。</p>
+
+      <p><strong>论证最弱处 / 需谨慎处：从"协同存在"到"协同即认知"的跨度。</strong>本文用睡眠重放、与外输入低相关等证据极有力地论证了"内生协同模式真实存在"，但"这些模式构成认知"更多是富有感染力的<em>立场陈述</em>而非已证结论；同时全文对采样偏倚的处理偏轻。读者应把它当作一份<em>方向性极强、待检验的纲领</em>来接受，而非已盖棺的结论（此为解读者观点，依据见"边界和未解问题"）。</p>
+
+      <p><strong>可读性与影响力：罕见地高。</strong>乐队隐喻把一个技术性极强的主题讲得连外行都能跟上，且每个比喻都精确对应一种真实方法的盲区——这是一篇会被反复引用、也值得反复重读的范文。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Buzsáki 用"别再逐件乐器拼录、去录整支乐队合奏"的隐喻立论：认知很可能是皮层神经元<strong>自组织</strong>出的协同活动，放电变异是信号而非噪声，要验证它就<em>必须</em>同时记录大量单神经元——而一根电极虽在半径 <strong>140 µm</strong> 内理论上能"听见"约 <strong>1,000</strong> 个细胞却只分离得清一小撮，于是文章把希望寄托于多触点硅探针、更好的峰分类（彼时还会因复杂峰簇/位置野使幅度降 <strong>50–80%</strong> 且缺乏客观真值），并坦言突破取决于<strong>电极界面、峰分类、分析数学</strong>三大瓶颈——这张 2004 年画下的路线图，至今仍是大规模神经记录领域的奠基地图。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Buzsáki, G. (2004). Large-scale recording of neuronal ensembles. <em>Nature Neuroscience, 7</em>(5), 446–451. doi:10.1038/nn1233<br>
+    <strong>说明：</strong>本文为基于原文的中文深度解读，供学习参考；交互组件为示意性模拟（几何与衰减关系基于论文报告的定性模式），非论文原始数据。文中"解读者观点"已就地标注。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('vz-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 逻辑像素自适应（HiDPI）
+  function fitDPR(){
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = '100%';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  fitDPR();
+
+  var RED = '#c0392b';
+  var mode = 'single';          // single | tetrode | probe
+  var radius = 140;             // 探测半径 µm
+  var SCALE = 1.4;              // µm -> px（左侧画布内）
+
+  // 左侧区域中心（探针所在）
+  var Lcx = 220, Lcy = H/2;
+  // 右侧"集群协同"面板
+  var Rx = 470, Rw = W - Rx - 20;
+
+  // 生成一群神经元（固定布局，便于对比）
+  var neurons = [];
+  (function genNeurons(){
+    var rng = 12345;
+    function rnd(){ rng = (rng*1103515245 + 12345) & 0x7fffffff; return rng/0x7fffffff; }
+    for(var i=0;i<140;i++){
+      var ang = rnd()*Math.PI*2;
+      var dist = Math.sqrt(rnd())*180;          // µm，均匀面密度
+      neurons.push({
+        ux: Math.cos(ang)*dist,                  // 相对探针，µm
+        uy: Math.sin(ang)*dist,
+        d: dist,
+        pyr: rnd() > 0.2,                         // 80% 锥体
+        baseRate: 0.2 + rnd()*0.8,
+        assembly: -1
+      });
+    }
+    // 指定两个"集群"：成员经常一起放电
+    var memberIdx = neurons.map(function(n,i){return {i:i,d:n.d};}).sort(function(a,b){return a.d-b.d;});
+    for(var k=0;k<6;k++) neurons[memberIdx[k].i].assembly = 0;       // 集群A：最近的6个
+    for(var k2=6;k2<11;k2++) neurons[memberIdx[k2].i].assembly = 1;  // 集群B：次近5个
+  })();
+
+  // 触点位置（相对探针中心，µm）
+  function sites(){
+    if(mode==='single') return [{x:0,y:0}];
+    if(mode==='tetrode'){
+      return [{x:-18,y:-18},{x:18,y:-18},{x:-18,y:18},{x:18,y:18}];
+    }
+    // probe: 两柄，每柄垂直排布触点（间距20µm），柄间距~120µm（图示压缩）
+    var s = [];
+    for(var sh=0; sh<2; sh++){
+      var sx = sh===0 ? -55 : 55;
+      for(var r=0;r<8;r++){ s.push({x:sx, y:(r-3.5)*20}); }
+    }
+    return s;
+  }
+
+  // 一个神经元能否被"可靠分离"：取决于到最近触点的距离 + 触点数(多视角)
+  function isolable(n){
+    var ss = sites();
+    var dmin = 1e9;
+    for(var i=0;i<ss.length;i++){
+      var dx = n.ux - ss[i].x, dy = n.uy - ss[i].y;
+      var dd = Math.sqrt(dx*dx+dy*dy);
+      if(dd<dmin) dmin = dd;
+    }
+    if(dmin > radius) return false;                 // 听不见
+    // 可分离的有效半径：单触点最小，触点越多越大
+    var sepR = mode==='single' ? 30 : (mode==='tetrode' ? 55 : 75);
+    return dmin <= sepR;
+  }
+
+  function heard(n){
+    var ss = sites();
+    var dmin = 1e9;
+    for(var i=0;i<ss.length;i++){
+      var dx = n.ux - ss[i].x, dy = n.uy - ss[i].y;
+      var dd = Math.sqrt(dx*dx+dy*dy);
+      if(dd<dmin) dmin = dd;
+    }
+    return dmin <= radius;
+  }
+
+  // 播放状态
+  var playing = false, playT = 0, raster = [];   // raster[neuronLocalIdx] = [times...]
+  var isolatedList = [];
+
+  function recompute(){
+    isolatedList = [];
+    for(var i=0;i<neurons.length;i++){ if(isolable(neurons[i])) isolatedList.push(i); }
+  }
+
+  function drawDish(){
+    // 左侧：组织切面
+    ctx.save();
+    // 探测半径圈
+    ctx.beginPath();
+    ctx.arc(Lcx, Lcy, radius*SCALE, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(192,57,43,0.05)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(192,57,43,0.35)';
+    ctx.setLineDash([5,4]);
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // 50µm 可分离参考圈
+    ctx.beginPath();
+    ctx.arc(Lcx, Lcy, 50*SCALE, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(192,57,43,0.18)';
+    ctx.stroke();
+
+    // 神经元
+    for(var i=0;i<neurons.length;i++){
+      var n = neurons[i];
+      var px = Lcx + n.ux*SCALE, py = Lcy + n.uy*SCALE;
+      var iso = isolable(n), hr = heard(n);
+      ctx.beginPath();
+      var rad = n.pyr ? 4 : 3.2;
+      ctx.arc(px, py, rad, 0, Math.PI*2);
+      if(iso){
+        ctx.fillStyle = n.assembly>=0 ? (n.assembly===0 ? '#c0392b' : '#e07a3c') : '#2e7d8c';
+        ctx.globalAlpha = 1;
+      } else if(hr){
+        ctx.fillStyle = '#9aa1ab';
+        ctx.globalAlpha = 0.6;
+      } else {
+        ctx.fillStyle = '#cfd4da';
+        ctx.globalAlpha = 0.4;
+      }
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // 触点
+    var ss = sites();
+    for(var k=0;k<ss.length;k++){
+      var sx = Lcx + ss[k].x*SCALE, sy = Lcy + ss[k].y*SCALE;
+      ctx.beginPath();
+      ctx.rect(sx-3, sy-3, 6, 6);
+      ctx.fillStyle = '#1f2328';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // 标尺
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '11px -apple-system,sans-serif';
+    var barLen = 50*SCALE;
+    var bx = 40, by = H-26;
+    ctx.strokeStyle = '#6b7280';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(bx, by); ctx.lineTo(bx+barLen, by);
+    ctx.moveTo(bx,by-3); ctx.lineTo(bx,by+3);
+    ctx.moveTo(bx+barLen,by-3); ctx.lineTo(bx+barLen,by+3);
+    ctx.stroke();
+    ctx.fillText('50 µm', bx+barLen+6, by+4);
+
+    // 左侧标题
+    ctx.fillStyle = '#1f2328';
+    ctx.font = '600 13px -apple-system,sans-serif';
+    ctx.fillText('组织切面（俯视）', 20, 22);
+    ctx.restore();
+  }
+
+  function drawRaster(){
+    // 右侧：把"可分离神经元"的放电画成 raster，集群成员高亮
+    ctx.save();
+    // 面板背景
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(Rx, 34, Rw, H-70);
+    ctx.strokeStyle = '#e6e8eb';
+    ctx.strokeRect(Rx, 34, Rw, H-70);
+
+    ctx.fillStyle = '#1f2328';
+    ctx.font = '600 13px -apple-system,sans-serif';
+    ctx.fillText('被分离神经元的放电（→ 时间）', Rx, 22);
+
+    var list = isolatedList;
+    var n = list.length;
+    if(n===0){
+      ctx.fillStyle = '#9aa1ab';
+      ctx.font = '12px -apple-system,sans-serif';
+      ctx.fillText('当前触点配置下，几乎分不出可靠的单神经元——', Rx+14, 80);
+      ctx.fillText('集群协同无从显形。', Rx+14, 100);
+      ctx.restore();
+      return;
+    }
+    var top = 50, bot = H-44;
+    var rowH = Math.min(22, (bot-top)/Math.max(n,1));
+    var trackLeft = Rx + 14, trackRight = Rx + Rw - 14;
+    var trackW = trackRight - trackLeft;
+
+    for(var r=0;r<n;r++){
+      var ni = list[r];
+      var nd = neurons[ni];
+      var y = top + r*rowH + rowH*0.5;
+      // 行底色（集群成员高亮）
+      if(nd.assembly>=0){
+        ctx.fillStyle = nd.assembly===0 ? 'rgba(192,57,43,0.10)' : 'rgba(224,122,60,0.10)';
+        ctx.fillRect(trackLeft-4, y-rowH*0.45, trackW+8, rowH*0.9);
+      }
+      // 放电竖线
+      var times = raster[ni] || [];
+      ctx.strokeStyle = nd.assembly===0 ? '#c0392b' : (nd.assembly===1 ? '#e07a3c' : '#7a8691');
+      ctx.lineWidth = nd.assembly>=0 ? 1.8 : 1.1;
+      for(var t=0;t<times.length;t++){
+        var x = trackLeft + times[t]*trackW;
+        ctx.beginPath();
+        ctx.moveTo(x, y-rowH*0.35);
+        ctx.lineTo(x, y+rowH*0.35);
+        ctx.stroke();
+      }
+    }
+
+    // 播放头
+    if(playing || playT>0){
+      var hx = trackLeft + Math.min(playT,1)*trackW;
+      ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hx, top); ctx.lineTo(hx, bot);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function render(){
+    ctx.clearRect(0,0,W,H);
+    drawDish();
+    drawRaster();
+    updateReadout();
+  }
+
+  function updateReadout(){
+    var heardN = 0;
+    for(var i=0;i<neurons.length;i++){ if(heard(neurons[i])) heardN++; }
+    var iso = isolatedList.length;
+    var modeName = mode==='single' ? '单触点电极' : (mode==='tetrode' ? '四极电极' : '硅探针阵列（2 柄 × 8 触点）');
+    var el = document.getElementById('vz-readout');
+    var assemblyVisible = 0;
+    for(var k=0;k<isolatedList.length;k++){ if(neurons[isolatedList[k]].assembly>=0) assemblyVisible++; }
+    var msg = '配置：<strong>'+modeName+'</strong> · 探测半径 '+radius+' µm。';
+    msg += ' 圈内"听得见"约 <strong>'+heardN+'</strong> 个神经元，但能<strong>可靠分离</strong>的只有 <strong>'+iso+'</strong> 个';
+    msg += '（蓝=普通细胞，红/橙=两个细胞集群的成员）。';
+    if(assemblyVisible>=4){
+      msg += ' 此时集群成员够多，右侧可见红/橙行<strong>反复一起放电</strong>的协同模式——这是单触点看不到的旋律。';
+    } else if(iso>0){
+      msg += ' 集群成员被分离得太少，右侧只见零散火花，<strong>读不出集群编码</strong>。';
+    }
+    if(el) el.innerHTML = msg;
+  }
+
+  // 生成一次"合奏"放电序列：集群成员在若干"事件"时刻同步放电
+  function genRaster(){
+    raster = [];
+    var events0 = [0.12,0.34,0.55,0.78,0.92];   // 集群A同步事件
+    var events1 = [0.20,0.46,0.68,0.85];        // 集群B同步事件
+    for(var i=0;i<neurons.length;i++){
+      var nd = neurons[i];
+      var times = [];
+      // 背景随机放电
+      var rate = 6 + nd.baseRate*8;
+      for(var s=0;s<rate;s++){ times.push(Math.random()); }
+      // 集群同步
+      if(nd.assembly===0){
+        for(var e=0;e<events0.length;e++){ times.push(events0[e] + (Math.random()-0.5)*0.02); }
+      } else if(nd.assembly===1){
+        for(var e2=0;e2<events1.length;e2++){ times.push(events1[e2] + (Math.random()-0.5)*0.02); }
+      }
+      raster[i] = times.filter(function(t){return t>=0 && t<=1;}).sort(function(a,b){return a-b;});
+    }
+  }
+
+  var animId = null;
+  function playOnce(){
+    genRaster();
+    playing = true; playT = 0;
+    if(animId) cancelAnimationFrame(animId);
+    var t0 = null;
+    function step(ts){
+      if(t0===null) t0 = ts;
+      playT = (ts - t0)/2200;   // 2.2s 走完
+      if(playT >= 1){ playT = 1; playing = false; render(); animId=null; return; }
+      render();
+      animId = requestAnimationFrame(step);
+    }
+    animId = requestAnimationFrame(step);
+  }
+
+  // 控件
+  function setMode(m){
+    mode = m;
+    document.getElementById('vz-mode-single').className = (m==='single')?'':'alt';
+    document.getElementById('vz-mode-tetrode').className = (m==='tetrode')?'':'alt';
+    document.getElementById('vz-mode-probe').className = (m==='probe')?'':'alt';
+    recompute();
+    if(raster.length===0) genRaster();
+    render();
+  }
+  document.getElementById('vz-mode-single').addEventListener('click', function(){setMode('single');});
+  document.getElementById('vz-mode-tetrode').addEventListener('click', function(){setMode('tetrode');});
+  document.getElementById('vz-mode-probe').addEventListener('click', function(){setMode('probe');});
+
+  document.getElementById('vz-radius').addEventListener('input', function(e){
+    radius = parseInt(e.target.value,10);
+    document.getElementById('vz-rlabel').textContent = radius;
+    recompute();
+    render();
+  });
+  document.getElementById('vz-play').addEventListener('click', playOnce);
+
+  // 初始化
+  recompute();
+  genRaster();
+  setMode('single');
+  render();
+})();
+</script>
+</body>
+</html>

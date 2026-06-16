@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>预测编码 · 深度解读 — Rao & Ballard 1999</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Predictive Coding <span>×</span> 大脑只把「没猜中的部分」往上传</h1>
+    <div class="meta">
+      <span>📄 Predictive coding in the visual cortex: a functional interpretation of some extra-classical receptive-field effects</span><br>
+      <span>✍️ Rajesh P. N. Rao &amp; Dana H. Ballard</span><br>
+      <span>🏛️ Salk Institute（索尔克研究所）· University of Rochester（罗切斯特大学计算机系）</span><br>
+      <span>📅 Nature Neuroscience（《自然·神经科学》）· 1999 年 1 月 · 卷 2 第 1 期 · pp. 79–87</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-puzzle">谜题：神经元为什么会「半途熄火」</a></li>
+        <li><a href="#sec-model">核心发现 1：一个会自己造预测的网络</a></li>
+        <li><a href="#sec-error">核心发现 2：前馈线传的不是信号，是误差</a></li>
+        <li><a href="#sec-viz">交互演示：误差如何制造末端抑制</a></li>
+        <li><a href="#sec-endstop">核心发现 3：末端抑制是「预测太准」的副产物</a></li>
+        <li><a href="#sec-lesion">核心发现 4：剪掉反馈，末端抑制消失 82%</a></li>
+        <li><a href="#sec-surround">核心发现 5：一整套外周效应一起浮现</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是「预测编码」（predictive coding）作为<strong>大脑统一计算原理</strong>的奠基论文之一。在它之前，人们把视皮层里那些「神经元对短线段反应强、对长线段反而熄火」的怪现象（末端抑制、外周抑制）当成一个个孤立的小机关，各自配一套专门解释。Rao 与 Ballard 反过来说：这些怪现象<strong>根本不需要专门解释</strong>，它们只是大脑用一种高效策略压缩自然图像时自然掉出来的副产物。</p>
+        <p>论文给出一个可运行的分层网络：<strong>高层往下发预测，底层只把「没猜中的残差」往上传</strong>。这个网络在自然图像上训练后，自发长出了简单细胞那样的方向选择感受野；更关键的是，负责传误差的那群神经元，自动表现出了末端抑制——而且当你<strong>剪掉自上而下的反馈，82% 的末端抑制随之消失</strong>，与猫、猴生理实验里「灭活高层反馈→末端抑制消失」高度吻合。一篇论文把「感知 = 推断」「皮层反馈 = 预测」两个思想，第一次落到了能跑出生理曲线的计算模型上，此后二十多年成为计算神经科学被引最多的框架之一。</p>
+      </div>
+
+      <p>下文先用一组概念卡把关键术语讲成人话，然后从那个困扰视觉神经科学几十年的「半途熄火」谜题出发，一步步拆开 Rao &amp; Ballard 的模型、那个可交互的误差演示，再逐条过五个核心发现、方法的精妙、与文献的关系、以及它没说清楚的地方。</p>
+
+      <!-- ====================== 概念工具箱 ====================== -->
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>正文出现的关键术语都先在这里立一张卡，配「人话 + 生活类比」。看不懂某个词时回来查。</p>
+
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">预测编码（Predictive Coding）</div>
+          <div class="cdesc">大脑不传「我看到了什么」，而传「我看到的和我预期的差多少」。类比：你和朋友约好每天发「一切正常」，那其实每天都不用发——只有出事那天才需要发消息。能猜到的部分全省掉，只传意外。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">感受野（RF，Receptive Field）</div>
+          <div class="cdesc">一个视觉神经元「盯着」视野里的哪一小块、对那块里的什么图案最来电。类比：每个保安只负责盯一个监控画面，且只对画面里某种特定动作（比如「有人横穿」）按警报。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">经典 vs 超经典感受野（classical / extra-classical RF）</div>
+          <div class="cdesc">「经典 RF」是直接刺激它就能让神经元放电的那一小块；「超经典 RF」是它<strong>外围</strong>那一圈——单独刺激外围它不理你，但外围有没有东西会<strong>改变</strong>它对中心的反应。类比：保安只管自己那块屏，但隔壁屏的画面会影响他对自己这块的判断。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">末端抑制 / 末端停止（End-stopping / End-inhibition）</div>
+          <div class="cdesc">本文的主角现象。一个神经元对「恰好长度」的线段反应猛烈，可一旦线段两端延伸超出它的经典 RF，反应反而被压下去。类比：你对「一句话刚好讲完」很满意，但对方滔滔不绝停不下来，你的兴致反而掉了。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">残差 / 预测误差（Residual error）</div>
+          <div class="cdesc">实际输入减去「自上而下的预测」剩下的那一截。类比：考试你押题押中了 90 分的内容，真正要订正的只有那没押中的 10 分——残差就是这 10 分。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">前馈与反馈连接（feedforward / feedback connections）</div>
+          <div class="cdesc">皮层区域间的两股反向通路。本文核心主张：<strong>前馈往上传的是误差，反馈往下传的是预测</strong>。类比：下级只向上汇报「计划外的异常」（前馈=误差），上级向下发「这周大概会发生什么」的预案（反馈=预测）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">分层生成模型（hierarchical generative model）</div>
+          <div class="cdesc">假设世界是「隐藏原因」分层生成出图像的：大原因（物体）生成中原因（部件），最后生成像素。大脑反着推：从像素倒推出最可能的隐藏原因。类比：看到地上湿了（像素）→倒推刚下过雨（隐藏原因）。公式即 <code>I = f(Ur) + n</code>。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">基向量 / 字典（basis vectors U）</div>
+          <div class="cdesc">一组「积木」，任意图像块都用它们的加权叠加来近似拼出。神经元的突触权重就编码这些积木；权重系数 <code>r</code> 就是神经元的活动。类比：用有限几种乐高零件拼出任何模型，零件库=U，用了多少个某零件=r。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">稀疏编码 / 稀疏先验（sparse coding / sparse prior）</div>
+          <div class="cdesc">拼一张图时，倾向于「只用极少几块积木」。这个偏好用一个数学上的「先验分布」加进目标函数。类比：奥卡姆剃刀——能用 3 个零件说清就别用 30 个。本文显示用不用稀疏先验，外周效应都会出现。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">最小描述长度（MDL，Minimum Description Length）</div>
+          <div class="cdesc">最好的编码 = 用最少的比特数把数据讲清楚。本文证明「最小化误差 + 模型复杂度」在数学上等价于 MDL，也等价于「最大化后验概率」。类比：最好的总结，是用最短的话不丢信息地复述全文。</div>
+        </div>
+
+      </div>
+
+      <!-- ====================== 谜题 ====================== -->
+      <div class="section-head" id="sec-puzzle">谜题：神经元为什么会「半途熄火」</div>
+
+      <p>故事得从一个让生理学家挠头几十年的观察说起。Hubel 与 Wiesel 在 1960 年代研究猫和猴的视皮层时发现，第 2、3 层（cortical layers 2 and 3）有大量神经元具有一种古怪性质：给它一根方向、位置都「对味」的短线段，它反应猛烈；可一旦把这根线段<strong>两端延长、超出它的经典 RF</strong>，它的反应不升反降，甚至被完全压灭。这就是 <span class="term">末端停止（end-stopping）</span>，也叫末端抑制。</p>
+
+      <p>这只是一类「外周改变中心反应」现象的代表。类似的还有：中心和外周都放同朝向的光栅，神经元被压制；中心外周朝向「拧着来」（朝向对比），反应反而增强；甚至有「弹出（pop-out）」纹理效应。这些 <span class="term">超经典感受野效应（extra-classical RF effects）</span> 散见于初级视皮层（V1，Visual Area 1，即 Brodmann 17 区）、次级视皮层（V2，即 18 区）、V4（Visual Area 4）乃至中颞区（MT，Middle Temporal area，专司运动）等多个皮层区。</p>
+
+      <p>过去几十年的解释思路是<strong>「一个现象配一个专门机关」</strong>：有人说末端停止是为了检测视觉曲率的「超复杂（hypercomplex）」神经元干的；有人说是为了检测角点、线段端点；有人说是为了知觉编组、错觉轮廓。Rao &amp; Ballard 在引言里直接点破这条路的尴尬：这些为单一现象量身定做的解释，<strong>很难推广</strong>到不同皮层区里五花八门的外周效应上去。</p>
+
+      <div class="info-block">
+        <span class="ib-title">本文的核心赌注</span>
+        <p>与其为每个怪现象造一个专用模块，不如假设：皮层在干一件<strong>更一般、更省的事</strong>——用分层、预测的策略高效编码自然图像，去掉可预测的冗余。末端停止、外周抑制这些，全是这件事掉出来的副产物。一句话：<strong>不是大脑特意要末端停止，而是高效编码自然图像时，末端停止自己就出现了。</strong></p>
+      </div>
+
+      <!-- ====================== 模型 ====================== -->
+      <div class="section-head" id="sec-model">核心发现 1：一个会自己造预测的网络</div>
+
+      <p>论文先把「感知 = 推断」这个老哲学命题，落成一个能跑的数学模型。它假设：一张图像 <code>I</code>（<code>n</code> 个像素的向量）是由一组<strong>隐藏原因</strong> <code>r</code> 生成的，关系是</p>
+
+      <blockquote>
+        <p>I = f(U·r) + n　　　……（式 1）</p>
+        <p>f(U·r) = f( Σ U<sub>j</sub> r<sub>j</sub> )　　……（式 2）</p>
+      </blockquote>
+
+      <p>这里 <code>U</code> 是一组<strong>基向量（积木）</strong>，每一列 <code>U<sub>j</sub></code> 是一块积木；<code>r</code> 是这些积木的用量，也就是<strong>神经元的活动</strong>；<code>f</code> 是个神经元激活函数（通常取 <code>tanh</code>）；<code>n</code> 是噪声。翻译成人话：<strong>任何图像块，都被表示成几块「视觉积木」的加权叠加；神经元的突触权重存积木，神经元的发放率就是用了多少块。</strong></p>
+
+      <p>关键一步是把它<strong>做成分层</strong>。隐藏原因 <code>r</code> 本身，又可以被更高一层、更抽象的原因 <code>r<sup>h</sup></code> 生成。于是每一层都满足：</p>
+
+      <blockquote>
+        <p>r = r<sup>td</sup> + n<sup>td</sup>　　　……（式 3）</p>
+        <p>其中 r<sup>td</sup> = f(U<sup>h</sup> r<sup>h</sup>) 是来自<strong>高层的自上而下（top-down）预测</strong></p>
+      </blockquote>
+
+      <p>因为单个神经元的树突只能覆盖有限范围，模型限定：<strong>低层每个模块只盯一小块图像，高层模块汇集多个低层模块、因而盯更大范围</strong>。论文搭的是一个<strong>三层网络</strong>（图 1c）：第 0 层是图像；第 1 层有若干模块，每个模块用 32 个前馈神经元分析一小块（16×16 像素）；第 2 层把 3 个第 1 层模块的输出汇到一起，于是它的有效感受野覆盖更大的 16×26 像素区。这样一来，<strong>越往上，感受野越大，编码的视觉性质越抽象、空间尺度越大</strong>——和真实视皮层的层级组织一致。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：网络规模</span>
+        <p>训练用了<strong>仅 5 张自然图像</strong>，从中切出大量 16×16 的小块（每个预测估计器（PE，Predictive Estimator）模块覆盖的块之间横向偏移 5 像素）喂进网络。第 1 层每模块 32 个前馈神经元（编码 U<sup>T</sup>）+ 32 个维持估计 <code>r</code> 的神经元 + 256 个反馈神经元；第 2 层 128 个前馈神经元。学习率 <code>k₂</code> 初值 1，每 40 个输入后除以 1.015 逐步衰减。第 1 层的积木先学，再学第 2 层的积木。</p>
+      </div>
+
+      <p>网络怎么找到「对的」<code>r</code> 和「对的」积木 <code>U</code>？论文给了一个统一的<strong>目标函数</strong>（要最小化的「能量」<code>E</code>）：</p>
+
+      <blockquote>
+        <p>E₁ = (1/σ²)(I − f(Ur))ᵀ(I − f(Ur)) + (1/σ²<sub>td</sub>)(r − r<sup>td</sup>)ᵀ(r − r<sup>td</sup>)　……（式 4）</p>
+        <p>E = E₁ + g(r) + h(U)　　……（式 5）</p>
+      </blockquote>
+
+      <p>读法：<strong>第一项</strong>是「我用积木拼出来的图，和真实图差多少」；<strong>第二项</strong>是「我这层的活动，和高层对我的预测差多少」；<code>g(r)</code> 和 <code>h(U)</code> 是对活动和积木的<strong>先验偏好</strong>（比如稀疏）。每个误差还按各自噪声方差的倒数加权——<strong>越可靠的信息（噪声越小）权重越大</strong>。论文点明了三件等价的事，这是它思想分量的来源：</p>
+
+      <ul>
+        <li><strong>最小化 E　=　最大化后验概率</strong>（在贝叶斯意义上，找最可能解释数据的隐藏原因与模型）；</li>
+        <li><strong>最小化 E　=　最小描述长度（MDL）</strong>（用最少比特把误差和参数编码下来）；</li>
+        <li>于是「高效编码」和「概率推断」<strong>是同一件事</strong>。</li>
+      </ul>
+
+      <p>剩下就是机械动作：对 <code>r</code> 做梯度下降得到<strong>神经元动力学</strong>（式 7），对 <code>U</code> 做梯度下降得到<strong>突触学习规则</strong>（式 9，是一种 Hebbian 形式：突触前是活动 <code>r</code>，突触后是残差 <code>I − f(Ur)</code>）。整套机制的所有信息都是<strong>局部可得</strong>的——这点对「能不能由真实神经元实现」至关重要。</p>
+
+      <p>训练完，第一个漂亮结果就来了：第 1 层那些前馈神经元的「感受野」（它们的积木 <code>U<sub>j</sub></code>），<strong>自发长成了有方向的边缘/条形检测器</strong>，形态像 Gabor 小波（Gabor 为人名，指一种带方向的局部波形）或高斯差分（DoG，Difference of Gaussians）滤波器（图 2b）——也就是 Hubel-Wiesel 描述的<strong>简单细胞</strong>。第 2 层的积木则像是第 1 层特征的各种组合（图 2c）。这复现了 Olshausen &amp; Field 等人「自然图像统计 → 简单细胞 RF」的经典结论，作为后续论证的地基。</p>
+
+      <!-- ====================== 误差 ====================== -->
+      <div class="section-head" id="sec-error">核心发现 2：前馈线传的不是信号，是误差</div>
+
+      <p>这是全文最反直觉、也最关键的一步。传统画面里，前馈连接（V1→V2→……）一级级把「视觉信号本身」往上送，越往上表征越复杂。本文把这幅画<strong>改写</strong>了。</p>
+
+      <p>看图 1a 的回路：每一层有一个<strong>预测估计器（PE）</strong>模块。给定输入后，初始预测来自积木的随机组合，误差很大。为压低误差，网络收敛到「最能预测当前输入」的 <code>r</code>——做法是<strong>从输入里减去高层下传的预测</strong>（这是一种抑制），把剩下的<strong>残差往上一层送</strong>，让上一层把这个误差整合进它的预测，再生成更好的预测下传。预测—纠错的循环在整个层级里<strong>同时进行</strong>。</p>
+
+      <div class="info-block">
+        <span class="ib-title">两类神经元，各司其职（图 1b）</span>
+        <p>一个 PE 模块里有三种角色：<strong>① 维持估计的神经元</strong>（活动 = <code>r</code>，当前对输入的最佳猜测）；<strong>② 反馈神经元</strong>（编码 <code>U</code>，把预测 <code>f(Ur)</code> 下传给低层）；<strong>③ 误差检测神经元</strong>（前馈，权重 <code>U<sup>T</sup></code>，计算「当前估计」与「高层下传预测 <code>r<sup>td</sup></code>」之差 <code>r − r<sup>td</sup></code>，并把这个误差往上送）。一句话：<strong>反馈神经元说「我猜你那儿是这样」，误差神经元回「你猜错的部分是这些」。</strong></p>
+      </div>
+
+      <p>这个改写不是凭空的。它其实是把视网膜/外膝体（LGN，Lateral Geniculate Nucleus，外侧膝状体）早就在做的事<strong>往皮层推广</strong>。视网膜的中心-外周感受野，本质就是<strong>用周围像素的加权和预测中心像素、再传两者之差</strong>，从而去掉自然图像里「邻近像素高度相关」的空间冗余（让输入「白化」）。同理，视锥细胞之间光谱有重叠、反应相关，于是 L 锥（长波/「红」）的反应可以预测 M 锥（中波/「绿」），红-绿这类颜色对立通道可能就是<strong>色彩域里的预测编码</strong>。Rao &amp; Ballard 说：皮层间的预测编码，只是把这套「减去可预测部分、只传意外」的策略，<strong>从单个像素/单个锥体，升级到了整块图像的空间结构</strong>。</p>
+
+      <!-- ====================== 交互演示 ====================== -->
+      <div class="section-head" id="sec-viz">交互演示：误差如何制造末端抑制</div>
+
+      <p>上面的文字绕了一圈，核心其实就一句话：<strong>误差检测神经元的反应 = 实际输入 − 高层预测；而高层对「符合自然图像统计的长线段」预测得更准，于是误差更小、反应更弱</strong>。下面这个组件让你亲手把它跑出来。</p>
+
+      <div class="viz-box" id="pcViz">
+        <div class="viz-title">分层预测编码沙盘：拖动条形长度，看末端抑制自己出现</div>
+        <div class="viz-note">模拟数据基于论文报告的定性模式（图 3、图 5a 的长度调谐曲线，最优长度 ~4.5 像素、>50% 抑制判为末端停止），展示机制而非原始数值。上排是三块「画布」；中间显示高层如何用自然图像统计去预测中心；底排是误差检测神经元的总反应。</div>
+
+        <div class="viz-controls">
+          <label>条形长度：<strong><span id="barLenVal">5</span></strong> 像素　</label>
+          <input type="range" id="barLen" min="1" max="26" value="5" style="width:220px">
+          <button id="toggleFb" class="">反馈：开（高层在预测）</button>
+          <button id="playSweep" class="alt">▶ 自动扫一遍长度</button>
+        </div>
+
+        <canvas id="pcCanvas" width="760" height="360"></canvas>
+
+        <div class="viz-note" style="margin-top:14px;margin-bottom:0">
+          <strong>怎么玩：</strong>① 拖动滑块加长条形：短条时误差大、神经元反应高；越长，落进外周的部分越能被高层「根据自然图像里线段通常很长」这条统计规律预测掉，误差塌缩、反应下降——这就是<strong>末端抑制曲线</strong>（右下角折线，先升后降）。② 点「反馈：开/关」：关掉高层预测后，长条不再被预测掉，曲线<strong>持续走高不再回落</strong>，末端抑制消失——正对应论文「剪掉反馈，82% 神经元失去末端停止」。③ 点「自动扫一遍」看完整调谐曲线长出来。
+        </div>
+      </div>
+
+      <!-- ====================== 末端抑制 ====================== -->
+      <div class="section-head" id="sec-endstop">核心发现 3：末端抑制是「预测太准」的副产物</div>
+
+      <p>有了「前馈传误差」这把钥匙，末端停止就被解开了。论文做了一个直接对照实验（图 3）：在中心第 1 层模块的经典 RF 里放一根暗条，记录那 32 个误差检测神经元的反应。</p>
+
+      <p><strong>短条时（图 3a）：</strong>许多误差神经元有显著的非零反应。为什么？因为<strong>自然图像里短条很少孤立出现</strong>——一根条通常是更长的一根的一截，会延伸进邻近区域。高层（第 2 层）依据自然图像统计去预测中心，但<strong>对孤立短条预测不准</strong>，于是残差大、误差神经元放电强。</p>
+
+      <p><strong>长条时（图 3b）：</strong>同一批误差神经元几乎不反应了。因为条延伸进了外周，<strong>外周提供了上下文</strong>，高层据此对中心的预测变得<strong>非常准</strong>（预测误差接近零）——残差被预测掉了，误差神经元被压灭。这正是<strong>末端抑制在误差检测神经元上的体现</strong>。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：模型长度调谐曲线 vs 真实皮层</span>
+        <p>论文算出模型误差神经元的<strong>长度调谐曲线</strong>（图 3c、图 5a），与猫纹状皮层第 2/3 层复杂细胞的曲线<strong>高度相似</strong>。关键是：模型曲线是个<strong>「零参数预测」</strong>——它由自然图像的统计、而非用生理数据去拟合决定的，却仍然吻合，论文说这点「值得注意（noteworthy）」。引发最大反应的条形平均长度约 <strong>4.5 像素</strong>，绝对感受野尺寸约 <strong>5 × 10 像素</strong>；作为对比，参考文献报告的两个真实皮层神经元 RF 约 <strong>1° × 1.75°</strong> 和 <strong>0.5° × 1.5°</strong>，分别对长度 <strong>1°</strong> 和 <strong>0.5°</strong> 的条反应最强。</p>
+      </div>
+
+      <p>这个解释还有个可检验的副产物：它预测「沿主朝向的自相关，在自然图像里会延续相当长的距离」。论文真去测了（图 4）：在自然图像里沿主导朝向方向计算相关，<strong>沿主朝向的相关在 ±50 像素范围内都保持较高</strong>，明显高于垂直方向；换三张不同尺寸（968×968、484×484、242×242 像素）的自然图都成立，而换成随机白噪声图（图 4c）相关立刻塌掉。这坐实了「长线段是自然图像的统计常态」这个前提。</p>
+
+      <!-- ====================== 损毁实验 ====================== -->
+      <div class="section-head" id="sec-lesion">核心发现 4：剪掉反馈，末端抑制消失 82%</div>
+
+      <p>如果末端抑制真是「高层反馈把可预测部分预测掉」造成的，那么<strong>掐断反馈，末端抑制就该消失</strong>。这是整篇论文最硬的因果检验（图 5）。</p>
+
+      <p>论文把第 2 层到第 1 层的反馈连接<strong>移除</strong>，再看那些原本末端停止的神经元。结果：它们<strong>不再被长条压制，而是对越来越长的条持续反应</strong>——末端抑制没了。为量化，作者对中心模块全部 32 个误差检测神经元，统计「末端停止程度」分布，定义为</p>
+
+      <blockquote>
+        <p>末端停止程度 = (峰值反应 − 平台反应) / 峰值反应 × 100%</p>
+        <p>（平台 = 条长 > 18 像素时的反应；>50% 抑制即判为「末端停止」）</p>
+      </blockquote>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：因果的强度</span>
+        <p>有反馈时，<strong>32 个神经元里 28 个（按 >50% 抑制标准）是末端停止的</strong>。掐断反馈后，末端停止在 32 个中<strong>消失了 28 个，只剩 5 个仍保留某种程度的末端停止——减少了 82%</strong>。那残留的 5 个，论文解释是它们的感受野朝向和测试用的条形朝向<strong>没完全对齐</strong>。这个 82% 不是软性相关，而是「关掉某条线路→现象成片消失」的<strong>结构性因果</strong>。</p>
+      </div>
+
+      <p>更妙的是它和<strong>真实生理</strong>对得上。论文并排放了猫 V1 复杂细胞的曲线：在猫里灭活第 6 层（layer 6，承载向 LGN 与层间的反馈）会大幅削弱末端抑制（图 5a 右）；在松鼠猴里灭活 V1 第 6 层、或灭活 V2→V1 的反馈，都会戏剧性改变/解抑制低层神经元的反应。模型的「剪反馈→失抑制」与这些「灭活反馈→失抑制」的实验<strong>定性一致</strong>。论文还顺手提了个时间证据：醒猴 V1 的外周效应常在刺激起始后 <strong>80–100 毫秒</strong> 才显现，暗示是更高区域的反馈在中介——和「反馈需要往返时间」的预测吻合。</p>
+
+      <p>论文也诚实地指出，<strong>同样的现象未必只能靠反馈</strong>：把网络动力学方程改写（式 8），其中维持 <code>r</code> 的神经元会经历一个 <code>(k₁/σ²)W r</code> 项带来的<strong>循环侧向抑制（recurrent lateral inhibition）</strong>，<code>W = U<sup>T</sup>U</code>。也就是说，部分反馈效应可由<strong>同一皮层区内的长程水平连接</strong>实现，二者并不互斥。这一点放进「边界与未解问题」再细说。</p>
+
+      <!-- ====================== 一整套外周效应 ====================== -->
+      <div class="section-head" id="sec-surround">核心发现 5：一整套外周效应一起浮现</div>
+
+      <p>末端抑制只是开胃菜。论文真正的野心是：<strong>同一个模型，不改任何参数，自动复现一整套互不相同的外周效应</strong>。这才支撑了「它们都是同一个原理的副产物」这个大主张。逐个看（图 6）：</p>
+
+      <table>
+        <thead>
+          <tr><th>外周效应</th><th>模型里发生了什么</th><th>关键数字</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>同朝向外周抑制</td>
+            <td>中心放最优朝向光栅反应强；外周加同朝向光栅后，外周让高层预测变准、残差变小</td>
+            <td>稳态反应被<strong>压低 85.3%</strong></td>
+          </tr>
+          <tr>
+            <td>朝向对比增强</td>
+            <td>中心外周朝向「拧着来」时，外周反而让中心更难被预测，残差变大</td>
+            <td>反应比纯中心高 <strong>19.1%</strong>；与 V1 实验报告的交叉朝向增强一致</td>
+          </tr>
+          <tr>
+            <td>纯外周刺激</td>
+            <td>最优朝向光栅只放外周、不碰中心</td>
+            <td>只引起<strong>很小</strong>的反应（误差神经元几乎无事可报）</td>
+          </tr>
+          <tr>
+            <td>「弹出（pop-out）」纹理</td>
+            <td>对 4 种纹理刺激，与猕猴 V1 研究对照；最大反应由「pop-out」纹理引发</td>
+            <td>定性复现 V1 神经元的 pop-out 偏好</td>
+          </tr>
+          <tr>
+            <td>上下文调制（时间维）</td>
+            <td>同质纹理 vs 朝向对比纹理，看反应随迭代时间演化</td>
+            <td>朝向对比相对同质，<strong>正差异达 93.5%</strong>，随时间发展，类似醒猴 V1 的上下文调制</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>这张表的分量在于它的<strong>覆盖广度</strong>：抑制的、增强的、弹出的、随时间发展的——这些在传统范式里各需一套专门机制的现象，在这里<strong>统统从「高层用自然图像统计预测中心、误差神经元报残差」这一条规则里掉出来</strong>。论文还点出一个生成性预测：既然这些效应来自自然图像统计，那么<strong>故意构造偏离自然统计的刺激，应该能造出全新的、前所未见的外周效应</strong>——把现象学变成了可设计的实验。</p>
+
+      <p>论文也留了开口：有些外周效应是<strong>易化（facilitatory）</strong>而非抑制（外周有东西反而增强中心反应）。作者提出一个「双极编码」设想——既然预测误差可正可负，皮层也许用<strong>两群神经元分别编码正误差和负误差</strong>（类比视网膜的 on-中心/off-外周 与 off-中心/on-外周细胞），从而把易化也纳入同一框架。</p>
+
+      <!-- ====================== 方法论精妙之处 ====================== -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+
+      <p>这篇论文的说服力，很大程度来自几处方法选择上的克制与巧妙。</p>
+
+      <table>
+        <thead>
+          <tr><th>设计选择</th><th>为什么精妙</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>零参数预测</td>
+            <td>长度调谐曲线由<strong>自然图像统计</strong>决定，而不是去拟合生理数据。一个没看过任何神经记录的模型，却跑出和皮层吻合的曲线——这比「调参拟合上了」强得多，是真正的预测而非后见之明。</td>
+          </tr>
+          <tr>
+            <td>损毁式因果检验</td>
+            <td>不止「模型能产生末端抑制」，而是<strong>剪掉反馈→末端抑制成片消失（82%）</strong>，并与真实「灭活第 6 层/V2→V1 反馈」实验定性对照。把相关性升级成了可操控的因果。</td>
+          </tr>
+          <tr>
+            <td>先验稳健性</td>
+            <td>分别用<strong>高斯先验</strong>（图 3、图 5）和<strong>稀疏峭度先验</strong>（图 6 用 tanh 非线性 + kurtotic 先验）都跑了一遍，外周效应都出现。说明结论<strong>不依赖某个特定先验</strong>，而依赖「把前馈活动解释为预测误差」这个更一般的姿态。</td>
+          </tr>
+          <tr>
+            <td>局部可实现性</td>
+            <td>式 7、式 9 所需的全部信息（自上而下误差、自下而上误差、衰减项）都是<strong>局部可得</strong>的；学习规则是 Hebbian 形式，U<sup>T</sup> 对应单个神经元的突触权重。这让模型在生物学上「可落地」，不是只在数学上成立。</td>
+          </tr>
+          <tr>
+            <td>误差按可靠度加权</td>
+            <td>每个误差项除以各自<strong>噪声方差</strong>（式 4、式 7）——噪声越小权重越大。这等价于贝叶斯里「越可靠的证据越被采信」，把统计原理直接焊进了神经动力学。</td>
+          </tr>
+          <tr>
+            <td>跨尺度感受野</td>
+            <td>用「低层模块汇聚到高层模块」的结构（图 1c），让<strong>感受野随层级自然增大</strong>、最高层覆盖整图，无需手工指定每层 RF 大小，复现皮层层级组织。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ====================== 与已有研究的关系 ====================== -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+
+      <p><strong>站在三股思想的交汇点。</strong>其一，<span class="term">信息论的冗余压缩传统</span>：Attneave（1954）、Barlow（1961）很早提出感知系统应去除输入冗余；Srinivasan、Laughlin &amp; Dubs（1982）在视网膜上用「预测编码」一词解释中心-外周。本文把这条线从视网膜/LGN <strong>推到皮层</strong>。其二，<span class="term">自然图像统计 → 感受野</span>：Olshausen &amp; Field（1996）、Bell &amp; Sejnowski（1997）证明对自然图像做稀疏/独立成分编码会长出简单细胞 RF；本文复现这一点并在其上接出外周效应。其三，<span class="term">分层贝叶斯/生成模型</span>：Mumford（1992）论皮层-皮层回路的计算角色、Dayan-Hinton-Neal-Zemel 的 Helmholtz machine（1995）、以及作者自己用卡尔曼滤波建模视皮层动态响应（Rao &amp; Ballard 1997）——本文是这一脉在「外周效应」上的具体兑现。</p>
+
+      <p><strong>对前人解释的「收编」而非「推翻」。</strong>论文没说 hypercomplex 细胞、曲率检测那些解释全错，而是给出一个更上位的统一原理，把它们解释为<strong>同一编码策略的不同表现</strong>。它也明确把自己<strong>定位为视网膜/LGN 预测编码（Srinivasan 等、Atick &amp; Redlich）的「皮层版精化」</strong>：视网膜做的是空间/时间局部像素的预测，皮层做的是更大上下文、更抽象特征的预测。</p>
+
+      <p><strong>和水平连接、归一化模型的关系。</strong>论文坦承外周效应也可能来自<strong>同区内长程水平连接的循环侧向抑制</strong>（式 8），并指出邻近神经元活动的重复相减可能产生类似<strong>除法归一化（divisive normalization）</strong>的净效果（提到 Simoncelli 1998 的相关结果）。也就是说，本文与「归一化」「水平连接」这些主流框架不是对手，而是<strong>可以相互翻译</strong>的不同视角。</p>
+
+      <!-- ====================== 跨领域启示 ====================== -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+
+      <p><strong>这套框架的射程远超视觉。</strong>论文末尾自己点了几处：</p>
+
+      <ul>
+        <li><strong>MT 区与运动：</strong>有些 MT 神经元在外周运动方向与中心一致时被抑制，提示存在一个针对运动特征、与本文图像特征类似的<strong>分层预测编码</strong>；可检验的预测是——灭活来自内侧颞上区（MST，Medial Superior Temporal area）的反馈，应显著削弱 MT 第 2/3 层的外周效应。</li>
+        <li><strong>下颞叶（IT，Inferotemporal cortex）与记忆：</strong>醒猴 IT 某些细胞在「呈现的测试刺激与记忆中所持项不匹配」时猛烈放电、匹配时几乎不反应——可解释为<strong>「记忆里预测的项」与「实际所见」之间的残差信号</strong>。</li>
+        <li><strong>小脑样结构与感觉预期：</strong>某些鱼类小脑样结构会<strong>生成并相减感觉预期</strong>，其预测用的还包括与运动指令相伴的「伴随放电（corollary discharge）」——预测编码不止于纯感觉。</li>
+        <li><strong>中脑多巴胺与奖赏：</strong>投射到皮层与纹状体的<strong>多巴胺能神经元</strong>可被刻画为编码<strong>奖赏预测误差</strong>——实际奖赏不符预期时大幅放电。这把本文的「预测误差」直接接到了强化学习的核心信号上。</li>
+      </ul>
+
+      <div class="info-block">
+        <span class="ib-title">为什么这篇至今被反复引用</span>
+        <p>Rao &amp; Ballard 把「预测误差」立成一种<strong>跨脑区、跨模态的通用货币</strong>：视觉外周效应、运动外周抑制、IT 的记忆失配、小脑样结构的感觉抵消、多巴胺的奖赏误差——都能用「实际 − 预测」这一条来读。这正是后来 Friston「自由能原理」、以及当代「大脑是预测机器」整套叙事的直接源头之一。论文最后一句把话挑明：预测编码的总思想，可能为理解新皮层的<strong>一般结构与功能</strong>提供框架。<em>（注：将此框架推广为大脑统一理论属于该研究脉络的后续主张，本文仅提出方向性建议。）</em></p>
+      </div>
+
+      <!-- ====================== 边界和未解问题 ====================== -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+
+      <p>论文论证漂亮，但有几处需要清醒看待——部分作者已自陈，部分是解读者的补充。</p>
+
+      <ul>
+        <li><strong>「反馈 vs 水平连接」并未被实验区分（作者自陈）。</strong>论文承认同一组效应可由<strong>同区长程水平连接的循环侧向抑制</strong>产生（式 8 是 RF 反馈的等价重写）。模型里「剪反馈→失抑制」很干净，但真实皮层里反馈与水平连接<strong>交织在一起</strong>，本文的损毁是在<em>模型</em>里做的——它说明「反馈足以产生末端抑制」，但没排除「水平连接也行」乃至「真实皮层主要靠水平连接」。<span style="color:var(--muted)">（解读者补充：要分清两者，需要在生理上分别选择性灭活反馈通路与水平通路，这是本文方法做不到的。）</span></li>
+
+        <li><strong>验证基本是「定性吻合」，缺定量拟合（解读者观点，有文中依据）。</strong>论文反复用「相似（resemble）」「定性类似（qualitatively similar）」描述模型曲线与生理曲线的关系，几个硬数字（85.3%、19.1%、93.5%、82%）多是<strong>模型自身的内部量</strong>，而非「模型预测 X，生理实测 X，落在置信区间内」式的逐点对照。作者把「零参数却吻合」当卖点（确实有力），但严格的定量检验留给了后人。</li>
+
+        <li><strong>样本与刺激的生态有限（解读者观点）。</strong>训练只用了 <strong>5 张自然图像</strong>、16×16 的小块、静态灰度。论文明说为简化<strong>略去了时间维预测分量</strong>（虽指出可用循环权重 V 扩展）。彩色、运动、双眼、动态自然场景下这套结论是否同样成立，本文未触及。</li>
+
+        <li><strong>「单一原理解释一切」的诱惑需要节制（解读者观点）。</strong>把众多外周效应归于一个原理很优雅，但优雅不等于唯一正确。论文自己也提到效应可来自<strong>除法归一化</strong>等其他机制；不同机制可能<strong>在不同效应、不同皮层区里各占主导</strong>。本文证明的是「预测编码<strong>足以</strong>产生这些」，而非「这些<strong>只能</strong>来自预测编码」。</li>
+
+        <li><strong>易化型外周效应只给了设想（作者自陈）。</strong>对「外周增强中心」这类易化效应，论文仅提出「用正/负两群误差神经元双极编码」的<strong>假说</strong>，并未在模型里实现并验证。框架对抑制型效应解释充分，对易化型尚是欠条。</li>
+
+        <li><strong>负值如何表征仍是开口（作者自陈）。</strong>误差可正可负，图 3 里作者用「向上/向下的柱」表示，并注明真实皮层里正负<strong>可能由不同神经元分别编码</strong>——但神经元只能正向放电，预测编码如何在生物上稳妥地表征负误差，本文未给定论。</li>
+      </ul>
+
+      <!-- ====================== 判断 ====================== -->
+      <div class="section-head" id="sec-judgment">判断</div>
+
+      <p>下面是解读者的独立评价，每条都尽量挂到文中证据上。</p>
+
+      <p><strong>这是一篇「换框架」级别的论文，而非「加一个发现」级别。</strong>它的贡献不在于发现新现象（末端抑制是 1960 年代就知道的），而在于<strong>把一堆零散现象重新装进一个能跑、能预测、能被损毁检验的统一机制</strong>。判断依据：同一模型不调参复现了末端抑制、同朝向抑制（85.3%）、朝向对比增强（19.1%）、pop-out、时间上下文调制（93.5%）一整套效应（图 6 与正文）——这种<strong>覆盖广度</strong>是单现象解释给不了的。</p>
+
+      <p><strong>最硬的证据是那个 82%。</strong>「剪掉反馈，32 个神经元里 28 个失去末端停止」是全文最接近因果的一击，且与猫/松鼠猴「灭活第 6 层或 V2→V1 反馈→失抑制」的真实实验定性对齐（图 5）。这把「预测编码能解释」从一个<strong>叙事</strong>推进到了一个<strong>可操控、可证伪</strong>的命题。</p>
+
+      <p><strong>但要警惕把「足以」读成「就是」。</strong>论文自己白纸黑字地承认效应也可由<strong>循环侧向抑制（式 8）</strong>或<strong>除法归一化</strong>产生，模型损毁只在模型内进行。因此严谨的结论是：<strong>预测编码足以、且很可能参与产生这些外周效应；但本文并未排除其他机制，也未在真实皮层里把反馈与水平连接分离检验。</strong>把它当「视皮层就是这么干的」铁证，是过度解读。</p>
+
+      <p><strong>方法论上的克制值得尊敬。</strong>「零参数预测仍吻合生理曲线」（图 3c、图 5a）是真正有分量的——它不是事后调参，而是先有自然图像统计、后有曲线，再去和生理对。同时论文对先验做了稳健性检查（高斯 vs 稀疏峭度都成立），把结论从「某个特定先验的产物」解耦了出来。这两点让它的主张比许多「拟合上了就声称解释了」的建模工作扎实。</p>
+
+      <p><strong>历史定位：被引爆点。</strong>它把「预测误差」立为跨脑区货币（视觉、MT、IT、多巴胺奖赏），直接喂养了后续「大脑是预测机器」「自由能」这条主线（此为后续脉络对本文的继承，非本文自身论断）。即便二十多年后细节被修正、被竞争框架挑战，<strong>这篇仍是绕不过去的起点</strong>。</p>
+
+      <!-- ====================== 一句话总结 ====================== -->
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Rao &amp; Ballard 用一个三层网络证明：当大脑「高层向低层发预测、低层只把没猜中的残差往上传」以高效编码自然图像时，<strong>末端抑制等一整套超经典感受野效应会自动浮现</strong>——模型不调参就复现了同朝向外周抑制（−85.3%）、朝向对比增强（+19.1%）、时间上下文调制（93.5%）等现象，而<strong>剪掉自上而下的反馈会让 32 个误差神经元里 28 个（82%）失去末端停止</strong>，与猫/猴灭活反馈的实验吻合。结论：这些怪现象不需要专用机关，它们只是「感知即推断、皮层反馈即预测」这一高效编码策略的副产物——这正是当代「大脑是预测机器」叙事的奠基石之一。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Rao, R. P. N., &amp; Ballard, D. H. (1999). Predictive coding in the visual cortex: a functional interpretation of some extra-classical receptive-field effects. <em>Nature Neuroscience, 2</em>(1), 79–87.
+    <br><span style="color:var(--muted-light)">本文为深度解读，非原文翻译；交互组件为定性机制演示（基于论文报告的模式，非原始数据）。文中「解读者观点」处为作者独立评价。</span>
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('pcCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  var slider = document.getElementById('barLen');
+  var lenVal = document.getElementById('barLenVal');
+  var fbBtn  = document.getElementById('toggleFb');
+  var sweepBtn = document.getElementById('playSweep');
+
+  var feedbackOn = true;
+  var sweeping = false;
+  var sweepRAF = null;
+
+  var RED = '#c0392b';
+  var INK = '#1f2328';
+  var MUT = '#6b7280';
+  var LINE = '#e6e8eb';
+
+  // 经典 RF 半宽（像素，模型空间），最优长度约 4.5px → 半宽 ~2.5
+  var CLASSIC_HALF = 4.5;     // 经典 RF 全长 ~ 9 -> 半 4.5
+  var L2_HALF = 13;           // 第2层 RF 半宽（覆盖到 26 像素）
+
+  // ---- 反应模型：定性复刻图3/图5a ----
+  // 误差神经元总反应 = 实际驱动(随长度饱和上升) - 高层可预测掉的部分
+  function responseFor(len, fb){
+    // 实际输入驱动：随长度增加但很快饱和（条越长覆盖经典RF越满，到经典RF全长后饱和）
+    var drive = 1 - Math.exp(-len / 2.2);   // 0..~1, 在 ~4.5 像素附近接近饱和
+    if(!fb){
+      // 无反馈：高层不预测，残差≈实际驱动，持续走高、不回落
+      return drive;
+    }
+    // 有反馈：超出经典RF的部分能被自然图像统计预测掉 → 扣减
+    // 预测准确度随“延伸进外周的长度”上升而上升（越长越好预测）
+    var overhang = Math.max(0, len - CLASSIC_HALF*2); // 超出经典RF全长的部分
+    // 预测可扣减比例：随 overhang 平滑增长，封顶 ~0.92
+    var predict = 0.92 * (1 - Math.exp(-overhang / 6));
+    var resp = drive * (1 - predict);
+    return Math.max(0.02, resp);
+  }
+
+  // 找峰值用于归一化（有反馈时）
+  function peakResp(fb){
+    var p = 0;
+    for(var l=1;l<=26;l++){ p = Math.max(p, responseFor(l, fb)); }
+    return p;
+  }
+
+  function drawArrowText(x,y,txt,col){
+    ctx.fillStyle = col; ctx.font = '12px -apple-system,sans-serif';
+    ctx.fillText(txt, x, y);
+  }
+
+  function render(len){
+    ctx.clearRect(0,0,W,H);
+
+    // 三个面板的列中心
+    var pad = 24;
+    // ---------- 上排：三块“画布”（眼睛看到的） ----------
+    var topY = 18, panelH = 92, panelW = 150, gap = 28;
+    var startX = pad;
+    var labelCols = ['第1层模块 A（左外周）','第1层模块 B（中心）','第1层模块 C（右外周）'];
+    ctx.textAlign = 'left';
+    ctx.font = '12px -apple-system,sans-serif';
+
+    // 条形在“世界坐标”里横跨：中心模块在中间，条形以中心模块为中心向两侧延伸
+    // 像素->画布比例
+    var pxToPx = 5.0; // 模型像素 -> 屏幕像素
+    var worldCenterX = startX + panelW + gap + panelW/2; // 中心面板中心
+
+    for(var i=0;i<3;i++){
+      var px0 = startX + i*(panelW+gap);
+      // 面板背景
+      ctx.fillStyle = '#f3f5f7';
+      ctx.strokeStyle = LINE;
+      ctx.fillRect(px0, topY, panelW, panelH);
+      ctx.strokeRect(px0, topY, panelW, panelH);
+      ctx.fillStyle = MUT;
+      ctx.fillText(labelCols[i], px0, topY-4);
+    }
+
+    // 画一根横贯的条（暗条）：长度 = len（模型像素），居中于中心面板
+    var halfLen = len/2 * pxToPx;
+    var barY = topY + panelH/2;
+    var bx0 = worldCenterX - halfLen;
+    var bx1 = worldCenterX + halfLen;
+    // 限制在三面板范围内绘制
+    var drawL = Math.max(startX, bx0);
+    var drawR = Math.min(startX + 3*panelW + 2*gap, bx1);
+    ctx.fillStyle = INK;
+    ctx.fillRect(drawL, barY-5, drawR-drawL, 10);
+
+    // 中心面板的经典RF框（虚线）& 第2层RF框
+    var cpx0 = startX + panelW + gap;
+    // 经典RF（中心模块内一小块）
+    var crfHalf = CLASSIC_HALF * pxToPx;
+    ctx.save();
+    ctx.setLineDash([4,3]);
+    ctx.strokeStyle = RED;
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(worldCenterX - crfHalf, barY-16, crfHalf*2, 32);
+    ctx.restore();
+    ctx.fillStyle = RED;
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.fillText('经典 RF', worldCenterX - crfHalf, topY + panelH + 14);
+
+    // ---------- 中排：高层预测条 ----------
+    var midY = topY + panelH + 40;
+    ctx.fillStyle = INK;
+    ctx.font = 'bold 12px -apple-system,sans-serif';
+    ctx.fillText('第 2 层（高层）：用自然图像统计预测中心 →', startX, midY);
+
+    // 预测“强度”条：反馈关时为 0
+    var overhang = Math.max(0, len - CLASSIC_HALF*2);
+    var predict = feedbackOn ? 0.92*(1-Math.exp(-overhang/6)) : 0;
+    var barFullW = 3*panelW + 2*gap;
+    var pbY = midY + 12, pbH = 16;
+    ctx.fillStyle = '#f3f5f7'; ctx.strokeStyle = LINE;
+    ctx.fillRect(startX, pbY, barFullW, pbH);
+    ctx.strokeRect(startX, pbY, barFullW, pbH);
+    ctx.fillStyle = feedbackOn ? RED : '#c9ccd1';
+    ctx.fillRect(startX, pbY, barFullW*predict, pbH);
+    ctx.fillStyle = MUT; ctx.font = '11px -apple-system,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText((feedbackOn?'预测可消除残差 '+Math.round(predict*100)+'%':'反馈已关：高层不预测（残差不被消除）'),
+                 startX+barFullW, pbY-4);
+    ctx.textAlign = 'left';
+
+    // ---------- 下排：误差神经元反应 + 调谐曲线 ----------
+    var botY = pbY + pbH + 46;
+    // 左：当前误差神经元“总反应”竖条
+    ctx.fillStyle = INK; ctx.font = 'bold 12px -apple-system,sans-serif';
+    ctx.fillText('误差检测神经元总反应（实际 − 预测）', startX, botY-26);
+
+    var pk = peakResp(feedbackOn);
+    var curR = responseFor(len, feedbackOn);
+    var normR = curR / (peakResp(true)); // 统一用“有反馈峰值”归一，便于看抑制
+    normR = Math.min(1.15, normR);
+
+    // 反应柱
+    var rbX = startX, rbY0 = botY, rbW = 150, rbH = 64;
+    ctx.fillStyle = '#f3f5f7'; ctx.strokeStyle = LINE;
+    ctx.fillRect(rbX, rbY0, rbW, rbH);
+    ctx.strokeRect(rbX, rbY0, rbW, rbH);
+    ctx.fillStyle = RED;
+    var fillH = rbH * Math.min(1, normR);
+    ctx.fillRect(rbX+2, rbY0+rbH-fillH, rbW-4, fillH);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 13px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText((normR*100).toFixed(0)+'%', rbX+rbW/2, rbY0+rbH-6);
+    ctx.textAlign = 'left';
+
+    // 右：长度调谐曲线
+    var gx0 = startX + rbW + 40, gy0 = botY, gW = W - gx0 - pad, gH = rbH;
+    // 轴
+    ctx.strokeStyle = '#c9ccd1'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(gx0, gy0); ctx.lineTo(gx0, gy0+gH); ctx.lineTo(gx0+gW, gy0+gH);
+    ctx.stroke();
+    ctx.fillStyle = MUT; ctx.font='10px -apple-system,sans-serif';
+    ctx.fillText('反应', gx0-2, gy0-4);
+    ctx.textAlign='right'; ctx.fillText('条形长度 →', gx0+gW, gy0+gH+12); ctx.textAlign='left';
+
+    // 画两条曲线：有反馈（实线，会回落）、无反馈（虚线，持续走高）作为参照
+    function plot(fb, dash, col){
+      ctx.save();
+      if(dash) ctx.setLineDash([5,4]);
+      ctx.strokeStyle = col; ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      var pkAll = peakResp(true);
+      for(var l=1;l<=26;l++){
+        var rr = responseFor(l, fb)/pkAll;
+        rr = Math.min(1.1, rr);
+        var xx = gx0 + (l-1)/25 * gW;
+        var yy = gy0 + gH - rr*gH;
+        if(l===1) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+    // 始终画“无反馈”参照（淡虚线），再画当前状态（实线，红/或更淡）
+    plot(false, true, '#c9ccd1');                 // 参照：无反馈
+    plot(feedbackOn, false, RED);                 // 当前
+    // 图例
+    ctx.font='10px -apple-system,sans-serif';
+    ctx.fillStyle = RED; ctx.fillText('— 当前'+(feedbackOn?'（反馈开）':'（反馈关）'), gx0+gW-150, gy0+8);
+    ctx.fillStyle = '#9aa1ab'; ctx.fillText('-- 反馈关 参照', gx0+gW-150, gy0+22);
+
+    // 当前长度的竖线标记
+    var markX = gx0 + (len-1)/25*gW;
+    ctx.save(); ctx.setLineDash([2,3]); ctx.strokeStyle='#9aa1ab';
+    ctx.beginPath(); ctx.moveTo(markX, gy0); ctx.lineTo(markX, gy0+gH); ctx.stroke();
+    ctx.restore();
+  }
+
+  function update(){
+    var len = parseInt(slider.value,10);
+    lenVal.textContent = len;
+    render(len);
+  }
+
+  slider.addEventListener('input', function(){
+    if(sweeping){ cancelAnimationFrame(sweepRAF); sweeping=false; sweepBtn.textContent='▶ 自动扫一遍长度'; }
+    update();
+  });
+
+  fbBtn.addEventListener('click', function(){
+    feedbackOn = !feedbackOn;
+    fbBtn.textContent = feedbackOn ? '反馈：开（高层在预测）' : '反馈：关（高层不预测）';
+    fbBtn.className = feedbackOn ? '' : 'alt';
+    update();
+  });
+
+  sweepBtn.addEventListener('click', function(){
+    if(sweeping){
+      cancelAnimationFrame(sweepRAF); sweeping=false;
+      sweepBtn.textContent='▶ 自动扫一遍长度';
+      return;
+    }
+    sweeping = true; sweepBtn.textContent='⏸ 停止';
+    var v = 1;
+    function step(){
+      slider.value = v; update();
+      v += 1;
+      if(v>26){ v = 1; }
+      if(sweeping) sweepRAF = setTimeout(function(){ requestAnimationFrame(step); }, 90);
+    }
+    step();
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>

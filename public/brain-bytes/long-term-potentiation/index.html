@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bliss & Lømo 1973 — 长时程增强 LTP 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Long-Term Potentiation <span>×</span> 一串高频电脉冲，让突触「记住」好几个小时</h1>
+    <div class="meta">
+      <span>📄 Long-lasting potentiation of synaptic transmission in the dentate area of the anaesthetized rabbit following stimulation of the perforant path</span><br>
+      <span>✍️ T. V. P. Bliss & T. Lømo</span><br>
+      <span>🏛️ National Institute for Medical Research, Mill Hill, London ＆ Institute of Neurophysiology, University of Oslo</span><br>
+      <span>📅 The Journal of Physiology · 1973 · 232: 331–356</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-setup">实验装置：在哪里、量什么</a></li>
+        <li><a href="#sec-viz">交互：摸一摸这条增强曲线</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-f1">① 增强能维持数小时</a></li>
+        <li><a href="#sec-f2">② 通路特异：只增强被刺激的那条</a></li>
+        <li><a href="#sec-f3">③ 两套独立机制：突触 ＋ 兴奋性</a></li>
+        <li><a href="#sec-f4">④ 不必让细胞放电也能增强</a></li>
+        <li><a href="#sec-control">关键控制：排除「假增强」</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是神经科学里被引用最多的论文之一，几乎所有「学习与记忆的分子机制」研究都要从它起步。在 1973 年之前，「记忆储存在突触强度里」（赫布 1949 的猜想）只是一个漂亮的理论；没有人在真正的脑组织里直接看到过「一段经历能让某条突触此后变强、而且强很久」。Bliss 与 Lømo 用麻醉兔的海马，给一束叫<strong>穿通通路</strong>的纤维施加几秒钟的高频电刺激，然后发现下游细胞对单次测试刺激的反应「跃升」并维持了 <strong>30 分钟到 10 小时</strong>——他们把它叫做<strong>长时程增强（LTP，Long-Term Potentiation）</strong>。这第一次给了赫布猜想一个可测量、可操控、发生在「可辨认的皮层通路」上的生理对应物，从此「LTP＝记忆的细胞模型」成为一整个领域的奠基范式。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文是经典电生理，术语密度高。先把下面这些「零件」装进脑子，后面读起来会顺很多。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">海马齿状回（Dentate Gyrus / Dentate Area）</div>
+          <div class="cdesc">海马里一片 C 形的细胞带，主角是密密麻麻的<strong>颗粒细胞</strong>。它是外界信息进入海马的「第一道闸门」，所以研究记忆的入口性质特别合适。本文所有记录都来自这里。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">穿通通路（PP，Perforant Path）</div>
+          <div class="cdesc">从内嗅皮层「穿」过下托、伸进齿状回的一束有髓纤维，是海马的主要外部输入。可以把它想成「通往海马的高速公路」——本文刺激的就是这条路，看下游颗粒细胞的反应会不会变。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">颗粒细胞（Granule Cell）</div>
+          <div class="cdesc">齿状回的输出神经元，数量巨大、排列整齐。穿通通路的突触落在它们树突的<strong>中段三分之一</strong>，占那里突触的近 40%。整齐排列是关键——成千上万个一起放电，才能在细胞外被一根电极「合唱」式地录到。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">群体兴奋性突触后电位（pop e.p.s.p.，Population EPSP）</div>
+          <div class="cdesc">一大群颗粒细胞树突<strong>同时被去极化</strong>，在细胞外汇成的电信号。它直接反映「突触这一关传得多有效」——是衡量<strong>突触强度</strong>的指标。本文主要看它的幅度（甚至上升斜率）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">群体峰电位（pop spike，Population Spike）</div>
+          <div class="cdesc">当去极化够强，一大群颗粒细胞<strong>几乎同时发放动作电位</strong>，在细胞体层叠加出的尖锐负波。它反映「最终有多少细胞、多齐刷刷地放电」——是<strong>输出强度＋同步性</strong>的指标。幅度越大、潜伏期越短，说明输出越强。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">条件刺激串 / 强直刺激（Conditioning Train / Tetanus）</div>
+          <div class="cdesc">用来「诱发增强」的那几秒高频电脉冲，本文用 10–20 次/秒持续 10–15 秒，或 100 次/秒持续 3–4 秒。可以理解成「对突触猛踩几脚油门」，之后再看它会不会「记住」这次猛踩。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">长时程增强（LTP，Long-Term Potentiation）</div>
+          <div class="cdesc">本文的核心发现：强直刺激之后，单次测试反应被持续放大。作者把「维持 ≥30 分钟」作为 LTP 的操作定义。注意「长时程」是相对的——相对此前已知的「几秒到一分钟」的短暂易化，几小时已是天壤之别。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">频率增强（Frequency Potentiation）</div>
+          <div class="cdesc">强直刺激<strong>进行当中</strong>峰电位迅速暴涨的现象（前人已知）。它是个<strong>临时</strong>效应、随刺激结束而消退，必须和「刺激之后还维持几小时的 LTP」区分开——本文反复强调二者不是一回事。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">突触效能 vs 群体兴奋性（两套机制）</div>
+          <div class="cdesc">本文最深刻的概念区分。(a) <strong>突触效能↑</strong>：同样的输入，突触传出更多，体现为 EPSP 变大；(b) <strong>群体兴奋性↑</strong>：同样大小的 EPSP，却能让更多细胞放电，体现为峰电位「超额」变大。作者证明这两者可以各自独立发生。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">通路特异性 / 对照通路（Input Specificity / Control Pathway）</div>
+          <div class="cdesc">他们同时记录两条通路：一条受强直刺激（实验通路），另一条不受（对照通路，放在对侧或同侧偏外）。如果只有被刺激的那条变强、对照通路纹丝不动，就证明这是<strong>突触局部</strong>的改变，而不是整只动物状态飘了。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-setup">实验装置：在哪里、量什么</div>
+      <p>理解这篇论文的一切，关键是先看懂这张「电路图」。把海马想象成一台机器：<strong>穿通通路</strong>是输入线，<strong>颗粒细胞</strong>是处理单元，研究者在两个不同深度各放一根记录电极，分别监听这台机器的两个工位。</p>
+
+      <p>实验在 <strong>18 只成年家兔</strong>上进行（乌拉坦麻醉）。刺激电极是削尖的钨丝（单极、尖端负、0.1 毫秒脉冲、最高 100 V），插在穿通通路上；记录电极是充 NaCl 的玻璃微电极（电阻 1–3 MΩ）。最巧妙的是<strong>记录深度</strong>：</p>
+      <ul>
+        <li>电极停在<strong>突触层</strong>（树突中段）→ 主要录到 <span class="term">群体 EPSP</span>（一个负向波），看「突触传得好不好」。</li>
+        <li>电极再往下推约 150 微米到<strong>细胞体层</strong>→ 信号整体翻转，叠加出 <span class="term">群体峰电位</span>（一个尖峰），看「最后有多少细胞放电、多同步」。</li>
+      </ul>
+
+      <p>他们从每次诱发反应里提取<strong>三个参数</strong>，整篇论文都围着这三个数字转：</p>
+      <table>
+        <thead>
+          <tr><th>参数</th><th>在哪层量</th><th>反映什么</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>群体 EPSP 幅度</td><td>突触层（或细胞体层的正电位）</td><td>突触传递效能 —— 突触「这一关」</td></tr>
+          <tr><td>峰电位幅度</td><td>细胞体层（峰-峰值测量）</td><td>放电细胞的数量 ＋ 同步程度</td></tr>
+          <tr><td>峰电位潜伏期</td><td>细胞体层（刺激到初始正峰的时间）</td><td>细胞被「逼到」放电阈值的快慢</td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-block">
+        <span class="ib-title">为什么是「群体」电位而不是单个神经元？</span>
+        <p>因为颗粒细胞排列得像一支整齐的合唱团，成千上万个被同时激活时，它们的细胞外电流方向一致、会叠加。这让一根细胞外电极就能「听到合唱」，从而稳定监测一大群细胞的状态长达数小时——这正是单细胞内记录做不到的（电极很难在一个细胞里待几小时不掉）。作者后来引用了 Rall & Shepherd (1968) 的电缆理论来解释这些场电位。</p>
+      </div>
+
+      <div class="section-head" id="sec-viz">交互：摸一摸这条增强曲线</div>
+      <p>LTP 的精髓是一条「时间曲线」：施加强直刺激的那一瞬间，反应幅度<strong>跃升</strong>，然后<strong>长时间维持在高位</strong>不掉回去。文字很难传达这种「踩一脚、记很久」的直觉，下面这个小工具让你亲手触发它。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">穿通通路强直刺激 → 群体反应的长时程增强</div>
+        <div class="viz-note">模拟数据，定性复现论文报告的模式（Fig. 2、4、12）。纵轴＝相对基线幅度（基线=100%），横轴＝时间。点击「高频强直刺激」按钮，观察曲线先短暂压低、再跃升并维持。模拟数据基于论文报告的效应量（EPSP 增强约 200–300%、可维持数小时），展示定性模式而非原始记录。</div>
+
+        <div class="viz-controls">
+          <button id="btnTetanus">⚡ 高频强直刺激（15/秒 · 10 秒）</button>
+          <button id="btnReset" class="alt">重置</button>
+          <label><input type="checkbox" id="chkControl" checked> 显示对照通路（不受刺激）</label>
+        </div>
+        <div class="viz-controls">
+          <label>已加刺激串次数：<strong><span id="trainCount">0</span></strong></label>
+          <label>当前增强水平：<strong><span id="potLevel">100</span>%</strong></label>
+        </div>
+
+        <canvas id="ltpCanvas" width="820" height="380"></canvas>
+      </div>
+
+      <div class="info-block">
+        <p>试试连点几次「高频强直刺激」：你会看到论文里的真实现象——前几串刺激产生<strong>陡升的台阶式</strong>增强（steplike），到第四串左右<strong>趋于饱和</strong>（再刺激也很难更高了）；而对照通路（如果勾选显示）始终在 100% 附近平躺。每次刺激<strong>刚结束的一瞬</strong>还能看到一个短暂的<strong>压低（depression）</strong>，那是论文描述的「四个阶段」里的抑制相，随后才进入维持的高位。</p>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>论文的结果可以收束成四条彼此独立、又层层递进的发现。前两条确立「现象真实存在且是突触局部的」，后两条则把现象拆开，揭示它由不止一种机制构成。</p>
+
+      <div class="section-head-sub" id="sec-f1">① 一次强直刺激，把反应放大并维持数小时</div>
+      <p>这是全文的「头条」。给穿通通路施加几秒钟高频刺激后，单次测试反应（三个参数中的一个或多个）被持续放大。把「持续 ≥30 分钟」作为 LTP 的（作者承认是任意选的）门槛：</p>
+      <ul>
+        <li><strong>18 只兔子里有 15 只</strong>出现了维持 30 分钟到 10 小时的增强。</li>
+        <li>从通路角度统计：<strong>35 条受刺激通路里有 24 条</strong>表现出长时程增强。</li>
+        <li>增强幅度可观：群体 EPSP 常被放大到基线的 <strong>200–300%</strong>（Fig. 4C、12B），峰电位甚至到 <strong>300–400%</strong>（Fig. 12A）。</li>
+      </ul>
+      <p>三个参数并非总是同步变化。统计下来：<strong>峰电位潜伏期缩短</strong>是最常见的增强迹象（出现在 <strong>57%</strong> 的实验中）；群体 EPSP 幅度增大见于 <strong>43%</strong>；峰电位幅度增大见于 <strong>40%</strong>；三者<strong>同时</strong>被增强的只占 <strong>29%</strong>（即 35 条通路里的 9 条）。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：什么叫「长」？</span>
+        <p>在本文之前，已知的突触「易化」只能维持<strong>几秒到一分钟</strong>。本文把这个时间尺度一口气拉长了两到三个数量级——最长的实验里，峰电位增强后<strong>稳定维持近 7 小时</strong>才突然崩塌（Fig. 12A），EPSP 增强在另一实验中维持到<strong>实验开始后约 8 小时</strong>才逐渐衰减。正是这个「跨越数小时」的时间尺度，让它第一次具备了「足够长到能用于信息储存」的资格。</p>
+      </div>
+
+      <p>动态过程也很有特征。作者把强直刺激前后分成<strong>四个阶段</strong>：(1) 刺激进行中峰电位暴涨（频率增强）；(2) 刺激结束后 1–2 秒的短暂峰电位增强；(3) 持续几秒到一分多钟的<strong>压低相</strong>（depression）；(4) 才进入维持数小时的长时程增强。这解释了上面交互图里「刺激后先压一下再跃升」的形状。</p>
+
+      <div class="section-head-sub" id="sec-f2">② 通路特异：只增强「被踩油门」的那一条</div>
+      <p>这是把现象从「整只动物变兴奋了」中拯救出来的关键证据。研究者同时监测两条通路——实验通路受强直刺激，对照通路（放在对侧海马，或同侧更偏外侧）不受。结果干净利落：</p>
+      <ul>
+        <li>实验通路 EPSP 被显著放大；<strong>对照通路的 EPSP 早期斜率前后完全一样</strong>，没有任何增强（Fig. 3、4）。</li>
+        <li>对照通路的存在还顺便监测了「整体状态漂移」：实验进行 7–10 小时后，对照反应会因标本逐渐劣化而缓慢下降——但这种全局衰减与实验通路被特异性放大是两码事。</li>
+      </ul>
+      <p>因此作者可以「安全地下结论」（原文 <em>safely concluded</em>）：增强效应<strong>局限于受到那几秒条件刺激的通路</strong>，是这条通路上突触的直接改变。这条「输入特异性」后来成为 LTP 作为记忆模型最被看重的性质之一——记忆应该是「具体内容具体存」，而不是「整个脑一起变亮」。</p>
+
+      <div class="section-head-sub" id="sec-f3">③ 两套独立机制：突触变强 ＋ 细胞更易放电</div>
+      <p>论文摘要的第 6 条点明了全文最深刻的结论：长时程增强由<strong>两个相互独立的机制</strong>共同负责——(a) 穿通通路突触<strong>传递效能</strong>的增加；(b) 颗粒细胞群体<strong>兴奋性</strong>的增加。怎么把这两者拆开？靠的是 EPSP 与峰电位之间「该不该匹配」的逻辑。</p>
+      <p>正常情况下，EPSP 越大，放电的细胞应该越多、峰电位越大——二者绑定。但作者发现两种「脱钩」：</p>
+      <ul>
+        <li><strong>峰电位「超额」增强</strong>：同样大小的一个 EPSP，条件刺激后却能诱发潜伏期更短的峰电位。原文例子：刺激前 2.7 mV 的 EPSP 对应 3.9 ms 的峰潜伏期；条件刺激后，同样 2.7 mV 的 EPSP（用更弱刺激得到）只需 <strong>2.9 ms</strong>。这意味着细胞「更容易被逼到阈值」了，超出了 EPSP 本身能解释的范围——这是<strong>兴奋性</strong>机制。</li>
+        <li><strong>峰电位单独被增强、EPSP 不变</strong>：在某些实验里（Fig. 9、10），条件刺激让峰电位增强（或潜伏期缩短），群体 EPSP 却没有相应变化。反过来在另一些实验里 EPSP 增强而峰电位没跟上。这种「缺乏相关」本身就是两套机制独立的铁证。</li>
+      </ul>
+      <p>另一条线索是<strong>变异性</strong>：条件刺激前，峰电位幅度在一次次测试间剧烈起伏（无量纲变异指数＝标准差/均值（SD/mean，Standard Deviation 除以均值）＝<strong>0.35</strong>，幅度范围 1.0–9.0 mV）；条件刺激后变得稳定（变异指数降到 <strong>0.09</strong>，范围收窄到 10.0–14.5 mV，Fig. 7、8）。作者推断颗粒细胞群体的兴奋性本就受持续涨落的「张力性（tonic）」输入调制，而条件刺激既<strong>整体抬高</strong>了兴奋性、又<strong>压低</strong>了这种涨落。</p>
+
+      <div class="info-block">
+        <span class="ib-title">为什么「两套机制」这么重要？</span>
+        <p>因为它定义了之后半个世纪的研究地图。「突触效能↑」这一支，后来被发现对应 NMDA 受体（N-甲基-D-天冬氨酸受体，N-Methyl-D-Aspartate receptor）、AMPA 受体（α-氨基-3-羟基-5-甲基-4-异恶唑丙酸受体，AMPA receptor）插入、树突棘形态变化等——成为分子记忆研究的主战场。而「群体兴奋性↑」（即非突触的、内在兴奋性的可塑性，intrinsic plasticity）则是另一条长期被低估、近年才重新热门的支线。Bliss & Lømo 在 1973 年就用纯电生理逻辑把这两支干净地分开了，这是惊人的洞察力。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-f4">④ 不必让细胞放电，突触也能被增强</div>
+      <p>一个自然的怀疑是：会不会必须让颗粒细胞「猛烈放电」，增强才发生？为了排除这点，作者把刺激频率提到 <strong>100 次/秒</strong>（做了 3 个实验，把刺激串缩短到 3–4 秒以保持总刺激数大致相同）。在 100/秒下，从场电位和单细胞记录看，<strong>颗粒细胞的放电在第一个脉冲后就被抑制掉了</strong>；其中两个实验还故意用弱刺激，使刺激前和刺激中都不出现峰电位。</p>
+      <p>结果：<strong>所有 3 个实验都得到了维持 1 小时以上的 EPSP 增强</strong>（Fig. 11）。也就是说，即使颗粒细胞几乎不放电，突触层面的长时程增强照样发生。作者据此提出：<strong>颗粒细胞的（突触后）放电不是 EPSP 长时程增强的必要条件</strong>。</p>
+      <div class="info-block">
+        <p>这是一个微妙但重要的实验。它把「突触增强」与「细胞放电」在因果上松绑——暗示突触前的高频活动本身（而非突触后的大量放电）可能就足以触发突触侧的增强。当然作者很谨慎地承认：要完全排除「异步的、零星的」放电，还需要更大规模的单细胞记录。这个谨慎在今天看依然成立——突触后去极化在 LTP 诱导中的角色，是后来 NMDA 受体故事的核心，而本文的这个边角实验恰好预告了那场讨论。</p>
+      </div>
+
+      <div class="section-head" id="sec-control">关键控制：排除「假增强」</div>
+      <p>一篇奠基性论文的分量，往往不在「看到了什么」，而在「排除了什么」。Bliss & Lømo 在讨论部分系统地拆掉了三种「平凡解释」，才让「突触真的变强了」站得住脚。最容易混淆的平凡解释是：会不会条件刺激只是<strong>招募了更多的穿通通路纤维</strong>（即输入的「队伍」变大了），下游反应当然变大，根本不涉及突触本身？作者给出三道防线：</p>
+      <table>
+        <thead>
+          <tr><th>平凡解释</th><th>反驳证据</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>测试刺激招募了更多纤维（突触前队伍变大）</td><td>条件刺激后，诱发 EPSP 的<strong>阈值没有降低</strong>；而且无论刺激前用多强的电压，都无法模拟出条件刺激后那么大的 EPSP（Fig. 6A）。</td></tr>
+          <tr><td>同上（从输入-输出曲线角度）</td><td>条件刺激后「给定 EPSP 对应的峰电位参数」与刺激前<strong>明显不同</strong>，说明不是简单沿着同一条输入-输出曲线上移（Fig. 6D）。</td></tr>
+          <tr><td>同上（直接测突触前信号）</td><td>他们<strong>检测不到突触前复合动作电位</strong>，无法直接证明队伍变大；而在某些实验里峰电位增强时 EPSP 根本没变（Fig. 9、10），这类情况下增强绝不可能来自更大的突触前队伍。</td></tr>
+        </tbody>
+      </table>
+      <p>排除了「队伍变大」之后，剩下最简洁的解释就是<strong>突触传递效能本身提高了（facilitated synaptic transmission）</strong>。作者进一步列举了效能提高的几种可能微观形式：每个突触被激活的终末更多、每个突触释放的递质更多、突触后膜敏感性提高、或树突棘颈部电阻下降（引用 Rall 1970）——并坦承<strong>现有证据无法区分这几种</strong>。这种「我证明了 X 存在，但我不知道 X 的分子细节」的诚实，正是它留给后人一整片研究空间的原因。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇 1973 年的论文之所以经得住半个世纪推敲，靠的是一系列朴素却严密的设计。把它们列出来，比泛泛说「实验严谨」更有说服力。</p>
+      <table>
+        <thead>
+          <tr><th>设计</th><th>解决的问题 / 带来的好处</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>双深度记录（突触层＋细胞体层）</td><td>让「突触输入（EPSP）」与「细胞输出（spike）」能被分开测量，这是后来拆出「两套机制」的物理基础。</td></tr>
+          <tr><td>对照通路（对侧或同侧偏外）</td><td>实时监测全局兴奋性漂移与脑的整体移动，从而证明增强是<strong>通路特异</strong>的局部改变，而非麻醉深度、血压等全局因素。</td></tr>
+          <tr><td>把刺激与测试电极分开（同侧偏外设计）</td><td>防止「条件刺激顺便招募了更多纤维去响应测试刺激」这一混淆——测试电极放在更外侧，激活的是另一束更窄的纤维。</td></tr>
+          <tr><td>群体场电位 ＋ 长时间监测</td><td>稳定追踪一大群细胞状态长达数小时，是单细胞内记录无法企及的——这是「长时程」得以被观测到的前提。</td></tr>
+          <tr><td>100/秒「无放电」对照</td><td>把「突触增强」与「细胞放电」解耦，逼近因果链上游。</td></tr>
+          <tr><td>输入-输出曲线（刺激强度 vs 反应）对比</td><td>系统排除「单纯沿曲线上移＝招募更多纤维」的平凡解释（Fig. 6）。</td></tr>
+          <tr><td>用变异指数 SD/均值量化稳定性</td><td>把「反应变稳了」这个定性印象变成一个可比的数字（0.35 → 0.09）。</td></tr>
+          <tr><td>引入电缆理论（eqn 1–2）解释场电位</td><td>把细胞外电位与膜去极化定量挂钩，使「EPSP 幅度变大意味着什么」有了生物物理依据。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文不是凭空降生的，它精准地坐落在几条线索的交汇点上：</p>
+      <ul>
+        <li><strong>顺着 Lømo 自己的发现往下挖。</strong> 整个研究起源于 Lømo (1966) 观察到的「频率增强」——刺激当中反应会暂时增大。本文的关键转折是注意到：刺激<strong>结束之后</strong>，反应竟然还维持在高位很久。也就是说，他们把一个「刺激中的临时现象」追问成了「刺激后的持久现象」。</li>
+        <li><strong>给赫布猜想一个生理对应物。</strong> 论文末尾把结果直接接到「学习与记忆」的讨论上（引用 Douglas 1967、Olds 1972），指出穿通通路是海马的主要输入、而海马与记忆密切相关。这虽未明说「赫布」，但「活动改变突触效能、且改变能维持数小时」正是赫布可塑性的实验落地。</li>
+        <li><strong>站在解剖与场电位理论的肩上。</strong> 他们大量依赖既有的海马解剖（Blackstad 1958、Nafstad 1967、Hjorth-Simonsen & Jeune 1972）来确定电极该插哪里，并用 Rall & Shepherd (1968) 的电缆理论、Fatt & Katz (1953) 的等效电路来解释他们录到的场电位。没有这些前置工作，他们读不懂自己的信号。</li>
+        <li><strong>与同期姊妹论文配套。</strong> 紧随其后的 Bliss & Gardner-Medwin (1973，同卷 357–374) 在<strong>清醒、未麻醉</strong>的动物上重复出同样的现象，排除了「这只是麻醉的产物」这一质疑。两篇合起来才构成完整的论证。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>LTP 的影响早已溢出海马生理本身。</p>
+      <ul>
+        <li><strong>记忆的细胞模型。</strong> 这篇论文实际上为「突触可塑性＝记忆基质」这一整个范式提供了第一块实验地基。此后数十年，从分子（NMDA/AMPA 受体、钙调蛋白依赖性蛋白激酶 II（CaMKII，Ca²⁺/Calmodulin-dependent protein Kinase II）、蛋白合成）到行为（空间记忆、恐惧条件化）的研究，大多以「这是否依赖 LTP 样机制」为隐含坐标系。</li>
+        <li><strong>人工神经网络的生物背书。</strong> 「按活动调整连接权重」是所有人工神经网络的核心。LTP（连同后来发现的反向过程——长时程抑制，LTD，Long-Term Depression）相当于给「赫布学习规则」找到了一个真实生物系统中的存在证明，常被计算神经科学引为「权重可塑」的生理原型。</li>
+        <li><strong>两类可塑性的分野。</strong> 本文对「突触效能」与「内在兴奋性」的区分，预告了后来<strong>突触可塑性</strong>与<strong>内在可塑性（intrinsic plasticity）</strong>两个子领域的分工——后者长期被忽视，近年在学习与稳态调节的研究中重新受到重视。</li>
+        <li><strong>「过程依赖时间尺度」的范式。</strong> 把一个现象按时间相位拆成「刺激中／刺激后短暂／压低／长时程」四段来分析，本身就是一种可迁移的方法论——任何「刺激引发的持久改变」（成瘾、痛觉敏化、免疫记忆）都可借用这套相位分解的视角。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这是奠基性论文，但奠基不等于完成。有些局限作者自己点了出来，有些则要由读者补上。</p>
+      <ul>
+        <li><strong>机制只到「现象」层，分子细节全是空白（作者承认）。</strong> 他们证明了突触效能提高，但坦言无法区分是「释放更多递质／更多终末被激活／突触后更敏感／棘颈电阻下降」中的哪一种。整个分子机制的故事都留给了后人——这既是局限，也是它影响力的来源。</li>
+        <li><strong>效应高度可变，且有 3 只动物完全无效（作者承认）。</strong> 增强的幅度和持续时间在不同动物、甚至同一动物不同位置间差异极大；18 只里有 3 只反复刺激都<strong>毫无后效</strong>。作者明确指出这种差异不能用穿通通路输入的强弱来解释——为什么有的就是不增强，本文没有答案。</li>
+        <li><strong>LTP 的「30 分钟」门槛是任意定的（作者承认）。</strong> 「长时程」与「短暂易化」之间没有自然的分界线，门槛是人为划的。最小诱导条件（多少刺激、什么频率才够）、后效大小与刺激量的定量关系，作者明说<strong>没有系统研究</strong>。</li>
+        <li><strong>「兴奋性增强」的机制基本是推测。</strong> 作者把它归因于「张力性输入的调制」，但坦言<strong>不知道是哪条通路</strong>（海马内还是海马外）负责，也无法判断它在峰电位增强中到底占多大比重。这部分论证更多是排除法和定性推断。</li>
+        <li><strong>诱导阈值的下界没测准（读者补充）。</strong> 论文给出诱导频率的下界「大于 0.5/秒」（测试用的频率），但 0.5 与 5/秒之间的空白没填——这意味着「多慢的活动还能诱发 LTP」其实没有精确答案。</li>
+        <li><strong>从「能诱发」到「真用于记忆」是一道未跨的鸿沟（作者承认）。</strong> 全文最后一句极为克制：动物在真实生活中是否利用了这一性质、它平时承载的自然活动是什么样，「是另一回事（another matter）」。换句话说，本文证明的是<strong>机制存在</strong>，而非<strong>机制在自然记忆中被使用</strong>——这道沟至今仍是 LTP 领域的根本争议。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下是解读者的独立评价，每条都尽量绑定文中证据。</p>
+      <p><strong>它的历史地位被低估都难，但要分清「它证明了什么」和「它被当成证明了什么」。</strong> 本文确凿建立的是：在麻醉兔海马，短暂高频刺激能让<strong>可辨认通路</strong>上的突触反应持续放大数小时（15/18 只动物，EPSP 可达 200–300%），且这是<strong>通路特异</strong>的局部改变（对照通路零增强）。这些结论由干净的对照设计和排除法支撑，极其扎实。但它<strong>没有</strong>证明这就是记忆的载体——作者本人在末段也明确把「是否用于真实记忆」划为悬而未决。后世把 LTP 直接等同于记忆，是一种合理但越界的外推，责任不在这篇论文。</p>
+      <p><strong>最被低估的贡献是「两套机制」的拆分，而非「LTP」这个词本身。</strong> 单纯「发现突触能被增强」是重要的，但用纯电生理逻辑（EPSP 与 spike 的脱钩、变异性下降）把<strong>突触效能</strong>与<strong>内在兴奋性</strong>干净分开，需要更高阶的论证。文中 Fig. 9、10「峰电位增强而 EPSP 不变」这类反相关数据，是这一拆分的硬证据。这条洞见的价值随时间增长——内在可塑性直到近二十年才被主流重新重视。</p>
+      <p><strong>论证的严谨度高于它所处的时代。</strong> 1973 年没有分子工具，但作者靠装置设计（双深度、双通路、偏外侧测试电极）和概念控制（输入-输出曲线、100/秒无放电对照、电缆理论定量化）把能想到的平凡解释逐一堵死。尤其「无法用更强刺激模拟出增强后的 EPSP」（Fig. 6A）这一论证，简洁有力，至今是排除「招募更多纤维」的范本。</p>
+      <p><strong>诚实是它的另一重力量。</strong> 论文反复标注自己不知道什么：分子机制不知道、为何 3 只无效不知道、兴奋性增强走哪条通路不知道、是否真用于记忆不知道。这种「把未知精确地圈出来」的写法，反而把一整片研究地图清晰地交到了后人手里——这也是为什么它能被引用半个世纪。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Bliss 与 Lømo (1973) 在麻醉兔海马齿状回上证明：给穿通通路几秒钟的高频强直刺激，能让下游颗粒细胞的群体反应<strong>跃升并持续增强 30 分钟到 10 小时</strong>（15/18 只动物，EPSP 可达基线 200–300%），且这一增强<strong>只发生在被刺激的那条通路</strong>、由<strong>突触效能提高</strong>与<strong>细胞群体兴奋性提高</strong>两套独立机制共同造成——这就是<strong>长时程增强（LTP）</strong>，赫布「用进则强」猜想第一次在真实皮层通路上获得可测量、可操控的生理对应物，从此奠定了「突触可塑性＝记忆基质」整个研究范式。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Bliss, T. V. P. &amp; Lømo, T. (1973). Long-lasting potentiation of synaptic transmission in the dentate area of the anaesthetized rabbit following stimulation of the perforant path. <em>The Journal of Physiology</em>, 232(2), 331–356. ｜ 姊妹篇：Bliss, T. V. P. &amp; Gardner-Medwin, A. R. (1973). 同卷 357–374（清醒动物）。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('ltpCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // ---- 坐标系参数 ----
+  var padL = 56, padR = 18, padT = 24, padB = 44;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+  var T_MAX = 120;      // 横轴：120 分钟
+  var Y_MAX = 360;      // 纵轴：360 %
+  var DT = 0.5;         // 采样步长（分钟）
+
+  // ---- 状态 ----
+  var expSeries = [];   // 实验通路样本 {t, v}
+  var conSeries = [];   // 对照通路样本
+  var tetTimes = [];    // 强直刺激发生的时间点（分钟）
+  var curTime = 0;      // 当前已推进到的时间
+  var potPlateau = 100; // 当前增强台阶目标（实验通路）
+  var trainCount = 0;
+  var animating = false;
+
+  var elTrain = document.getElementById('trainCount');
+  var elPot = document.getElementById('potLevel');
+  var chkControl = document.getElementById('chkControl');
+
+  function xOf(t){ return padL + (t/T_MAX)*plotW; }
+  function yOf(v){ return padT + plotH - (v/Y_MAX)*plotH; }
+
+  // 基线噪声（小幅抖动，定性表现测试间变异）
+  function noise(amp){ return (Math.random()-0.5)*amp; }
+
+  function drawAxes(){
+    ctx.clearRect(0,0,W,H);
+    // 背景
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0,0,W,H);
+
+    // 100% 基线
+    ctx.strokeStyle = '#d7dbe0';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, yOf(100));
+    ctx.lineTo(W-padR, yOf(100));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 纵轴刻度
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '11px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    var yticks = [100,200,300];
+    for(var i=0;i<yticks.length;i++){
+      var yy = yOf(yticks[i]);
+      ctx.strokeStyle = '#eef0f2';
+      ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke();
+      ctx.fillStyle = '#9aa1ab';
+      ctx.fillText(yticks[i]+'%', padL-8, yy);
+    }
+    // 轴线
+    ctx.strokeStyle = '#c4c9cf';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT);
+    ctx.lineTo(padL, padT+plotH);
+    ctx.lineTo(W-padR, padT+plotH);
+    ctx.stroke();
+
+    // 横轴刻度
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#9aa1ab';
+    var xticks = [0,30,60,90,120];
+    for(var j=0;j<xticks.length;j++){
+      var xx = xOf(xticks[j]);
+      ctx.fillText(xticks[j], xx, padT+plotH+8);
+    }
+    ctx.fillText('时间（分钟）→', xOf(T_MAX)-44, padT+plotH+24);
+
+    // 纵轴标题
+    ctx.save();
+    ctx.translate(14, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center';
+    ctx.fillStyle='#6b7280';
+    ctx.fillText('相对基线幅度（%）', 0, 0);
+    ctx.restore();
+
+    // 强直刺激标记（红色箭头/竖线）
+    for(var k=0;k<tetTimes.length;k++){
+      var tx = xOf(tetTimes[k]);
+      ctx.strokeStyle = '#c0392b';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2,3]);
+      ctx.beginPath();
+      ctx.moveTo(tx, padT);
+      ctx.lineTo(tx, padT+plotH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // 箭头
+      ctx.fillStyle = '#c0392b';
+      ctx.beginPath();
+      ctx.moveTo(tx, padT+2);
+      ctx.lineTo(tx-4, padT-6);
+      ctx.lineTo(tx+4, padT-6);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function drawSeries(series, color, width){
+    if(series.length < 2) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for(var i=0;i<series.length;i++){
+      var px = xOf(series[i].t);
+      var py = yOf(Math.max(0,Math.min(Y_MAX,series[i].v)));
+      if(i===0) ctx.moveTo(px,py);
+      else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  }
+
+  function legend(){
+    var lx = padL+14, ly = padT+10;
+    ctx.font = '12px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    // 实验
+    ctx.strokeStyle='#c0392b'; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+22,ly); ctx.stroke();
+    ctx.fillStyle='#3a4048';
+    ctx.fillText('实验通路（受强直刺激）', lx+28, ly);
+    if(chkControl.checked){
+      ly += 18;
+      ctx.strokeStyle='#9aa1ab'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+22,ly); ctx.stroke();
+      ctx.fillStyle='#6b7280';
+      ctx.fillText('对照通路（不受刺激）', lx+28, ly);
+    }
+  }
+
+  function render(){
+    drawAxes();
+    if(chkControl.checked) drawSeries(conSeries, '#9aa1ab', 1.6);
+    drawSeries(expSeries, '#c0392b', 2.2);
+    legend();
+  }
+
+  // 生成下一段曲线，从 curTime 推进到 endTime
+  function extendTo(endTime){
+    // 初始点
+    if(expSeries.length===0){
+      expSeries.push({t:0, v:100+noise(6)});
+      conSeries.push({t:0, v:100+noise(4)});
+    }
+    var t = curTime;
+    while(t < endTime){
+      t += DT;
+      // 实验通路：朝当前台阶 potPlateau 缓慢趋近（一阶弛豫）
+      var last = expSeries[expSeries.length-1].v;
+      // 找最近一次强直刺激，制造刺激后的短暂压低
+      var depress = 0;
+      for(var k=0;k<tetTimes.length;k++){
+        var dt = t - tetTimes[k];
+        if(dt>=0 && dt<2.5){
+          // 刺激后 0~2.5 分钟的压低相（depression）
+          depress -= 28*Math.exp(-dt/0.8)*(1-dt/2.5);
+        }
+      }
+      // 朝台阶趋近：上升快、维持稳
+      var target = potPlateau + depress;
+      var v = last + (target-last)*0.16 + noise(potPlateau>120?7:5);
+      expSeries.push({t:t, v:v});
+      // 对照通路：始终在 100 附近平躺（含缓慢漂移与噪声）
+      var conLast = conSeries[conSeries.length-1].v;
+      var conTarget = 100 - (t/T_MAX)*6; // 极轻微的全局衰减
+      var cv = conLast + (conTarget-conLast)*0.05 + noise(4);
+      conSeries.push({t:t, v:cv});
+    }
+    curTime = t;
+  }
+
+  function animateTo(endTime, done){
+    animating = true;
+    var step = 1.5; // 每帧推进多少分钟
+    function frame(){
+      var next = Math.min(endTime, curTime+step);
+      extendTo(next);
+      render();
+      // 更新读数
+      var cur = expSeries[expSeries.length-1].v;
+      elPot.textContent = Math.round(cur);
+      if(curTime < endTime){
+        requestAnimationFrame(frame);
+      } else {
+        animating = false;
+        if(done) done();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function tetanus(){
+    if(animating) return;
+    trainCount++;
+    elTrain.textContent = trainCount;
+    tetTimes.push(curTime);
+    // 台阶式增强：前几串陡升，逐渐饱和
+    // 目标台阶序列约 ~190, ~245, ~280, ~300（饱和）
+    var steps = [100, 195, 248, 282, 300, 308, 312];
+    potPlateau = steps[Math.min(trainCount, steps.length-1)];
+    // 推进约 26 分钟，展示「跃升后维持」
+    var endTime = Math.min(T_MAX, curTime + 26);
+    animateTo(endTime, null);
+  }
+
+  function reset(){
+    if(animating) return;
+    expSeries = [];
+    conSeries = [];
+    tetTimes = [];
+    curTime = 0;
+    potPlateau = 100;
+    trainCount = 0;
+    elTrain.textContent = '0';
+    elPot.textContent = '100';
+    extendTo(8); // 先画一小段稳定基线
+    render();
+  }
+
+  document.getElementById('btnTetanus').addEventListener('click', tetanus);
+  document.getElementById('btnReset').addEventListener('click', reset);
+  chkControl.addEventListener('change', render);
+
+  // 初始：画一段基线
+  reset();
+})();
+</script>
+</body>
+</html>

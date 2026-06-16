@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爱荷华赌博任务 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+
+  /* ---------- 交互组件内部专用（继承红色主题） ---------- */
+  .deck-row{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin:8px 0 4px;
+  }
+  .deck-btn{
+    width:120px;
+    height:150px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:linear-gradient(160deg,#fff 0%,#f2f3f5 100%);
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    font-family:inherit;
+    transition:transform .08s ease, box-shadow .12s ease;
+    position:relative;
+    padding:8px;
+  }
+  .deck-btn:hover{transform:translateY(-3px);box-shadow:0 6px 14px rgba(0,0,0,0.12);}
+  .deck-btn:active{transform:translateY(0);}
+  .deck-btn .deck-name{font-size:2.0rem;font-weight:800;color:var(--ink);}
+  .deck-btn .deck-tag{font-size:0.72rem;color:var(--muted);text-align:center;line-height:1.35;}
+  .deck-btn .deck-count{font-size:0.72rem;color:var(--muted-light);}
+  .deck-btn:disabled{cursor:default;opacity:0.55;transform:none;box-shadow:none;}
+  .feedback{
+    min-height:2.4em;
+    text-align:center;
+    font-weight:700;
+    font-size:1.05rem;
+    margin:6px 0;
+    transition:color .1s;
+  }
+  .gain{color:#1a7f37;}
+  .loss{color:var(--red);}
+  .stat-row{
+    display:flex;
+    justify-content:center;
+    gap:26px;
+    flex-wrap:wrap;
+    margin:10px 0 4px;
+    font-size:0.95rem;
+  }
+  .stat-row .stat b{color:var(--red);font-size:1.15rem;}
+  .reveal-box{
+    margin-top:14px;
+    padding:12px 16px;
+    border-radius:8px;
+    background:var(--code-bg);
+    border:1px solid var(--line);
+    font-size:0.9rem;
+    line-height:1.7;
+    display:none;
+  }
+  .reveal-box.show{display:block;}
+  .reveal-box .good{color:#1a7f37;font-weight:700;}
+  .reveal-box .bad{color:var(--red);font-weight:700;}
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Iowa Gambling Task <span>×</span> 当大脑「对未来失明」：在赌桌上看见情绪如何替理性做决定</h1>
+    <div class="meta">
+      <span>📄 Insensitivity to future consequences following damage to human prefrontal cortex</span><br>
+      <span>✍️ Antoine Bechara, Antonio R. Damasio, Hanna Damasio, Steven W. Anderson</span><br>
+      <span>🏛️ 美国爱荷华大学医学院 神经科 · 行为神经病学与认知神经科学部</span><br>
+      <span>📅 Cognition, 50 (1994) 7–15</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-play">先玩一局：你能学会吗</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-f1">① 智力完好，决策崩坏</a></li>
+        <li><a href="#sec-f2">② 好牌堆 vs 坏牌堆的鸿沟</a></li>
+        <li><a href="#sec-f3">③ 不是脑损伤，是部位</a></li>
+        <li><a href="#sec-f4">④ 三选一：为什么短视</a></li>
+        <li><a href="#sec-f5">⑤ 时间也救不了</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>有一类病人，智商正常、记忆完好、能解抽象逻辑题、谈起伦理两难头头是道——但在真实生活里却一次次做出灾难性决定：投资血本无归、婚姻破裂、丢掉工作，而且<strong>不长记性</strong>。几十年来，神经心理学界一直拿他们没办法：所有标准测验他们都能<strong>满分通过</strong>，实验室里根本「测不出」他们到底哪里坏了。这篇 1994 年的论文用一副扑克牌解决了这个难题——它把「真实生活里的决策」第一次搬进了实验室。</p>
+        <p>这篇论文之所以是神经科学的里程碑，有三个理由：其一，它发明的<span class="term">爱荷华赌博任务（IGT，Iowa Gambling Task）</span>成了此后三十年研究决策、成瘾、情绪与理性关系最常用的范式之一；其二，它用一个干净的行为实验，为 Damasio 著名的<span class="term">躯体标记假说（Somatic Marker Hypothesis）</span>——「情绪是理性的盟友而非敌人」——提供了第一块实证拼图；其三，它示范了认知神经科学最优雅的一招：当现有工具测不出缺陷时，<strong>不要怀疑缺陷不存在，而要去发明能测出它的工具</strong>。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>读这篇论文之前，先备好这几把「钥匙」。它们既是理解本文的工具，也是后续三十年决策神经科学的通用词汇。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">腹内侧前额叶皮层（VM, Ventromedial Prefrontal Cortex）</div>
+          <div class="cdesc">额叶最靠下、靠中间（眼睛正后上方）的一片皮层。它不管「算数学题」这类冷认知，而像大脑里的<strong>「价值标价员」</strong>：把一个念头、一个选项贴上「这事让我感觉好/坏」的标签。它一坏，人就成了「有知识没感觉」的决策者。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">爱荷华赌博任务（IGT, Iowa Gambling Task）</div>
+          <div class="cdesc">本文发明的核心实验：4 副牌任你抽 100 张，每张给钱、偶尔罚钱。两副「<strong>高利贷牌</strong>」给钱多但罚得更狠（长期亏），两副「<strong>定存牌</strong>」给钱少但罚得轻（长期赚）。规则不告诉你，全靠自己摸索。它把真实人生「赌不确定的未来」浓缩成了一张牌桌。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">躯体标记假说（SMH, Somatic Marker Hypothesis）</div>
+          <div class="cdesc">Damasio 的核心理论：当你面对一个选项，身体会先冒出一股<strong>说不清的好恶感</strong>（心跳、肠胃、皮肤反应等「躯体信号」），这股感觉像一面小红旗（value mark，价值标记），帮你在还没想清楚利弊前就把坏选项<strong>「提前剔除」</strong>。情绪不是干扰理性，而是给理性<strong>缩小搜索范围</strong>。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">病人 E.V.R.（Patient E.V.R.）</div>
+          <div class="cdesc">本文的「原型病人」，VM 损伤的活教科书。曾是成功的会计师，脑膜瘤手术切除了腹内侧额叶后，智商、记忆、知识全保留，却<strong>持续做出毁掉人生的决定</strong>且不吸取教训（出自 Saver & Damasio, 1991）。他是「测不出的缺陷」这个谜题的人形面孔。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">优势牌堆 vs 劣势牌堆（Advantageous vs Disadvantageous Decks）</div>
+          <div class="cdesc">优势牌堆（C、D）= 长期赚钱的「好牌」；劣势牌堆（A、B）= 长期亏钱的「坏牌」。关键陷阱：坏牌<strong>每张给钱更多（$100 vs $50）</strong>，眼前更诱人——区分好坏不能看单张，要看长期净值。这正是真实人生里「短期爽 vs 长期值」的实验室缩影。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">对未来的近视 / 短视（Myopia for the Future）</div>
+          <div class="cdesc">作者给 VM 病人核心缺陷起的名字。不是看不见未来的「知识」（他们能想象后果），而是未来的后果<strong>对他们的当下决定不起作用</strong>——就像近视的人不是不知道远处有山，而是看不清。他们被<strong>眼前的甜头/痛感</strong>牢牢牵着走。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">双重分离（Double Dissociation）</div>
+          <div class="cdesc">神经心理学证明「某脑区专管某功能」的黄金逻辑。本文用它的雏形：VM 病人——决策崩坏但<strong>智力/记忆完好</strong>；而其他部位（枕叶、颞叶、背外侧）的脑损伤病人——可能记忆有缺陷但<strong>决策正常</strong>。两组反向对照，把「决策缺陷」精准钉在 VM 这一个部位上。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">延迟惩罚 / 延迟奖励（Delayed Punishment / Reward）</div>
+          <div class="cdesc">「后果」和「行为」之间隔了时间。坏牌的报应是「<strong>延迟的大惩罚</strong>」——你爽了好几张才挨一记重击。正常人能把延迟的后果「拉回当下」纳入计算；VM 病人做不到，所以总被眼前的即时奖励俘获。本文用「反转版任务」专门检验这一点。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">背外侧前额叶 vs 工作记忆账户（DLPFC / Working-Memory Account）</div>
+          <div class="cdesc">背外侧前额叶（DLPFC, Dorsolateral Prefrontal Cortex）是大脑的「<strong>临时白板</strong>」，负责把信息暂存、加工（即工作记忆）。本文末尾提出竞争解释之一：也许病人能想象未来后果，但这些想象<strong>在白板上停留太短</strong>，来不及被推理利用——与「缺了情绪标价」的躯体标记解释打擂台。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-play">先玩一局：你能学会吗</div>
+      <p>纸上谈兵不如亲手试。下面是按论文 Fig. 1 的赏罚时间表搭的<strong>简化版爱荷华赌博任务</strong>。规则我故意<strong>不告诉你</strong>哪副是好牌——就像真实被试一样，你只能靠每次的输赢去摸索。抽够约 30~40 张后，留意一下自己手指是不是开始<strong>「躲开」</strong>某两副牌、被另两副牌吸引。那种说不清、但让你想换牌的「感觉」，就是论文要讲的主角——而 VM 病人恰恰缺了它。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">交互 · 玩一局爱荷华赌博任务</div>
+        <div class="viz-note">赏罚时间表取自论文 Fig. 1 报告的真实牌堆设定（A/B 每张 +$100、C/D 每张 +$50；惩罚的频率与额度按论文模式设定，每副牌前 10 张内随机打散）。目标：把手上的 $2000 越滚越多。规则不会提示，请自己摸索。</div>
+
+        <div class="stat-row">
+          <div class="stat">余额 <b id="igt-balance">$2000</b></div>
+          <div class="stat">已抽 <b id="igt-trials">0</b> / 100</div>
+        </div>
+
+        <div class="feedback" id="igt-feedback">从下面 4 副牌里点一张开始。</div>
+
+        <div class="deck-row" id="igt-decks">
+          <button class="deck-btn" data-deck="0"><span class="deck-name">A</span><span class="deck-tag">每张 +$100</span><span class="deck-count" id="cnt-0">抽了 0 张</span></button>
+          <button class="deck-btn" data-deck="1"><span class="deck-name">B</span><span class="deck-tag">每张 +$100</span><span class="deck-count" id="cnt-1">抽了 0 张</span></button>
+          <button class="deck-btn" data-deck="2"><span class="deck-name">C</span><span class="deck-tag">每张 +$50</span><span class="deck-count" id="cnt-2">抽了 0 张</span></button>
+          <button class="deck-btn" data-deck="3"><span class="deck-name">D</span><span class="deck-tag">每张 +$50</span><span class="deck-count" id="cnt-3">抽了 0 张</span></button>
+        </div>
+
+        <div class="viz-controls" style="justify-content:center;">
+          <button class="alt" id="igt-reveal">我玩够了，揭晓答案</button>
+          <button class="alt" id="igt-reset">重新开始</button>
+        </div>
+
+        <div class="reveal-box" id="igt-reveal-box">
+          <strong>真相揭晓 —— 这就是论文的核心机关：</strong><br>
+          牌 <span class="bad">A 与 B</span>（劣势牌堆）：每张给 $100，诱人，但惩罚总额更高 —— 每抽 10 张<strong>净亏 $250</strong>。<br>
+          牌 <span class="good">C 与 D</span>（优势牌堆）：每张只给 $50，寒酸，但惩罚很轻 —— 每抽 10 张<strong>净赚 $250</strong>。<br>
+          A 和 C 是「<strong>常挨小罚</strong>」，B 和 D 是「<strong>偶挨大罚</strong>」，但 A=B、C=D 的长期净值完全相同。<br>
+          <span class="good">正常人</span>玩到中后段会自发把大部分选择转向 C、D，只偶尔回头碰 A、B —— 哪怕他们说不清为什么。<br>
+          <span class="bad">VM 损伤病人</span>则相反：开局会跟正常人一样试探，但很快又被 A、B 的高额即时回报勾回去，<strong>系统性地、反复地</strong>选向坏牌堆，且测多少次都改不了。<br>
+          <span id="igt-verdict"></span>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">玩家小提示</span>
+        这个小游戏用的是论文报告的牌堆<strong>定性模式</strong>（赏罚频率与方向），不是某位被试的逐张原始记录。它的目的不是让你「赢」，而是让你<strong>亲身体会到</strong>：好坏牌堆的差别<strong>不靠算账、靠"感觉"</strong>就能逐渐浮现——而这正是病人丢失的那种能力。
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>这篇论文不长（正文不到 9 页），但发现层层递进，像一场把「嫌疑人」逐个排除的推理。下面按它的逻辑链拆成五节。</p>
+
+      <div class="section-head-sub" id="sec-f1">① 智力完好，决策却彻底崩坏（谜题本身）</div>
+      <p>论文从原型病人 <span class="term">E.V.R.</span> 讲起。他在真实生活中<strong>「屡屡做出违背自身利益的决定，且无法从错误中吸取教训」</strong>，决定一再带来负面后果，在<strong>个人与社会领域</strong>尤其严重。但戏剧性的反差在于：把他放进实验室，<strong>所有标准测验全都正常甚至满分</strong>——</p>
+      <ul>
+        <li><strong>威斯康星卡片分类测验（WCST，Wisconsin Card Sorting Test）</strong>：完美分数（这是经典的「额叶功能」测验）；</li>
+        <li>自我排序任务、认知估计、近因与频率判断：全部<strong>无可挑剔</strong>；</li>
+        <li>不刻板重复、不冲动、知识库完整、短时与工作记忆正常；</li>
+        <li>对口头给出的社会问题和伦理两难的判断，<strong>与正常人相当</strong>。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">这道难题的「双重挑战」</span>
+        作者点明：这类病人长期是个<strong>双重困局</strong>——既<strong>没有令人满意的病理生理学解释</strong>，又<strong>没有任何实验室探针</strong>能检测、测量这个在生活中如此明显的缺陷。换句话说，缺陷大到毁掉人生，却小到所有仪器都看不见。整篇论文就是为了造出那根「探针」。
+      </div>
+
+      <div class="section-head-sub" id="sec-f2">② 一道牌桌，照出好牌堆与坏牌堆的鸿沟（主结果）</div>
+      <p>作者设计的牌桌（详见上方互动）让 44 名正常对照（21 女 23 男，20–79 岁）与 VM 损伤的目标病人对垒。结果干净利落：</p>
+      <p><strong>正常对照</strong>更多地从好牌堆（C、D）选牌、回避坏牌堆（A、B）；<strong>VM 病人则恰好相反</strong>，更少碰好牌、更多扑向坏牌。这个差异在统计上<strong>非常稳固</strong>：</p>
+      <div class="info-block">
+        <span class="ib-title">关键数字 · 组别 × 牌堆 的交互效应</span>
+        方差分析显示组别（对照 vs 目标病人）与牌堆选择（A/B/C/D）有显著交互：<strong>F(3,147) = 42.9，p &lt; .001</strong>。事后 Newman-Keuls 检验进一步坐实：对照组选 A 或 B（坏牌）<strong>显著少于</strong>病人（<em>p</em>s &lt; .001）；选 C 或 D（好牌）<strong>显著多于</strong>病人（<em>p</em>s &lt; .001）。而在每组<strong>内部</strong>，不同年龄、性别、受教育程度之间<strong>没有显著差异</strong>——说明这是 VM 损伤本身的效应，不是人口学噪声。
+      </div>
+      <p>更耐人寻味的是<strong>选牌轨迹</strong>（Fig. 2 右）。正常人<strong>一开始也会广撒网、被高额的 A、B 吸引</strong>，但玩着玩着就<strong>逐渐把重心转向 C、D</strong>，只偶尔回头碰坏牌。E.V.R. 在<strong>最初几次</strong>表现得和正常人一模一样——也试探所有牌堆、也碰 C、D——<strong>但随后他越来越频繁、越来越系统地回到 A、B</strong>。这条「先正常、后跑偏」的曲线，恰恰说明缺的不是「起点的判断」，而是「<strong>把经验转化为行为修正</strong>」的能力。</p>
+
+      <div class="section-head-sub" id="sec-f3">③ 不是「脑损伤」本身，是「损伤的部位」（关键控制）</div>
+      <p>一个尖锐的质疑会立刻冒出来：会不会任何脑损伤的人都玩不好这个游戏？毕竟有些病人还有记忆缺陷。作者用一组<strong>「脑损伤对照」</strong>堵死了这条退路——这是本文方法论上最漂亮的一步。</p>
+      <p>他们从同一个病人登记库里，挑了 9 名（3 女 6 男，20–71 岁）<strong>损伤部位在枕叶、颞叶、背外侧额叶</strong>（即<strong>避开 VM</strong>）的脑损伤者，受教育程度与病人组匹配，其中几位还有记忆缺陷。结果是一记响亮的对照：</p>
+      <div class="info-block">
+        <span class="ib-title">关键数字 · 用「优势减劣势」一刀切开</span>
+        把「优势牌堆选择数（C+D）」减去「劣势牌堆选择数（A+B）」作为单一指标（正数=会算长远账，负数=自掘坟墓）：<br>
+        · <strong>正常对照 vs 脑损伤对照</strong>：F(1,52) = <strong>0.1，p &gt; .1</strong> —— 几乎<strong>没有任何差异</strong>，脑损伤对照玩得和正常人一样好；<br>
+        · <strong>正常对照 vs VM 病人</strong>：F(1,50) = <strong>74.8，p &lt; .001</strong> —— 差异<strong>极其显著</strong>。<br>
+        从 Fig. 3 看，正常组和脑损伤组的得分都是<strong>正的 +37 ~ +39 左右</strong>，而 VM 病人组是<strong>负的</strong>（约 −15 ~ −25）。一组在赚，一组在自毁。
+      </div>
+      <p>这就把缺陷<strong>精准锁定在腹内侧前额叶</strong>：不是「脑子坏了就不会决策」，而是「<strong>偏偏这一小片坏了</strong>才不会决策」。记忆缺陷的人照样能学会避开坏牌，而记忆完好的 VM 病人却学不会——这是一次教科书式的<strong>分离</strong>。</p>
+
+      <div class="section-head-sub" id="sec-f4">④ 三个嫌疑人，只剩一个：为什么他们这么「短视」（机制推理）</div>
+      <p>知道了「病人偏好高即时奖励、高延迟惩罚的坏牌」，作者追问：<strong>这背后的心理机制到底是哪一种？</strong>他们列出三个候选解释——</p>
+      <ol>
+        <li><strong>对奖励过度敏感</strong>：病人太贪图眼前的钱，以至于未来惩罚的分量被即时收益盖过；</li>
+        <li><strong>对惩罚不敏感</strong>：病人不怕罚，所以奖励的诱惑总是胜出，哪怕他们并非异常贪婪；</li>
+        <li><strong>对未来后果（无论好坏）整体不敏感</strong>：他们的行为<strong>总是被眼前的得失牵着走</strong>，未来的事——不管是好是坏——都使不上劲。</li>
+      </ol>
+      <p>怎么在三者间裁决？作者祭出一个精巧的<strong>「反转版」任务</strong>：把赏罚的时间结构倒过来——<strong>惩罚变成即时的，奖励变成延迟的</strong>。三个假设会做出不同预测：如果病人只是「贪奖励」或「不怕罚」，反转后他们应该会去追那个（延迟的）大奖励；但如果病人是「被即时后果牵着走」，反转后他们就会被<strong>即时的惩罚</strong>吓退。</p>
+      <div class="info-block">
+        <span class="ib-title">裁决结果</span>
+        反转任务里，病人的选牌轮廓显示他们<strong>更受「即时惩罚」影响，而非「延迟奖励」</strong>（论文标注为未发表结果）。这一刀同时砍掉了前两个嫌疑：<strong>既不是单纯对惩罚不敏感，也不是对奖励过度敏感</strong>。一个定性观察也佐证：当病人在某副牌上挨了一记重罚，他们<strong>也会像正常人一样暂时不碰这副牌</strong>——说明他们对即时后果有反应——但过一会儿又回头去选它。把基础版和反转版拼在一起，只剩下一个合理结论：<strong>这些病人对未来后果（无论好坏）整体失灵，因而被即时前景所主宰</strong>。这就是作者命名的「对未来的近视」。
+      </div>
+
+      <div class="section-head-sub" id="sec-f5">⑤ 给再多时间也救不了：缺陷稳如磐石（时间维度）</div>
+      <p>最后一问：会不会病人只是「学得慢」，多练几次就好了？作者对 E.V.R. 和一小批病人做了<strong>重复测试</strong>：首测之后 1 个月、24 小时、以及第四次在 6 个月后各测一遍。</p>
+      <div class="info-block">
+        <span class="ib-title">关键数字 · 时间的对照</span>
+        E.V.R. 的表现<strong>无论何时重测都没有改善</strong>，其他病人同样如此——缺陷<strong>跨越数月依然稳定</strong>。与之相反，<strong>正常对照的成绩随时间「越测越好」</strong>。这一正一反极具说服力：好牌堆和坏牌堆的区别<strong>是可学的</strong>（正常人会越来越精），而 VM 病人<strong>学不到、也留不住</strong>。这不是「慢」，是「<strong>这条学习通路断了</strong>」。
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文的份量，一半在发现，一半在<strong>实验设计本身的巧思</strong>。它用一系列对照把每一种「平庸解释」逐个堵死。下面把这些设计要点列成表。</p>
+      <table>
+        <thead>
+          <tr><th>设计要点</th><th>怎么做的</th><th>堵死了哪种质疑 / 解决了什么</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>不告知规则</td>
+            <td>不告诉被试每副牌的赏罚表，也不告诉他们要抽多少张（100 张后悄悄叫停）。</td>
+            <td>逼被试像在真实人生里那样<strong>在不确定中摸索</strong>，而非做一道可计算的数学题——这正是 VM 病人栽跟头的情境。</td>
+          </tr>
+          <tr>
+            <td>无法精算的设计</td>
+            <td>赏罚额度只在翻牌<strong>之后</strong>才宣布，且随牌堆和位置变化。作者还让一组<strong>高智商高记忆</strong>的正常人边玩边出声、记录罚金，结果他们<strong>也算不出</strong>每副牌的净值。</td>
+            <td>证明好坏牌的区分<strong>不能靠纯理性精算</strong>，只能靠「发展出哪副牌危险/划算的直觉」——为「情绪/直觉参与决策」留出了位置。</td>
+          </tr>
+          <tr>
+            <td>A/B 与 C/D 内部配平</td>
+            <td>A 与 B 长期净值相同（A 常挨小罚、B 偶挨大罚）；C 与 D 同理。</td>
+            <td>把「<strong>惩罚频率</strong>」与「<strong>长期好坏</strong>」两个变量解耦，确保病人的偏好是冲着「<strong>高即时奖励</strong>」而非单纯「<strong>怕/不怕频繁惩罚</strong>」去的。</td>
+          </tr>
+          <tr>
+            <td>脑损伤对照组</td>
+            <td>加入损伤在<strong>非 VM 部位</strong>（枕、颞、背外侧）、且部分有记忆缺陷的病人。</td>
+            <td>堵死「<strong>任何脑损伤都会玩不好</strong>」和「<strong>是记忆缺陷导致的</strong>」两种质疑——把缺陷钉死在 VM。</td>
+          </tr>
+          <tr>
+            <td>反转版任务</td>
+            <td>把赏罚时间结构倒置（即时罚、延迟奖），看病人转向哪边。</td>
+            <td>在「<strong>过度趋奖 / 不畏惩罚 / 对未来整体失灵</strong>」三个机制假设间做裁决。</td>
+          </tr>
+          <tr>
+            <td>多时点重测</td>
+            <td>对病人在 24 h、1 个月、6 个月反复测。</td>
+            <td>堵死「<strong>只是学得慢</strong>」的质疑，证明缺陷<strong>稳定且不可学得修复</strong>，对照组反而进步。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文不是凭空冒出来的，它接续并改写了几条线索：</p>
+      <ul>
+        <li><strong>对前人「额叶测验」的不满</strong>：经典的额叶功能测验（如 Milner 的威斯康星卡片分类）能抓住<strong>背外侧</strong>额叶损伤导致的刻板、计划缺陷，却<strong>抓不住腹内侧</strong>损伤导致的决策缺陷——E.V.R. 这些测验全过。本文等于宣告：<strong>额叶不是铁板一块，需要新的探针测量它的「情感-决策」分区</strong>。</li>
+        <li><strong>承接 Damasio 团队自己的临床观察</strong>：Damasio, Tranel &amp; Damasio (1991) 和 Saver &amp; Damasio (1991) 已经描述了 VM 病人「获得性社会病态」「保留社会知识却无法据此行动」的现象。本文把这些<strong>临床轶事变成了可量化的实验数据</strong>。</li>
+        <li><strong>为躯体标记假说提供基石</strong>：文末把发现接到 Damasio (1994)《笛卡尔的错误》提出的<strong>躯体标记假说</strong>上——情绪信号（value mark）是决策的必要参与者。本文是该假说从「理论」走向「可证伪实验范式」的关键一步。</li>
+        <li><strong>与工作记忆理论的张力</strong>：作者也诚实地引出竞争解释，援引 Goldman-Rakic (1987)、Fuster (1989)、Posner (1986) 关于<strong>背外侧前额叶-工作记忆</strong>的工作，提出「也许是未来后果的表征在工作记忆里留不住」的替代账户——把自己的发现放进一场尚未了结的理论辩论里。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这套范式的影响远远溢出了神经科的病房：</p>
+      <ul>
+        <li><strong>情绪 vs 理性的世纪辩论</strong>：从笛卡尔到经济学的「理性人」，主流叙事都把情绪当作理性的对立面。本文给出反例——<strong>切掉情绪标价的人，理性反而失灵</strong>。情绪不是噪声，是决策的导航。这一立场深刻影响了后来的神经经济学与行为决策研究。</li>
+        <li><strong>成瘾的一把钥匙</strong>：「明知有害却被即时奖励反复牵走、屡教不改」——这几乎是<strong>成瘾的行为定义</strong>。此后大量研究用 IGT 发现成瘾者（酒精、毒品、病理性赌博）也表现出类似的「劣势牌堆偏好」，把成瘾部分理解为一种<strong>决策系统的失调</strong>。</li>
+        <li><strong>「冷认知」与「热认知」的区分</strong>：本文用 E.V.R. 的悖论戳破了「智商=会做决定」的幻觉。能解逻辑题（冷认知）和能在<strong>带情绪、带后果</strong>的真实情境里做对决定（热认知）是<strong>两套系统</strong>——这对教育、临床评估、甚至人工智能（AI，Artificial Intelligence）的「价值对齐」都有隐喻意义：一个系统可以推理无碍，却<strong>不知道什么对自己（或对人）真正重要</strong>。</li>
+        <li><strong>法律与责任的灰区</strong>：如果一个人的「明知故犯」源于一片脑组织无法给选项标价，那「他本可以做得更好」这个道德/法律预设还成立吗？本文为<strong>神经科学进入责任能力讨论</strong>埋下了伏笔。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这是一篇 1994 年的开创性论文，许多后来才暴露的问题，在当时还看不见。以下既包括作者自己承认的，也包括<strong>解读者从今天视角补充的批判</strong>（已标注）。</p>
+      <ul>
+        <li><strong>机制未定，作者自己也承认</strong>：论文<strong>没有</strong>在「躯体标记缺失」和「工作记忆中表征不稳」两个解释间下定论。作者只说后续初步结果「<strong>倾向于后者（标记说）或两者的结合</strong>」，并坦承价值标记的偏置作用「至少在任务早期是<strong>隐性（covert）</strong>地起作用」。这篇论文证明了「缺陷存在且可测」，但<strong>没有证明「为什么」</strong>。</li>
+        <li><strong>样本极小（解读者观点）</strong>：核心的 VM 病人组只有 <strong>6~7 人</strong>，重测样本更小（E.V.R. 加 5 人）。脑损伤对照 9 人。虽然效应量大（F=74.8）、足以说明问题，但<strong>稳健性与个体差异</strong>在如此小的样本上难以充分评估——这是损伤研究的固有局限（这类病人本就稀少）。</li>
+        <li><strong>「健康人也学不到精确净值」是双刃剑（解读者观点）</strong>：作者用「高智商正常人也算不出净值」来论证决策靠直觉而非精算，这很有力；但它<strong>也意味着</strong>正常人到底「学到了什么」其实是个黑箱——是真学到了价值差异，还是只是被惩罚频率等表层特征带着走？这要到后续的皮肤电反应（SCR，Skin Conductance Response）等生理测量研究里才被进一步拆解。</li>
+        <li><strong>B 牌堆的「甜点」问题（解读者观点，后世发现）</strong>：后来的研究发现，由于 B 是「偶挨大罚」，很多<strong>健康人也会偏好 B</strong>（只看到它频繁给大钱、罕见挨罚），使得「A+B 一律是坏牌」的假设在精细分析下打了折扣。1994 年的原始设计没有处理这个混淆——这不削弱主结论，但提醒「劣势牌堆偏好」这个指标比看上去要粗。</li>
+        <li><strong>损伤的解剖学边界较粗（解读者观点）</strong>：「腹内侧前额叶」在本文是一个相对宽泛的区域，病人的损伤大小、是否累及邻近结构各不相同。把功能精确归到某个亚区，是后续影像学研究才推进的工作。</li>
+        <li><strong>生态效度的方向问题</strong>：作者的核心卖点是「任务模拟真实生活决策」。但牌桌毕竟是牌桌，它和「该不该和这个人结婚」之间的距离有多远，本文只能<strong>类比论证</strong>，无法直接证明任务表现真能预测现实生活后果——这要靠后续的纵向追踪研究。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都尽量绑定文中证据。</p>
+      <p><strong>这是一篇「以小博大」的典范，方法论价值高于单次结果。</strong>它的核心贡献不是某个数字，而是<strong>造出了一根探针</strong>——把一个「明显存在却测不出」的缺陷变成了可量化、可重复、可在不同人群推广的实验范式。证据是：交互效应 F(3,147)=42.9、正常对照与 VM 病人差异 F(1,50)=74.8（均 p&lt;.001），效应巨大且干净；而脑损伤对照 F(1,52)=0.1（p&gt;.1）这一<strong>「阴性对照」</strong>恰恰是设计严谨的标志——作者主动去找了最可能推翻自己的反例，结果反例不成立。</p>
+      <p><strong>它的推理链条比同期很多损伤研究更克制、更讲逻辑。</strong>从「智力完好 vs 决策崩坏」的谜题，到主结果，到用脑损伤对照排除「泛脑损伤」解释，到用反转任务在三个机制假设间裁决，再到用重测排除「学得慢」——这是一条<strong>逐个排除嫌疑人</strong>的完整链条，而非「发现差异即下结论」。这一点在文中清晰可见（三假设的并列与反转任务的裁决尤其漂亮）。</p>
+      <p><strong>但要诚实区分「证明了什么」与「主张了什么」。</strong>论文<strong>扎实证明</strong>的是：VM 损伤导致一种<strong>对未来后果不敏感、被即时前景主宰</strong>的稳定决策缺陷，且不能用智力、记忆、泛脑损伤或学习速度解释。论文<strong>主张但未坐实</strong>的是：这种缺陷源于「躯体标记/价值标记」的缺失——这一步作者自己都只说「倾向于」「隐性地」，把它当成已证结论会读过头。换言之，<strong>「现象」是结论，「躯体标记机制」是当时最佳假说</strong>。</p>
+      <p><strong>放到三十年后看，瑕疵真实但不致命。</strong>小样本、B 牌堆混淆、解剖边界粗、生态效度靠类比——这些都是后世才看清的局限（见上一节）。但它们<strong>修正的是细节与机制，没有推翻核心现象</strong>：VM 损伤确实损害基于价值的决策，这一点在后续海量研究中反复被验证。作为一篇<strong>开范式</strong>的论文，它经受住了时间。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Bechara 等人用一副赏罚规则保密的扑克牌（爱荷华赌博任务）证明：腹内侧前额叶损伤的病人尽管智力、记忆、逻辑全部完好，却在长期净亏的「坏牌堆」上反复栽跟头、且数月不长记性（正常对照 vs 病人差异 F(1,50)=74.8、p&lt;.001，而非 VM 部位的脑损伤对照与正常人无异 F(1,52)=0.1），从而首次<strong>在实验室里测出</strong>了一种「对未来近视、被眼前得失牵着走」的决策缺陷——为「情绪是理性的盟友而非敌人」的躯体标记假说，钉下了第一颗实证铆钉。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Bechara, A., Damasio, A. R., Damasio, H., &amp; Anderson, S. W. (1994). Insensitivity to future consequences following damage to human prefrontal cortex. <em>Cognition, 50</em>(1–3), 7–15.
+    <br><strong>说明：</strong>本文为基于原文的深度解读；正文中标「解读者观点」者为评注，其余论断均出自论文。互动小游戏使用论文报告的牌堆定性赏罚模式（非某被试逐张原始数据），仅用于体会决策直觉的形成。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  // ---------- 爱荷华赌博任务（简化交互版） ----------
+  // 赏罚时间表参照论文 Fig.1 报告的牌堆设定：
+  // A/B 每张 +$100；C/D 每张 +$50。
+  // 每副牌前 10 张的"惩罚序列"按论文模式构造，循环使用：
+  //   A：每 10 张净亏 250 —— 常挨小罚（5 次，合计 1250 罚）
+  //   B：每 10 张净亏 250 —— 偶挨大罚（1 次 1250 罚）
+  //   C：每 10 张净赚 250 —— 常挨小罚（合计 250 罚）
+  //   D：每 10 张净赚 250 —— 偶挨大罚（1 次 250 罚）
+  // 罚款在 10 张窗口内随机打散（每次重置重新洗），位置不固定，定性模式与论文一致。
+  var REWARD = [100,100,50,50];          // A,B,C,D 每张固定奖励
+  // 每副牌一个 10 长度的"惩罚额度"模板（>0 表示该位置要罚多少）
+  var PENALTY_TEMPLATE = [
+    [150,200,250,300,250,0,0,0,0,0],     // A: 合计 1250，5 次小~中罚 -> 净 1000-1250=-250
+    [0,0,0,0,0,0,0,0,0,1250],            // B: 1 次大罚 1250 -> 净 1000-1250=-250
+    [25,75,50,25,75,0,0,0,0,0],          // C: 合计 250 -> 净 500-250=+250
+    [0,0,0,0,0,0,0,0,0,250]              // D: 1 次罚 250 -> 净 500-250=+250
+  ];
+
+  var state, decks, balance, trials;
+
+  function shuffle(a){
+    var arr = a.slice();
+    for(var i=arr.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t = arr[i]; arr[i]=arr[j]; arr[j]=t;
+    }
+    return arr;
+  }
+
+  function buildDeck(idx){
+    // 把惩罚模板在 10 张窗口内随机打散，得到一条"惩罚队列"
+    return { penalties: shuffle(PENALTY_TEMPLATE[idx]), pos:0 };
+  }
+
+  function reset(){
+    decks = [buildDeck(0),buildDeck(1),buildDeck(2),buildDeck(3)];
+    balance = 2000;
+    trials = 0;
+    state = [0,0,0,0]; // 各副牌抽取计数
+    render();
+    document.getElementById('igt-feedback').textContent = '从下面 4 副牌里点一张开始。';
+    document.getElementById('igt-feedback').className = 'feedback';
+    document.getElementById('igt-reveal-box').className = 'reveal-box';
+    document.getElementById('igt-verdict').textContent = '';
+    enableDecks(true);
+  }
+
+  function render(){
+    document.getElementById('igt-balance').textContent = '$' + balance;
+    document.getElementById('igt-trials').textContent = trials;
+    for(var i=0;i<4;i++){
+      document.getElementById('cnt-'+i).textContent = '抽了 ' + state[i] + ' 张';
+    }
+  }
+
+  function enableDecks(on){
+    var btns = document.querySelectorAll('#igt-decks .deck-btn');
+    for(var i=0;i<btns.length;i++){ btns[i].disabled = !on; }
+  }
+
+  function draw(idx){
+    if(trials >= 100) return;
+    var d = decks[idx];
+    if(d.pos >= d.penalties.length){
+      // 用完一轮 10 张，重新洗一条新的惩罚队列（循环）
+      decks[idx] = buildDeck(idx);
+      d = decks[idx];
+    }
+    var reward = REWARD[idx];
+    var penalty = d.penalties[d.pos];
+    d.pos++;
+    balance += reward;
+    balance -= penalty;
+    trials++;
+    state[idx]++;
+
+    var fb = document.getElementById('igt-feedback');
+    if(penalty > 0){
+      fb.innerHTML = '牌 ' + 'ABCD'[idx] + '：到手 +$' + reward + '，但被罚 −$' + penalty +
+                     ' &nbsp;➜&nbsp; 本张净 ' + (reward-penalty>=0?'+':'−') + '$' + Math.abs(reward-penalty);
+      fb.className = 'feedback ' + (reward-penalty>=0 ? 'gain' : 'loss');
+    } else {
+      fb.innerHTML = '牌 ' + 'ABCD'[idx] + '：到手 +$' + reward + '，这次没挨罚 ✓';
+      fb.className = 'feedback gain';
+    }
+    render();
+
+    if(trials >= 100){
+      enableDecks(false);
+      reveal(true);
+    }
+  }
+
+  function reveal(auto){
+    var box = document.getElementById('igt-reveal-box');
+    box.className = 'reveal-box show';
+    var v = document.getElementById('igt-verdict');
+    var good = state[2] + state[3]; // C + D
+    var bad  = state[0] + state[1]; // A + B
+    var diff = good - bad;
+    var line = '<br><strong>你的成绩单：</strong>你从好牌堆（C+D）抽了 <span class="good">' + good +
+               '</span> 张，从坏牌堆（A+B）抽了 <span class="bad">' + bad +
+               '</span> 张，「优势−劣势」= ' + (diff>=0?'+':'') + diff + '。';
+    if(trials < 10){
+      line += ' 你抽得还太少（' + trials + ' 张），多玩一会儿趋势才看得出来。';
+    } else if(diff > 8){
+      line += ' 你像<span class="good">正常对照</span>一样，逐渐学会了避开坏牌、靠拢好牌——你的「未来传感器」在工作。';
+    } else if(diff < -8){
+      line += ' 你这局更像被高额即时奖励勾住了，偏向了坏牌堆——这正是 <span class="bad">VM 病人</span>的典型轮廓（当然，你只是没摸够规律，并非脑损伤！）。';
+    } else {
+      line += ' 你还在好坏牌之间摇摆，差距不大——再玩久一点，看看那种"想躲开某两副牌"的感觉会不会浮现。';
+    }
+    line += '（余额 $' + balance + '）';
+    v.innerHTML = line;
+  }
+
+  // 事件绑定
+  var deckWrap = document.getElementById('igt-decks');
+  deckWrap.addEventListener('click', function(e){
+    var btn = e.target.closest('.deck-btn');
+    if(!btn || btn.disabled) return;
+    draw(parseInt(btn.getAttribute('data-deck'),10));
+  });
+  document.getElementById('igt-reveal').addEventListener('click', function(){ reveal(false); });
+  document.getElementById('igt-reset').addEventListener('click', reset);
+
+  reset();
+})();
+</script>
+</body>
+</html>

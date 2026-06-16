@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前额叶皮层功能的整合理论 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Guided Activation <span>×</span> 前额叶不亲自干活，只在大脑里"扳道岔"</h1>
+    <div class="meta">
+      <span>📄 An Integrative Theory of Prefrontal Cortex Function</span><br>
+      <span>✍️ Earl K. Miller、Jonathan D. Cohen</span><br>
+      <span>🏛️ 麻省理工学院 RIKEN-MIT 神经科学研究中心与脑与认知科学系 · 普林斯顿大学脑·心智·行为研究中心与心理系</span><br>
+      <span>📅 Annual Review of Neuroscience（《神经科学年度评论》）· 2001 · 24:167–202</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-question">它到底想回答什么</a></li>
+        <li><a href="#sec-core">理论的核心主张</a></li>
+        <li><a href="#sec-viz">交互：扳一下道岔</a></li>
+        <li><a href="#sec-findings">支撑理论的五块证据</a></li>
+        <li><a href="#sec-homunculus">最妙的一招：怎么甩掉"小人"</a></li>
+        <li><a href="#sec-method">方法论与论证策略</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是认知神经科学被引用数万次的"地基"论文之一，几乎定义了过去二十年我们谈论"<strong>认知控制（cognitive control）/执行功能</strong>"的方式。它要解决一个老到发霉、却始终没有机制答案的问题：人脑里上千亿个神经元各自放电，怎么就涌现出"有条理、有目的、像是出于意志"的行为？长期以来大家都同意前额叶皮层（PFC，Prefrontal Cortex）是关键，但"它<strong>怎么</strong>实现控制"一直是个黑箱——以前的说法多停留在"它负责注意/工作记忆/抑制/计划"这种<strong>贴功能标签</strong>的层面，等于把一堆现象重新命名，并没有讲清底层机制。</p>
+        <p>Miller 与 Cohen 的过人之处，不在于又发现了一个"PFC 参与某任务"的现象，而在于他们提出了一个<strong>统一、且机械上可计算</strong>的假说：PFC 不亲自执行任务，它只是<strong>主动维持一组代表"目标与规则"的活动模式</strong>，再把这些模式当作<strong>偏置信号（bias signal）</strong>发往大脑其余部分，去<strong>引导</strong>信息在后部通路里的流向——就像铁路调度员扳道岔，自己不开火车，却决定每列车走哪条轨道。这个被称为<strong>"引导式激活（guided activation）"</strong>的框架，把注意、工作记忆、抑制、规则、计划这些看似不同的执行功能，统一解释成了"同一种偏置竞争机制在不同目标上的体现"，而且能用神经网络模型把它跑出来、定量复现正常人和额叶损伤病人的行为。读懂它，等于读懂了一整套"如何不靠'脑内小人'就解释自控"的思路。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>下面这些术语在正文里反复出现，先用"人话"把它们讲清楚。看不懂正文时可以随时翻回来。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">前额叶皮层（PFC，Prefrontal Cortex）</div>
+          <div class="cdesc">本文的主角。大脑额叶最前端的一大片皮层，在灵长类身上格外发达（占人类皮层 30% 以上）。它跟几乎所有感觉系统、运动系统和情绪/记忆相关的皮层下结构都有往返连接（见原文 Figure 1）。可以把它想成大脑的"中央调度室"——自己不直接搬货，但握着通往各车间的开关。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">认知控制 / 执行功能（Cognitive Control）</div>
+          <div class="cdesc">指按照"内部目标"来协调思想与行动的能力——尤其是当正确做法<strong>不是</strong>最自然、最习惯的那个时。例如在英国过马路得克制"先看左边"的本能、改成看右边。本文主张：这种"让弱小但正确的选项战胜强大但错误的选项"的能力，正是 PFC 的看家本领。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">引导式激活与任务模型 / 规则（Guided Activation / Task Model · Rule）</div>
+          <div class="cdesc">本文给这套理论起的名字，也是全篇的灵魂。意思是：PFC 不直接产生行为，而是通过偏置信号"<strong>引导</strong>"激活在大脑其他通路里的流动方向。类比就是<strong>铁路扳道员</strong>——他不开火车（不传递信息），只扳道岔（调节信息走哪条轨）。而它维持的那组活动模式（<strong>任务模型 / 规则</strong>）本质上不是"某个刺激"或"某个动作"，而是把二者<strong>连起来的映射</strong>——"在情境 C3 下，线索 C1 该导向反应 R2"这种"如果-那么"规则。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">偏置竞争与偏置信号（Biased Competition / Bias Signal）</div>
+          <div class="cdesc">本文的理论起点，借自 Desimone &amp; Duncan（1995）。前提是：大脑里加工不同信息的神经元群<strong>互相竞争、彼此抑制</strong>，谁得到的支持多谁就"赢"、并压低对手。本文补上的关键是"谁来加偏置"——答案是 PFC：它发出一股兴奋性的<strong>偏置信号（自上而下偏置）</strong>，像"加权投票"那样偏向性地灌给任务相关通路，<strong>给某一边加砝码</strong>。由此"注意"被重新定义为：偏置竞争、偏向任务相关信息的那一个侧面。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">优势反应与 Stroop 任务（Prepotent Response / Stroop Task）</div>
+          <div class="cdesc">"优势/强势"指因长期反复使用而连接最粗壮、最自动、不需注意就触发的通路（如"读字"）；"弱势"通路（如"说出字的颜色"）连接细弱、容易输。经典演示是 Stroop 任务：用红墨水写"绿"字、要你说墨水色（红），优势的"读字"会自动蹦出"绿"来干扰。Cohen 等（1990）把它做成神经网络模型——本文的"具象沙盘"：只要给颜色通路加一个 PFC 控制单元的偏置，弱小的颜色通路就能反超强大的读字通路。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">调节 vs 传递（Modulation vs Transmission）</div>
+          <div class="cdesc">本文最重要的区分之一。"传递"指信息从输入到输出的实际流动（走在后部通路里）；"调节"指 PFC 对这股流动施加的偏置影响。关键命题：<strong>信息流并不"穿过"PFC</strong>，PFC 只在旁边调节。推论很硬：能找到"激活后部却不激活 PFC"的情况，但"激活 PFC 却没有相应后部激活"则不该出现——因为没有传递，调节就无的放矢。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">主动维持（Active Maintenance）</div>
+          <div class="cdesc">PFC 必须把"当前目标/规则"以持续放电的形式<strong>一直hold住</strong>，直到任务完成——哪怕中间被无关刺激打断。本文称之为"服务于控制的主动记忆"。关键特性：PFC 的这种持续活动能<strong>抗干扰物</strong>，而后部皮层（如颞下区 IT）的持续活动一遇干扰就被冲掉。这正是 PFC 区别于其他脑区的标志之一。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">多巴胺门控（DA Gating，Dopamine Gating）</div>
+          <div class="cdesc">中脑多巴胺（DA，Dopamine）神经元的相位性爆发被本文用来当作 PFC 的"<strong>更新开关</strong>"。它的爆发编码"奖赏预测误差"（出现了没预料到、但预示奖赏的事），且时机精准、来得快——正好可以充当"现在该更新一下当前目标了"的门控信号。它同时还驱动学习，这一点是甩掉"脑内小人"的关键（见专章）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">脑内小人难题（Homunculus Problem）</div>
+          <div class="cdesc">解释自控时最常掉进的逻辑陷阱：如果说"有个中央控制器在指挥"，那是谁在指挥这个控制器？再设一个小人，就陷入无穷倒退。本文的核心抱负之一，就是<strong>不引入任何小人</strong>地解释控制——靠 DA 门控+学习让系统"自举（bootstrap）"，自己学会"该控制什么、何时更新"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">前扣带回与冲突监测（ACC，Anterior Cingulate Cortex）</div>
+          <div class="cdesc">PFC 的"搭档"。本文采纳的观点是：ACC 负责<strong>侦测处理中的冲突</strong>（两个互斥反应同时被激活时），并据此发出"需要加大控制力度"的信号，调高 PFC 偏置的强度。比喻：ACC 是仪表盘上的"打滑警报灯"，灯一亮，PFC 这位司机就握紧方向盘、加大修正。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-question">它到底想回答什么</div>
+      <p>要掂量这篇论文的分量，得先看清它面对的"窟窿"。2001 年时，关于 PFC 的事实已经堆得很高了：</p>
+      <ul>
+        <li><strong>解剖学</strong>：PFC 与几乎所有感觉皮层、运动结构、以及边缘/中脑的情绪与记忆系统都有往返连接，位置上极适合"统筹"（原文 Figure 1）。</li>
+        <li><strong>神经心理学</strong>：额叶受损的病人会表现出冲动、刻板、行为零散——典型如 Stroop 任务和威斯康星卡片分类测验（WCST，Wisconsin Card Sort Task）上反复犯错：能学会初始规则，却无法在规则改变时灵活切换。</li>
+        <li><strong>猴子电生理</strong>：PFC 神经元能在延迟期持续放电、保持信息（Fuster、Goldman-Rakic 等几十年的工作）。</li>
+      </ul>
+      <p>问题在于——<strong>这些事实是散的，而且解释停留在"贴标签"层面</strong>。说"PFC 负责注意""负责工作记忆""负责抑制""负责规则"，听起来都对，但这既没说清它们是不是<strong>同一套</strong>机制，也没讲清这套机制在神经元层面<strong>怎么</strong>运转。更尴尬的是，很多解释暗含一个"中央执行官"在发号施令，而这立刻招来"脑内小人"的无穷倒退。作者在引言里把任务定得很克制也很精确：</p>
+      <div class="info-block">
+        <span class="ib-title">本文的核心命题</span>
+        <p>不是再增添一条"PFC 参与某功能"的证据，而是提出<strong>一个机制</strong>，要求它同时满足三件事：（1）能把注意、工作记忆、抑制、规则、计划等多种执行功能<strong>统一</strong>解释成同一原理的不同侧面；（2）<strong>机械上可实现</strong>——能用神经生物学上说得通的神经网络模型跑出来、并定量复现行为；（3）<strong>不依赖任何"脑内小人"</strong>，系统得能自己学会该控制什么、何时更新。这是一个"做整合 + 给机制"的论证，而非"做发现"。</p>
+      </div>
+
+      <div class="section-head" id="sec-core">理论的核心主张</div>
+      <p>整套理论可以浓缩成一句话：<strong>PFC 主动维持代表"目标与规则"的活动模式，并以偏置信号的形式引导后部通路里的竞争，从而让任务相关的（哪怕较弱的）通路胜出。</strong>下面把它拆成三个咬合的齿轮。</p>
+
+      <div class="section-head-sub">齿轮一：大脑里的加工是"竞争性"的</div>
+      <p>本文建立在一个基本前提上：携带不同信息的通路、代表不同反应的神经元群，是<strong>互相竞争、彼此抑制</strong>地争夺"表达为行为"的机会，胜者是得到支持最强的那一个（Desimone &amp; Duncan 1995 的偏置竞争模型）。在没有外力时，谁的连接粗、谁就赢——这解释了为什么习惯/本能反应（优势反应）会自动占上风。</p>
+
+      <div class="section-head-sub">齿轮二：PFC 是那只"加偏置的手"</div>
+      <p>Desimone &amp; Duncan 指出竞争可以被自上而下的偏置左右，但<strong>没说清这偏置从哪来、怎么来</strong>——这正是本文要补的洞。作者的回答是：PFC 维持着代表当前目标/规则的活动模式，这些模式向后部通路发出<strong>兴奋性偏置信号</strong>，给"任务相关"的那条通路加砝码。于是弱小但正确的通路就能反超强大但习惯的通路。注意——这里"注意"被重新定义了：</p>
+      <blockquote>
+        <p>选择性注意 = 偏置竞争、偏向任务相关信息的那一面；</p>
+        <p>抑制 = 同一枚硬币的另一面（任务无关信息因竞争失败而被压低）。</p>
+        <p>二者并非两套独立机制，而是"同一个偏置过程"的一体两面。</p>
+      </blockquote>
+      <p>这是本文整合力的来源：注意与抑制本是两个被分开研究的功能，在这里被收拢成<strong>一个</strong>机制的两个侧面。</p>
+
+      <div class="section-head-sub">齿轮三："调度员"而非"火车"——调节，不传递</div>
+      <p>这是全文最该被记住的比喻。作者把大脑比作一套铁路轨道：各种"起点"（刺激/内部状态）要把信息这列火车送到正确的"终点"（反应）。轨道畅通时（一列车不会撞上别的车），无需干预，行为自动完成——这时根本用不上 PFC。但一旦两列火车要抢同一段轨，就需要协调，<strong>PFC 的活动模式就像一张"该走哪条轨"的地图，靠偏置去扳道岔。</strong></p>
+      <div class="info-block">
+        <span class="ib-title">为什么"调节 vs 传递"这个区分很硬</span>
+        <p>关键推论：信息流<strong>不穿过</strong> PFC，PFC 只在旁边调节。这给出一个可证伪的预测——应该能找到"激活后部皮层却不激活 PFC"的情形（无需调节的传递，如 Stroop 里直接读字），但反过来，"激活 PFC 却没有相应后部激活"<strong>不该</strong>常见，因为<strong>没有传递，调节就无的放矢</strong>。这与额叶损伤的经典表现吻合：病人复杂行为的各个零件都还在（能搅拌、能加奶油），只是无法按任务恰当地<strong>编排</strong>它们（先搅拌空咖啡，再加奶油——次序乱了）。</p>
+      </div>
+
+      <div class="section-head" id="sec-viz">交互：扳一下道岔</div>
+      <p>纯文字很难传达"弱通路靠偏置反超强通路"这件事的<strong>动态</strong>。下面这个组件把 Cohen 等（1990）的 Stroop 模型骨架做成了可玩的沙盘。屏幕上是两条通往反应层的通路：<strong>读字通路</strong>（连接粗 = 优势反应）和<strong>颜色命名通路</strong>（连接细 = 弱势）。你可以打开/关掉 PFC 偏置、拖动偏置强度，亲眼看竞争的赢家如何翻转。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">引导式激活模拟器：有/无 PFC 偏置，谁赢？</div>
+        <div class="viz-note">基于 Cohen 等（1990）Stroop 模型的定性示意（非原始仿真数值）。冲突刺激固定为"红墨水写的'绿'字"，任务是"说出墨水颜色（应答红）"。柱高 = 两个反应单元的相对激活；"读字"通路连接更强（更粗的箭头）。</div>
+        <div class="viz-controls" id="vizBias">
+          <button data-bias="on">PFC 偏置：开（说颜色）</button>
+          <button data-bias="off" class="alt">PFC 偏置：关</button>
+        </div>
+        <div class="viz-controls" id="vizStim">
+          <button data-stim="conflict">冲突刺激（红墨/"绿"字）</button>
+          <button data-stim="congruent" class="alt">一致刺激（红墨/"红"字）</button>
+        </div>
+        <div class="viz-controls">
+          <label>偏置强度：<input type="range" id="biasStrength" min="0" max="100" value="70" style="vertical-align:middle;width:160px;"> <span id="biasVal">0.70</span></label>
+        </div>
+        <canvas id="stroopCanvas" width="720" height="430"></canvas>
+        <div id="vizCaption" style="font-size:0.9rem;color:#3a4048;margin-top:12px;line-height:1.6;"></div>
+      </div>
+      <p><span class="term">怎么读这张图</span>：上半部分画的是 PFC 控制单元（顶上的红框）向"颜色"通路灌偏置的连线——偏置开时这条线点亮、变粗。下半部分的两根柱子是最终竞争结果。关掉偏置：读字通路靠"连接更粗"赢，模型脱口而出"绿"（出错）；打开偏置并给足强度：颜色通路被额外砝码托起来反超，模型答"红"（正确）。把偏置强度慢慢往下拖，你会看到一个<strong>临界点</strong>——低于它，弱通路就托不住、习惯反应重新夺回控制权。这正是论文说的"控制是连续量，由通路相对强度决定"，也直观演示了为什么<strong>额叶损伤（≈ 偏置缺失）的病人会回退到习惯反应</strong>。换成"一致刺激"你会发现：两条通路指向同一答案、没有冲突时，开不开偏置都对——<strong>无冲突时根本用不上控制</strong>，正对应"轨道畅通就不必扳道岔"。</p>
+
+      <div class="section-head" id="sec-findings">支撑理论的五块证据</div>
+      <p>这是一篇综述，作者的论证策略是：先列出"一个认知控制机制<strong>最起码必须具备</strong>的功能属性"，再逐条搬出神经生理、神经心理、影像和计算建模的证据，证明 PFC 确实具备它们。把五块拼起来，PFC 就被论证成"恰好适配控制角色的那块硬件"。</p>
+
+      <div class="section-head-sub">证据一：信息汇聚（它得"看得见"全局）</div>
+      <p>要当调度员，先得能拿到关于"外部世界"和"内部状态"的多样信息。PFC 在解剖上正好满足：它占皮层 30% 以上，与视、听、躯体感觉等多个模态的次级（联合）皮层都有连接，许多 PFC 区域同时接收<strong>至少两个感觉模态</strong>的会聚输入；其内部各区又彼此高度互联，使分散信息能在相对局部的回路里混合。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>PFC 体量 = 人类皮层的 <strong>30% 以上</strong>。它直连的是"二级/联合"而非"初级"感觉皮层——这意味着到达 PFC 的已是被加工过的、抽象的信息，适合"综合"而非"看原始像素"。</p>
+      </div>
+
+      <div class="section-head-sub">证据二：表征的是"规则/映射"，而非单纯刺激或动作</div>
+      <p>这是全文最有说服力的电生理证据。如果 PFC 只是被动反映看到了什么，那它当不了"规则的载体"。多项研究表明，PFC 神经元放电编码的是<strong>当前的"线索-反应"关联或规则</strong>：</p>
+      <ul>
+        <li><strong>Asaad 等（1998）</strong>：训练猴子在不同区块把两个线索物体各自关联到"向左/向右扫视"。结果只有极少数神经元单纯反映线索或反应；占比最大的一群（<strong>44%</strong>）反映的是<strong>当前这个线索-扫视的关联</strong>——比如某神经元只在"物体A 指示向左"时强烈放电，"物体A 指示别的扫视"或"物体B 指示同样扫视"时都不放（原文 Figure 3A，且这种调谐是非线性/合取式的，单看物体或单看方向都预测不了）。</li>
+        <li><strong>White &amp; Wise（1999）</strong>：让猴子按两条不同规则（空间规则 vs 关联规则）定向到目标，<strong>多达一半</strong>的侧 PFC 神经元活动随规则变化。</li>
+        <li><strong>Asaad 等（2000）</strong>：让猴子在共用相同线索与反应、但规则不同（匹配/关联/空间）的三种任务间切换，<strong>过半</strong>侧 PFC 神经元是规则依赖的，连<strong>54%</strong> 神经元的基线活动都随规则不同而不同——同一个线索、同一个动作，神经元的反应却因"现在按哪条规则"而改变（原文 Figure 3B）。</li>
+      </ul>
+      <p>损伤侧的证据互补：PFC 受损的猴子和病人无法再学习任意的"视觉-动作"条件关联（"如果-那么"规则）。Passingham（1993）甚至主张，几乎所有被额叶损伤破坏的任务，本质都依赖"习得条件关联"的能力。</p>
+
+      <div class="section-head-sub">证据三：偏置能"反馈"到后部、并真的改变那里的活动</div>
+      <p>理论要求 PFC 的偏置信号能抵达全脑靶点、并影响那里的加工。直接证据来自 PFC 与颞下皮层（IT，Inferotemporal Cortex）的互动：</p>
+      <ul>
+        <li>使侧 PFC 失活，会<strong>削弱</strong>视觉皮层（IT、后顶叶）对行为相关线索的反应（Fuster 等 1985；Chafee &amp; Goldman-Rakic 2000）。</li>
+        <li><strong>Tomita 等（1999）</strong>的实验尤其漂亮：切断两侧 IT 之间的连接，让一侧 IT 只能"看见"对侧视野的刺激。当线索只呈现给"看不见"它的那侧 IT 时，该侧 IT 神经元<strong>仍然</strong>反映出被回忆的物体——信息绕了一大圈：从能看见的对侧 IT 上行到仍相连的 PFC，再<strong>自上而下</strong>反馈回"看不见"的那侧 IT。切断两半球 PFC、掐掉这条反馈后，IT 的这种活动消失、任务也做不成了。这直接证明了"自上而下反馈"的存在与因果作用。</li>
+      </ul>
+
+      <div class="section-head-sub">证据四：主动维持，且抗干扰</div>
+      <p>偏置要起作用，就得在整个任务期间<strong>持续在线</strong>。PFC 神经元在延迟期持续放电是几十年的老发现（Fuster 1971 起），它能维持位置、身份、即将做的动作、预期奖赏等信息。但本文强调的关键差异是<strong>抗干扰性</strong>：</p>
+      <div class="info-block">
+        <span class="ib-title">PFC 与后部皮层的分水岭</span>
+        <p>当猴子必须在塞满干扰物的延迟期里记住一个样本时，<strong>PFC</strong> 的样本特异性活动能<strong>跨过干扰物维持</strong>住（Miller 等 1996）；而<strong>颞下区与后顶叶</strong>的持续活动一遇干扰<strong>就被冲掉</strong>，只反映"最近一次输入"而不管它相不相关。一句话：后部皮层映射"最新发生的事"，PFC 选择性地保住"任务相关的事"。这正是 PFC 配得上"控制"角色的关键特性。</p>
+      </div>
+
+      <div class="section-head-sub">证据五：可塑性 + 多巴胺学习信号</div>
+      <p>目标和规则是后天习得的，所以系统必须能学。本文把学习机制挂靠在中脑多巴胺系统上：DA 神经元的相位性爆发编码<strong>奖赏预测误差</strong>（Schultz 等），随学习推进，这种爆发会逐渐"前移"到能预测奖赏的线索上。这种"预测性强化学习"信号可以选择性地强化"导致成功行为"的 PFC 活动模式与触发它的情境之间的联结——于是相同情境下次更可能唤起正确的 PFC 表征。Asaad 等（1998）观察到的"反应相关活动随学习逐渐提前"，与 DA 奖赏预测信号的演化高度相似，为这条机制提供了实证。</p>
+
+      <div class="section-head" id="sec-homunculus">最妙的一招：怎么甩掉"脑内小人"</div>
+      <p>这一节单独拎出来，因为它是本文在<strong>理论自洽性</strong>上最关键、也最容易被读者略过的一招。任何"中央控制器"理论都躲不开一个诘问：<strong>是谁在控制这个控制器？</strong>如果答案是"另一个控制器"，就陷入无穷倒退（脑内小人难题）。Miller &amp; Cohen 的解法很优雅：</p>
+      <ul>
+        <li>多巴胺<strong>同时</strong>扮演两个角色——既是<strong>门控信号</strong>（决定何时更新 PFC 里维持的内容，Cohen 等 1996、Braver &amp; Cohen），又是<strong>学习信号</strong>（强化导致成功的联结）。原文举的例子很传神：走在路上，眼角瞥见地上有张 20 美元钞票——这个没被预测、却预示奖赏的刺激引发 DA 爆发，但只有当你<strong>更新当前目标</strong>、弯腰去捡时它才有意义。</li>
+        <li>既然同一个 DA 信号<strong>既管门控、又管学习</strong>，那么：当一次探索性的"开门更新"<strong>恰好</strong>导致了成功行为，相伴的强化效应就会把"这个门控信号"和"当时的情境+产生该行为的 PFC 模式"<strong>绑定</strong>起来。于是下次同样的情境，就更可能自己触发门控、激活那个正确的 PFC 模式——系统由此<strong>自举（bootstrap）</strong>，学会了"该控制什么"和"何时更新"。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">为什么这一步是"理论命门"</span>
+        <p>"系统能自己学会何时门控、控制什么"——这一句话就把"脑内小人"踢出了局：不需要预先存在一个聪明的中央指挥官，<strong>控制能力本身可以从经验中自组织地长出来</strong>。这是本文比"贴功能标签"的旧解释高出一个层级的地方，也是它能被计算模型落地的根基（Braver &amp; Cohen 2000）。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论与论证策略</div>
+      <p>这是综述/理论文章，没有自己的新实验数据，它的"方法论精妙"体现在<strong>论证如何被组织</strong>。把作者的招数拆开看，能学到一套"如何提出一个好理论"的范式：</p>
+      <table>
+        <thead>
+          <tr><th>论证招数</th><th>它解决了什么问题</th><th>具体怎么做的</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>先列"最起码要满足的属性"清单</td>
+            <td>理论容易空泛、不可检验</td>
+            <td>先抽象出一个控制机制<strong>必需</strong>的五条属性（汇聚/规则表征/反馈/抗扰维持/可塑），把"PFC 是否胜任"拆成五个可逐一查验的子命题，再分头找证据填实</td>
+          </tr>
+          <tr>
+            <td>用 Stroop 模型当"具象沙盘"</td>
+            <td>"偏置竞争"听上去抽象，难以确认机械可行性</td>
+            <td>引入 Cohen 等（1990）已跑通的神经网络模型，把"控制单元给弱通路加偏置→弱通路反超"做成可仿真、可定量复现行为（含反应速度的幂律改进、Stroop 干扰量）的具体实例</td>
+          </tr>
+          <tr>
+            <td>跨四种方法交叉印证</td>
+            <td>单一证据线都有各自的软肋</td>
+            <td>把猴子电生理（机制）、人类神经心理（损伤后果）、功能影像（人脑定位）、计算建模（机械可行性）拼在一起，让彼此的弱点互相补足</td>
+          </tr>
+          <tr>
+            <td>给出可证伪的预测</td>
+            <td>整合性理论易沦为"事后都能解释"</td>
+            <td>明确预测"可有后部激活而无 PFC 激活，但不该有 PFC 激活而无后部激活"，并用 MacDonald 等（2000）的 fMRI 把 PFC（管控制需求）与 ACC（管冲突侦测）的角色<strong>解离</strong>开来支持（原文 Figure 5）</td>
+          </tr>
+          <tr>
+            <td>主动拆除"脑内小人"</td>
+            <td>控制理论的元难题：无穷倒退</td>
+            <td>用"DA 同时门控+学习→自举"的机制，论证控制可自组织地涌现，不必预设中央指挥官</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">一个值得单独记的"解离"</span>
+        <p>MacDonald 等（2000）用"指令版 Stroop"把两个脑区拆开看：在收到"该说颜色还是读字"指令后的<strong>准备/延迟期</strong>，背外侧前额叶（DLPFC，Dorsolateral PFC）活动升高，且<strong>说颜色（更需控制）时比读字更强</strong>；而前扣带回（ACC）在此期没有差异。到了<strong>呈现刺激/反应期</strong>，反过来——ACC 强烈激活、且<strong>冲突试次强于一致试次</strong>，而 PFC 此时没差异（原文 Figure 5）。这恰好对应理论的两个不同角色：PFC 负责<strong>施加</strong>控制，ACC 负责<strong>侦测冲突、提示需要多少</strong>控制。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>本文不是凭空建楼，它站在几条研究脉络的交汇点上，并对每一条都有所推进：</p>
+      <ul>
+        <li><strong>扩展 Desimone &amp; Duncan（1995）的偏置竞争</strong>：前者提出"注意是偏置竞争"，但把"偏置从何而来"留作未决。本文<strong>补上了发起者（PFC）与机制（主动维持的规则表征发出自上而下偏置）</strong>，并把适用范围从视觉注意推广到所有模态、记忆检索、反应选择乃至情绪评估。</li>
+        <li><strong>统一并改写传统工作记忆模型</strong>：Baddeley（1986）把工作记忆分成"存储"与"执行"两部分，神经心理学倾向把存储放在后部、执行放在 PFC；而猴子电生理却强调 PFC 的"维持"。本文给出调和：<strong>执行控制本身就是一种特定信息（目标与规则）的主动维持</strong>——存储与执行不再是两件事。这也与认知心理学里基于产生式系统（一套"如果-那么"规则驱动行为的认知架构）的理论（如 Anderson 的 ACT* 模型）相通。</li>
+        <li><strong>把注意与抑制收编为同一机制</strong>：以往注意和抑制是分头研究的功能。本文论证二者是偏置竞争的一体两面，且抑制是<strong>局部竞争</strong>的副产品（发生在后部相互抑制的表征之间，如 Stroop 里两个反应之间），<strong>而非由 PFC 居中直接执行</strong>。</li>
+        <li><strong>与海马系统分工</strong>：作者明确区分 PFC 的"基于活动（activity-based）"控制与海马的"基于权重（weight-based）"控制——用铁路比喻，<strong>海马负责"铺新轨"（巩固长期联结），PFC 负责"在已有轨道间灵活扳道"</strong>。二者互补，且两者互动可能是"前瞻性控制/计划"的基础。</li>
+      </ul>
+      <p>换句话说，本文的贡献不是"第一个说 PFC 重要"，而是<strong>第一个用一个机制把一堆零散的执行功能、以及它们的电生理/损伤/影像/计算证据，缝成一张自洽的网</strong>，并把一个长期被回避的元难题（脑内小人）正面解决掉。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>对人工智能 / 智能体架构</strong>：本文几乎是"控制即门控+偏置"思想的生物学先声。现代序列模型里的<strong>门控机制</strong>（LSTM，长短期记忆网络，Long Short-Term Memory 的输入/遗忘门）、<strong>注意力作为可学习的加权</strong>、以及把"目标/指令"作为<strong>上下文偏置</strong>去调制下游计算的做法，都与"PFC 维持目标、以偏置引导后部通路"高度同构。尤其"DA 同时门控+学习→自举"，正对应当代<strong>用强化学习去学'何时该写入/更新记忆'</strong>的思路。它提醒架构设计者：控制器最好不要"亲自传递信息"，而是去<strong>调节</strong>一个本就能自动运转的底层系统。</li>
+        <li><strong>对精神病学</strong>：作者团队（Cohen &amp; Servan-Schreiber）一脉的工作把这套理论用于<strong>精神分裂症</strong>——若 PFC 维持"情境/目标"表征的能力受损（可能与多巴胺调节异常相关），就会同时表现出注意涣散、工作记忆差、难以抑制习惯反应等看似分散的症状。统一机制 → 统一解释一组症状，这是它的临床价值。</li>
+        <li><strong>对"自由意志"的祛魅</strong>：本文给"看似出于意志的协调行为"提供了一个<strong>不需要灵魂、不需要小人</strong>的机械解释——自控只是"维持目标的活动模式去偏置竞争"，且这套能力本身能从奖赏学习中自组织长出来。这对理解意志、自律乃至成瘾（习惯通路过强 / 偏置失灵）都有启发。</li>
+        <li><strong>对学习与"熟能生巧"</strong>：理论顺带解释了为什么练得越熟、越不需要"集中控制"——反复被 PFC 偏置选中的通路，会通过活动依赖的可塑性自己变强，最终<strong>独立于 PFC 自动运行</strong>。这把"控制加工→自动加工"的连续谱给了一个神经机制，也解释了 PFC 损伤为何"妨碍新学习却保留熟练任务"。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这是一篇极有分量的理论，但"有分量"不等于"已封口"。作者自己很坦诚地留了一串口子，另有些边界值得读者自己掂量（以下区分"作者明说的"和"<span class="term">解读者补充的</span>"）。</p>
+
+      <p><strong>作者自己承认的：</strong></p>
+      <ul>
+        <li><strong>表征容量存疑</strong>：人能做的任务近乎无穷（"我说'bumblydoodle'你就眨眼"也行），但 PFC 不可能把所有映射都预存。作者承认，要么存在某种尚未发现的、足够通用的表征方案，要么<strong>必须高度依赖可塑性</strong>临时长出新表征——而这套可塑性机制在神经与计算层面"目前基本未知"。</li>
+        <li><strong>层级化更新 / 子目标尚无机制</strong>：理论能解释"更新当前目标"，但推理与问题解决需要"子目标设定（subgoaling）"——更新某些表征（下一步棋）的同时保住另一些（整体策略），以及动作的正确<strong>排序</strong>。作者明说这"仍是未来工作的挑战"，可能依赖 PFC 与基底神经节的互动。</li>
+        <li><strong>主动维持的细胞机制未定</strong>：理论高度倚重"主动维持"，但维持的生理基础（细胞双稳态 vs 回路混响/吸引子网络）实证研究还很少，作者承认目前只是若干理论可能性并存。</li>
+        <li><strong>前瞻性控制 / 计划解释不足</strong>：早上计划"下班去超市"，不太可能整天主动维持这个念头。作者承认<strong>主动维持解释不了计划</strong>，只能猜测需要 PFC 与海马等快速学习系统的互动来"到点再激活"，"详细性质有待厘清"。</li>
+        <li><strong>容量限制本身没有解释</strong>：认知控制的容量极其有限（一边打电话一边读邮件就乱），但作者坦言<strong>没有任何理论真正解释了这个限制从何而来</strong>——是能量约束，还是吸引子网络里"能被独立维持的表征数"存在固有上限？悬而未决。</li>
+        <li><strong>PFC 功能分区只是"启发式"</strong>：理论提出"不同区域偏置不同类型信息（如眶部偏置'热'的社会/情绪刺激、背侧偏置'冷'的认知维度）"，但作者明说本理论"并不能深入判定哪种分区方案（若有）是对的"。</li>
+      </ul>
+
+      <p><strong><span class="term">解读者补充的边界</span>：</strong></p>
+      <ul>
+        <li><strong>"统一"有被过度拉伸的风险</strong>。把注意、工作记忆、抑制、规则、计划全收进"偏置竞争"一个框，解释力极强，但也意味着该理论<strong>很难被单个实验证伪</strong>——几乎任何 PFC 相关现象都能被"某种偏置"事后容纳。强解释力与弱可证伪性是同一枚硬币的两面，这一点正文着墨不多。</li>
+        <li><strong>核心电生理证据多来自"侧 PFC + 简单条件关联任务"</strong>。"44%""过半""54%"这些漂亮数字，主要来自猴子做线索-扫视这类相对简单的关联任务。把结论外推到人类高阶推理、语言、长程计划，跨度其实很大；理论的"普适"更多是<strong>逻辑外推</strong>而非被同等强度地直接验证。</li>
+        <li><strong>ACC→PFC 的因果方向尚未坐实</strong>。"冲突侦测调用更多控制"是个漂亮闭环，但作者自己在正文里也提醒：ACC 侦测到冲突 与 PFC 增强控制 之间的<strong>因果关系</strong>"仍需进一步工作确立"——目前更多是相关与时序上的吻合。</li>
+        <li><strong>多巴胺的"门控+学习"双重角色，2001 年时更像优雅假说而非定论</strong>。它在逻辑上完美地堵住了脑内小人，但 DA 是否真在 PFC 行使"快速、特异的门控"，当时证据还相当间接（依赖 DA 相位成分的时序推断）。这是理论中最性感、也最需要后续买单的一环。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <div class="info-block">
+        <span class="ib-title">这篇论文立得住吗？——作为"框架"立得极稳，作为"被验证的机制"则部分仍是赊账</span>
+        <p>它最硬的部分是<strong>整合与自洽</strong>：用"主动维持的规则表征发出偏置、引导后部竞争"一个机制，把注意/工作记忆/抑制/规则统一起来，且每条"必需属性"都有实打实的电生理或损伤证据兜底（规则表征的 44%/过半/54%、抗扰维持的 Miller 1996、自上而下反馈的 Tomita 1999）；更难得的是它用 DA 门控+学习正面拆掉了"脑内小人"，并能落进可仿真的计算模型。这套论证的形状是干净的"先立必需属性清单、再逐条以多方法证据填实"，结论与证据咬合紧密。</p>
+      </div>
+      <p><strong>它最强的地方</strong>：不是某个发现，而是<strong>给"认知控制"装上了一个机械上说得通、且能统一一大片现象的引擎</strong>，并诚实地把元难题（无穷倒退）解决掉。这种"从贴标签到给机制"的跨越，正是它成为奠基性文献的原因（以上均有文中证据支撑）。</p>
+      <p><strong>它最该被谨慎看待的地方</strong>：第一，<strong>强解释力伴随弱可证伪性</strong>——几乎所有 PFC 现象都能被"某种偏置"事后吸收；第二，最关键的电生理数字来自<strong>相对简单的猴子关联任务</strong>，向人类高阶认知的普适更多是逻辑外推；第三，理论倚重的几根支柱（DA 在 PFC 的快速门控、ACC→PFC 的因果、主动维持的细胞机制、计划与子目标）在 2001 年<strong>多为优雅假说而非定论</strong>，作者本人也逐条标注为开放问题。这些不是硬伤，而是一个雄心勃勃的框架诚实划定的"待还清单"。</p>
+      <p><span class="term">解读者总评</span>：如果只能用这篇论文记住一件事，那应该是那个铁路比喻——<strong>大脑的自控，不是有个聪明的小人在中央发号施令，而是一只"扳道岔的手"：它自己不开火车，只在两列车要抢轨时，给该走的那条轨加一点偏置。</strong>把这一句想透，注意、工作记忆、抑制、规则、计划就都成了同一件事的不同侧面——这正是这篇论文值得反复重读的真正价值。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Miller &amp; Cohen 提出"引导式激活"理论：前额叶皮层并不亲自执行任务，而是<strong>主动维持代表"目标与规则"的活动模式</strong>，以自上而下的偏置信号去<strong>引导后部通路里的竞争</strong>、让任务相关（哪怕较弱）的通路胜出——就像铁路调度员只扳道岔、不开火车（"调节而非传递"）。它把注意/工作记忆/抑制/规则统一成同一机制的不同侧面，有实打实的电生理证据兜底（PFC 神经元编码当前规则：Asaad 1998 有 44%、Asaad 2000 过半且 54% 基线随规则变；抗干扰维持 Miller 1996；自上而下反馈 Tomita 1999），并用"多巴胺同时门控+学习→系统自举"优雅地甩掉了"脑内小人"——这既是认知控制的奠基性机制框架，也是一堂"如何不靠中央指挥官就解释自律"的范本。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Miller, E. K., &amp; Cohen, J. D. (2001). An Integrative Theory of Prefrontal Cortex Function. <em>Annual Review of Neuroscience, 24</em>, 167–202.
+    <br><br>
+    <strong>说明：</strong>本文为中文深度解读，所有数字与结论均取自原论文（含正文各节、Figure 1–5 及其图注）。文中标注「解读者观点 / 补充」处为解读者评述，非论文原文主张。交互组件为基于 Cohen 等（1990）Stroop 模型骨架的定性示意，用于传达"偏置使弱通路反超"的动态直觉，非该模型的原始仿真数值。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+
+  // ── 引导式激活 / Stroop 模型示意 ──
+  // 思路：两条通路通往两个反应单元。
+  //   读字通路连接强(wWord)，颜色通路连接弱(wColor)。
+  //   冲突刺激下：字="绿"→支持"绿"反应；墨色=红→支持"红"反应。
+  //   PFC 控制单元给"颜色通路"加偏置 b，抬升颜色通路对"红"反应的支持。
+  //   一致刺激下：字与墨色同色，两条通路指向同一答案，无冲突。
+  // 反应单元最终激活按"软竞争"(相对支持→归一)给出，仅作定性演示。
+
+  var canvas = document.getElementById("stroopCanvas");
+  var ctx = canvas.getContext("2d");
+  var captionEl = document.getElementById("vizCaption");
+  var biasBtns = document.querySelectorAll("#vizBias button");
+  var stimBtns = document.querySelectorAll("#vizStim button");
+  var biasSlider = document.getElementById("biasStrength");
+  var biasValEl = document.getElementById("biasVal");
+
+  var RED = "#c0392b";
+  var GREEN = "#2e8b57";
+  var GREY = "#9aa1ab";
+  var GREYL = "#c9ced4";
+  var INK = "#1f2328";
+  var INKSOFT = "#3a4048";
+
+  // 固定的通路连接强度（读字 >> 颜色）
+  var W_WORD = 1.0;   // 读字通路：优势/强
+  var W_COLOR = 0.45; // 颜色通路：弱势
+
+  var state = {
+    bias: "on",       // on / off
+    stim: "conflict", // conflict / congruent
+    b: 0.70           // 偏置强度 0..1（来自滑块）
+  };
+
+  // 当前显示（用于补间动画）
+  var animRed = 0, animGreen = 0;
+  var targetRed = 0, targetGreen = 0;
+  var animBiasLine = 0, targetBiasLine = 0; // 偏置连线点亮程度
+  var rafId = null;
+
+  function computeTargets(){
+    // 两条通路对两个反应单元的"支持"
+    // 冲突：字=绿(走读字通路→支持绿)，墨色=红(走颜色通路→支持红)
+    // 一致：字=红、墨色=红，两通路都支持红
+    var supportRed, supportGreen;
+    var bias = (state.bias === "on") ? state.b : 0;
+
+    if(state.stim === "conflict"){
+      // 颜色通路支持"红"，叠加 PFC 给颜色通路的偏置
+      supportRed   = W_COLOR * (1 + 2.2 * bias);
+      // 读字通路支持"绿"（强连接，但任务无关，不被偏置）
+      supportGreen = W_WORD;
+    } else { // congruent
+      // 字与墨色都为红：两条通路都把支持投给"红"
+      supportRed   = W_WORD + W_COLOR * (1 + 2.2 * bias);
+      supportGreen = 0.18; // 仅余微弱噪声/侧抑制残留
+    }
+
+    var sum = supportRed + supportGreen;
+    targetRed   = supportRed / sum;   // 归一到 0..1
+    targetGreen = supportGreen / sum;
+    targetBiasLine = bias; // 偏置连线亮度跟随偏置
+  }
+
+  function setActive(btns, attr, val){
+    btns.forEach(function(b){
+      if(b.getAttribute(attr) === val){ b.classList.remove("alt"); }
+      else { b.classList.add("alt"); }
+    });
+  }
+
+  function updateCaption(){
+    var winner = (targetRed >= targetGreen) ? "红" : "绿";
+    var correct = "红"; // 任务=说出墨色，正确答案恒为"红"
+    var pctR = Math.round(targetRed*100), pctG = Math.round(targetGreen*100);
+    var msg = "";
+    if(state.stim === "congruent"){
+      msg = "【一致刺激】字与墨色同为红——两条通路都把票投给“红”，没有冲突。无论偏置开关，模型都答“红”（正确）。这对应论文说的：<b>轨道畅通时根本用不上扳道岔（控制）</b>。当前“红” " + pctR + "% vs “绿” " + pctG + "%。";
+    } else if(state.bias === "off"){
+      msg = "【冲突 · 无偏置】没有 PFC 助攻，<b>强势的读字通路</b>把“绿”顶了上去——模型脱口而出“绿”（<b>出错</b>）。这正是<b>额叶损伤病人</b>的处境：偏置缺席，习惯反应夺回控制权。当前“红” " + pctR + "% vs “绿” " + pctG + "%，赢家：" + winner + "。";
+    } else {
+      if(winner === correct){
+        msg = "【冲突 · 有偏置 " + state.b.toFixed(2) + "】PFC 给<b>弱势的颜色通路</b>加了砝码，它反超了强大的读字通路——模型答“红”（<b>正确</b>）。当前“红” " + pctR + "% vs “绿” " + pctG + "%。试着把偏置强度往下拖，看它在某个<b>临界点</b>翻盘失败。";
+      } else {
+        msg = "【冲突 · 偏置不足 " + state.b.toFixed(2) + "】偏置太弱，托不住颜色通路——读字通路仍把“绿”顶上来（<b>出错</b>）。当前“红” " + pctR + "% vs “绿” " + pctG + "%。这演示了“控制是连续量”：偏置不够，弱通路就赢不了。把强度调高试试。";
+      }
+    }
+    captionEl.innerHTML = msg;
+  }
+
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  function draw(){
+    var W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    ctx.lineCap = "round";
+
+    // ===== 上半：通路示意图 =====
+    // 节点坐标
+    var yStim = 70;     // 刺激层
+    var yInter = 165;   // 中间(隐藏)层
+    var yResp = 255;    // 反应层
+    var xWordPath = 215;  // 读字通路 x
+    var xColorPath = 470; // 颜色通路 x
+    var pfcX = 600, pfcY = 48; // PFC 控制单元
+
+    var wordColorTxt = (state.stim === "conflict") ? "“绿”字" : "“红”字";
+
+    // —— 读字通路连线（强：粗）——
+    ctx.strokeStyle = GREY;
+    ctx.lineWidth = 6.5;
+    ctx.beginPath();
+    ctx.moveTo(xWordPath, yStim+18);
+    ctx.lineTo(xWordPath, yInter-14);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(xWordPath, yInter+14);
+    // 冲突：读字→"绿"反应(右下)；一致：读字→"红"反应(左下)
+    var wordTargetX = (state.stim === "conflict") ? 360 : 200;
+    ctx.lineTo(wordTargetX, yResp-16);
+    ctx.stroke();
+
+    // —— 颜色通路连线（弱：细）——
+    ctx.strokeStyle = GREYL;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(xColorPath, yStim+18);
+    ctx.lineTo(xColorPath, yInter-14);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(xColorPath, yInter+14);
+    // 颜色→"红"反应(左下，墨色为红)
+    ctx.lineTo(200, yResp-16);
+    ctx.stroke();
+
+    // —— PFC 偏置连线（指向颜色通路的中间层）——
+    var biasAlpha = animBiasLine;
+    if(biasAlpha > 0.02){
+      ctx.save();
+      ctx.globalAlpha = 0.25 + 0.65*biasAlpha;
+      ctx.strokeStyle = RED;
+      ctx.lineWidth = 1.5 + 4.5*biasAlpha;
+      ctx.setLineDash([7,5]);
+      ctx.beginPath();
+      ctx.moveTo(pfcX-6, pfcY+16);
+      ctx.bezierCurveTo(pfcX-40, yInter-40, xColorPath+60, yInter-60, xColorPath, yInter-8);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // 箭头
+      ctx.fillStyle = RED;
+      ctx.beginPath();
+      ctx.moveTo(xColorPath, yInter-8);
+      ctx.lineTo(xColorPath+10, yInter-20);
+      ctx.lineTo(xColorPath+13, yInter-7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // —— 节点：刺激层 ——
+    function node(x,y,r,fill,stroke,label,sub){
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = stroke;
+      ctx.stroke();
+      if(label){
+        ctx.fillStyle = INK;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "bold 13px -apple-system,sans-serif";
+        ctx.fillText(label, x, y);
+      }
+      if(sub){
+        ctx.fillStyle = INKSOFT;
+        ctx.font = "12px -apple-system,sans-serif";
+        ctx.textBaseline = "top";
+        ctx.fillText(sub, x, y+r+5);
+      }
+    }
+
+    // 刺激节点
+    node(xWordPath, yStim, 17, "#eef0f2", GREY, "", null);
+    ctx.fillStyle = INKSOFT; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font="bold 12px -apple-system,sans-serif";
+    ctx.fillText("字形", xWordPath, yStim);
+    ctx.fillStyle = INKSOFT; ctx.font="12px -apple-system,sans-serif"; ctx.textBaseline="top";
+    ctx.fillText(wordColorTxt, xWordPath, yStim+22);
+
+    node(xColorPath, yStim, 17, "#fdecea", RED, "", null);
+    ctx.fillStyle = RED; ctx.textBaseline="middle"; ctx.font="bold 12px -apple-system,sans-serif";
+    ctx.fillText("墨色", xColorPath, yStim);
+    ctx.fillStyle = INKSOFT; ctx.font="12px -apple-system,sans-serif"; ctx.textBaseline="top";
+    ctx.fillText("红墨水", xColorPath, yStim+22);
+
+    // 中间层节点
+    node(xWordPath, yInter, 12, "#f2f3f5", GREY, "", null);
+    node(xColorPath, yInter, 12, "#f2f3f5", GREY, "", null);
+    // 通路标签
+    ctx.fillStyle = INKSOFT; ctx.textAlign="left"; ctx.font="bold 12px -apple-system,sans-serif"; ctx.textBaseline="middle";
+    ctx.fillText("读字通路 (强·优势)", xWordPath+22, yInter);
+    ctx.fillStyle = RED; ctx.fillText("颜色通路 (弱)", xColorPath+22, yInter);
+
+    // PFC 控制单元盒
+    ctx.save();
+    var pfcActive = (state.bias === "on") ? (0.5 + 0.5*animBiasLine) : 0.18;
+    roundRect(pfcX-58, pfcY-20, 150, 40, 8);
+    ctx.fillStyle = (state.bias==="on") ? "rgba(192,57,43," + (0.10+0.16*animBiasLine).toFixed(3) + ")" : "#f7f7f8";
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = (state.bias==="on") ? RED : GREYL;
+    ctx.stroke();
+    ctx.fillStyle = (state.bias==="on") ? RED : GREY;
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.font="bold 12px -apple-system,sans-serif";
+    ctx.fillText("PFC 控制单元", pfcX+17, pfcY-4);
+    ctx.font="11px -apple-system,sans-serif";
+    ctx.fillText(state.bias==="on" ? "目标：说颜色 ✓" : "（无偏置）", pfcX+17, pfcY+10);
+    ctx.restore();
+
+    // 反应层两个单元（柱状激活）
+    // 用圆环大小+下方小柱表达激活强度
+    var respRedX = 200, respGreenX = 360;
+    drawRespNode(respRedX, yResp, animRed, RED, "“红”", "(正确)");
+    drawRespNode(respGreenX, yResp, animGreen, GREEN, "“绿”", "(读字误答)");
+
+    // ===== 下半：竞争结果条形图 =====
+    var gx = 70, gw = W - 70 - 30;
+    var gyTop = 320, gyBase = 405;
+    // 标题
+    ctx.fillStyle = INKSOFT; ctx.textAlign="left"; ctx.textBaseline="alphabetic";
+    ctx.font="bold 13px -apple-system,sans-serif";
+    ctx.fillText("反应单元竞争结果（归一化激活）", gx, gyTop-12);
+
+    // 基线
+    ctx.strokeStyle = GREYL; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(gx, gyBase); ctx.lineTo(gx+gw, gyBase); ctx.stroke();
+
+    var barH = gyBase - gyTop;
+    function hbar(idx, val, color, name){
+      var bx = gx + 30 + idx*( (gw-60)/2 );
+      var bw = 150;
+      var h = val * barH;
+      ctx.fillStyle = color;
+      ctx.fillRect(bx, gyBase - h, bw, h);
+      // 数值
+      ctx.fillStyle = INK; ctx.textAlign="center"; ctx.textBaseline="bottom";
+      ctx.font="bold 15px -apple-system,sans-serif";
+      ctx.fillText(Math.round(val*100)+"%", bx+bw/2, gyBase-h-5);
+      // 名称
+      ctx.fillStyle = INKSOFT; ctx.textBaseline="top"; ctx.font="12px -apple-system,sans-serif";
+      ctx.fillText(name, bx+bw/2, gyBase+6);
+    }
+    hbar(0, animRed, RED, "反应“红”（任务正确）");
+    hbar(1, animGreen, GREEN, "反应“绿”（读字习惯）");
+
+    // 胜者高亮线
+    var winVal = Math.max(animRed, animGreen);
+    var winColor = (animRed>=animGreen) ? RED : GREEN;
+    ctx.strokeStyle = winColor; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    ctx.moveTo(gx, gyBase - winVal*barH);
+    ctx.lineTo(gx+gw, gyBase - winVal*barH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = winColor; ctx.textAlign="right"; ctx.textBaseline="bottom";
+    ctx.font="11px -apple-system,sans-serif";
+    ctx.fillText("← 胜者", gx+gw, gyBase - winVal*barH - 2);
+  }
+
+  function drawRespNode(x,y,val,color,label,sub){
+    // 圆环：半径随激活变化
+    var r = 14 + val*12;
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.18 + 0.55*val;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.fillStyle = "#fff";
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.font="bold 13px -apple-system,sans-serif";
+    ctx.fillText(label, x, y);
+    ctx.fillStyle = INKSOFT; ctx.textBaseline="top"; ctx.font="11px -apple-system,sans-serif";
+    ctx.fillText(sub, x, y+r+4);
+  }
+
+  function animate(){
+    var ease = 0.16;
+    animRed += (targetRed - animRed)*ease;
+    animGreen += (targetGreen - animGreen)*ease;
+    animBiasLine += (targetBiasLine - animBiasLine)*ease;
+    draw();
+    if(Math.abs(targetRed-animRed)>0.002 || Math.abs(targetGreen-animGreen)>0.002 || Math.abs(targetBiasLine-animBiasLine)>0.002){
+      rafId = requestAnimationFrame(animate);
+    } else {
+      animRed = targetRed; animGreen = targetGreen; animBiasLine = targetBiasLine;
+      draw();
+      rafId = null;
+    }
+  }
+
+  function refresh(){
+    computeTargets();
+    updateCaption();
+    if(rafId === null){ rafId = requestAnimationFrame(animate); }
+  }
+
+  // 事件绑定
+  biasBtns.forEach(function(b){
+    b.addEventListener("click", function(){
+      state.bias = b.getAttribute("data-bias");
+      setActive(biasBtns, "data-bias", state.bias);
+      refresh();
+    });
+  });
+  stimBtns.forEach(function(b){
+    b.addEventListener("click", function(){
+      state.stim = b.getAttribute("data-stim");
+      setActive(stimBtns, "data-stim", state.stim);
+      refresh();
+    });
+  });
+  biasSlider.addEventListener("input", function(){
+    state.b = parseInt(biasSlider.value,10)/100;
+    biasValEl.textContent = state.b.toFixed(2);
+    // 拖滑块若当前是关，自动视为想看偏置效果→打开
+    if(state.bias === "off"){
+      state.bias = "on";
+      setActive(biasBtns, "data-bias", "on");
+    }
+    refresh();
+  });
+
+  // 初始化
+  setActive(biasBtns, "data-bias", state.bias);
+  setActive(stimBtns, "data-stim", state.stim);
+  biasValEl.textContent = state.b.toFixed(2);
+  computeTargets();
+  // 初始直接落到目标，再做一次入场补间
+  animRed = targetRed*0.3; animGreen = targetGreen*0.3; animBiasLine = 0;
+  updateCaption();
+  rafId = requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>

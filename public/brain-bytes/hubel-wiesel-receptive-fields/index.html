@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hubel & Wiesel 1962 — 猫视皮层感受野与功能柱 · 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Receptive Fields &amp; Cortical Columns <span>×</span> 大脑用来「看见线条」的第一块积木</h1>
+    <div class="meta">
+      <span>📄 Receptive fields, binocular interaction and functional architecture in the cat's visual cortex</span><br>
+      <span>✍️ D. H. Hubel &amp; T. N. Wiesel</span><br>
+      <span>🏛️ Neurophysiology Laboratory, Department of Pharmacology, Harvard Medical School, Boston</span><br>
+      <span>📅 The Journal of Physiology, 160(1), 106–154 · 1962（投稿 1961-07-31）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-q">他们到底在问什么</a></li>
+        <li><a href="#sec-simple">发现一：简单细胞与方向选择性</a></li>
+        <li><a href="#sec-viz">交互：拖动光条看调谐曲线</a></li>
+        <li><a href="#sec-complex">发现二：复杂细胞与位置不变性</a></li>
+        <li><a href="#sec-binocular">发现三：双眼汇合与眼优势</a></li>
+        <li><a href="#sec-columns">发现四：功能柱——皮层的几何</a></li>
+        <li><a href="#sec-hierarchy">发现五：层级搭建模型</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是 20 世纪神经科学最具奠基性的论文之一，1981 年诺贝尔生理学或医学奖的核心工作就出自这里。在它之前，没人真正知道<strong>大脑皮层的一个神经元「想要」看到什么</strong>。Hubel 与 Wiesel 把微电极插进麻醉猫的初级视皮层，一个细胞一个细胞地问：「我朝你的眼睛投什么样的光，你才肯放电？」答案彻底改写了我们对视觉的理解——视皮层细胞不在乎光点，而在乎<strong>有朝向的线条、边缘和暗条</strong>；把光条转过 5–10° 就足以让一个细胞从狂放电变成沉默。</p>
+        <p>更深的贡献有三层：（1）提出<strong>简单细胞</strong>与<strong>复杂细胞</strong>两类，并给出可被后人反复验证的判据；（2）发现皮层不是细胞的随机堆放，而是组织成<strong>方向柱</strong>与<strong>眼优势</strong>结构的「功能建筑」；（3）大胆提出一个<strong>层级搭建</strong>假说——简单细胞由一排同朝向的外膝体细胞拼成，复杂细胞又由一群错开位置的简单细胞拼成。这个「积木拼大积木」的思路，半个世纪后几乎一字不差地变成了卷积神经网络的设计哲学。读懂这篇，等于读懂了「特征检测器层级」这一整套现代视觉观念的源头。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文术语密度高且很多是作者自创。先备好下面这套「人话词典」，后面读正文会顺畅得多。</p>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">感受野（RF，Receptive Field）</div>
+          <div class="cdesc">一个视觉神经元「负责」的那块视网膜（或视野）区域：只有光落在这块地盘里，才可能影响它放电。可以把它想成每个细胞举着的一块小牌子，上面写着「我只看这一小块天空，而且只看这种图案」。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">开/关中心（'on'-/'off'-centre）</div>
+          <div class="cdesc">视网膜与外膝体细胞的感受野是同心圆靶子：开中心细胞「中心亮、周边暗」时最兴奋，关中心则相反。像一个对「中间有个亮点的甜甜圈」特别上头的探测器——它要的是光点，不是线条。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">外膝体（LGN，Lateral Geniculate Nucleus，文中作 LG）</div>
+          <div class="cdesc">视网膜到视皮层之间的中转站，丘脑的一部分。它的细胞和视网膜一样还停留在「同心圆、看光点」的阶段。是视皮层的主要（也可能是唯一）视觉输入来源——这一点是后面层级假说的前提。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">简单细胞（Simple cell）</div>
+          <div class="cdesc">视皮层里感受野「讲得清」的一类：把它分成并排的兴奋条带和抑制条带，像斑马纹一样泾渭分明。你能根据这张地图<strong>预测</strong>它对任意形状的反应。它要的是一根<strong>位置、宽度、朝向都精确</strong>的亮线。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">复杂细胞（Complex cell）</div>
+          <div class="cdesc">视皮层里感受野「讲不清」的一类：用小光点画不出兴奋/抑制地图。它同样挑朝向，但<strong>不挑位置</strong>——一根方向对的线，落在它感受野内任何地方都能让它放电。是「位置不变」识别的雏形。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">方向选择性 / 感受野轴（Orientation selectivity / receptive-field axis）</div>
+          <div class="cdesc">皮层细胞最核心的新性质：每个细胞只对某一个倾角的线条最敏感，转过几度就大幅减弱。作者用「感受野轴」指这条最佳朝向线。外膝体的圆靶子没有这个性质——这是皮层「无中生有」造出来的抽象。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">眼优势（Ocular dominance）</div>
+          <div class="cdesc">一个皮层细胞被左右两眼分别驱动时的力量对比。作者分成 7 个等级，从「只听对侧眼」（第 1 组）到「只听同侧眼」（第 7 组）。大多数细胞两眼都听，但常有偏向——这是双眼视觉、深度知觉的神经基础。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">功能柱 / 功能建筑（Cortical column / Functional architecture）</div>
+          <div class="cdesc">皮层不是随机的细胞汤。垂直于皮层表面、从表面贯穿到白质的一根根「柱子」里，细胞共享同一个最佳朝向；电极斜插过去，会一段段地跳过不同朝向。皮层因此像一栋按功能分区的大楼。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">层级搭建假说（Hierarchical / serial model）</div>
+          <div class="cdesc">本文的理论高潮：简单细胞 = 一排「开中心」外膝体细胞沿直线拼出来的；复杂细胞 = 一群「同朝向但位置错开」的简单细胞拼出来的。低级特征当积木，逐层组装出更抽象的特征——现代深度网络的祖训。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">中央区（Area centralis）</div>
+          <div class="cdesc">猫视网膜上对应人「中央凹」的高分辨率区域，约 5° 直径。本研究的细胞绝大多数感受野都落在这里及周边 2–3°，所以谈的是猫「看得最清」那一小块视野。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-q">他们到底在问什么</div>
+      <p>1950 年代末，人们已经知道两件事：视网膜神经节细胞和外膝体细胞的感受野是<strong>同心圆</strong>形（Kuffler 1953），对「中间一个亮点」之类的光斑反应最好；而皮层的细胞类型和连接的多样性「远超视觉系统任何更低的层级」。但中间隔着一道鸿沟：当信号从看光点的外膝体进入视皮层，<strong>究竟发生了什么变换？</strong></p>
+      <p>Hubel 与 Wiesel 在前一篇论文（1959）里已经初步报告皮层细胞会挑朝向。本篇是其全面展开，分三个部分递进回答：</p>
+      <ul>
+        <li><strong>Part I — 单个细胞「想看什么」</strong>：皮层感受野如何组织？能不能像外膝体那样用光点画出兴奋/抑制地图？（答案：一部分能——叫简单；一部分根本不能——叫复杂。）</li>
+        <li><strong>Part II — 两只眼如何汇合</strong>：单个皮层细胞是只听一只眼，还是两眼都听？两眼是协同还是对抗？谁更有发言权？</li>
+        <li><strong>Part III — 细胞如何在皮层里排布</strong>：相邻细胞的性质是随机的，还是成系统聚集？这个「功能建筑」能否反过来解释 Part I 里那些复杂的反应？</li>
+      </ul>
+      <p>方法上：40 只急性制备、硫喷妥钠（thiopental sodium）麻醉的猫，用琥珀胆碱（succinylcholine）麻痹眼肌固定眼球；钨微电极做 <strong>45 次穿刺</strong>，主要落在外侧回与后外侧回的视皮层；用钨丝灯投影仪把各种形状的白光打到 1.5 m 外的切线屏上，靠电极尖端的电解损毁标记定位细胞。全文共记录并分析 <strong>303 个皮层细胞</strong>。</p>
+
+      <div class="section-head" id="sec-simple">发现一：简单细胞——皮层造出了「方向探测器」</div>
+      <p>在 303 个细胞中，<strong>233 个（约 77%）</strong>被归为「简单」。它们和视网膜/外膝体细胞一样，感受野能分出清楚的兴奋区（'on'）和抑制区（'off'）；但有一个<strong>根本差别</strong>：外膝体的兴奋区与抑制区是<strong>同心圆套着</strong>的，而简单细胞的兴奋区与抑制区是<strong>并排排列、被直线边界分开</strong>的，像斑马纹（见原文 Text-fig. 2C–G）。</p>
+      <p>这个「从同心圆到并排条带」的几何变化，凭空引入了一个全新的变量：<strong>朝向</strong>。一个细胞的兴奋/抑制带可以是竖的、横的或斜的，作者称之为<term>感受野轴（receptive-field axis）</term>。最有效的刺激随之从「光点」变成了一根<strong>恰好盖住兴奋带、又不侵入两侧抑制带的细长亮线（slit）</strong>。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 朝向有多挑剔</span>
+        <p>对一个简单细胞，把这根最佳亮线的<strong>朝向改变 5–10°，通常就足以大幅削弱甚至完全消除反应</strong>。相比之下，外膝体的圆靶子细胞对一根移动亮线「不管什么朝向，反应都差不多」。作者能把每个细胞的最佳轴向<strong>测定到 5–10° 的精度</strong>。简单细胞的感受野最小条带宽度仅 <strong>10–15 弧分（arc-minutes）</strong>，约等于他们见过的最小外膝体感受野中心的直径——也就是说，皮层在获得朝向选择性的同时，并没有牺牲分辨率。</p>
+      </div>
+
+      <p>简单细胞内部还有亚型，作者按兴奋/抑制区的数目和大小列了一张表。这张表的价值不在分类本身（作者明确说「不是刚性分类系统」），而在于它量化了「并排条带」这一主题的各种变奏：</p>
+
+      <table>
+        <thead>
+          <tr><th>简单细胞亚型（对应原文 Table 1）</th><th>感受野几何</th><th>细胞数</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>对称侧翼 · 兴奋中心（2C）</td><td>窄兴奋带，两侧对称抑制带</td><td>23</td></tr>
+          <tr><td>对称侧翼 · 抑制中心（2D）</td><td>窄抑制带，两侧对称兴奋带</td><td>17</td></tr>
+          <tr><td>不对称侧翼 · 兴奋中心</td><td>中心+一强一弱侧翼</td><td>28</td></tr>
+          <tr><td>不对称侧翼 · 抑制中心（2E）</td><td>同上，中心为抑制</td><td>10</td></tr>
+          <tr><td>大中心 · 集中侧翼（2F）</td><td>宽中心，两条窄而强的侧翼</td><td>21</td></tr>
+          <tr><td>一兴奋区+一抑制区（2G）</td><td>只有两区并排 → 对「边缘」最敏感</td><td>17</td></tr>
+          <tr><td>未细分（主要用移动刺激研究）</td><td>—</td><td>117</td></tr>
+          <tr><td><strong>简单细胞合计</strong></td><td></td><td><strong>233</strong></td></tr>
+        </tbody>
+      </table>
+
+      <p>注意最后那个 2G 亚型：只有一条兴奋区紧挨一条抑制区。这种细胞对一根<strong>亮暗交界的边缘（edge）</strong>最敏感——边缘恰好落在两区分界线上时，给「开」或「关」反应取决于亮的一侧压在哪个区。这说明同一套「并排兴奋/抑制」原理，既能造出「线条探测器」也能造出「边缘探测器」。另外，<strong>弥散光（diffuse light）几乎无效</strong>：均匀照亮整个感受野时，兴奋与抑制相互抵消，细胞基本不理你。这是「皮层细胞要的是空间结构，不是亮度」的最直接证据。</p>
+
+      <div class="section-head" id="sec-viz">交互：拖动光条，亲手画出方向调谐曲线</div>
+      <p>「转过 5–10° 就大幅减弱」这句话，文字读来抽象。下面这个组件让你<strong>亲手拖动一根光条的朝向</strong>，实时看一个简单细胞的放电率怎么随朝向变化——这就是神经科学里最经典的<term>方向调谐曲线（orientation tuning curve）</term>。左边是猫的感受野与你投上去的光条，右边是放电率随朝向画出的曲线，红点标着你当前所在的位置。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">简单细胞方向调谐曲线 · 交互模拟</div>
+        <div class="viz-note">模拟数据基于论文报告的定性模式（最佳朝向附近 5–10° 内反应骤降、弥散光无效、转 90° 几乎沉默），仅展示定性规律，非原始放电记录。</div>
+        <div class="viz-controls">
+          <label>光条朝向：<strong><span id="angleLabel">0</span>°</strong></label>
+          <input type="range" id="angleSlider" min="-90" max="90" value="0" step="1" style="width:240px;">
+          <button id="sweepBtn">▶ 自动扫过全程</button>
+          <button class="alt" id="prefBtn">对齐最佳朝向</button>
+        </div>
+        <div class="viz-controls">
+          <label>该细胞最佳朝向（可改）：<strong><span id="prefLabel">25</span>°</strong></label>
+          <input type="range" id="prefSlider" min="-90" max="90" value="25" step="5" style="width:200px;">
+          <label style="margin-left:8px;"><input type="checkbox" id="diffuseChk"> 改投弥散光（铺满整个感受野）</label>
+        </div>
+        <canvas id="tuneCanvas" width="860" height="380"></canvas>
+        <div class="viz-note" id="rateReadout" style="margin-top:12px;text-align:center;font-size:0.95rem;color:var(--ink-soft);"></div>
+      </div>
+
+      <p>玩几下你会得到三个论文里的核心直觉：（1）<strong>调谐很尖</strong>——离最佳朝向 10° 反应已明显掉，差 30° 几乎归零，差 90°（正交）彻底沉默，这正是 Hubel-Wiesel 说的「转 5–10° 足以废掉反应」；（2）<strong>朝向是细胞固有属性</strong>——你拖动「最佳朝向」滑块就是在切换到另一个细胞，曲线整体平移；（3）<strong>弥散光无效</strong>——勾上弥散光，无论朝向如何放电率都趴在基线附近，因为兴奋带和抑制带被同时点亮、彼此抵消。</p>
+
+      <div class="section-head" id="sec-complex">发现二：复杂细胞——朝向照挑，位置不再讲究</div>
+      <p>另有 <strong>70 个细胞</strong>属于「复杂」类。它们的标志是：<strong>用小光点画不出兴奋/抑制地图</strong>——小圆点要么无效，要么在感受野里到处都给「开-关」混合反应（'on-off'），那套「兴奋区/抑制区互相拮抗」的简单原理在这里失灵了。</p>
+      <p>但复杂细胞并非杂乱无章。它和简单细胞共享一条铁律——<strong>仍然强烈挑朝向</strong>，把最佳线条转过 5–10° 同样大幅减弱。真正的区别在于<strong>对位置的宽容度</strong>：</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 位置不变性的诞生</span>
+        <p>简单细胞要求刺激的<strong>位置精确到几乎不能动</strong>；复杂细胞则相反——一根朝向对的线，<strong>落在它感受野内的任何地方都有效</strong>。论文里一个复杂细胞对竖直边缘的反应，在一条长达约 <strong>16°</strong> 的范围里只要朝向对就放电（Text-fig. 6）；另一个对慢速移动的暗条（dark bar）反应，整个 <strong>5°</strong> 感受野内持续放电（Text-fig. 7、8），且偏好某个移动方向。作者一句话点破其意义：复杂细胞「头一次，在某种意义上比喂给它们信号的细胞<strong>更不挑剔</strong>」——它把「朝向」这个抽象，<strong>从具体位置里解放了出来</strong>。</p>
+      </div>
+      <p>这一步对知觉的意义，作者自己也只敢「推测」：要认出一个形状，得能不管它精确落在视野哪个位置。复杂细胞对位置的宽容，正是朝着「位置无关的形状识别」迈出的第一步。此外，复杂细胞常对<strong>移动</strong>的最佳线条给出持续放电（一根静止线只给短暂反应），暗示它们在<strong>运动知觉</strong>里也扮演角色。统计上，复杂细胞的感受野平均比简单细胞<strong>更大</strong>（Text-fig. 9），与「它整合了多个简单细胞」的图景一致。</p>
+
+      <div class="section-head" id="sec-binocular">发现三：两眼在皮层第一次汇合，但谁说了算因细胞而异</div>
+      <p>这是 Part II 的内容，也是「双眼视觉的神经起点」的关键证据。在外膝体，来自两眼的纤维还分居在不同的层里，几乎不混；而在视皮层，单个细胞<strong>第一次</strong>能同时听到两只眼。</p>
+      <p>作者对 303 个细胞中的 <strong>223 个</strong>逐一比较了两眼的影响，得到几个干净的结论：</p>
+      <ul>
+        <li><strong>两眼的感受野「长得一模一样」</strong>：同一个双眼细胞，左右眼的感受野占据两个视网膜上的对应位置，兴奋/抑制布局相同、<strong>朝向轴也相同</strong>。唯一的差别只在「谁更有力」。</li>
+        <li><strong>协同还是对抗，取决于刺激落点</strong>：两眼对应区域被同样方式刺激时，效果<strong>相加（协同）</strong>；若一眼的兴奋区对上另一眼的抑制区，则相互抵消。这正是双眼立体视的生理逻辑——两眼图像落在对应点上才叠加增强。</li>
+        <li><strong>眼优势是连续谱</strong>：作者把细胞分成 7 个等级（第 1 组「只听对侧眼」→ 第 4 组「两眼势均力敌」→ 第 7 组「只听同侧眼」）。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 双眼到底多普遍</span>
+        <p>全部细胞中 <strong>84% 受双眼共同影响</strong>，远高于作者早期工作或同行（Grüsser 等人当时只报告约 30%）；其中约 <strong>70% 两眼势均力敌</strong>（第 3–5 组）。同时存在一个清晰的不对称：<strong>受对侧眼主导的细胞明显多于受同侧眼主导的（106 比 62）</strong>——即在代表中央视觉的这片皮层里，对侧眼平均更有发言权。复杂细胞在 7 个眼优势组里的分布，与总体细胞群没有差别。</p>
+      </div>
+
+      <div class="section-head" id="sec-columns">发现四：功能柱——皮层不是细胞汤，是一栋按功能分区的楼</div>
+      <p>Part III 问的是排布问题：相邻细胞是随机的吗？作者用三种互补方法回答——（1）沿一次电极穿刺记录一长串细胞，重建电极轨迹看性质如何随位置变；（2）听电极尖端「未分辨的背景活动（unresolved background activity）」的最佳朝向；（3）用一根电极同时记录 2–3 个紧邻细胞（多细胞记录）。</p>
+      <p>结论漂亮得近乎几何：<strong>朝向相同的细胞绝不随机散布，而是聚成一根根「柱子」。</strong></p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉 · 柱子的尺度</span>
+        <p>当电极<strong>垂直</strong>于皮层表面下插时，遇到的细胞一路<strong>共享同一个最佳朝向</strong>，背景活动的最佳朝向也不变；当电极<strong>斜插</strong>穿过时，每前进一小段就跳到一个新朝向，跳变<strong>不可预测，有时几乎察觉不到，有时高达 45–90°</strong>。这些柱子从皮层表面一直<strong>贯穿到白质</strong>，表面横截宽度约 <strong>0.5 mm</strong>。作者估计皮层里<strong>至少有 10–12 种</strong>不同的朝向柱（实际可能多得多，因为没有两根柱子的朝向会完全一样）。</p>
+      </div>
+      <p>不过作者很诚实地标出了两条边界：<strong>朝向是柱子的组织原则，眼优势却不完全是</strong>——同一根（朝向）柱子里可以混着不同眼优势的细胞，尽管也并非全无聚集倾向（34 次多细胞记录中，23 次紧邻细胞落在同一眼优势组）。还有一个反直觉的发现：在一根柱子内部，<strong>感受野的精确视网膜位置反而随机错落</strong>，电极前进时看不到系统性的位置推移——也就是说「视网膜拓扑映射」在单个柱子这种微观尺度上<strong>不再严格成立</strong>（Text-fig. 15）。</p>
+
+      <div class="section-head" id="sec-hierarchy">发现五：层级搭建——「积木拼大积木」的原始蓝图</div>
+      <p>这是全文的理论高潮，也是它影响最深远的部分。作者把 Part I（细胞性质）和 Part III（细胞排布）拼起来，提出一个<strong>层级搭建（hierarchical/serial）</strong>假说，分两级：</p>
+      <p><strong>第一级：外膝体 → 简单细胞</strong>（原文 Text-fig. 19）。想象一群<strong>开中心</strong>的外膝体细胞，它们的圆形感受野中心恰好<strong>沿一条直线排成一排</strong>，全部兴奋性地汇聚到同一个皮层细胞上。这个皮层细胞的感受野就会是一条细长的兴奋带（中间），两侧由这些圆靶子的外圈拼出抑制带——一个简单细胞就这样诞生了，它的最佳刺激自然是一根盖住这条线的亮条。改变排布方式（如换成关中心、或两侧不对称强化），就能造出 Table 1 里的各种亚型。</p>
+      <p><strong>第二级：简单细胞 → 复杂细胞</strong>（原文 Text-fig. 20）。再想象一群<strong>朝向完全相同、但感受野位置沿着该朝向错开（staggered）</strong>的简单细胞，全都汇聚到一个更高阶的细胞上。这下：一根朝向对的线，<strong>不管落在哪个位置</strong>，总会激活其中某几个简单细胞，于是高阶细胞放电——它继承了「挑朝向」，却获得了「不挑位置」。这正好解释了复杂细胞的核心特征。</p>
+      <blockquote>
+        <p>外膝体「开中心」细胞 ──沿直线一排──▶ 简单细胞（挑朝向 + 挑位置）</p>
+        <p>同朝向的简单细胞 ──沿朝向错开──▶ 复杂细胞（挑朝向，不挑位置）</p>
+      </blockquote>
+      <p>而 Part III 的功能柱在这里成了<strong>解剖学上的「神助攻」</strong>：要把同朝向的细胞连起来、又把不同朝向的隔开，听上去需要一团乱麻般的精巧布线；可如果同朝向的细胞本来就<strong>聚在同一根柱子里</strong>，皮层丰富的垂直（radial）连接刚好能完成这种「柱内特异连接」。于是「为什么细胞要按朝向聚成柱」也有了功能意义：<strong>柱子就是把简单细胞合成复杂细胞的功能装配线</strong>。作者据此重新诠释了皮层细胞数量为何远超外膝体——视野的每一小块都被<strong>反复表征</strong>了无数遍，先按一种朝向、再按另一种，层层「消化」。</p>
+      <div class="info-block">
+        <span class="ib-title">解读者提醒 · 这是假说，不是已证事实</span>
+        <p>作者反复强调（原文用词）：这些方案「显然是<strong>试探性的，不应照字面理解</strong>（tentative and should not be interpreted literally）」。他们当时<strong>没有直接证据</strong>说明皮层如何变换输入，只能靠间接证据「暗示可能的机制」。真正用实验把这条层级链一环环钉死，是后续几十年（乃至今天）的工作。把它当成「一个极有解释力、且事后被大量证实的猜想」来读，最贴合原意。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文的说服力，很大程度来自方法上的几处硬功夫。它示范了「如何在 1960 年代、没有任何现代成像工具的条件下，把单个皮层细胞的偏好问得一清二楚」。</p>
+      <table>
+        <thead>
+          <tr><th>手法</th><th>怎么做</th><th>解决了什么问题</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>钨微电极 + 单细胞胞外记录</td>
+            <td>用钨微电极逐个隔离皮层单细胞，靠尖端电解损毁（直径 50–100 μm）+ 组织切片重建轨迹来定位</td>
+            <td>把「细胞性质」和「皮层位置」一一对应，使「功能建筑」可被测量——这是当年群体诱发电位（只能分辨 &gt;1 mm² 的区域）根本做不到的</td>
+          </tr>
+          <tr>
+            <td>麻痹眼肌固定眼球</td>
+            <td>琥珀胆碱麻痹眼肌，使眼球不动；两眼对应区用投到屏上的两个点（中央区、视盘）标定后校正</td>
+            <td>感受野定位需要眼睛绝对不动；同时让「在两眼对应位置同时给刺激」成为可能，是 Part II 双眼研究的前提</td>
+          </tr>
+          <tr>
+            <td>用「最佳刺激」反向锁定细胞</td>
+            <td>不预设刺激，而是用各种形状、朝向、运动的光反复试错，直到找到让该细胞放电最猛的那一个</td>
+            <td>避免「只用光点」这一先入之见——否则复杂细胞会被误判为「对视觉无反应」。正是这种开放试错才逼出了「朝向」这个变量</td>
+          </tr>
+          <tr>
+            <td>三法交叉验证功能柱</td>
+            <td>串行记录 + 背景活动监听 + 多细胞同时记录，三种方法互补印证柱状结构</td>
+            <td>单一方法（如串行记录）会受眼动、麻醉漂移干扰；多细胞同时记录则免疫于这些长时程不稳定，三者一致才下结论</td>
+          </tr>
+          <tr>
+            <td>移动刺激作为高效探针</td>
+            <td>因移动光条反应远强于静止，用它快速测出大量细胞的轴向与眼优势</td>
+            <td>在一次穿刺的有限时间里高效采样许多细胞的关键属性；也顺带揭示了方向选择性（部分细胞只对一个移动方向反应）</td>
+          </tr>
+          <tr>
+            <td>麻醉深度对照</td>
+            <td>同一细胞观察 1–9 小时，比较不同麻醉深度；并与清醒未麻痹制备（Hubel 1959）对照</td>
+            <td>证明感受野的组织（朝向、布局、眼优势）<strong>不是麻醉的人为产物</strong>——麻醉只改变放电频率与活跃度，不改变「想看什么」</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p><strong>站在 Kuffler 的肩膀上、再往上一层。</strong>Kuffler（1953）已确立视网膜的同心圆开/关中心感受野；Hubel-Wiesel 自己（1961）确认外膝体细胞也是同心圆型。本文的全部张力，正来自「输入是圆靶子，输出却是方向探测器」这个落差——他们要做的就是<strong>补上这一级变换</strong>。</p>
+      <p><strong>把 Mountcastle 的「柱」从体感搬到视觉。</strong>Mountcastle（1957）和 Powell &amp; Mountcastle（1959）在体感皮层发现了按「感觉亚模态」组织的柱状结构。作者明确致敬这一思路，并指出关键差异：体感柱按<strong>输入模态</strong>分（触觉 vs 关节觉，是输入纤维本身的属性），而视觉柱按<strong>感受野轴向</strong>分——朝向并非输入自带，而是<strong>皮层自己在柱内整合算出来的</strong>。这个对比，恰恰把「皮层在做计算」这件事凸显了出来。</p>
+      <p><strong>和青蛙视觉的隔空对话。</strong>作者拿本文的复杂细胞与 Lettvin、Maturana、McCulloch &amp; Pitts（1959，著名的《青蛙的眼睛告诉青蛙的脑什么》）里的视网膜「特征探测器」相比，发现一个耐人寻味的反差：<strong>青蛙在第三级神经元（视网膜）就有的复杂性，猫要到第六级（经外膝体的皮层）才出现</strong>。作者的解释是：青蛙的视觉系统专门识别少数刻板模式，把活儿前置到视网膜；而猫追求高敏锐度与多用途，于是把「复杂操作」推迟到更高层、用海量细胞精细地做。这是早期「不同物种把同一计算放在不同层级」的深刻洞察。</p>
+      <p>论文末尾还预告了对蜘蛛猴（spider monkey）皮层的初步实验「显示出惊人的相似」，为后续把这套机制推广到灵长类乃至人埋下伏笔。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p><strong>给人工智能：卷积网络的「祖训」。</strong>本文的两条核心思想——「特征探测器」与「层级搭建」——几乎是现代卷积神经网络（CNN，Convolutional Neural Network）的直接精神前身。Fukushima 的 Neocognitron（1980）明确把简单细胞/复杂细胞写进网络层；今天 CNN 里交替的卷积层（提取局部带朝向的特征）与池化层（对位置容错）几乎就是「简单细胞 → 复杂细胞」的工程化身。一篇 1962 年的猫电生理论文，预演了 21 世纪深度学习的层级特征观。</p>
+      <p><strong>给神经科学方法论：「单细胞 + 行为相关刺激」的范式。</strong>「用自然/结构化刺激去问单个细胞偏好，再把偏好与皮层位置挂钩」这套打法，此后成为系统神经科学的标准动作，从视觉延伸到听觉、运动、决策皮层。</p>
+      <p><strong>给知觉哲学：抽象是分层涌现的。</strong>「朝向」这个抽象在外膝体并不存在，是皮层第一级造出来的；「位置无关」又在更高一级造出来。它给「知觉特征如何从神经元一步步涌现」提供了一个具体可触的样板——抽象不是一蹴而就，而是逐层剥离掉无关变量（先剥离亮度、再剥离位置）。</p>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>除了作者自己强调的「层级模型只是试探性假说」（见发现五的提醒框），还有几处论文没明说、或受当年条件所限的局限，值得读者自己点破：</p>
+      <ul>
+        <li><strong>层级模型是「能解释」，不是「被证明」。</strong>Text-fig. 19/20 是<strong>事后建构</strong>的、与数据一致的方案，而非实验直接验证的连接。作者坦承当时「没有直接证据」说明皮层如何变换输入。后来的研究表明，方向选择性可能不仅靠这种纯前馈拼接，也涉及皮层内的抑制与反馈——纯层级图景过于简化。这是「优雅假说」与「机制实证」之间必须保留的距离。</li>
+        <li><strong>「简单 vs 复杂」是连续谱还是真二分？</strong>作者自己就说这「不是刚性分类」，233 个简单细胞里有 <strong>117 个</strong>因主要用移动刺激研究而「未细分」，且「进一步研究可能会显露复杂性」。两类之间的边界有多硬、是否还有中间型，文中并未定论。</li>
+        <li><strong>柱内的微观拓扑「乱」得没解释。</strong>同一柱内感受野位置随机错落、视网膜映射在微观尺度失效（Text-fig. 15），这个反直觉现象作者只是<strong>报告</strong>，并未给出机制——它和「精确拼接简单细胞」的层级图景之间其实存在张力（位置都乱了，怎么精确拼？）。</li>
+        <li><strong>皮层分层与细胞类型的关系含糊。</strong>作者想看简单/复杂细胞与皮层 6 层的对应，但坦言猫的 Nissl 染色层界「远不如灵长类清晰」，连第 4 层都「界定不清」，所以多数细胞的层归属是<strong>间接推算</strong>的。唯一较硬的结论是「复杂细胞在第 4 层罕见、简单细胞在第 4 层富集」，其余对应关系存疑。</li>
+        <li><strong>眼优势为何不组织成柱，没有答案。</strong>朝向成柱、眼优势却只是「有聚集倾向」，作者把现象摆出来却未解释二者组织程度的差异（眼优势柱要到后来才被清晰刻画）。</li>
+        <li><strong>样本与物种边界。</strong>全部基于 40 只<strong>麻醉猫</strong>、且细胞绝大多数取自<strong>中央区</strong>视野；外周视野、清醒行为状态、以及向灵长类/人的推广，本文只能预告而无法定论。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p><strong>这是一篇「方法、发现、理论」三者都达到顶级、且彼此咬合的论文，奠基地位实至名归。</strong>下面每条评价都对应文中证据：</p>
+      <ul>
+        <li><strong>发现层面：开创性且经得起重复。</strong>「皮层细胞挑朝向、转 5–10° 即废」「简单/复杂两类」「84% 双眼驱动」「方向柱 0.5 mm」这些结论，配有明确的细胞计数（303 个）、量化阈值与多法交叉验证，后来被无数实验重复，几乎全部站住。这是「判断有据」的硬地基。</li>
+        <li><strong>理论层面：极高解释力的假说，但作者的克制是其德性。</strong>层级模型把零散观察统一成一条「积木拼大积木」的链条，并预言了功能柱的意义；同时作者明确标注它「试探性、勿照字面理解」。<strong>不把假说包装成定论</strong>，这种科学诚实本身就值得高分。</li>
+        <li><strong>方法层面：示范级。</strong>用「最佳刺激反向锁定」破除光点成见、用「损毁标记 + 轨迹重建」把功能挂到位置、用「麻醉深度对照」排除人为产物——每一步都直击一个可能的反驳，方法论的严谨度远超时代。</li>
+        <li><strong>局限是诚实的，不是遮掩的。</strong>分类不刚性、柱内拓扑混乱、分层归属间接、推广受限——这些作者要么自陈、要么数据里清晰可见。论文的弱点都摆在明处，没有被结论的光环掩盖。</li>
+      </ul>
+      <p>一句话评价（解读者观点）：<strong>如果只能给系统神经科学的学生读一篇 60 年代的论文，就是这篇。</strong>它不只给了答案（皮层在做什么），更示范了好问题该怎么问、好假说该如何在自信与谦逊之间拿捏。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Hubel 与 Wiesel 把微电极插进 40 只麻醉猫的初级视皮层、逐一测量 303 个细胞，发现皮层把外膝体「看光点」的同心圆信号，变换成了<strong>挑朝向的线条/边缘探测器</strong>——其中 233 个「简单细胞」既挑朝向又挑位置（转 5–10° 即废）、70 个「复杂细胞」挑朝向却不挑位置；84% 的细胞被双眼共同驱动；性质相同的细胞沿垂直方向聚成 0.5 mm 宽的<strong>方向柱</strong>。他们据此提出影响整个现代视觉科学（直至卷积神经网络）的<strong>层级搭建假说</strong>：低级特征当积木，逐层组装出更抽象的特征。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Hubel, D. H. &amp; Wiesel, T. N. (1962). Receptive fields, binocular interaction and functional architecture in the cat's visual cortex. <em>The Journal of Physiology</em>, 160(1), 106–154.<br>
+    本文为深度解读，所有数字与论断均出自原论文；标注「解读者观点」处为解读者的独立评价。交互组件为基于论文报告之定性模式的教学模拟，非原始数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('tuneCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  var angleSlider = document.getElementById('angleSlider');
+  var angleLabel  = document.getElementById('angleLabel');
+  var prefSlider  = document.getElementById('prefSlider');
+  var prefLabel   = document.getElementById('prefLabel');
+  var diffuseChk  = document.getElementById('diffuseChk');
+  var readout     = document.getElementById('rateReadout');
+  var sweepBtn    = document.getElementById('sweepBtn');
+  var prefBtn     = document.getElementById('prefBtn');
+
+  var RED = '#c0392b';
+  var INK = '#1f2328';
+  var MUTED = '#9aa1ab';
+  var LINE = '#e6e8eb';
+
+  // 调谐函数：高斯型方向调谐 + 基线。半宽约 18° → 转 5-10° 明显掉、转 30° 近零。
+  // 弥散光时兴奋/抑制相抵 → 几乎只剩基线噪声水平。
+  var BASE = 4;        // 自发放电基线 (spikes/s)
+  var PEAK = 52;       // 峰值放电 (spikes/s)
+  var SIGMA = 17;      // 调谐宽度 (deg)
+  function angDiff(a,b){
+    var d = ((a-b) % 180 + 270) % 180 - 90; // 折叠到 [-90,90]，朝向 180° 周期
+    return d;
+  }
+  function rateAt(stimAngle, prefAngle, diffuse){
+    if(diffuse){
+      return BASE + 1.2; // 弥散光：基本无调制，趴在基线
+    }
+    var d = angDiff(stimAngle, prefAngle);
+    return BASE + PEAK * Math.exp(-(d*d)/(2*SIGMA*SIGMA));
+  }
+
+  var sweeping = false;
+  var sweepDir = 1;
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    var stim = parseFloat(angleSlider.value);
+    var pref = parseFloat(prefSlider.value);
+    var diffuse = diffuseChk.checked;
+    angleLabel.textContent = stim;
+    prefLabel.textContent = pref;
+
+    // ---------- 左半：感受野 + 光条 ----------
+    var lx = 30, ly = 30, lw = 320, lh = H-60;
+    var cx = lx + lw/2, cy = ly + lh/2;
+    var R = 120; // 感受野半径
+
+    // 标题
+    ctx.fillStyle = INK;
+    ctx.font = '600 14px -apple-system,system-ui,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('猫的感受野（含投上去的光刺激）', cx, ly+2);
+
+    // 感受野背景圆（视野那块天空）
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI*2);
+    ctx.clip();
+
+    // 简单细胞感受野：并排的 抑制带 | 兴奋带 | 抑制带，方向 = pref
+    var prefRad = pref * Math.PI/180;
+    // 在以 pref 为法线的坐标里画竖直条带
+    ctx.translate(cx, cy);
+    ctx.rotate(prefRad);
+    // 抑制带（蓝灰）
+    ctx.fillStyle = '#dfe6ef';
+    ctx.fillRect(-R, -R, R*2, R*2);
+    // 兴奋带（中央，淡红）
+    ctx.fillStyle = '#f7d6d1';
+    ctx.fillRect(-22, -R, 44, R*2);
+    ctx.restore();
+
+    // 兴奋/抑制标注线（虚线分界）
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(prefRad);
+    ctx.strokeStyle = '#c9a9a4';
+    ctx.setLineDash([5,4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-22,-R); ctx.lineTo(-22,R);
+    ctx.moveTo(22,-R); ctx.lineTo(22,R); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // 光刺激
+    ctx.save();
+    ctx.translate(cx, cy);
+    if(diffuse){
+      // 弥散光：整个圆铺满半透明黄白
+      ctx.fillStyle = 'rgba(255,220,90,0.40)';
+      ctx.fillRect(-R, -R, R*2, R*2);
+    } else {
+      // 一根亮条，朝向 = stim
+      ctx.rotate(stim * Math.PI/180);
+      ctx.fillStyle = 'rgba(255,210,60,0.92)';
+      ctx.fillRect(-14, -R, 28, R*2);
+      ctx.strokeStyle = '#e8a200';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(-14, -R, 28, R*2);
+    }
+    ctx.restore();
+    ctx.restore(); // end clip
+
+    // 感受野外圈
+    ctx.strokeStyle = MUTED;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.stroke();
+
+    // 图例
+    ctx.textAlign = 'left';
+    ctx.font = '12px -apple-system,system-ui,sans-serif';
+    var legY = cy + R + 22;
+    ctx.fillStyle = '#f7d6d1'; ctx.fillRect(lx+6, legY-9, 14, 12);
+    ctx.strokeStyle = LINE; ctx.strokeRect(lx+6, legY-9, 14, 12);
+    ctx.fillStyle = INK; ctx.fillText('兴奋带 (on)', lx+26, legY);
+    ctx.fillStyle = '#dfe6ef'; ctx.fillRect(lx+120, legY-9, 14, 12);
+    ctx.strokeStyle = LINE; ctx.strokeRect(lx+120, legY-9, 14, 12);
+    ctx.fillStyle = INK; ctx.fillText('抑制带 (off)', lx+140, legY);
+    ctx.fillStyle = 'rgba(255,210,60,0.95)'; ctx.fillRect(lx+6, legY+9, 14, 12);
+    ctx.strokeStyle = '#e8a200'; ctx.strokeRect(lx+6, legY+9, 14, 12);
+    ctx.fillStyle = INK; ctx.fillText(diffuse ? '弥散光（铺满）' : '光条 (slit)', lx+26, legY+18);
+
+    // ---------- 右半：调谐曲线 ----------
+    var gx0 = 430, gy0 = 60, gw = 400, gh = 250;
+    var gx1 = gx0 + gw, gy1 = gy0 + gh;
+
+    // 标题
+    ctx.fillStyle = INK;
+    ctx.font = '600 14px -apple-system,system-ui,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('方向调谐曲线（放电率 vs 光条朝向）', gx0+gw/2, gy0-22);
+
+    // 坐标轴
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(gx0, gy0); ctx.lineTo(gx0, gy1); ctx.lineTo(gx1, gy1);
+    ctx.stroke();
+
+    var maxRate = BASE + PEAK + 4;
+    function px(ang){ return gx0 + (ang+90)/180 * gw; }
+    function py(rate){ return gy1 - (rate/maxRate) * gh; }
+
+    // 网格 + x 轴刻度
+    ctx.strokeStyle = LINE; ctx.lineWidth = 1;
+    ctx.fillStyle = MUTED; ctx.font = '11px -apple-system,system-ui,sans-serif';
+    ctx.textAlign = 'center';
+    var ticks = [-90,-60,-30,0,30,60,90];
+    for(var i=0;i<ticks.length;i++){
+      var tx = px(ticks[i]);
+      ctx.beginPath(); ctx.moveTo(tx, gy0); ctx.lineTo(tx, gy1); ctx.stroke();
+      ctx.fillText(ticks[i]+'°', tx, gy1+16);
+    }
+    // y 轴刻度
+    ctx.textAlign = 'right';
+    for(var r=0;r<=50;r+=10){
+      var ty = py(r);
+      ctx.fillStyle = MUTED;
+      ctx.fillText(r, gx0-8, ty+4);
+    }
+    ctx.save();
+    ctx.translate(gx0-38, (gy0+gy1)/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillStyle=INK; ctx.font='12px -apple-system,system-ui,sans-serif';
+    ctx.fillText('放电率 (spikes/s)', 0, 0);
+    ctx.restore();
+    ctx.textAlign='center'; ctx.fillStyle=INK;
+    ctx.fillText('光条朝向（相对最佳轴）', gx0+gw/2, gy1+34);
+
+    // 曲线
+    ctx.strokeStyle = RED; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for(var a=-90;a<=90;a+=1){
+      var rr = rateAt(a, pref, diffuse);
+      var X = px(a), Y = py(rr);
+      if(a===-90) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+    }
+    ctx.stroke();
+
+    // 弥散光时画一条说明
+    if(diffuse){
+      ctx.fillStyle = MUTED; ctx.font='italic 12px -apple-system,system-ui,sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText('弥散光：兴奋带与抑制带同时被点亮 → 相互抵消 → 几乎不放电', gx0+gw/2, gy0+gh/2);
+    }
+
+    // 当前点
+    var curRate = rateAt(stim, pref, diffuse);
+    var cxp = px(stim), cyp = py(curRate);
+    // 竖直指示线
+    ctx.strokeStyle = 'rgba(192,57,43,0.35)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(cxp, gy1); ctx.lineTo(cxp, cyp); ctx.stroke();
+    ctx.setLineDash([]);
+    // 红点
+    ctx.fillStyle = RED;
+    ctx.beginPath(); ctx.arc(cxp, cyp, 6, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+
+    // ---------- 底部：放电「脉冲」示意（放电率越高刺越密） ----------
+    var sy = 340, sx0 = gx0, sx1 = gx1;
+    ctx.strokeStyle = INK; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(sx0, sy); ctx.lineTo(sx1, sy); ctx.stroke();
+    ctx.fillStyle = INK; ctx.font='11px -apple-system,system-ui,sans-serif'; ctx.textAlign='left';
+    ctx.fillText('该朝向下的放电脉冲串：', sx0, sy-12);
+    // 用确定性伪随机让脉冲稳定
+    var nSpikes = Math.round(curRate/1.0);
+    var seed = Math.round(stim)*131 + Math.round(pref)*17 + (diffuse?999:0);
+    function rnd(){ seed = (seed*9301 + 49297) % 233280; return seed/233280; }
+    ctx.strokeStyle = RED; ctx.lineWidth=1.4;
+    for(var s=0;s<nSpikes;s++){
+      var spx = sx0 + 4 + rnd()*(sx1-sx0-8);
+      ctx.beginPath(); ctx.moveTo(spx, sy-2); ctx.lineTo(spx, sy-16); ctx.stroke();
+    }
+
+    // 读数
+    var pct = Math.round((curRate-BASE)/PEAK*100);
+    if(pct<0) pct=0;
+    var dd = Math.abs(angDiff(stim,pref));
+    if(diffuse){
+      readout.innerHTML = '当前：<strong>弥散光</strong> · 放电率 ≈ <strong>'+curRate.toFixed(1)+' spikes/s</strong>（趴在基线）—— 整个感受野被均匀照亮，兴奋与抑制相消，细胞「不理你」。';
+    } else {
+      readout.innerHTML = '当前：光条朝向 <strong>'+stim+'°</strong>，偏离最佳轴 <strong>'+dd.toFixed(0)+'°</strong> · 放电率 ≈ <strong>'+curRate.toFixed(1)+' spikes/s</strong>（约为峰值的 <strong>'+pct+'%</strong>）。'+
+        (dd<8 ? ' ← 几乎对准最佳轴，火力全开！' : (dd>40 ? ' ← 偏太多，细胞快沉默了。' : ' ← 偏离最佳轴，反应已明显下降。'));
+    }
+  }
+
+  angleSlider.addEventListener('input', draw);
+  prefSlider.addEventListener('input', draw);
+  diffuseChk.addEventListener('change', draw);
+
+  prefBtn.addEventListener('click', function(){
+    angleSlider.value = prefSlider.value;
+    draw();
+  });
+
+  sweepBtn.addEventListener('click', function(){
+    if(sweeping){ sweeping=false; sweepBtn.textContent='▶ 自动扫过全程'; return; }
+    sweeping=true; sweepBtn.textContent='⏸ 暂停';
+    function step(){
+      if(!sweeping) return;
+      var v = parseFloat(angleSlider.value) + sweepDir*1.5;
+      if(v>=90){ v=90; sweepDir=-1; }
+      if(v<=-90){ v=-90; sweepDir=1; }
+      angleSlider.value = v;
+      draw();
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+
+  draw();
+})();
+</script>
+
+</body>
+</html>

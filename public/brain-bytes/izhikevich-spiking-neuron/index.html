@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Izhikevich 2003 · 脉冲神经元简单模型 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Two Equations <span>×</span> 两条方程演尽一座神经元动物园</h1>
+    <div class="meta">
+      <span>📄 Simple Model of Spiking Neurons</span><br>
+      <span>✍️ Eugene M. Izhikevich</span><br>
+      <span>🏛️ The Neurosciences Institute, San Diego, CA（圣地亚哥神经科学研究所）</span><br>
+      <span>📅 IEEE Transactions on Neural Networks · Vol. 14, No. 6 · 2003 · pp. 1569–1572</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-play">亲手玩：两条方程的动物园</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-find-eq">① 两条方程一颗神经元</a></li>
+        <li><a href="#sec-find-abcd">② 四个旋钮一座动物园</a></li>
+        <li><a href="#sec-find-cheap">③ 廉价到能跑万级网络</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>计算神经科学有一个长期被认为「鱼与熊掌不可兼得」的死结：要么用 <span class="term">霍奇金—赫胥黎模型（Hodgkin–Huxley model）</span>，把每条离子通道都写进方程，生物学上逼真，但贵到一台机器只能同时跑几个神经元；要么用 <span class="term">积分发放模型（integrate-and-fire model）</span>，便宜到能跑成千上万个，但简单得只会「攒电压、到阈值、放一枪」，复现不出真实皮层神经元那些花样百出的放电节律。</p>
+        <p>Izhikevich 这篇只有 4 页的短文，给出了一个让两边都满意的答案：<strong>仅用两条常微分方程、一个非线性项（v²）、外加四个可调参数 a、b、c、d</strong>，就能复现已知各类皮层与丘脑神经元的放电与爆发模式；而它的计算代价又和积分发放模型同一量级——便宜到能在一台 1 吉赫兹（GHz，Gigahertz）老台式机上<strong>实时（1 毫秒分辨率）模拟上万个神经元</strong>。这篇论文之所以被引上万次、几乎成了大规模脑仿真的「标准砖块」，正是因为它把一个看似无法两全的工程难题，用动力系统的眼光化简成了一行能写进任何代码的公式。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>先把全文会反复出现的术语用「人话 + 生活类比」过一遍。看不懂方程没关系，看完这 9 张卡，后面的内容就都能跟上了。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">脉冲 / 动作电位（Spike / Action Potential）</div>
+          <div class="cdesc">神经元之间传递信息的基本单位——膜电位在约 1 毫秒内猛冲到 +30 毫伏再急落的一根「尖峰」。可以想成神经元的「摩斯电码」：信息不藏在尖峰的高矮里，而藏在尖峰出现的<strong>时机和节奏</strong>里。本文的全部目标，就是低成本地把这些尖峰的节奏复现出来。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">膜电位 v（Membrane Potential）</div>
+          <div class="cdesc">细胞膜内外的电压差，单位毫伏（mV，millivolt）。安静时约 −70 毫伏（「静息电位」），受刺激后爬升，越过某条线就放一枪。模型里的第一条方程描述的就是 v 怎么随时间变化。把它想成神经元这只「水桶」里的水位。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">恢复变量 u（Recovery Variable）</div>
+          <div class="cdesc">模型里第二个状态量，没有直接的电压含义，而是把一大堆真实离子机制（钾离子 K⁺ 通道激活、钠离子 Na⁺ 通道失活带来的「负反馈」）<strong>打包成一个数</strong>。直觉上它是「刹车」或「疲劳度」：v 升得越高，u 越往上拽，把 v 往回拉。神经元放完一枪后的不应期、放电变慢，都靠它。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">放电后重置（After-spike Reset）</div>
+          <div class="cdesc">这个模型最关键的「作弊」之处：方程本身不画那根冲上 +30 毫伏的尖峰，而是规定「<strong>一旦 v 触到 +30 毫伏，就强行把 v 拍回 c、把 u 抬高 d</strong>」，然后从这里继续积分。好比游戏里角色掉出地图就被瞬移回出生点。正是这一步把连续方程和「离散的一枪」缝在一起。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">分岔理论 / 范式约化（Bifurcation Theory / Normal-form Reduction）</div>
+          <div class="cdesc">动力系统的一套数学工具：研究当参数缓慢变化时，系统的行为会在哪个临界点「质变」（比如从安静突然变成持续放电）。作者用它证明，复杂的霍奇金—赫胥黎方程在临界点附近的本质行为，可以被一个最简单的二次型方程<strong>等价捕获</strong>——这是「两条方程够用」的理论底气。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">二次型积分发放神经元（Quadratic Integrate-and-Fire）</div>
+          <div class="cdesc">传统积分发放模型的升级版：把电压增长项从线性改成二次（v²）。这个小改动让神经元在接近阈值时电压<strong>加速</strong>上冲，从而能自发产生真实的、形状陡峭的脉冲，而非人为画一根竖线。本文模型可看作它再加一个恢复变量 u。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">放电适应（Spike-frequency Adaptation）</div>
+          <div class="cdesc">真实神经元的一个普遍现象：给它一个持续不变的刺激，它先快放几枪、随后<strong>越放越慢</strong>，像人一开始干活带劲、后面累了节奏放缓。规则放电（RS，Regular Spiking）细胞最典型。模型靠恢复变量 u 在放电后被抬高（参数 d 大）来再现它。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">爆发放电（Bursting）</div>
+          <div class="cdesc">不是一枪一枪均匀地放，而是「<strong>密集来一簇 → 安静一会儿 → 再来一簇</strong>」的成簇模式，像机关枪点射。内在爆发（IB，Intrinsically Bursting）和啁啾（CH，Chattering）细胞就是这样。模型通过 c、d 的取值，让恢复变量 u 慢慢积累、攒够了就把放电从「成簇」切回「单发」。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">脉冲耦合神经网络（PCNN，Pulse-Coupled Neural Network）</div>
+          <div class="cdesc">一类网络：神经元之间不连续地互相影响，而是只在某个神经元「放一枪」的瞬间，按连接权重 S 给下游神经元的电压 v 猛踢一脚。本文把上万个这样的简单神经元连成网，就涌现出真实皮层那样的异步放电与节律。</div>
+        </div>
+
+      </div>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-play">亲手玩：两条方程的动物园</div>
+      <p>这篇论文的灵魂在于「同一组方程、只换四个数字，就能变出完全不同的神经元」。下面这个组件就是论文模型的<strong>真实实现</strong>——用论文给出的方程和欧拉法逐毫秒积分，不是示意图。先点下面的预设按钮看论文里报告的各类细胞——规则放电（RS，Regular Spiking）、内在爆发（IB，Intrinsically Bursting）、啁啾（CH，Chattering）、快速放电（FS，Fast Spiking）、低阈值放电（LTS，Low-Threshold Spiking）、丘脑皮层（TC，Thalamo-Cortical）、共振子（RZ，Resonator）——再亲手拖动 a、b、c、d 四个滑块，看膜电位曲线如何从规则放电变成爆发、啁啾、快速放电。建议从 RS 开始，把 <code>d</code> 从 8 拖到 2、把 <code>c</code> 从 −65 拖到 −50，亲眼看它怎么从单发变成成簇。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">Izhikevich 神经元实时模拟器：四个旋钮，一座动物园</div>
+        <div class="viz-note">用论文方程 v′=0.04v²+5v+140−u+I、u′=a(bv−u)、重置 if v≥30 then v←c,u←u+d，欧拉法步长 0.25 ms 实时积分，绘制 v(t)。底部细线为注入电流 I 的开关时刻。预设参数取自论文正文（Fig. 2）。</div>
+
+        <div class="viz-controls" id="izh-presets">
+          <button data-preset="RS">规则放电 RS</button>
+          <button data-preset="IB">内在爆发 IB</button>
+          <button data-preset="CH">啁啾 CH</button>
+          <button data-preset="FS">快速放电 FS</button>
+          <button data-preset="LTS">低阈值放电 LTS</button>
+          <button data-preset="TC">丘脑皮层 TC</button>
+          <button data-preset="RZ">共振子 RZ</button>
+        </div>
+
+        <canvas id="izh-canvas" width="940" height="300"></canvas>
+
+        <div class="viz-controls">
+          <label style="width:340px;">a（恢复速度）＝<span id="izh-a-val">0.02</span>
+            <input type="range" id="izh-a" min="0.01" max="0.12" step="0.005" value="0.02" style="width:200px;vertical-align:middle;">
+          </label>
+          <label style="width:340px;">b（恢复灵敏度）＝<span id="izh-b-val">0.20</span>
+            <input type="range" id="izh-b" min="0.15" max="0.30" step="0.01" value="0.20" style="width:200px;vertical-align:middle;">
+          </label>
+        </div>
+        <div class="viz-controls">
+          <label style="width:340px;">c（放电后 v 重置 / mV）＝<span id="izh-c-val">-65</span>
+            <input type="range" id="izh-c" min="-70" max="-45" step="1" value="-65" style="width:200px;vertical-align:middle;">
+          </label>
+          <label style="width:340px;">d（放电后 u 抬升）＝<span id="izh-d-val">8</span>
+            <input type="range" id="izh-d" min="0" max="10" step="0.5" value="8" style="width:200px;vertical-align:middle;">
+          </label>
+        </div>
+        <div class="viz-controls">
+          <label style="width:340px;">I（注入电流强度）＝<span id="izh-I-val">10</span>
+            <input type="range" id="izh-I" min="0" max="20" step="0.5" value="10" style="width:200px;vertical-align:middle;">
+          </label>
+          <span id="izh-readout" style="font-size:0.85rem;color:var(--muted);"></span>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">玩的时候盯住这件事</span>
+        <p>四个滑块里，<strong>c 和 d 管「放完一枪之后会怎样」</strong>——它们一起决定神经元是单发还是成簇；<strong>a 管节奏快慢、b 管阈下小波动</strong>。你会发现「规则放电 ↔ 爆发」之间并没有一道墙，只是 c、d 沿着连续的旋钮慢慢滑过去——这正是论文最反直觉的洞见：教科书上泾渭分明的几大类神经元，在这个模型里是同一族曲线上的不同坐标点。</p>
+      </div>
+
+      <!-- ============ 核心发现 ============ -->
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>这篇论文严格说不是一项「实验」，而是一个<strong>建模工作</strong>：它的「数据」是模型输出的电压曲线与真实大鼠运动皮层记录的逐一比对（论文 Fig. 1）。下面把它的贡献拆成三个递进的发现。</p>
+
+      <div class="section-head-sub" id="sec-find-eq">发现一：两条方程，就是一颗会放电的神经元</div>
+      <p>模型的全部数学，写下来只有这么多：</p>
+      <blockquote>
+        <p>v′ = 0.04·v² + 5·v + 140 − u + I</p>
+        <p>u′ = a·(b·v − u)</p>
+        <p>重置规则：&nbsp; if v ≥ 30 mV， then { v ← c， u ← u + d }</p>
+      </blockquote>
+      <p>这里 v 是膜电位（单位毫伏），u 是恢复变量，I 是注入或突触电流，撇号「′」表示对时间 t（单位毫秒）求导。第一条方程让 v 在 v² 项的推动下加速上冲，第二条方程让 u 像刹车一样滞后地把 v 拽回去。关键的<strong>第三行不是方程而是规则</strong>：方程本身并不画那根冲上 +30 毫伏的尖峰，一旦电压触顶就直接「瞬移」——把 v 拍回 c、把 u 抬高 d——这就完成了一次放电与放电后的复位。</p>
+      <p>那个看着像魔法常数的多项式 <code>0.04v² + 5v + 140</code>，作者明说是为了让膜电位 v 落在真实的毫伏尺度、时间 t 落在毫秒尺度而<strong>拟合</strong>出来的（他也说明了其他取法可行）。它的来历不是凑数，而是用分岔理论把霍奇金—赫胥黎方程做范式约化后得到的<strong>二次型</strong>，所以它在数学上代表了「一大类可兴奋系统在放电临界点附近的本质形态」。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：一个没有固定阈值的阈值</span>
+        <p>和教科书画的「越过某条横线就放电」不同，这个模型<strong>没有固定的放电阈值</strong>。论文指出，由于 v² 项，神经元放电前的「临界电压」会随 b 的取值在大约 <strong>−55 毫伏到 −40 毫伏</strong>之间浮动。这其实更接近真实神经元——它们的阈值本就随历史状态漂移（即概念卡里说的「阈值可变」），而这个模型「免费」就把这个性质带出来了。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-find-abcd">发现二：四个参数 a、b、c、d，调出一整座「神经元动物园」</div>
+      <p>这是全文最漂亮的部分。同样的两条方程，只改 a、b、c、d 这四个无量纲数字，就能依次变出神经科学家在皮层和丘脑里记录到的<strong>各类不同放电模式</strong>。四个参数各管一件事：</p>
+      <table>
+        <thead>
+          <tr><th>参数</th><th>它控制什么（论文原话翻译）</th><th>典型值</th><th>直觉</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>a</td><td>恢复变量 u 的时间尺度；越小，恢复越慢</td><td>0.02</td><td>刹车的「反应速度」</td></tr>
+          <tr><td>b</td><td>u 对阈下膜电位波动的灵敏度；越大，v 与 u 耦合越强，可能出现阈下振荡</td><td>0.2</td><td>刹车踩得多敏感</td></tr>
+          <tr><td>c</td><td>放电后膜电位 v 被重置到的值（由快钾电导决定）</td><td>−65 mV</td><td>放完枪后掉回多低</td></tr>
+          <tr><td>d</td><td>放电后恢复变量 u 被抬升的量（由慢钠/钾电导决定）</td><td>2</td><td>放完枪后攒多少「疲劳」</td></tr>
+        </tbody>
+      </table>
+      <p>把这四个旋钮拨到不同位置，论文报告了至少七类可辨认的神经元（前三类为皮层兴奋性细胞，FS/LTS 为皮层抑制性中间神经元，TC/RZ 为丘脑及其他）：</p>
+      <table>
+        <thead>
+          <tr><th>类型</th><th>放电特征</th><th>关键参数（论文给出）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>规则放电 RS<br>（Regular Spiking）</td><td>皮层里最常见的兴奋性细胞；持续刺激下先快后慢（放电适应）</td><td>c = −65 mV（深重置），d = 8（放电后 u 大跳）</td></tr>
+          <tr><td>内在爆发 IB<br>（Intrinsically Bursting）</td><td>先来一簇成簇放电，随后转为重复单发</td><td>c = −55 mV，d = 4</td></tr>
+          <tr><td>啁啾 CH<br>（Chattering）</td><td>成簇紧密脉冲反复出现，簇间频率可高达 40 赫兹</td><td>c = −50 mV（很高的重置），d = 2</td></tr>
+          <tr><td>快速放电 FS<br>（Fast Spiking）</td><td>抑制性中间神经元；极高频放电、几乎不适应（不减速）</td><td>a = 0.1（恢复极快）</td></tr>
+          <tr><td>低阈值放电 LTS<br>（Low-Threshold Spiking）</td><td>抑制性细胞；高频放电但有明显放电适应、放电阈值低</td><td>b = 0.25</td></tr>
+          <tr><td>丘脑皮层 TC<br>（Thalamo-Cortical）</td><td>静息（约 −60 mV）去极化时持续放电；先被超极化到约 −90 mV 再释放则爆发一簇「反弹」脉冲</td><td>两种放电模式取决于刺激前膜电位</td></tr>
+          <tr><td>共振子 RZ<br>（Resonator）</td><td>有阻尼的阈下振荡，对「频率合拍」的输入才强烈响应；可在静息与放电两态间双稳切换</td><td>a = 0.1，b = 0.26</td></tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：c、d 的小幅滑动 = 跨越一个「类别」</span>
+        <p>注意 RS → IB → CH 这条线：放电后重置电压 c 只是从 <strong>−65 → −55 → −50 毫伏</strong>一步步抬高，对应的 d 从 <strong>8 → 4 → 2</strong> 一步步降低，神经元就从「规则单发」连续地过渡到「先爆发后单发」再到「持续成簇啁啾」。换句话说，这些在生理学教科书里被当作不同「物种」的细胞，在模型里只是<strong>同一条参数轴上相邻的几个点</strong>——这正是论文标题「Simple Model」背后真正的野心：用一个统一的低维框架收编整座动物园。</p>
+      </div>
+
+      <div class="section-head-sub" id="sec-find-cheap">发现三：廉价到能实时跑「万级」脉冲网络</div>
+      <p>光是能复现单个神经元还不够，作者要证明它<strong>便宜</strong>到能搭真正的大网络。论文 Section IV 报告：用这个模型 + C++，在一台 <strong>1 GHz 桌面个人电脑（PC，Personal Computer）</strong>上，可以<strong>实时（1 毫秒分辨率）</strong>模拟一个含 <strong>10,000 个</strong>脉冲神经元、<strong>1,000,000 条</strong>突触连接的稀疏网络。论文里还直接附上了一段约 25 行的 MATLAB（一种科学计算软件与编程语言）代码，能实时跑 1,000 个随机连接的神经元——这种「把可复现脚本印在正文里」的做法在当年并不常见，也是它被广泛采用的原因之一。</p>
+      <p>网络的搭法贴着哺乳动物皮层的解剖：<strong>兴奋性与抑制性神经元比例取 4 : 1</strong>，抑制性连接更强；每个神经元还收到带噪声的丘脑输入。通过给每个细胞的参数加一点随机抖动（兴奋性细胞 (a,b)=(0.02,0.2)、(c,d)=(−65,8)+(15,−6)·r²；抑制性细胞 (a,b)=(0.02,0.25)+(0.08,−0.05)·r、(c,d)=(−65,2)，其中 r 是 [0,1] 上的随机数），就让网络里的神经元彼此不完全相同，更像真实皮层。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：从简单砖块涌现出皮层节律</span>
+        <p>论文 Fig. 3 显示，这个没有任何突触可塑性、随机连接的网络，<strong>自发涌现</strong>出类似清醒皮层的集体行为：神经元像泊松过程一样异步放电，平均放电率约 <strong>8 赫兹</strong>；同时周期性地出现 <strong>α 节律（约 10 赫兹）和 γ 节律（约 40 赫兹）</strong>频段的同步放电事件。也就是说，仅靠「便宜砖块 + 皮层比例的随机连线」，就长出了脑电里那些标志性的节律——这成了「计算便宜」与「生物逼真」可以兼得的有力证据。</p>
+      </div>
+
+      <!-- ============ 方法论 ============ -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇 4 页短文的「巧」不在某个实验技巧，而在一连串建模决策。把它们拆开看：</p>
+      <table>
+        <thead>
+          <tr><th>精妙之处</th><th>具体做法</th><th>为什么聪明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>把生物逼真「外包」给数学</td><td>不逐条建模离子通道，而是用分岔理论 / 范式约化，论证二次型方程在放电临界点附近与霍奇金—赫胥黎模型等价</td><td>「逼真」不再靠堆细节，而是靠数学上的等价性保证——少写方程不等于不准</td></tr>
+          <tr><td>用「重置规则」缝合连续与离散</td><td>方程只负责阈下动态，尖峰本身交给 if v≥30 then 重置 这条硬规则</td><td>省掉了模拟尖峰陡峭上升沿所需的极小时间步，是计算变廉价的关键来源</td></tr>
+          <tr><td>把复杂生物学压进 4 个无量纲数</td><td>a,b,c,d 各对应一类离子机制的宏观效果，连续可调</td><td>让「调出某类神经元」变成在 4 维参数空间里挪坐标，可解释、可枚举</td></tr>
+          <tr><td>用真实记录做对照标尺</td><td>模型输出与 N. Desai 提供的大鼠运动皮层胞内记录逐一比对（Fig. 1）</td><td>把「像不像真神经元」从主观断言变成可视的并排比对</td></tr>
+          <tr><td>正文直接附可运行代码</td><td>印出约 25 行 MATLAB 网络仿真脚本</td><td>极大降低复现门槛，是它成为社区「标准砖块」的现实推手</td></tr>
+          <tr><td>数值稳定性的细节</td><td>代码里把 0.5 ms 的步进拆成两个 0.25 ms 子步更新 v</td><td>v² 项在大电压下增长极快，细分步长防止数值发散——作者把工程坑也写明了</td></tr>
+        </tbody>
+      </table>
+
+      <!-- ============ 与已有研究的关系 ============ -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文站在两条传统中间，并明确表态要把它们的优点合一：</p>
+      <ul>
+        <li><strong>对霍奇金—赫胥黎传统的继承与简化。</strong>1952 年的霍奇金—赫胥黎模型是生物物理建模的金标准，但维度高、计算昂贵。Izhikevich 不否定它的逼真，而是用动力系统理论论证：只要你关心的是放电节律，那套复杂方程的本质可以被二次型「无损」压缩——他还预告了将出版的专著《Dynamical Systems in Neuroscience》来给出完整数学（即文末参考文献 [8]）。</li>
+        <li><strong>对积分发放传统的升级。</strong>经典 <span class="term">积分发放模型（integrate-and-fire）</span>便宜但太死板，连放电适应、爆发都做不出。本文用「二次项 + 一个恢复变量 + 重置」三件套，几乎不增加成本就补齐了这些行为。</li>
+        <li><strong>对生理学分类工作的呼应。</strong>RS/IB/CH/FS/LTS 这套命名直接来自 Connors &amp; Gutnick（1990）、Gibson 等（1999）对新皮层神经元内在放电模式的实验分类（参考文献 [1]、[4]）；CH「啁啾」细胞则源自 Gray &amp; McCormick（1996，Science）。论文的贡献是给这些经验类别配上了统一的数学坐标。</li>
+        <li><strong>与作者自己的爆发/共振研究一脉相承。</strong>共振子（RZ）行为与 Izhikevich 等关于「爆发作为共振单元」（Trends in Neurosci. 2003，参考文献 [7]）和「共振—发放神经元」（参考文献 [9]）的工作直接相关。</li>
+      </ul>
+      <p>论文结尾那句话点明了它的历史定位：「<strong>生物逼真与计算高效之间，不再有矛盾（there is no longer a contradiction between biological plausibility and computational efficiency of model neural networks）</strong>」。</p>
+
+      <!-- ============ 跨领域启示 ============ -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>对大规模脑仿真：</strong>它提供了一块「价廉物美」的标准砖块。后来 Izhikevich 与 Edelman 用它搭起百万级乃至更大规模的丘脑—皮层模型，正是建立在这个单元之上。任何想在普通硬件上跑出有生理意义的大网络的人，这都是默认起点之一。</li>
+        <li><strong>对神经形态计算（Neuromorphic Computing）：</strong>该模型「两条方程 + 一次重置」的结构对硬件极友好，被大量数字与模拟神经形态芯片采用，作为在硅片上低功耗实现「会放电的神经元」的标准方案。</li>
+        <li><strong>对建模哲学的普适启示：</strong>它示范了一种「<strong>抓住临界点的本质形态、把无关细节约化掉</strong>」的建模路线——这一思路（找系统的范式/标准型，而非堆砌机理）可迁移到任何「既要逼真又要能算」的复杂系统建模，从生态到经济。</li>
+        <li><strong>对「分类 vs. 连续谱」的认知启示：</strong>它提醒我们，生物学里那些看似离散的类别（不同「型」的神经元），底层可能是同一参数空间里的连续分布。这种「把类别还原为坐标」的视角，本身就有方法论价值。</li>
+      </ul>
+
+      <!-- ============ 边界和未解问题 ============ -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>论文本身坦诚了一部分局限，但还有些是它没明说、需要读者自己警惕的。</p>
+      <ul>
+        <li><strong>「像」不等于「是」——它是唯象模型。</strong>四个参数 a、b、c、d 只是对一类离子机制宏观效果的打包，并<strong>不直接对应任何可测量的生物物理量</strong>（如具体某条通道的电导）。所以它能漂亮地复现放电模式，却无法回答「某个药物阻断某条钾通道会怎样」这类机制问题——那仍需霍奇金—赫胥黎类模型。这是「便宜」的代价，论文对此是默认而非强调的。</li>
+        <li><strong>拟合精度有限，作者自己点破。</strong>论文明说，要让 LTS 细胞与真实记录<strong>定量吻合</strong>，光调 b=0.25 不够，「还需要改动模型的其他参数」。也就是说，单参数对应单类别是定性的、示意性的，精确复现某个真实细胞往往要多参数联调。</li>
+        <li><strong>本文不含完整数学证明。</strong>「二次型与霍奇金—赫胥黎等价」这一核心论断的严格推导，被推给了当时<strong>尚未出版</strong>的专著（参考文献 [8] 标注为 "to be published"）。读这篇短文时，这个最关键的理论支撑只能先取信于作者。</li>
+        <li><strong>慢电导被刻意简化掉了。</strong>作者提到模型可扩展（把 u、a、b 取为向量、用 Σu 替换单个 u）以容纳多时间尺度的慢电导，但「对皮层神经元我们认为这种扩展并无必要」——对于强烈依赖慢电导的某些神经元（如某些丘脑或脑干细胞的复杂节律），基础版可能不够。</li>
+        <li><strong>「实时上万神经元」的代价依赖具体实现与连接稀疏度。</strong>1 GHz / 一万神经元 / 百万突触 的数字是 2003 年特定 C++ 实现、特定稀疏连接下的结果；它证明了可行性，但不应被当作任意网络结构下的通用性能保证。</li>
+        <li><strong>数值方法粗糙。</strong>正文代码用的是固定步长欧拉法配合手动子步细分。v² 项在大电压下增长极快，欧拉法在某些参数区可能引入可观误差或人为行为——更高阶积分器会更稳，但论文为追求速度选了最简方案。</li>
+      </ul>
+
+      <!-- ============ 判断 ============ -->
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面是解读者的独立评价，每条都尽量挂靠到前文证据。</p>
+      <p><strong>它解决的是一个真问题，而且解得异常优雅。</strong>「生物逼真 vs. 计算可行」的两难在 2003 年是计算神经科学的真实瓶颈（论文 Introduction 把它讲得很清楚），而这篇用「二次项 + 恢复变量 + 重置」三件套给出的解，简洁到能背下来、便宜到能在旧机器上跑万级网络（Section IV）——这种「简单性与能力的比值」极高，是它配得上上万引用的根本原因。</p>
+      <p><strong>它的说服力建立在「并排比对 + 可运行代码」上，而非统计检验。</strong>需要明确：这不是一篇有 p 值、效应量的实验论文，它的「证据」是模型输出与大鼠皮层记录的视觉吻合（Fig. 1、Fig. 2）和一段任何人都能运行的脚本。以「能否复现已知现象 + 能否被独立运行」为标尺，它的证据是强的；但若以「是否揭示了新的生物机制」为标尺，它并不提供——它是工具论文，不是发现论文。这一点必须分清，否则容易高估或低估它。</p>
+      <p><strong>它最被低估的贡献，是「把类别还原成坐标」这个观念。</strong>RS→IB→CH 仅靠 c、d 连续滑动就能过渡（发现二的数字直觉），这个事实本身就是一个有分量的科学陈述：教科书上的神经元「分类」可能只是连续参数谱上的采样点。这一观念价值，常被「它是个好用的仿真工具」这一实用评价所掩盖。</p>
+      <p><strong>它最该被警惕的地方，是唯象性。</strong>正因为太好用，使用者容易忘记 a、b、c、d 不是真实生物量（见边界章节）。把它当「能算的现象复现器」用，它极好；把它当「能解释机制的生物物理模型」用，就会越界。论文自己对 LTS 拟合需多参数联调的坦白（Section III），正是这种唯象局限的一个具体注脚。</p>
+      <p><strong>综合判断：</strong>这是一篇典范级的「正确抽象」工作——在恰当的层级上砍掉了恰当的细节，留下的东西既够用又够便宜。它不回答「神经元为什么这样放电」，但它让「在普通电脑上模拟一大群神经元怎么一起放电」从奢望变成日常。对做大规模神经网络仿真的人，它接近一块不可绕过的基石。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Izhikevich（2003）证明：<strong>只用两条常微分方程、一个 v² 非线性项，外加四个可调参数 a、b、c、d</strong>，就能复现规则放电、爆发、啁啾、快速放电等已知各类皮层与丘脑神经元的放电模式；而它便宜到能在一台 1 GHz 老 PC 上实时模拟上万个神经元、百万条突触——从此「生物逼真」与「计算便宜」不再是单选题，这块「两条方程演尽神经元动物园」的廉价砖块，成了大规模脑仿真与神经形态计算的标准起点。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Izhikevich, E. M. (2003). Simple Model of Spiking Neurons. <em>IEEE Transactions on Neural Networks</em>, 14(6), 1569–1572.
+    <br><strong>说明：</strong>本页为深度解读，非原论文。交互模拟器为论文模型（式 1、2 及重置规则）的真实数值实现（欧拉法，步长 0.25 ms），预设参数取自论文正文与 Fig. 2；曲线为定性演示，旨在帮助理解参数与放电模式的对应关系。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById("izh-canvas");
+  if(!canvas) return;
+  var ctx = canvas.getContext("2d");
+
+  // ----- 论文预设（取自正文 / Fig. 2） -----
+  // 注：a,b,c,d 为论文给出值；未明确给出的沿用 RS 默认或文中典型值。
+  var PRESETS = {
+    RS:  {a:0.02, b:0.20, c:-65, d:8,   I:10, desc:"规则放电：先快后慢的放电适应"},
+    IB:  {a:0.02, b:0.20, c:-55, d:4,   I:10, desc:"内在爆发：先一簇、后转单发"},
+    CH:  {a:0.02, b:0.20, c:-50, d:2,   I:10, desc:"啁啾：持续成簇紧密脉冲"},
+    FS:  {a:0.10, b:0.20, c:-65, d:2,   I:10, desc:"快速放电：极高频、几乎不适应"},
+    LTS: {a:0.02, b:0.25, c:-65, d:2,   I:10, desc:"低阈值放电：高频但有适应"},
+    TC:  {a:0.02, b:0.25, c:-65, d:0.05,I:5,  desc:"丘脑皮层：去极化下持续放电"},
+    RZ:  {a:0.10, b:0.26, c:-65, d:2,   I:5,  desc:"共振子：阈下振荡、对合拍输入敏感"}
+  };
+
+  var els = {
+    a: document.getElementById("izh-a"),
+    b: document.getElementById("izh-b"),
+    c: document.getElementById("izh-c"),
+    d: document.getElementById("izh-d"),
+    I: document.getElementById("izh-I")
+  };
+  var vals = {
+    a: document.getElementById("izh-a-val"),
+    b: document.getElementById("izh-b-val"),
+    c: document.getElementById("izh-c-val"),
+    d: document.getElementById("izh-d-val"),
+    I: document.getElementById("izh-I-val")
+  };
+  var readout = document.getElementById("izh-readout");
+
+  function fmt(x, dp){ return Number(x).toFixed(dp); }
+
+  function syncLabels(){
+    vals.a.textContent = fmt(els.a.value, 3);
+    vals.b.textContent = fmt(els.b.value, 2);
+    vals.c.textContent = fmt(els.c.value, 0);
+    vals.d.textContent = fmt(els.d.value, els.d.value % 1 === 0 ? 0 : 2);
+    vals.I.textContent = fmt(els.I.value, 1);
+  }
+
+  // ----- 仿真：欧拉法逐步积分 v',u'，含 if v>=30 重置 -----
+  function simulate(){
+    var a = parseFloat(els.a.value);
+    var b = parseFloat(els.b.value);
+    var c = parseFloat(els.c.value);
+    var d = parseFloat(els.d.value);
+    var Iamp = parseFloat(els.I.value);
+
+    var T = 320;        // 总时长 ms（含起始静息段）
+    var dt = 0.25;      // 步长 ms（论文代码同量级）
+    var steps = Math.round(T / dt);
+    var onset = 40;     // 40 ms 后开始注入电流，看清基线
+
+    var v = -70;        // 初始膜电位
+    var u = b * v;      // 初始恢复变量
+    var trace = new Array(steps);
+    var Itrace = new Array(steps);
+    var spikeCount = 0;
+
+    for(var i=0; i<steps; i++){
+      var t = i * dt;
+      var I = (t >= onset) ? Iamp : 0;
+      Itrace[i] = I;
+
+      if(v >= 30){           // 重置规则：先记录峰值再复位
+        v = c;
+        u = u + d;
+      }
+      // v 用两个半步更新以保数值稳定（仿论文做法）
+      v += 0.5 * dt * (0.04*v*v + 5*v + 140 - u + I);
+      v += 0.5 * dt * (0.04*v*v + 5*v + 140 - u + I);
+      u += dt * a * (b*v - u);
+
+      if(v >= 30){ v = 30; if(t >= onset) spikeCount++; }  // 画到 +30 封顶
+      trace[i] = v;
+    }
+    return {trace:trace, Itrace:Itrace, dt:dt, T:T, onset:onset,
+            spikes:spikeCount, steps:steps};
+  }
+
+  // ----- 绘图 -----
+  function draw(){
+    var W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    var sim = simulate();
+    var padL = 52, padR = 16, padT = 16, padB = 54;
+    var plotW = W - padL - padR;
+    var plotH = H - padT - padB;        // 上方主图：膜电位
+    var vMin = -90, vMax = 35;
+
+    // 背景
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0,0,W,H);
+
+    function vy(v){ return padT + (vMax - v)/(vMax - vMin) * plotH; }
+    function tx(idx){ return padL + (idx/(sim.steps-1)) * plotW; }
+
+    // 横向参考线 + 标注（+30 峰值、0、-65、-90）
+    var refs = [{v:30,lbl:"+30"},{v:0,lbl:"0"},{v:-65,lbl:"-65"},{v:-90,lbl:"-90"}];
+    ctx.font = "11px -apple-system,Segoe UI,sans-serif";
+    ctx.textBaseline = "middle";
+    for(var r=0;r<refs.length;r++){
+      var y = vy(refs[r].v);
+      ctx.strokeStyle = "#eef0f2";
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W-padR, y); ctx.stroke();
+      ctx.fillStyle = "#9aa1ab";
+      ctx.textAlign = "right";
+      ctx.fillText(refs[r].lbl, padL-6, y);
+    }
+    // 阈值带（-55 ~ -40 的可变阈值区，论文提到）
+    var yTop = vy(-40), yBot = vy(-55);
+    ctx.fillStyle = "rgba(192,57,43,0.06)";
+    ctx.fillRect(padL, yTop, plotW, yBot - yTop);
+    ctx.fillStyle = "rgba(192,57,43,0.55)";
+    ctx.textAlign = "left";
+    ctx.fillText("阈值带 −55~−40", padL+6, (yTop+yBot)/2);
+
+    // 电流注入开始的竖线
+    var onsetIdx = sim.onset / sim.dt;
+    var xOnset = tx(onsetIdx);
+    ctx.strokeStyle = "rgba(154,161,171,0.6)";
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(xOnset, padT); ctx.lineTo(xOnset, padT+plotH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 膜电位曲线 v(t)
+    ctx.strokeStyle = "#c0392b";
+    ctx.lineWidth = 1.6;
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    for(var i=0;i<sim.steps;i++){
+      var x = tx(i), y = vy(sim.trace[i]);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    // y 轴标题
+    ctx.save();
+    ctx.translate(14, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillStyle = "#6b7280";
+    ctx.textAlign = "center";
+    ctx.fillText("膜电位 v (mV)", 0, 0);
+    ctx.restore();
+
+    // 底部：注入电流 I(t) 的小条
+    var baseY = H - padB + 30;
+    var maxI = 20;
+    ctx.strokeStyle = "#3a4048";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    for(var j=0;j<sim.steps;j++){
+      var xx = tx(j);
+      var amp = sim.Itrace[j];
+      var yy = baseY - (amp/maxI) * 18;
+      if(j===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    }
+    ctx.stroke();
+    ctx.fillStyle = "#6b7280";
+    ctx.textAlign = "left";
+    ctx.fillText("注入电流 I(t)", padL, baseY + 16);
+
+    // 时间轴刻度
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#9aa1ab";
+    for(var ms=0; ms<=sim.T; ms+=80){
+      var xt = padL + (ms/sim.T) * plotW;
+      ctx.fillText(ms + " ms", xt, baseY + 16);
+    }
+
+    // 读数
+    var rateHz = (sim.spikes / ((sim.T - sim.onset)/1000));
+    readout.textContent = "本段共 " + sim.spikes + " 枪，约 " + rateHz.toFixed(0) + " Hz";
+  }
+
+  // ----- 事件绑定 -----
+  function onInput(){ syncLabels(); draw(); }
+  ["a","b","c","d","I"].forEach(function(k){
+    els[k].addEventListener("input", onInput);
+  });
+
+  function applyPreset(name){
+    var p = PRESETS[name];
+    if(!p) return;
+    els.a.value = p.a; els.b.value = p.b; els.c.value = p.c;
+    els.d.value = p.d; els.I.value = p.I;
+    syncLabels(); draw();
+  }
+  var presetWrap = document.getElementById("izh-presets");
+  presetWrap.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-preset]");
+    if(btn) applyPreset(btn.getAttribute("data-preset"));
+  });
+
+  // 初始：规则放电 RS
+  applyPreset("RS");
+})();
+</script>
+</body>
+</html>

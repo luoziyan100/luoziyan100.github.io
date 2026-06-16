@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soon 2008 · 自由决策的无意识决定因素 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Free Will, 7 Seconds Early <span>×</span> 在你"决定"按哪只手之前 10 秒，大脑已经泄了底</h1>
+    <div class="meta">
+      <span>📄 Unconscious determinants of free decisions in the human brain（人脑中自由决策的无意识决定因素）</span><br>
+      <span>✍️ Chun Siong Soon, Marcel Brass, Hans-Jochen Heinze, John-Dylan Haynes</span><br>
+      <span>🏛️ 马克斯·普朗克人类认知与脑科学研究所（莱比锡）· 柏林夏里特医学院伯恩斯坦计算神经科学中心 · 根特大学 · 马格德堡大学神经科</span><br>
+      <span>📅 Nature Neuroscience（《自然·神经科学》）· 2008</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-question">它在跟谁吵架：Libet 的未竟之问</a></li>
+        <li><a href="#sec-design">实验怎么做的</a></li>
+        <li><a href="#sec-timeline">交互：意识落后于大脑的时间线</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是过去半个世纪里最被引用、也最被误读的一项"自由意志"神经科学实验。它把 1980 年代 Libet（利贝特）那个著名却争议缠身的发现，往前狠狠推了一大步：当你"自由"地决定按左键还是右键时，你的<strong>前额叶极</strong>和<strong>顶叶皮层</strong>早在你意识到自己想按之前 <strong>7 到 10 秒</strong>，就已经把"将要按哪一边"这个具体答案编码进了脑活动里。</p>
+        <p>关键不在"提前"二字——脑活动当然先于动作。真正炸裂的有三点：①提前量从 Libet 的<strong>几百毫秒</strong>暴涨到<strong>近十秒</strong>，长到再也无法用"被试报告时间不准"来搪塞；②泄密的不是负责出手的运动区，而是高层<strong>决策规划</strong>区；③解码器读到的不是"要不要动"的笼统准备，而是"动哪一边"的<strong>具体选择内容</strong>。它逼着每个人重新面对一个问题：你以为是"你"做的决定，到底是谁先做的？</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">功能性磁共振成像（fMRI，functional Magnetic Resonance Imaging）</div>
+          <div class="cdesc">通过测量脑内血氧变化来间接推断哪块脑区在活动的技术。好比从一座写字楼夜里哪几层灯亮着，猜哪个部门在加班——它看的是"用血量"，不是神经元本身放电。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">血氧水平依赖信号（BOLD，Blood-Oxygen-Level-Dependent signal）</div>
+          <div class="cdesc">fMRI 实际测到的那个信号。神经元一活跃，局部就会"超量供血"，含氧血比例改变，磁信号随之变化。它出了名地"迟钝"——神经元真正放电后要好几秒，血流反应才姗姗到达峰值。本文据此把"提前 7 秒"修正为神经活动其实领先"近 10 秒"。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">多体素模式解码（MVPA，Multivariate Pattern Analysis）</div>
+          <div class="cdesc">本文的杀手锏。先解释<strong>体素（Voxel，Volume Pixel）</strong>：三维的"像素"，是 fMRI 图像里的最小立方体单元（本研究约几毫米见方），每个给出一个信号值。传统做法只问"某区平均信号有没有变强"；解码则训练一个分类器，去读一小撮体素之间的<strong>空间花纹</strong>——哪怕总信号没增强，只要"按左"和"按右"对应的花纹略有不同，机器就能猜出选择。相当于不看灯的总亮度，而是认出每个部门特有的"亮灯图案"。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">探照灯分析（Searchlight）</div>
+          <div class="cdesc">一种地毯式搜索法：拿一个小球状窗口在全脑逐点移动，每到一处就只用窗口内的体素去解码，记录该处能解出多少信息。等于拿手电筒把整个脑面挨个照一遍，找出"哪里藏着选择信息"。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">前额叶极 / 布罗德曼 10 区（frontopolar cortex / BA10，Brodmann Area 10）</div>
+          <div class="cdesc">额叶最前端、紧贴前额骨的那片皮层，是人脑相对其他灵长类扩张最猛的区域之一，向来被认为管最高层的计划、目标维持。本文中它最早（提前 7 秒）泄露选择，被作者推测为"决定真正诞生"的第一站。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">楔前叶 / 后扣带回（precuneus / posterior cingulate cortex）</div>
+          <div class="cdesc">位于大脑内侧偏后的两片皮层，与自我相关思维、记忆提取有关。本文里它是第二个泄密区，作者猜它负责"把已做出的决定暂存"，直到决定浮上意识。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">辅助运动区 / 前辅助运动区（SMA / pre-SMA，(pre-)Supplementary Motor Area）</div>
+          <div class="cdesc">额叶内侧负责运动准备的区域。Libet 经典实验里那个著名的<strong>准备电位（RP，Readiness Potential）</strong>——动作前几百毫秒可在头皮记录到的一段缓慢负向脑电位——就源自这里，它先于"想动"的意识，从而点燃了整场自由意志争论。本文中 SMA 反而只在较晚阶段才编码选择内容，却较早编码"何时动"，作者借此把它从"决定的源头"宝座上拉了下来。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">双重分离（Double Dissociation）</div>
+          <div class="cdesc">神经科学证明"两件事由不同机制负责"的黄金句式：A 区只管甲不管乙，B 区只管乙不管甲。本文发现前额叶极/顶叶早早编码"选哪边"却不编码"何时动"，而 pre-SMA/SMA 早早编码"何时动"却暂不编码"选哪边"——内容与时机被干净地拆成两套系统。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">族错误率校正（FWE correction，Family-Wise Error correction）</div>
+          <div class="cdesc">全脑成千上万个体素逐一检验，纯靠运气也会冒出假阳性。FWE 校正把"整批检验里至少出现一个假阳性"的概率压到设定水平（本文 p=0.05，且对空间和时间上的多重比较都做了校正），是比单点 p 值严苛得多的门槛。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">解码准确率与机遇水平（Decoding Accuracy / Chance Level）</div>
+          <div class="cdesc">分类器猜对的比例。本任务只有左/右两个选项，瞎猜也有 50% 对——这就是"机遇水平"。所以高出 50% 才算真有信息。本文中决策前的前额叶/顶叶约 60%，看似不高，却已被统计判定为稳稳高于机遇。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-question">它在跟谁吵架：Libet 的未竟之问</div>
+      <p>要理解这篇论文的分量，得先知道它在接谁的话茬。1980 年代，Benjamin Libet（本杰明·利贝特）让被试盯着一个快速转动的钟，"想动手指就动"，并报告"产生想动的念头"那一刻钟的位置。结果惊人：源自 <span class="term">SMA</span>（辅助运动区）的<span class="term">准备电位</span>（RP，Readiness Potential），比被试自报的"想动"意识，<strong>提前了几百毫秒</strong>。于是有人下了重磅论断——大脑在你"决定"之前就已经无意识地"决定"了动作，所谓自由意志不过是事后的错觉。</p>
+      <p>但 Libet 的结论一直被三道质疑围攻，本文开篇就把它们逐条列了出来，这也正是它要逐条攻克的靶子：</p>
+      <ul>
+        <li><strong>质疑一（区域太低）</strong>：RP 出自 SMA，而 SMA 只是运动准备的<strong>后段</strong>。它顶多说明"出手的肌肉指令在酝酿"，根本无法说明"做决定的高层环节"是否参与、何时参与。决定的真正源头也许在更高的规划区。</li>
+        <li><strong>质疑二（提前太短）</strong>：几百毫秒实在太短。被试报告"念头何时出现"本就误差不小，这点提前量很可能被测量误差吃掉甚至反转，时间先后根本说不清。</li>
+        <li><strong>质疑三（内容太空）</strong>：RP 只是个笼统的"要动了"的准备信号，并不指明<strong>选哪个</strong>。要真正证明大脑"提前替你做了选择"，必须在<strong>两个以上选项</strong>之间，证明先导脑活动<em>有选择性地</em>预示了具体那一个答案——而不只是反映"马上要动"的非特异性准备。</li>
+      </ul>
+      <p>这篇论文的全部设计，就是冲着这三道质疑量身打造的反击：用 <span class="term">fMRI</span> 覆盖包括前额叶在内的全脑（破质疑一），把战场拉到秒级尺度（破质疑二），用左/右二选一任务加<span class="term">多体素模式解码</span>去读"选哪边"的具体内容（破质疑三）。</p>
+
+      <div class="section-head" id="sec-design">实验怎么做的</div>
+      <p>被试躺在 <span class="term">fMRI</span>（功能性磁共振成像）扫描仪里，盯着屏幕中央。一串字母以每 <strong>500 毫秒</strong>一个的速度滚动呈现。任务很简单却很关键：</p>
+      <ol>
+        <li><strong>自由决定</strong>：被试放松地等待，<em>什么时候</em>产生"想按了"的冲动完全自定；一旦冲动来了，就<em>自由</em>选择按左手还是右手食指对应的键，并立即按下（论文称之为"free response/自由反应"）。</li>
+        <li><strong>记时间戳</strong>：在产生"想按"的那一刻，记住当时屏幕上是哪个字母。按键之后，屏幕弹出一个含四个字母的"反应映射"画面，被试再按一次键来指认"我做决定那刻看到的是这个字母"——以此把意识到意图的精确时刻，钉在 500 毫秒精度的时间轴上（论文称 "intention onset judgment/意图起始判断"）。</li>
+        <li><strong>留足空白</strong>：每个回合的自由按键平均发生在回合开始后 <strong>21.6 秒</strong>，前面留出大段静息时间，好让研究者从容观察"皮层决定"是怎么一点点搭建起来的，又不会被上一回合的余波污染。</li>
+      </ol>
+      <p>有了数据，作者对<strong>每个脑区、每个时间点</strong>分别训练一个<span class="term">多体素模式解码</span>器：用一个移动的<span class="term">探照灯</span>窗口扫遍全脑，看从某处的局部空间花纹里，能不能猜出被试这一回合到底按了左还是右。把不同时间点的解码准确率连成曲线，"选择信息最早在何时、何地出现"便一目了然。</p>
+      <div class="info-block">
+        <span class="ib-title">先验证，再追问：一个聪明的两步走</span>
+        <p>作者没有一上来就喊"我们预测了未来"。他们先做<strong>方法自检</strong>：在被试<em>正在执行</em>按键的时刻去解码，结果如预期——<strong>初级运动皮层</strong>和 <span class="term">SMA</span> 清晰地编码了刚按下的是哪只手（动作期解码准确率高达约 75–80%，见 Fig. 2 上排）。这证明解码管道靠谱。然后他们才把镜头倒回<em>按键之前</em>，去问那个真正要命的问题：动作发生<em>之前</em>，有没有哪块脑区已经知道答案了？</p>
+      </div>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-timeline">交互：意识落后于大脑的时间线</div>
+      <p>下面这个组件，把全文最反直觉的一张图——脑活动的"选择信息"<strong>出现在意识意图之前 7–10 秒</strong>——做成了可玩的时间线。点击"按下按键"模拟一次自由决策；时间轴会回放：前额叶极何时开始泄密、意识何时才反应过来、解码准确率怎样从 50%（瞎猜）爬到约 60% 又回落。拖动滑块可手动巡查任意时刻各脑区的解码准确率。</p>
+      <div class="viz-box">
+        <div class="viz-title">脑活动 vs 意识：谁先知道你要按哪只手？</div>
+        <div class="viz-note">模拟数据基于论文报告的定性模式与关键数字（前额叶极/顶叶约 60%、运动区约 75% 解码准确率，机遇水平 50%；前额叶极提前约 7 秒泄密，计入 BOLD 迟滞后神经提前约 10 秒）。曲线为示意，非论文原始逐点数值。横轴 0 秒 = 被试自报"意识到想按"的时刻。</div>
+        <div class="viz-controls">
+          <button id="vizPlay">▶ 按下按键（回放一次决策）</button>
+          <button id="vizReset" class="alt">重置</button>
+          <label style="margin-left:8px;">手动巡查时刻：<span id="vizTimeLabel" style="color:#c0392b;font-weight:700;">-10.0 s</span></label>
+          <input type="range" id="vizSlider" min="-12" max="6" value="-12" step="0.1" style="flex:1;min-width:160px;">
+        </div>
+        <canvas id="vizCanvas" width="860" height="430"></canvas>
+        <div id="vizReadout" style="margin-top:12px;font-size:0.9rem;color:#3a4048;line-height:1.6;"></div>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+
+      <div class="section-head-sub">发现一：决定在意识之前 7–10 秒就被编码了</div>
+      <p>在所有先导脑活动里，最早泄密的是<span class="term">前额叶极</span>（frontopolar cortex，即 <span class="term">BA10</span>，布罗德曼 10 区）。从这里的 <span class="term">fMRI</span> 信号花纹中，能在被试<em>意识</em>到要按键<strong>前 7 秒</strong>就解出他将按哪一边。再考虑到 <span class="term">BOLD</span>（血氧水平依赖）信号出了名的迟钝——血流反应总比神经元放电晚好几秒——作者据此推断，真正的<strong>神经</strong>层面的预示信息，比意识决定提前了<strong>多达 10 秒</strong>。第二个泄密区在<span class="term">顶叶</span>，具体是从<span class="term">楔前叶</span>（precuneus）延伸到<span class="term">后扣带回</span>（posterior cingulate cortex）的一片。</p>
+      <div class="info-block">
+        <span class="ib-title">10 秒是什么概念</span>
+        <p>10 秒，够你深吸一口气、读完这句话。在你<em>感到</em>"我现在决定按右键"的整整十秒钟之前，一台机器只要读你前额叶的脑活动花纹，就已经能押中你的选择。这不是"快了一拍"，是"早了一个时代"——也正是这个长得离谱的提前量，让 Libet 实验"提前几百毫秒会不会是报告误差"的老质疑彻底失效：再大的报告误差也吞不掉 10 秒。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：泄密的是"花纹"，不是"亮度"——所以以前没人发现</div>
+      <p>一个极易被忽略却至关重要的细节：在准备阶段，前额叶极和楔前叶/后扣带回<strong>总体信号并没有升高</strong>（见 Supplementary Fig. 3，补充图 3）。也就是说，用传统的"看某区平均激活有没有增强"的老办法，这里根本什么都看不到——这正是为什么几十年来没人注意到它。预示信息藏在<strong>局部体素之间的空间花纹</strong>里，只有<span class="term">多体素模式解码</span>这种读"花纹"而非读"亮度"的方法才能把它揪出来。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么 60% 听起来不高，却足够石破天惊</span>
+        <p>决策前前额叶/顶叶的解码准确率只有约 <strong>60%</strong>，乍看平平。但任务是左/右<strong>二选一</strong>，瞎猜的<span class="term">机遇水平</span>就是 50%——所以真正的"信号量"是那超出的约 10 个百分点，且经 <span class="term">FWE</span>（族错误率，p=0.05，对空间与时间多重比较均校正）判定为稳稳高于机遇。重点从来不是"预测得多准"，而是"在动作发生整整 10 秒前，居然就有<em>任何</em>关于<em>具体选哪边</em>的可靠信息存在"。哪怕只比抛硬币好一点点，也意味着那个"自由"选择，并非在你意识到的瞬间才凭空诞生。（对照：执行动作时的运动区可达约 75–80%，论文特意提醒两图纵轴刻度不同。）</p>
+      </div>
+
+      <div class="section-head-sub">发现三：选"哪边"和选"何时"，是两套系统（双重分离）</div>
+      <p>作者没有止步于"选哪边"。他们还解码了"<em>何时</em>动"这个决定，得到一个漂亮的<span class="term">双重分离</span>（double dissociation）：</p>
+      <ul>
+        <li><strong>"选哪边"（内容）</strong>：最早、最强地编码于<span class="term">前额叶极</span>和<span class="term">顶叶</span>，而此时这两区基本读不出"何时动"。</li>
+        <li><strong>"选何时"（时机）</strong>：早在动作前约 <strong>5 秒</strong>就能解出，但主要来自 <span class="term">pre-SMA</span>（前辅助运动区）和 <span class="term">SMA</span>，此时这两区还读不出"选哪边"。</li>
+      </ul>
+      <p>直到临近意识决定的较晚阶段，两套区域才开始同时编码内容与时机。这意味着"决定一个动作"在脑内并非铁板一块，而是<strong>内容</strong>与<strong>时机</strong>由不同回路、在不同时间分头筹备——这对"决定"本身的结构是个全新的拆解。</p>
+
+      <div class="section-head-sub">发现四：一条试探性的信息流向</div>
+      <p>把不同区域"何时开始泄密"的先后顺序排起来，作者提出了一个<strong>试探性的因果模型</strong>（作者明确用 "tentative/试探性的" 一词，并非定论）：最早的无意识前兆起于<span class="term">前额叶极</span>，由此影响<span class="term">楔前叶</span>里决策相关信息的累积，再传到 <span class="term">SMA</span>，并在 SMA 里以无意识状态又滞留数秒，最后才浮上意识。一个由高层控制区组成的网络，早在决定进入意识之前很久，就已开始为它"打草稿"。</p>
+      <div class="info-block">
+        <span class="ib-title">一个支持该流向的控制实验</span>
+        <p>为佐证前额叶极是"决定诞生地"，作者另做一个变体（Supplementary Fig. 9，补充图 9）：让被试在<strong>外部指定的时刻</strong>才在左右间做选择。结果<span class="term">前额叶极</span>在<em>选择正在发生时</em>就已带有预示信息，而<span class="term">楔前叶</span>的预示信息要等到选择<em>之后</em>的延迟期才出现——与"前额叶极先决定、楔前叶后暂存"的解读一致。更妙的是，这个控制实验里意图是<em>有意识</em>选定的，暗示有意识与无意识的决策可能共用同一套网络。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文之所以能掀翻 Libet 实验留下的三道质疑，靠的是几处针对性的设计。逐条对照如下：</p>
+      <table>
+        <thead>
+          <tr><th>设计选择</th><th>它在对付什么</th><th>带来的关键好处</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>读"花纹"而非"亮度"（MVPA / 探照灯）</td>
+            <td>总体激活在准备期并不升高，传统方法看不见</td>
+            <td>能逐区、逐时间点地解出<em>具体选哪边</em>，揪出藏在空间花纹里的微弱预示信息</td>
+          </tr>
+          <tr>
+            <td>左/右二选一，而非单一"动不动"</td>
+            <td>质疑三：先导活动可能只是笼统的"要动了"</td>
+            <td>证明先导活动<em>有选择性地</em>预示具体答案，排除非特异性准备的解释</td>
+          </tr>
+          <tr>
+            <td>fMRI 全脑覆盖（含前额叶极）</td>
+            <td>质疑一：RP 只来自较低层的 SMA</td>
+            <td>把高层规划区纳入视野，发现真正最早的源头在前额叶极，而非 SMA</td>
+          </tr>
+          <tr>
+            <td>把战场拉到秒级（提前 7–10 秒）</td>
+            <td>质疑二：几百毫秒可能被报告误差吞掉</td>
+            <td>10 秒的提前量远超任何报告时间的误差范围，时间先后不再可争议</td>
+          </tr>
+          <tr>
+            <td>先做执行期解码自检，再看决策前</td>
+            <td>解码结果可能是分析假象</td>
+            <td>运动区在动作期被正确解出（约 75–80%），先验证管道可靠，决策前结论才站得住</td>
+          </tr>
+          <tr>
+            <td>回合间留足空白（均 21.6 s）+ 显式核查跨回合泄漏</td>
+            <td>"提前 10 秒"会不会其实是上一回合的残留信息</td>
+            <td>作者专门确认回合间无信息携带，排除"解码读到的是上一次"的可能</td>
+          </tr>
+          <tr>
+            <td>FWE 多重比较校正（含时间维度）</td>
+            <td>全脑数千体素、多个时间点逐一检验的假阳性</td>
+            <td>对空间和时间多重比较都校正，约 60% 的"高于机遇"才可信</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">行为上先堵一个漏</span>
+        <p>会不会被试其实早早就有意识地拿定了主意，只是嘴上说"刚刚才决定"？作者报告：<strong>88.6%</strong> 的意图都是在动作前 <strong>1000 毫秒</strong>以内才有意识形成的；且左右两键被按的次数大致相等，没有偏手。这让"意识决定其实发生得很早"这条退路基本被堵死——意识确实是临到动作才姗姗登场的。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文是一场精准的"接力 + 超越"：</p>
+      <ul>
+        <li><strong>对 Libet（1983/1985）</strong>：继承其问题意识（无意识脑活动是否先于意识意志），但在三个维度上全面升级——提前量从毫秒到秒、源头从 SMA 到前额叶极、内容从"要动"到"动哪边"。作者明确指出，最早的预示信息<strong>不在 SMA</strong>，因此 SMA "大概并非有意识意图真正发起的终极皮层环节"，直接挑战了把 SMA 当作决定源头的旧观点（对应 Eccles 1982 的主张）。</li>
+        <li><strong>对 Haggard、Lau 等关于"报告时机不准"的批评（质疑二一脉）</strong>：用 10 秒级的提前量正面回应——这么长的先导时间，<strong>无法</strong>用报告意识起始时的计时误差来解释。</li>
+        <li><strong>对前额叶极功能的既有认识</strong>：以往研究多说 <span class="term">BA10</span> 参与<em>有意识</em>行动计划的存储与基于负反馈的策略切换（Koechlin 1999、Burgess 2001、Hampton & O'Doherty 2007 等）。本文把它的角色实质性地拓展到<em>无意识</em>地预先塑造决定。</li>
+        <li><strong>对躯体标记假说（Bechara/Damasio 1997）</strong>：本文顺带提出，前额叶极/顶叶的这类先导活动，或可为"风险决策前皮肤电导无意识变化"提供一个皮层起源。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>哲学：自由意志</strong>。这是全篇最被援引、也最常被夸大的部分。它确实强烈冲击"决定在你意识到的那一刻才由你做出"这一朴素直觉。但务必注意它<em>没有</em>证明什么（见下节）——它证明的是"可预测性"，不是"宿命"，更不是"意识全无作用"。即便如此，它把"自我"与"做决定的脑过程"之间那条想当然的等号，撬开了一道缝。</li>
+        <li><strong>认知神经科学：决定的内部结构</strong>。"内容 vs 时机"的双重分离提示，"做一个决定"可拆成多个半独立的子过程，分布在不同脑区、按不同时间表展开。这为研究意志、计划、自我控制提供了一个更细颗粒的解剖框架。</li>
+        <li><strong>方法论：解码改变了能问的问题</strong>。它示范了 <span class="term">MVPA</span> 如何让人看见传统激活分析完全错过的东西——"信号没变强，信息却已在那里"。这一思路此后广泛渗透到记忆、知觉、意图"读心"等研究。</li>
+        <li><strong>脑机接口与伦理</strong>。"动作前数秒即可部分预测选择"对意图预测型脑机接口是利好，却也抛出沉甸甸的伦理与法律问题：若选择可被提前读取，"责任"该如何归属？</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文常被通俗传播过度解读为"科学证明了自由意志不存在"。冷静看，它的边界相当清楚，有些是作者已点明的，有些则是它<em>没有明说</em>但读者必须警惕的：</p>
+      <ul>
+        <li><strong>约 60% 不等于"命中注定"</strong>。预示信息是<em>概率性偏向</em>，不是<em>决定论锁死</em>。约 60% 的准确率，意味着仍有近四成情形被这条早期信号"猜错"。它表明大脑早早形成了<strong>倾向</strong>，并不证明最终选择已被铁板钉钉地写死——这是被通俗叙述抹掉最严重的一点。</li>
+        <li><strong>任意、无意义的选择 ≠ 真实生活中的审慎决定</strong>。任务是在毫无所谓、毫无理由的情况下随机按左或按右。这种"自由"与"要不要辞职""选哪所大学"那类有理由、有权衡、有价值排序的决定，是否共用同一套机制，本研究<em>无法</em>回答。把结论外推到一切人类决定，是最常见的越界。</li>
+        <li><strong>"前额叶极→楔前叶→SMA"的因果链是试探性的</strong>。作者本人反复强调这只是基于时间先后排出的 "tentative causal model（试探性因果模型）"。fMRI 只给相关与时序，并不能证明真正的因果驱动；信息流向仍需更直接的因果手段（如刺激/干扰）来检验。</li>
+        <li><strong>意识能否"否决"，本研究没测</strong>。Libet 本人曾留出"自由否决（free won't）"的余地——意识也许无法发起，却能在最后关头叫停。本实验设计里被试一旦有冲动就立刻按下，根本没有给"否决"留出窗口，因此对"意识到底还能不能拦截"这一关键问题保持沉默。</li>
+        <li><strong>BOLD 的"近 10 秒"含一层推断</strong>。直接测到的是 fMRI 提前 7 秒；"神经活动提前近 10 秒"是<em>加上</em>对 BOLD 迟滞的合理校正后的估计，依赖于血流反应延迟的假设，并非直接观测到的神经计时。</li>
+        <li><strong>解码可靠不代表机制透明</strong>。能从某区花纹解出选择，只说明该区<em>携带</em>了与选择相关的信息，并不等于该区就是"做决定"的地方——它也可能只是反映、转送或暂存了在别处生成的信息。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下为解读者综合全文证据给出的评价，每条都标出其文中依据。</p>
+      <p><strong>它实际证明了什么（强且扎实）</strong>：在简单的左/右自由按键任务中，前额叶极与顶叶的脑活动花纹，能在意识决定前 7 秒（计入 BOLD 迟滞后神经层面约 10 秒）以约 60% 的准确率（经 FWE 校正，显著高于 50% 机遇水平）预示具体选择——这是论文 Results 与 Fig. 2 的直接结论，方法上又有执行期解码自检、跨回合泄漏排查、二选一设计三重护栏，结论本身相当结实。它干净利落地终结了 Libet 实验的三道老质疑（区域太低、提前太短、内容太空）。</p>
+      <p><strong>它没有证明什么（必须划清）</strong>：它<em>没有</em>证明自由意志不存在。约 60% 的概率性偏向、任意无意义的选择范式、未测意识否决、试探性而非确证的因果链——这四点（均见上一节，且第三点为作者亲口承认）共同决定了：从这篇论文跳到"人没有自由意志"是一次<strong>证据上撑不住的飞跃</strong>。它撼动的是"决定在意识瞬间凭空诞生"这个朴素图景，而非自由意志本身。</p>
+      <p><strong>分量与影响（公允地说）</strong>：作为方法论示范，它堪称典范——展示了"信号没增强、信息却已在"如何靠解码被看见，影响了此后整个"脑活动读心"流派。作为科学事件，它把一个原本在毫秒尺度上拉锯、易被报告误差搅浑的争论，干脆利落地推到秒级、推到高层皮层、推到"具体内容"层面，使其无可回避。它最大的价值不是"给自由意志判了死刑"，而是<strong>把问题问得更准、更难回避</strong>了。它也提醒我们：科学发现一旦撞上"自由意志"这种全民议题，被通俗叙事拽着变形，几乎是它的宿命——而读懂它的边界，正是抵抗这种变形的唯一办法。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>当你"自由"地决定按左还是按右时，前额叶极和顶叶皮层早在你意识到之前 7 秒（计入 BOLD 迟滞约 10 秒）就以约 60% 的准确率（显著高于 50% 机遇水平）泄露了答案——这逼着我们承认"决定"远早于"意识到决定"，却<strong>远不足以</strong>判自由意志死刑：它测的是概率性偏向与一次无意义的随机选择，而非命中注定，也没碰意识能否在最后关头叫停。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Soon, C. S., Brass, M., Heinze, H.-J., &amp; Haynes, J.-D. (2008). Unconscious determinants of free decisions in the human brain. <em>Nature Neuroscience, 11</em>(5), 543–545.<br>
+    本页为非商业学术深度解读，所有"数字直觉"与交互组件中的曲线均为基于论文报告效应量的示意性模拟，用于传达定性模式，非论文原始逐点数据。判断章节中未直接引用原文处，均为解读者观点。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('vizCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 时间轴范围：-12s .. +6s（0 = 意识到意图）
+  var T0 = -12, T1 = 6;
+  // 绘图区
+  var padL = 64, padR = 24, padT = 54, padB = 56;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+
+  // y 轴：解码准确率 45% .. 85%
+  var yMin = 45, yMax = 85;
+
+  function tx(t){ return padL + (t - T0)/(T1 - T0) * plotW; }
+  function ty(v){ return padT + (yMax - v)/(yMax - yMin) * plotH; }
+
+  // 三条曲线的"准确率(t)"模型（示意，传达定性模式）
+  // 前额叶极：约 -10 起步上行，-1~0 附近达峰 ~62，之后回落到机遇
+  function accFrontopolar(t){
+    var base = 50;
+    if(t < -11) return base;
+    // 缓慢上升的钟形，峰在 ~ -0.5
+    var peak = 62, center = -0.5, width = 5.5;
+    var bump = (peak-base) * Math.exp(-Math.pow((t-center)/width,2));
+    // 动作后快速回落
+    if(t > 0.5){ bump *= Math.max(0, 1 - (t-0.5)/3.5); }
+    return base + bump;
+  }
+  // 顶叶（楔前叶/后扣带）：起步略晚（约 -8），峰稍低 ~60
+  function accParietal(t){
+    var base = 50;
+    if(t < -9) return base;
+    var peak = 60, center = -2.5, width = 4.2;
+    var bump = (peak-base) * Math.exp(-Math.pow((t-center)/width,2));
+    if(t > -0.5){ bump *= Math.max(0, 1 - (t+0.5)/3.0); }
+    return base + bump;
+  }
+  // 运动区/SMA：动作期才飙升，峰 ~76 在 +1 左右
+  function accMotor(t){
+    var base = 50;
+    var peak = 76, center = 1.0, width = 2.2;
+    var bump = (peak-base) * Math.exp(-Math.pow((t-center)/width,2));
+    if(t < -1.5){ bump *= Math.max(0, 1 - (-1.5 - t)/2.0); }
+    return base + bump;
+  }
+
+  var series = [
+    {name:'前额叶极 BA10（选哪边·最早泄密）', color:'#c0392b', fn:accFrontopolar},
+    {name:'顶叶 楔前叶/后扣带（选哪边·次早）', color:'#27ae60', fn:accParietal},
+    {name:'运动区 / SMA（动作执行期）', color:'#2980b9', fn:accMotor}
+  ];
+
+  // 关键标记
+  var T_FRONTO_LEAD = -7;   // fMRI 提前 7 秒
+  var T_NEURAL_LEAD = -10;  // 计入 BOLD 后神经提前 ~10 秒
+  var T_AWARE = 0;          // 意识到想按
+  var T_PRESS = 0.0;        // 按键约在意识之后极短时间内（88.6% 在 1s 内），此处与 0 近似
+
+  var cursorT = T0;       // 滑块/动画当前时刻
+  var playing = false;
+  var animStart = null;
+
+  function fmt(v){ return v.toFixed(1); }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // 背景
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0,0,W,H);
+
+    // 机遇水平区（<=50 的灰带 just below）
+    // 50% 机遇线
+    var yChance = ty(50);
+    ctx.strokeStyle = '#bbb';
+    ctx.setLineDash([5,4]);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(padL, yChance); ctx.lineTo(W-padR, yChance); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#999';
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('50% 机遇水平（瞎猜）', padL+6, yChance-5);
+
+    // y 轴刻度
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'right';
+    for(var v=50; v<=80; v+=10){
+      var yy = ty(v);
+      ctx.strokeStyle = '#eee';
+      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W-padR, yy); ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.fillText(v+'%', padL-8, yy+4);
+    }
+    // y 轴标题
+    ctx.save();
+    ctx.translate(16, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.fillText('解码准确率（猜中"选哪边"）', 0, 0);
+    ctx.restore();
+
+    // x 轴刻度（每 2 秒）
+    ctx.textAlign = 'center';
+    for(var t=T0; t<=T1; t+=2){
+      var xx = tx(t);
+      ctx.strokeStyle = '#f0f0f0';
+      ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT+plotH); ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '11px -apple-system,sans-serif';
+      ctx.fillText((t>0?'+':'')+t+'s', xx, padT+plotH+18);
+    }
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '12px -apple-system,sans-serif';
+    ctx.fillText('时间（秒）— 0 = 你"意识到想按"的那一刻', padL+plotW/2, H-12);
+
+    // 关键竖线：神经提前 ~10s
+    function vline(t, color, label, dashed, labelY){
+      var xx = tx(t);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.6;
+      if(dashed) ctx.setLineDash([6,4]); else ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(xx, padT-6); ctx.lineTo(xx, padT+plotH); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = color;
+      ctx.font = '10.5px -apple-system,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, xx, labelY);
+    }
+    vline(T_NEURAL_LEAD, '#9b59b6', '神经提前~10s', true, padT-22);
+    vline(T_FRONTO_LEAD, '#c0392b', 'fMRI提前7s', true, padT-8);
+    vline(T_AWARE, '#1f2328', '意识到 / 按键', false, padT-22);
+
+    // 三条曲线（仅画到 cursorT 为"已揭示"，其后淡显）
+    series.forEach(function(s){
+      // 完整淡线
+      ctx.strokeStyle = s.color;
+      ctx.globalAlpha = 0.18;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      var first = true;
+      for(var t=T0; t<=T1; t+=0.08){
+        var x = tx(t), y = ty(s.fn(t));
+        if(first){ ctx.moveTo(x,y); first=false; } else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // 已揭示的实线
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      first = true;
+      for(var t2=T0; t2<=cursorT+0.0001; t2+=0.08){
+        var x2 = tx(t2), y2 = ty(s.fn(t2));
+        if(first){ ctx.moveTo(x2,y2); first=false; } else ctx.lineTo(x2,y2);
+      }
+      ctx.stroke();
+    });
+
+    // 游标竖线 + 当前各曲线取值点
+    var cx = tx(cursorT);
+    ctx.strokeStyle = '#e67e22';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(cx, padT); ctx.lineTo(cx, padT+plotH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    series.forEach(function(s){
+      var v = s.fn(cursorT);
+      var py = ty(v);
+      ctx.fillStyle = s.color;
+      ctx.beginPath(); ctx.arc(cx, py, 4.5, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    });
+
+    // 图例
+    var lx = W - padR - 250, ly = padT + 6;
+    ctx.textAlign = 'left';
+    ctx.font = '11px -apple-system,sans-serif';
+    series.forEach(function(s,i){
+      var yy = ly + i*17;
+      ctx.fillStyle = s.color;
+      ctx.fillRect(lx, yy-8, 14, 4);
+      ctx.fillStyle = '#3a4048';
+      ctx.fillText(s.name, lx+20, yy-2);
+    });
+
+    updateReadout();
+  }
+
+  function updateReadout(){
+    var ro = document.getElementById('vizReadout');
+    var lbl = document.getElementById('vizTimeLabel');
+    if(lbl) lbl.textContent = (cursorT>0?'+':'')+fmt(cursorT)+' s';
+    var f = accFrontopolar(cursorT), p = accParietal(cursorT), m = accMotor(cursorT);
+    var phase;
+    if(cursorT < -10) phase = '此刻你大脑里还读不出明确选择——风暴尚未起。';
+    else if(cursorT < -7) phase = '<b style="color:#9b59b6">神经层面已先行：</b>前额叶极的花纹开始偏向某一边（计入 BOLD 迟滞，神经提前约 10 秒）。你毫无察觉。';
+    else if(cursorT < -1) phase = '<b style="color:#c0392b">前额叶极已泄密：</b>机器读你 BA10 的花纹，就能高于机遇地押中你将按哪只手——而你以为自己还没决定。';
+    else if(cursorT < 0) phase = '临门一脚：顶叶与运动区开始接力，内容与时机在此汇合，决定即将浮上意识。';
+    else if(cursorT < 2) phase = '<b style="color:#2980b9">你"意识到"并按下：</b>此刻运动区解码飙到最高——但真正的伏笔，早在 7~10 秒前就埋下了。';
+    else phase = '动作已完成，各区信息回落至机遇水平，等待下一次"自由"决定。';
+    ro.innerHTML = '<b>当前时刻 '+(cursorT>0?'+':'')+fmt(cursorT)+' s</b> ｜ 前额叶极 '+f.toFixed(0)+'%　顶叶 '+p.toFixed(0)+'%　运动区 '+m.toFixed(0)+'%（机遇 50%）<br>'+phase;
+  }
+
+  // 滑块
+  var slider = document.getElementById('vizSlider');
+  slider.addEventListener('input', function(){
+    playing = false;
+    cursorT = parseFloat(slider.value);
+    draw();
+  });
+
+  // 播放动画
+  function animate(ts){
+    if(!playing) return;
+    if(animStart === null) animStart = ts;
+    var elapsed = (ts - animStart)/1000; // 真实秒
+    // 9 秒走完 -12 .. +6（放慢以便观察）
+    var dur = 9.0;
+    var frac = Math.min(1, elapsed/dur);
+    cursorT = T0 + frac*(T1 - T0);
+    slider.value = cursorT;
+    draw();
+    if(frac < 1){ requestAnimationFrame(animate); }
+    else { playing = false; }
+  }
+
+  document.getElementById('vizPlay').addEventListener('click', function(){
+    playing = true; animStart = null;
+    cursorT = T0; slider.value = T0;
+    requestAnimationFrame(animate);
+  });
+  document.getElementById('vizReset').addEventListener('click', function(){
+    playing = false; cursorT = T0; slider.value = T0; draw();
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>群体向量编码运动方向 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Population Vector <span>×</span> 一群「近视」的神经元如何投票投出精确的运动方向</h1>
+    <div class="meta">
+      <span>📄 Neuronal Population Coding of Movement Direction</span><br>
+      <span>✍️ Apostolos P. Georgopoulos, Andrew B. Schwartz, Ronald E. Kettner</span><br>
+      <span>🏛️ Philip Bard Laboratories of Neurophysiology, Johns Hopkins University School of Medicine（约翰·霍普金斯大学医学院）</span><br>
+      <span>📅 Science, Vol. 233, pp. 1416–1419 · 1986</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-finding1">发现一：单细胞是「余弦调谐」</a></li>
+        <li><a href="#sec-finding2">发现二：群体向量＝投票求和</a></li>
+        <li><a href="#sec-viz">交互：亲手让神经元投票</a></li>
+        <li><a href="#sec-finding3">发现三：从粗糙到精确</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是系统神经科学里被引用上万次的奠基性论文之一，它干净利落地回答了一个看似简单却极难的问题：<strong>大脑里没有任何一个神经元「知道」你要往哪儿伸手，那精确的方向信息到底藏在哪里？</strong></p>
+        <p>作者的答案优雅得近乎反直觉：方向不写在任何单个细胞里，而写在<strong>一整群细胞的「集体投票」里</strong>。每个运动皮层神经元都有自己最偏爱的方向，但它对方向的判断粗糙到几乎没用——往偏好方向动它最兴奋，但偏个 45° 它照样兴奋不少。可一旦让 200 多个这样「近视」的细胞按各自的偏好方向投票、把票矢量相加，得到的<span class="term">群体向量（population vector）</span>竟能精确指向真实运动方向，平均只差约 16°，且真实方向几乎总落在它的 95% 置信锥里。这就是<strong>「群体编码」（population coding）</strong>范式的诞生现场，它后来成为脑机接口、神经解码、乃至整个「分布式表征」思想的源头。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>读这篇论文要先握住几个核心概念。它们之间是层层搭建的：先有「单细胞怎么调谐」，再有「一群细胞怎么求和」，最后才有「群体比单体精确」。</p>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">运动皮层手臂区（M1 arm area，Primary Motor Cortex）</div>
+          <div class="cdesc">大脑中直接给手臂肌肉下达运动指令的区域。本研究在猴子做伸手动作时，用微电极逐个记录这里的神经元放电。它是「方向指令」的发出地，所以是寻找方向编码的第一现场。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">放电率（firing rate）</div>
+          <div class="cdesc">神经元每秒发出的电脉冲（spike）次数，是它「兴奋程度」的度量。本文用从动作开始到结束这段时间内的放电率，来量化一个细胞对某个运动方向有多「上心」。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">偏好方向（C，Preferred Direction）</div>
+          <div class="cdesc">每个细胞放电最猛烈时对应的那个运动方向，是这个细胞的「个人最爱」。好比每个人都有最喜欢的菜——同一桌人各有所好，224 个细胞的偏好方向铺满了整个三维空间。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">余弦调谐（cosine tuning）</div>
+          <div class="cdesc">细胞放电率随「运动方向与它偏好方向之间夹角」的余弦变化：方向一致（夹角 0°）放电最高，反向（180°）最低，中间平滑过渡。关键是这条曲线<strong>很宽</strong>——偏一点也照样放不少电，所以单细胞对方向「看不准」。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">方向余弦（direction cosines，m_x/m_y/m_z）</div>
+          <div class="cdesc">用一个方向与 x、y、z 三根坐标轴各自夹角的余弦，把「三维方向」变成三个数。它是单位向量的三个分量（平方和恒为 1），是把「方向」喂进数学公式的标准做法。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">多元回归（multiple regression）</div>
+          <div class="cdesc">一种统计方法：用多个自变量（这里是 m_x、m_y、m_z）去拟合一个因变量（放电率），并检验拟合是否显著。本文用它判定一个细胞到底「调不调方向」，以及偏好方向具体指哪儿。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">群体向量（P，Population Vector）</div>
+          <div class="cdesc">本文的主角。让每个细胞沿自己的偏好方向投出一票，票的长度＝它这次放电相对基线增加了多少，再把所有票<strong>矢量相加</strong>。这个总和向量，就是整群细胞对「正在往哪动」的集体判断。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">矢量相加（vector summation）</div>
+          <div class="cdesc">向量不是简单加数字，而是带方向地「首尾相接」地加。一群指向四面八方、长短不一的小箭头相加，偏离主方向的票会相互抵消，对齐主方向的票会叠加——这正是群体精确性的数学来源。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">置信锥（confidence cone）</div>
+          <div class="cdesc">把统计学里的「置信区间」搬到三维方向上：以群体向量为中心轴张开的一个锥形,有 95% 的把握认为真实方向落在锥内。锥越窄,群体的方向判断越可信。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">群体编码（population coding）</div>
+          <div class="cdesc">本文催生的核心思想：某个信息（这里是方向）不由单个神经元负责，而<strong>分布在一群神经元的协同活动中</strong>。好比一支管弦乐队——没有哪件乐器奏出全曲，旋律存在于合奏里。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-finding1">发现一：单个神经元是「余弦调谐」的，所以它对方向很粗糙</div>
+      <p>作者训练恒河猴（Rhesus monkey）做一个干净的伸手任务：屏幕前有一个中心按钮和环绕它的 8 个目标按钮，都在肩膀高度、距中心 12.5 cm、在三维空间里以大致相等的角度间隔布置。每次试验中心灯先亮，猴子按住中心至少 1 秒；随后某个目标灯亮起，猴子伸手去按它换取奖励。8 个目标随机轮番出现，每个细胞通常采到 8 个完整组块的数据。平均一次运动持续 <strong>0.435 ± 0.205 秒（SD）</strong>。</p>
+      <p>记录到的细胞放电呈现出一个清晰规律：每个细胞都有一个让它放电最猛的<span class="term">偏好方向（C）</span>，运动方向越偏离这个偏好方向，放电越弱，且这种衰减<strong>平滑而对称</strong>。作者用一个线性模型刻画它（Eq 1）：</p>
+      <blockquote>
+        <p>d(M) = b + b<sub>x</sub>·m<sub>x</sub> + b<sub>y</sub>·m<sub>y</sub> + b<sub>z</sub>·m<sub>z</sub></p>
+      </blockquote>
+      <p>其中 d(M) 是朝方向 M 运动时的放电率，(m<sub>x</sub>, m<sub>y</sub>, m<sub>z</sub>) 是该方向的方向余弦。这个式子在数学上完全等价于一个更直观的形式（Eq 2）：</p>
+      <blockquote>
+        <p>d(M) = b + k·cos θ<sub>CM</sub></p>
+      </blockquote>
+      <p>θ<sub>CM</sub> 是「细胞偏好方向 C」与「实际运动方向 M」之间的夹角。这就是<span class="term">余弦调谐</span>：θ<sub>CM</sub>=0°（同向）时 cos=1，放电最高；θ<sub>CM</sub>=180°（反向）时 cos=−1，放电最低；中间平滑过渡。作者举了一个细胞的例子，拟合得到 d(M) = 17.37 + 6.99 m<sub>x</sub> + 8.83 m<sub>y</sub> − 13.07 m<sub>z</sub>。</p>
+      <div class="info-block">
+        <span class="ib-title">这个例子细胞的数字直觉</span>
+        <p>多元回归 <strong>r² = 0.929</strong>（方向几乎能解释这个细胞放电变化的 93%），整体显著性 <strong>P &lt; 0.009</strong>，方差分析里八个方向间的差异 <strong>P &lt; 0.0001</strong>。各系数 b、b<sub>x</sub>、b<sub>y</sub>、b<sub>z</sub> 的标准误分别为 0.598、1.265、0.964、0.981，调谐幅度 k = 17.25。换句话说：这个细胞确实「懂方向」——但请注意，余弦曲线很宽，即便方向偏了 60°，cos(60°)=0.5，它仍以一半的幅度兴奋着。<strong>这正是它的「近视」：能感到方向，但分不清相近的方向。</strong></p>
+      </div>
+      <p>统计全样本：共记录 <strong>282 个神经元</strong>，其中 41 个（14.6%）放电与方向无统计相关（P &lt; 0.05, F 检验），被判为「非方向性」剔除；<strong>224 个（79.4%）</strong>能被回归方程显著拟合（P &lt; 0.05, F 检验），被认定为「方向调谐」并进入后续群体分析；剩下 17 个（6%）虽与方向有关却不被该方程拟合，也被排除。这 224 个细胞的偏好方向<strong>铺满了整个三维方向连续体</strong>——没有方向被冷落，这一点对下一步至关重要。作者特别强调：他们<strong>没有</strong>观察到「只对一两个相邻方向放电、其余沉默」的尖锐调谐细胞。运动皮层细胞个个都是「宽口径」的。</p>
+
+      <div class="section-head" id="sec-finding2">发现二：让一群细胞投票求和，得到「群体向量」</div>
+      <p>既然单个细胞对方向看不准，方向信息又确实在脑里被精确使用，作者提出一个大胆假设：<strong>方向不编码在任何单个细胞里，而编码在整群细胞的集体活动模式里</strong>。怎么把这个模糊想法变成可计算的东西？作者立了三条假设，构造出<span class="term">群体向量</span>：</p>
+      <ol>
+        <li><strong>每个细胞投一票，方向＝它的偏好方向 C<sub>i</sub>。</strong>细胞 i 的票永远指向它最爱的那个方向，不管这次实际往哪动。</li>
+        <li><strong>票的长度＝这次它的放电比基线增加了多少</strong>（w<sub>i</sub>(M) = d<sub>i</sub>(M) − b<sub>i</sub>）。动得越合它心意，它喊得越响、票越长；若放电低于基线，权重为负，它的票<strong>反向</strong>（相当于投了反对票）。于是单个细胞的矢量贡献是 N<sub>i</sub>(M) = w<sub>i</sub>(M)·C<sub>i</sub>。</li>
+        <li><strong>把所有细胞的票矢量相加</strong>，得到对应这次运动方向 M 的群体向量：</li>
+      </ol>
+      <blockquote>
+        <p>P(M) = Σ<sub>i=1</sub><sup>224</sup> N<sub>i</sub>(M)</p>
+      </blockquote>
+      <p>直觉是这样的：朝某个方向 M 运动时，偏好方向与 M 接近的细胞放电高、投出又长又对齐的票；偏好方向与 M 垂直的细胞放电接近基线、几乎不投票；偏好方向与 M 相反的细胞放电被压低、投出反向的（负权重）票。当 224 张指向四面八方的票相加，<strong>横向分量相互抵消，纵向（沿 M）分量层层叠加</strong>，合成的群体向量便指向 M。</p>
+      <div class="info-block">
+        <span class="ib-title">论文给出的一个实测例子（注释 10）</span>
+        <p>当真实运动方向 M = (0.230, 0.780, −0.582) 时，由 224 个细胞算出的群体向量 P(M) = (0.318, 0.822, 0.473)，两者之间的夹角仅 <strong>8.3 度</strong>。论文封面那张著名的图就是它：一束指向四面八方的浅紫色小箭头（224 张票）从中心炸开，其中橙色的那根长箭头就是它们的矢量和——群体向量，几乎贴着代表真实方向的黄线。</p>
+      </div>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-viz">交互：亲手让一群神经元投票</div>
+      <p>光看公式很难「感到」群体编码的魔力。下面这个组件把论文的核心机制做成了可玩的：你拨动滑块设定一个目标运动方向（黄色箭头），一群各有偏好方向、按余弦调谐放电的神经元会各自投出一票（细线，越合心意越长越亮），红色的群体向量（所有票的矢量和）实时指出它们的集体判断。亲自体会一下：<strong>单根细线乱七八糟、谁也指不准方向，可它们的红色总和却稳稳咬住黄色真值。</strong></p>
+      <div class="viz-box">
+        <div class="viz-title">群体向量投票台 · Population Vector Voting Bench</div>
+        <div class="viz-note">模拟数据：余弦调谐 + 论文报告的「单细胞宽调谐 / 群体约 16° 精度」定性模式（含放电噪声）。为便于操作，此处在二维平面演示三维论文中同样的矢量求和原理。</div>
+        <canvas id="pvCanvas" width="760" height="460"></canvas>
+        <div class="viz-controls">
+          <label>目标方向 θ：<strong><span id="thetaVal">60</span>°</strong></label>
+          <input type="range" id="thetaSlider" min="0" max="359" value="60" style="flex:1;min-width:160px;">
+        </div>
+        <div class="viz-controls">
+          <label>神经元数量 N：<strong><span id="nVal">200</span></strong></label>
+          <input type="range" id="nSlider" min="2" max="300" value="200" style="flex:1;min-width:160px;">
+          <button id="noiseBtn" class="alt">放电噪声：开</button>
+          <button id="spinBtn">让目标自转</button>
+        </div>
+        <div id="readout" style="font-size:0.9rem;color:var(--ink-soft);line-height:1.6;margin-top:6px;"></div>
+      </div>
+      <div class="info-block">
+        <span class="ib-title">怎么玩、看什么</span>
+        <p>① 拖<strong>目标方向</strong>滑块：黄箭头转到哪，红色群体向量就跟到哪——尽管没有任何一根浅色细线单独对准过它。② 把<strong>神经元数量</strong>从 200 拉到 2、3 个：红箭头立刻开始抖动、偏离黄线，误差角飙升——这正是论文「只取 12 个细胞时平均误差 29.7°，取满 224 个时仅 15.8°」的现场复现。③ 关掉<strong>放电噪声</strong>：在理想无噪声下，只要细胞偏好方向铺满一圈，群体向量会几乎完美对齐目标，让你看清这是矢量求和的数学必然，噪声和有限采样才是误差的来源。</p>
+      </div>
+
+      <div class="section-head" id="sec-finding3">发现三：单体粗糙，群体精确——而且越多越准</div>
+      <p>这是全文的高潮，也是「群体编码」之所以成立的实证核心。作者把上述算法用在全部 8 个测试方向上，逐个比较群体向量方向与真实运动方向：</p>
+      <div class="info-block">
+        <span class="ib-title">精度的关键数字</span>
+        <p>第一只猴子（224 个细胞）：8 个方向上，群体向量与真实运动方向的平均夹角为 <strong>15.8 度</strong>（各方向范围约 7.2°～11.2°）。第二只猴子（70 个细胞）独立重复：平均 <strong>15.9 度</strong>——几乎一模一样。在所有情况下，真实运动方向都落在围绕群体向量构造的 <strong>95% 置信锥</strong>之内。换句话说：一群对方向「近视」到偏 60° 还兴奋的细胞，合起来却能把方向锁定在十几度的精度内。</p>
+      </div>
+      <p>更妙的是作者顺手做的一个对照，直接证明「<strong>精度来自数量</strong>」：从第一只猴子的 224 个细胞里<strong>随机只抽 12 个</strong>来算群体向量，平均误差立刻劣化到 <strong>29.7 度</strong>；这与第二只猴子在同样小样本量（12 个细胞）下得到的 <strong>30.4 度</strong>高度吻合。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么「越多越准」是核心证据，而不是细节</span>
+        <p>如果方向是由某个「专门指这个方向」的尖锐细胞负责的，那么增减无关细胞不该改变精度。可这里精度<strong>随细胞数量系统性提升</strong>（12 个 → 约 30°，224 个 → 约 16°），恰恰说明信息<strong>分散在群体里</strong>，多一个细胞就多一份去噪的票。这就把「群体编码」从一个好听的比喻，钉成了一个有数量依赖关系的可证伪断言。</p>
+      </div>
+      <p>此外作者提到，群体向量不只能在「正在运动时」算，还能<strong>随时间逐步监测</strong>：在 2-D 的前期工作里，从目标灯亮起到运动开始的反应期内每 20 毫秒算一次群体向量，它在运动真正发生之前就已指向即将到来的运动方向；当猴子被要求「先憋住别动」0.5～3 秒，等待期内的群体向量也持续指向将来的目标方向。这暗示群体向量可以作为读取「运动意图」的窗口——这一点后来直接启发了脑机接口。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文方法上的高明，不在于用了什么高深技术，而在于一连串<strong>恰到好处的设计选择</strong>，让一个抽象命题变得可测、可证、可反驳。</p>
+      <table>
+        <thead>
+          <tr><th>设计选择</th><th>具体做法</th><th>为什么精妙</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>把方向变成向量数学</td>
+            <td>用方向余弦 (m<sub>x</sub>,m<sub>y</sub>,m<sub>z</sub>) 表示三维方向，把放电率写成线性模型 d(M)=b+b·m。</td>
+            <td>方向是个绕来绕去、不好量化的东西。一旦表示成向量，「偏好方向」「夹角」「求和」全都有了精确定义，整套群体编码才能被算出来、被检验。</td>
+          </tr>
+          <tr>
+            <td>用余弦调谐而非任意曲线</td>
+            <td>线性模型 Eq 1 等价于 d=b+k·cosθ，即放电率正比于运动方向在偏好方向上的投影。</td>
+            <td>余弦调谐有个数学上的妙处：放电率正比于投影，矢量求和才会自然指向真实方向。它不是随便挑的拟合函数，而是让群体向量「能工作」的那把钥匙。</td>
+          </tr>
+          <tr>
+            <td>权重取「相对基线的增量」</td>
+            <td>票长 w<sub>i</sub>(M)=d<sub>i</sub>(M)−b<sub>i</sub>，扣掉每个细胞的基线放电 b<sub>i</sub>。</td>
+            <td>不扣基线的话，高基线的细胞会无谓地拉偏总和。扣掉后，只有「因这次运动而改变的那部分活动」参与投票，且允许负权重（反向票），让抵消机制干净生效。</td>
+          </tr>
+          <tr>
+            <td>严格的细胞纳入标准</td>
+            <td>282 个细胞先过 F 检验筛掉 14.6% 非方向性的，再用多元回归（P&lt;0.05）确认 79.4% 方向调谐的才入群体分析。</td>
+            <td>不是「把所有细胞一锅炖」，而是先客观证明每个入选细胞确实调方向。这让最终的精确性不能被归因于碰巧的噪声相关。</td>
+          </tr>
+          <tr>
+            <td>两只猴子独立重复 + 子采样对照</td>
+            <td>第二只猴 70 个细胞复现 15.9°；从 224 个里随机抽 12 个使误差升到 29.7°，与第二只猴小样本 30.4° 吻合。</td>
+            <td>独立重复排除偶然；子采样对照把「精度依赖细胞数量」做成了内部可控实验，直接支撑「信息分布在群体中」这一因果解释。</td>
+          </tr>
+          <tr>
+            <td>用置信锥给方向判断上误差棒</td>
+            <td>对群体向量构造 95% 置信锥，检验真实方向是否落入。</td>
+            <td>没有它，「16° 误差」只是个点估计。置信锥把方向估计变成有统计意义的区间断言，让「群体向量预测准确」这句话经得起统计检验。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇 1986 的论文不是凭空冒出来的，它把作者团队此前在<strong>二维平面</strong>上的发现（refs 3、16）干净地推广到了<strong>真实三维空间</strong>。在 2-D 工作中他们已经看到运动皮层细胞宽调谐、且群体向量能预测方向；本文证明这套机制在 3-D 里同样成立，且单细胞依旧是「宽调谐而非尖锐调谐」。</p>
+      <p>更重要的是，作者把它放进一个<strong>更大的图景</strong>：方向性变量在大脑各处似乎都用类似的群体方式编码。他们一口气列举了同样发现「宽调谐细胞 + 群体向量能预测」的系统——脑桥网状结构里扫视眼动的方向编码（ref 23）、前庭神经元里头部倾斜方向的编码（ref 24）、脊髓中间神经元里身体相对颈部运动方向的编码（refs 25, 26）、以及颞中区（MT，Middle Temporal area）视觉刺激运动方向的编码（ref 27）。在所有这些系统里都识别出了宽调谐细胞，而且余弦函数（Eq 2）常常能很好地拟合数据。这把「运动皮层的一个现象」提升为「神经系统编码方向性信息的一条通用原理」。</p>
+      <p>作者也诚实指出与前人不完全一致之处：他们引用了 Mountcastle 等对后顶叶皮层（posterior parietal）的工作（ref 28），那里单个细胞对视野中视觉刺激的方向是宽调谐的，而群体向量能准确预测刺激方向——与本文如出一辙，进一步暗示群体编码也许是处理方向信息的一般性原理（ref 29）。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p><strong>对脑机接口（BMI，Brain-Machine Interface）：</strong>这是最直接、最深远的影响。既然群体向量能从运动皮层活动实时读出运动方向，反过来就意味着——只要同时记录足够多的运动皮层神经元，就能<strong>解码出使用者「想往哪动」</strong>并驱动假肢或光标。论文里「等待期 / 反应期的群体向量提前指向将来运动」的观察，正是后来意念控制机械臂的理论起点。本文第一作者 Georgopoulos 的群体向量算法，是侵入式 BMI 解码器的鼻祖之一。</p>
+      <p><strong>对计算神经科学与机器学习：</strong>它是「<strong>分布式表征</strong>」最干净的生物学例证之一——一个量由许多单元的协同活动共同表示，而非由专门单元（「祖母细胞」式）表示。这与人工神经网络里「概念分布在一层神经元的激活模式中」的思想遥相呼应，也为后来的群体解码、神经流形（neural manifold）等研究铺了第一块砖。</p>
+      <p><strong>对「如何从不精确的部件造出精确系统」这个普遍问题：</strong>本文给出一个漂亮范本——<strong>用冗余和求和换精度</strong>。每个细胞都「便宜而不准」，但只要它们的偏好各异、独立加噪，把它们的投票矢量相加就能把噪声平均掉。这与工程上的传感器融合、集成学习（ensemble）、众包智慧（wisdom of crowds）是同一个深层原理的不同化身。</p>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文证明力很强，但若把它读透，有几处作者点到为止、或干脆没说的边界值得记住——其中一些直到今天仍是争论焦点。</p>
+      <ul>
+        <li><strong>「群体向量能预测方向」不等于「大脑真的用群体向量来产生运动」。</strong>本文是一个<strong>解码（decoding）</strong>论证：实验者在事后把细胞活动加权求和，发现它和方向吻合。但大脑下游回路是否真的执行这套加权矢量求和、还是只是恰好与之相关，本文无法回答。作者自己也谨慎地说群体向量「可被用作监测」方向处理的探针，而非断言它是因果机制。这是「相关 vs 因果」的经典缺口。</li>
+        <li><strong>被剔除的那 6% 细胞可能藏着别的故事。</strong>17 个（6%）细胞与方向有关、却不被余弦方程拟合，被排除在群体分析之外。作者承认这一小群可能以「更复杂的方式」编码方向。把不合模型的数据剔除虽合理，但也意味着群体向量框架并非对所有方向相关细胞都成立。</li>
+        <li><strong>余弦调谐到底是因还是果？</strong>本文把余弦调谐当作既成事实来建模，但没有解释运动皮层细胞<strong>为何</strong>恰好是余弦调谐的。是肌肉力学使然？是网络连接的结果？还是大脑「设计」成这样以便群体向量好用？这个「为什么是余弦」的问题，本文留白。</li>
+        <li><strong>方向之外的运动变量没被触及。</strong>真实伸手要同时控制方向、距离、速度、力。本文只解了「方向」一个维度，且任务里所有目标等距（12.5 cm）。这套群体向量框架能否、以及如何同时承载其余变量，本文没有回答。</li>
+        <li><strong>偏好方向是否稳定、是否真均匀铺满，依赖采样。</strong>结论的精确性建立在「224 个细胞偏好方向铺满整个三维球面」之上。但电极采样本身可能有偏，且本文未深究偏好方向在皮层上是否随时间漂移——若偏好方向分布不均或会变，群体向量的无偏性会打折扣。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下是解读者的独立评价，每条都对应文中的具体证据。</p>
+      <p><strong>这是一篇方法与思想都极其干净的奠基性工作，配得上它的历史地位。</strong>它的力量来自一个罕见的组合：命题清晰（方向编码在哪里）、机制可计算（群体向量公式）、预测可证伪（精度应随细胞数变化），并且预测被数据精确兑现（224 个细胞 15.8°、12 个细胞 29.7°，两猴一致）。在系统神经科学里，能把一个抽象问题逼到这种「可算、可测、可反驳」程度的论文不多。</p>
+      <p><strong>最强的一击是子采样对照。</strong>仅凭「群体向量恰好对齐方向」其实还不足以排除巧合或专门细胞的解释；但「从 224 抽 12 误差就从 16° 升到 30°」这个数量依赖关系（解读者认为）才是真正把「信息分布在群体中」钉死的证据——它让群体编码成为一个有定量后果的断言，而非比喻。</p>
+      <p><strong>它的边界也应当被诚实承认，而本文部分地承认了。</strong>群体向量是一个解码工具，本文用它<strong>读出</strong>方向成功，但并未证明大脑用它<strong>产生</strong>方向（相关非因果）；6% 不合模型的细胞被剔除；余弦调谐被假定而非被解释。作者在讨论里把群体向量定位为「监测/探针」（heuristic value、a probe to monitor），措辞相当克制，这是负责任的。所以（解读者观点）它的恰当地位是：<strong>一个被反复验证的、对方向信息极其有效的读出范式</strong>，而非一份关于运动如何被大脑生成的完整因果机制。它打开的门，比它关上的多——这正是奠基性论文的特征。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>运动方向不写在任何单个神经元里：每个运动皮层细胞都对方向「近视」（余弦调谐，偏 60° 仍兴奋一半），但让 224 个各有偏好的细胞沿各自偏好方向按放电强度投票、矢量求和得到的「群体向量」，却能把真实运动方向锁定到平均 <strong>15.8°</strong>（两猴一致 15.9°）、且真值落在 95% 置信锥内——而精度随细胞数量提升（12 个细胞 29.7° → 224 个 15.8°），<strong>这就是「群体编码」范式的诞生，也是脑机接口与分布式表征思想的源头</strong>。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Georgopoulos, A. P., Schwartz, A. B., &amp; Kettner, R. E. (1986). Neuronal Population Coding of Movement Direction. <em>Science</em>, 233(4771), 1416–1419.<br>
+    <strong>说明：</strong>本页为深度解读，非原文翻译；交互组件采用模拟数据（余弦调谐 + 论文报告的定性精度模式），用于直觉演示，具体数值以原论文为准。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('pvCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var cx = W*0.5, cy = H*0.5 + 8;
+  var R = 168; // 绘图半径
+
+  var thetaSlider = document.getElementById('thetaSlider');
+  var nSlider = document.getElementById('nSlider');
+  var thetaVal = document.getElementById('thetaVal');
+  var nVal = document.getElementById('nVal');
+  var noiseBtn = document.getElementById('noiseBtn');
+  var spinBtn = document.getElementById('spinBtn');
+  var readout = document.getElementById('readout');
+
+  var noiseOn = true;
+  var spinning = false;
+  var spinReq = null;
+
+  // 固定每个神经元的偏好方向与噪声种子，保证拖动滑块时画面稳定
+  var MAXN = 300;
+  var prefs = [];
+  var seeds = [];
+  for(var i=0;i<MAXN;i++){
+    // 偏好方向大致均匀铺满整圈（加一点抖动模拟采样不均）
+    prefs.push((i/MAXN)*Math.PI*2 + (Math.random()-0.5)*0.18);
+    seeds.push(Math.random()*1000);
+  }
+
+  function deg2rad(d){return d*Math.PI/180;}
+  function rad2deg(r){return r*180/Math.PI;}
+
+  // 稳定的伪噪声：随种子+目标方向缓慢变化，避免每帧乱跳得太厉害
+  function noiseFor(idx, theta){
+    if(!noiseOn) return 0;
+    var s = seeds[idx];
+    var v = Math.sin(s*1.7 + theta*0.6) * Math.cos(s*0.9 - theta*0.3) * Math.sin(s*2.3);
+    return v; // 约 [-1,1]
+  }
+
+  function draw(){
+    var theta = deg2rad(parseFloat(thetaSlider.value));
+    var N = parseInt(nSlider.value,10);
+    thetaVal.textContent = thetaSlider.value;
+    nVal.textContent = N;
+
+    ctx.clearRect(0,0,W,H);
+
+    // 背景圆盘
+    ctx.beginPath();
+    ctx.arc(cx,cy,R+22,0,Math.PI*2);
+    ctx.fillStyle = '#fbfbfc';
+    ctx.fill();
+    ctx.strokeStyle = '#eceef1';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 坐标十字
+    ctx.strokeStyle = '#eceef1';
+    ctx.beginPath();
+    ctx.moveTo(cx-R-22,cy); ctx.lineTo(cx+R+22,cy);
+    ctx.moveTo(cx,cy-R-22); ctx.lineTo(cx,cy+R+22);
+    ctx.stroke();
+
+    // 目标方向（黄/金箭头）
+    var tx = cx + Math.cos(theta)*R;
+    var ty = cy - Math.sin(theta)*R; // 屏幕 y 向下，取负
+    drawArrow(cx,cy,tx,ty,'#d9a200',4.5,'真实方向 M');
+
+    // 计算每个细胞的票并累加群体向量
+    var sumX=0, sumY=0;
+    var votes=[];
+    for(var i=0;i<N;i++){
+      var p = prefs[i];
+      // 余弦调谐：权重 = max(0, cos(夹角)) + 噪声；允许的负权重在论文里存在，
+      // 这里用 baseline 偏置近似（rate ∝ b + k cosθ），取增量为 cos 项
+      var dot = Math.cos(theta - p); // cos(夹角)
+      var w = dot + noiseFor(i,theta)*0.55; // 加放电噪声
+      // 票方向 = 偏好方向 p；票长 ∝ w（可正可负，负则反向）
+      var vx = Math.cos(p)*w;
+      var vy = Math.sin(p)*w;
+      sumX += vx; sumY += vy;
+      votes.push({p:p, w:w});
+    }
+
+    // 画每张票（细线，沿偏好方向，长度 ∝ |w|，亮度 ∝ |w|）
+    for(var j=0;j<votes.length;j++){
+      var v = votes[j];
+      var mag = Math.max(0, v.w); // 负票画得很淡
+      var len = v.w * R * 0.42;
+      var ex = cx + Math.cos(v.p)*len;
+      var ey = cy - Math.sin(v.p)*len;
+      var alpha = 0.12 + Math.min(0.6, Math.abs(v.w)*0.5);
+      // 越对齐目标的票越偏红紫，越偏离越淡紫
+      var align = Math.cos(theta - v.p); // -1..1
+      var col;
+      if(align>0.55) col = 'rgba(150,90,200,'+alpha+')';
+      else col = 'rgba(170,150,210,'+(alpha*0.7)+')';
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.lineTo(ex,ey);
+      ctx.stroke();
+    }
+
+    // 群体向量（红，矢量和）——归一化到可见长度，但方向真实
+    var sumMag = Math.sqrt(sumX*sumX+sumY*sumY);
+    var popAngle = Math.atan2(sumY, sumX);
+    var drawLen = R*0.92;
+    var px = cx + Math.cos(popAngle)*drawLen;
+    var py = cy - Math.sin(popAngle)*drawLen;
+    drawArrow(cx,cy,px,py,'#c0392b',5.5,'群体向量 P');
+
+    // 中心点
+    ctx.beginPath();
+    ctx.arc(cx,cy,4,0,Math.PI*2);
+    ctx.fillStyle = '#1f2328';
+    ctx.fill();
+
+    // 误差角
+    var err = Math.abs(rad2deg(angleDiff(theta, popAngle)));
+    readout.innerHTML = '细胞数 N = <strong>'+N+'</strong> ｜ 群体向量与真实方向夹角误差 ≈ <strong style="color:#c0392b;">'+err.toFixed(1)+'°</strong>'
+      + ' ｜ 噪声：'+(noiseOn?'开':'关')
+      + '<br><span style="color:#888;">提示：把 N 拉小到个位数，看红箭头如何抖出大误差（对应论文「12 个细胞 ≈ 30°」）；N 拉满则收敛到十几度乃至更小。</span>';
+  }
+
+  function angleDiff(a,b){
+    var d = a-b;
+    while(d>Math.PI) d-=Math.PI*2;
+    while(d<-Math.PI) d+=Math.PI*2;
+    return d;
+  }
+
+  function drawArrow(x1,y1,x2,y2,color,width,label){
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+    // 箭头头
+    var ang = Math.atan2(y2-y1, x2-x1);
+    var ah = 13;
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2 - ah*Math.cos(ang - 0.4), y2 - ah*Math.sin(ang - 0.4));
+    ctx.lineTo(x2 - ah*Math.cos(ang + 0.4), y2 - ah*Math.sin(ang + 0.4));
+    ctx.closePath();
+    ctx.fill();
+    // 标签
+    if(label){
+      ctx.font = '12px -apple-system,sans-serif';
+      ctx.fillStyle = color;
+      var lx = x2 + Math.cos(ang)*14;
+      var ly = y2 - Math.sin(ang)*0 + (y2<y1?-8:16);
+      ctx.fillText(label, x2 + (x2>=x1?6:-ctx.measureText(label).width-6), y2 + (y2>=y1?16:-8));
+    }
+  }
+
+  thetaSlider.addEventListener('input', draw);
+  nSlider.addEventListener('input', draw);
+  noiseBtn.addEventListener('click', function(){
+    noiseOn = !noiseOn;
+    noiseBtn.textContent = '放电噪声：' + (noiseOn?'开':'关');
+    noiseBtn.className = noiseOn ? 'alt' : '';
+    draw();
+  });
+  spinBtn.addEventListener('click', function(){
+    spinning = !spinning;
+    spinBtn.textContent = spinning ? '停止自转' : '让目标自转';
+    spinBtn.className = spinning ? '' : 'alt';
+    if(spinning){
+      var step = function(){
+        if(!spinning) return;
+        var v = (parseFloat(thetaSlider.value)+1)%360;
+        thetaSlider.value = v;
+        draw();
+        spinReq = requestAnimationFrame(step);
+      };
+      step();
+    } else {
+      if(spinReq) cancelAnimationFrame(spinReq);
+    }
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>

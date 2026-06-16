@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wang 2002 · 慢回响与决策吸引子 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Slow Reverberation <span>×</span> 大脑如何「慢慢拿主意」：一张脉冲网络把犹豫、累积证据和最后拍板写成了同一套动力学</h1>
+    <div class="meta">
+      <span>📄 Probabilistic Decision Making by Slow Reverberation in Cortical Circuits</span><br>
+      <span>✍️ Xiao-Jing Wang（王晓京）</span><br>
+      <span>🏛️ Volen Center for Complex Systems, Brandeis University（布兰戴斯大学）</span><br>
+      <span>📅 Neuron, Vol. 36, 955–968 · 2002 年 12 月</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-question">它到底要回答什么问题</a></li>
+        <li><a href="#sec-model">模型长什么样</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-viz">交互演示：看两群神经元分叉</a></li>
+        <li><a href="#sec-control">关键控制分析</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>在 2002 年之前，神经科学家已经在猴子顶叶（外侧顶内沟区，LIP，Lateral Intraparietal area）记录到一件迷人的事：当猴子盯着一片乱飘的随机点、努力判断它们整体是往左还是往右动时，某些神经元的发放率会<strong>缓慢地爬升好几百毫秒</strong>，像是在「攒证据」，最后停在一个高水平上——而且这个高水平和猴子最终选了哪边一一对应。问题是：<strong>一个由毫秒级快突触搭成的神经回路，凭什么能把信号慢慢积分上整整一秒？</strong>又凭什么能从「还没拿定主意」突然变成「就是它了」的二选一拍板？</p>
+        <p>这篇论文给出了一个至今仍是教科书级别的答案：王晓京用一个<strong>生物物理写实的脉冲神经网络</strong>（不是抽象方程，而是带真实离子电流、真实突触的漏积分发放神经元），证明了只要回路里有<strong>足够慢的 NMDA（N-甲基-D-天冬氨酸，N-methyl-D-aspartate）受体回响</strong>加上<strong>相互抑制</strong>，「慢慢积分证据」和「赢者通吃地拍板」这两件本来看似矛盾的事，会从<strong>同一套吸引子动力学</strong>里自然涌现。它一举复现了 LIP 神经元的爬升活动、猴子的心理物理曲线（正确率 vs 难度）和反应时间，把「决策」第一次落到了可计算、可验证的细胞-突触机制上。后来几乎所有「决策的吸引子模型」都从这里出发。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文横跨认知（决策）、系统（顶叶回路）、细胞（受体动力学）三层，术语密度高。先把关键概念用人话讲清楚，后面正文会反复用到。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">吸引子动力学（Attractor Dynamics）</div>
+          <div class="cdesc">想象一张起伏的山谷地形，小球（网络状态）放上去会自动滚向某个最低点（吸引子）并停住。本文里有两个低谷：「选 A」和「选 B」。证据把地形微微倾斜，小球最终滚进哪个谷，就是网络的决定——而且谷底很稳，外界刺激撤掉后状态还留着（这就成了记忆）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">慢回响 / 持续活动（Slow Reverberation / Persistent Activity）</div>
+          <div class="cdesc">一群神经元彼此强烈兴奋，A 激活 B、B 又回头激活 A，像两面镜子之间的回声，不断自我维持。这让活动在外部输入消失后还能「响」上几秒。本文的核心论点：正是这种自我维持的回响，给了网络积分证据所需的<strong>长时间常数</strong>。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">NMDA 受体（NMDA，N-甲基-D-天冬氨酸受体，N-methyl-D-aspartate receptor）</div>
+          <div class="cdesc">一种谷氨酸门控的兴奋性受体，电流衰减极慢（约 100 毫秒，是 AMPA（α-氨基-3-羟基-5-甲基-4-异恶唑丙酸，α-amino-3-hydroxy-5-methyl-4-isoxazolepropionic acid）受体的 50 倍），还受细胞外镁离子（Mg²⁺，magnesium ion）的电压依赖性阻挡。它的「慢」是本文的命门：网络能积分上整整一秒，全靠 NMDA 把每一点证据的影响拖得很长。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">AMPA 受体（AMPA，α-氨基-3-羟基-5-甲基-4-异恶唑丙酸受体，α-amino-3-hydroxy-5-methyl-4-isoxazolepropionic acid receptor）</div>
+          <div class="cdesc">另一种谷氨酸门控兴奋性受体，电流极快（衰减约 2 毫秒）。本文用它处理来自外界（颞中区，MT，Middle Temporal area）的快信号输入；但若让回路内部的兴奋只靠 AMPA，网络就只能积分几十毫秒、瞬间「锁死」到一个选项，反而做不成慢决策。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">GABA 受体 / 反馈抑制（GABA，γ-氨基丁酸，γ-aminobutyric acid；Feedback Inhibition）</div>
+          <div class="cdesc">GABA 是大脑主要的抑制性递质（电流衰减约 5 毫秒）。本文里所有兴奋性神经元共享一群抑制性中间神经元：A 群越兴奋，就越通过这群中间神经元去压制 B 群——这是实现<strong>赢者通吃</strong>（两个选项相互掐架、只能活一个）的关键机制。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">赢者通吃（Winner-Take-All）</div>
+          <div class="cdesc">两个相互竞争的神经群里，只要一方稍占上风，就借抑制把对方压下去，从而扩大优势、彻底胜出，另一方被压到近乎静默。这把一个连续、模糊的证据差，变成了一个干脆的<strong>离散二选一</strong>。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">运动相干度（Coherence, c'）</div>
+          <div class="cdesc">随机点运动任务里的「难度旋钮」。c'=0% 表示点子完全乱飘、毫无方向（最难，相当于抛硬币）；c'=51.2% 表示一半多的点朝同一方向走（很容易）。本文用它给两个神经群的输入设置偏置：c' 越大，两边输入差越大，决策越快越准。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">LIP（外侧顶内沟区，Lateral Intraparietal area）</div>
+          <div class="cdesc">猴子顶叶的一块皮层，接收来自运动视觉区 MT / MST（颞中上区，Medial Superior Temporal area）的信号，输出用于引导眼跳的高层指令。实验上，LIP 神经元在决策任务中表现出缓慢爬升、与最终选择相关的活动——本文模型就是要复现这块区域的神经记录。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">MT / MST（颞中区 / 颞中上区，Middle Temporal / Medial Superior Temporal area）</div>
+          <div class="cdesc">视觉皮层中专门编码运动方向的区域。它们的发放率随刺激相干度上升，是决策回路的「感觉输入端」。本文不细致建模 MT，而是把它简化成两路随机的泊松输入，喂给下游的决策网络。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">漂移扩散模型（Diffusion Model / 积分-判定模型，Integrate-and-Decide）</div>
+          <div class="cdesc">心理学里描述反应时间的经典抽象模型：一个决策变量像醉汉走路（扩散过程）一样随机游走，同时被证据差恒定地往一边推，先撞到哪个阈值就选哪边。本文证明，自己这套生物物理网络在数学上能<strong>近似实现</strong>这个抽象模型，但又补上了它说不清的几件事（竞争机制、记忆、噪声来源、有限时间常数）。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-question">它到底要回答什么问题</div>
+      <p>感知决策（perceptual decision making）是「大脑如何把感觉信号变成选择和行动」这个大问题的一个干净切口。在猴子做随机点运动辨别任务时，生理学家发现决策相关的活动出现在<strong>联合皮层</strong>——顶叶（Shadlen & Newsome）、背外侧前额叶（Kim & Shadlen）、前运动区（Romo 等）——而且这些区域的神经元有两个共同特征：在工作记忆任务的延迟期会维持<strong>持续发放</strong>；在决策任务里会<strong>缓慢爬升</strong>。</p>
+      <p>王晓京敏锐地把这两件事联系起来，提出一个假说：<strong>那些能维持持续活动（做工作记忆）的回路，可能正是能做证据积分和范畴化决策的回路。</strong>他要回答的具体问题是：</p>
+      <ul>
+        <li><strong>积分问题</strong>：突触都是毫秒级的快家伙，网络凭什么把信号积分上接近一秒（实验观察到的爬升时长）？</li>
+        <li><strong>范畴化问题</strong>：连续模糊的证据，怎么变成干脆的二选一，并且这个选择能被记住、留到延迟期之后指导行为？</li>
+        <li><strong>这两件事能不能在同一个局部回路里完成</strong>，而不需要把「积分」和「判定」分给两个不同脑区？</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">关键洞察（贯穿全文）</span>
+        <p>「慢」不是来自单个慢突触，而是来自<strong>网络层面的回响</strong>。论文给出一个漂亮的公式直觉：当兴奋性回路的递归强度为 <code>w_syn</code>、单突触时间常数为 <code>τ_syn</code> 时，整个网络的<strong>有效时间常数</strong>被放大为 τ_eff = τ_syn / (1 − w_syn)。NMDA 的 τ_syn=100 毫秒本身不够，但当 w_syn 接近 1（强回响）时，τ_eff 能拉长到 2 秒——这正是把毫秒突触变成秒级积分器的数学秘密。</p>
+      </div>
+
+      <div class="section-head" id="sec-model">模型长什么样</div>
+      <p>在看核心发现之前，先把这台「机器」的结构讲清楚，否则后面的数字会悬空。模型不是抽象方程，而是一个<strong>由 2000 个漏积分发放（LIF，Leaky Integrate-and-Fire）神经元组成的脉冲网络</strong>，每个神经元有真实的静息电位（兴奋性细胞 −70 mV）、发放阈值（−50 mV）、膜电容和不应期，被四类突触（金字塔→金字塔、金字塔→中间神经元等）连起来。</p>
+      <ul>
+        <li><strong>两个选择性群 A 和 B</strong>：各占兴奋性细胞的 f=0.15，分别偏好「左」和「右」两个运动方向；剩下 (1−2f)=70% 的兴奋性细胞对两个刺激都不响应（背景群）。</li>
+        <li><strong>群内强递归兴奋</strong>：A 群内部、B 群内部的兴奋性连接被「增强」（权重 w₊=1.7，大于基线 1），这是产生自我维持持续活动的引擎。群间和群与背景之间则被「抑制」（权重 w₋&lt;1）。</li>
+        <li><strong>共享反馈抑制</strong>：所有兴奋性细胞共用一群中间神经元（占全网 20%，即 400 个），由此实现 A、B 之间的竞争。</li>
+        <li><strong>慢兴奋靠 NMDA</strong>：回路内部的递归兴奋电流，主要由慢 NMDA 受体承载（外加少量快 AMPA）；而来自外界的输入只走 AMPA。</li>
+        <li><strong>输入即「难度旋钮」</strong>：两个群各收到一路随机泊松输入，平均率 μ_A=40+ρ·c'、μ_B=40−ρ·c'（单位 Hz），标准差 σ 默认为 4 Hz，每 50 毫秒重采样一次。c' 是相干度，决定两边输入差多大。</li>
+        <li><strong>噪声主要来自内部</strong>：每个细胞还收到一个高速率（2400 Hz）的非特异背景输入，它远大于携带信息的特异输入（&lt;100 Hz），所以网络的随机性主要源于<strong>大脑内部的泊松涨落</strong>，而非外部刺激。</li>
+      </ul>
+      <blockquote>
+        <p>核心数字（实验参数，来自论文 Experimental Procedures）：</p>
+        <p>N=2000（N_E=1600 兴奋 + N_i=400 抑制）；选择群占比 f=0.15</p>
+        <p>τ_NMDA,decay ≈ 100 ms ；τ_AMPA ≈ 2 ms ；τ_GABA ≈ 5 ms</p>
+        <p>群内增强权重 w₊=1.7 ；背景泊松驱动 ν_ext=2.4 kHz ；积分步长 dt=0.02 ms</p>
+      </blockquote>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+
+      <div class="section-head-sub">发现一：缓慢爬升 + 二选一拍板，从同一套动力学涌现</div>
+      <p>给网络喂上刺激（c'=0%、12.8%、51.2% 三档），正确选项 A 群的活动会像 LIP 神经元一样<strong>缓慢线性爬升</strong>，且<strong>相干度越高、爬升越陡</strong>（信号强就攒得快）。与此同时，A、B 两群的发放率随时间<strong>急剧分叉</strong>——A 冲向高发放、B 被压向静默——形成一个干净的二选一。最妙的是第三点：刺激撤掉后，胜出群 A 的高发放<strong>持续到整个延迟期</strong>，把决策当成短期记忆存了下来。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>在「决策空间」里（横轴 r_A、纵轴 r_B），网络从对角线（r_A≈r_B，还没拿主意）出发，最终收敛到两个吸引子之一：选 A 时 <strong>r_A≈20 Hz、r_B≈3 Hz</strong>；选 B 时反过来。延迟期持续发放约 <strong>20 Hz</strong>、波动 σ≈4 Hz，而且这个水平<strong>不随刺激强度变化</strong>（c'=0% 和 51.2% 的延迟期发放一样高）——这正说明范畴化决策一旦做出，就和原始证据脱钩了。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：零相干度时的「神经掷硬币」</div>
+      <p>当 c'=0%（点子完全乱飘）时，两个群收到的平均输入<strong>完全相同</strong>，网络却仍然每次都做出一个干脆的选择，左右各约一半——一台「神经硬币」。它怎么打破平局？王晓京追问了噪声的来源，得到一个反直觉的结论：<strong>不是外部刺激的随机实现决定胜负，而是大脑内部的泊松涨落。</strong></p>
+      <p>证据有两条：(1) 即使把外部刺激的涨落完全关掉（σ=0，两路输入恒定），网络行为<strong>基本不变</strong>，仍是约 50:50；原因是高速背景驱动（2400 Hz）远大于信息输入（&lt;100 Hz），主导了随机性。(2) 但若两路输入<strong>略有差异</strong>，网络确实能积分这个差：统计胜负与「输入差的时间积分 ΔS」的关系——<strong>A 群胜出的试次里 ΔS 平均为 +0.8（标准差 ±3），B 群胜出时为 −0.7（±3）</strong>（n=1000，σ=10，刺激 1 秒）。两个分布很宽且高度重叠，说明在很大一部分试次里，即便 ΔS 为负，A 仍可能赢——这正是「概率性决策」的体现。</p>
+
+      <div class="section-head-sub">发现三：心理物理曲线与反应时间，对得上真猴子</div>
+      <p>把模型在不同相干度下的正确率画出来，能用一条<strong>韦伯函数（Weibull function）</strong>拟合：</p>
+      <blockquote>
+        <p>% correct = 1 − 0.5 × exp[ −(c'/α)^β ]</p>
+        <p>固定 2 秒刺激：阈值 α=9.2%，斜率 β=1.5</p>
+      </blockquote>
+      <p>这条曲线和训练有素的真猴子<strong>定量可比</strong>：Roitman & Shadlen（2002）报告猴子阈值 α≈6%、斜率 β≈1.7；Shadlen & Newsome（2001）报告阈值 15%、斜率 1.1——模型落在实验区间内。反应时间也对得上：决策时间随相干度<strong>对数线性</strong>变化，从高相干度的约 <strong>200 毫秒</strong>到低相干度的约 <strong>800 毫秒</strong>，并在 c'→0 时饱和；低相干度下决策时间的方差也明显更大（直方图更宽）。这与 Roitman & Shadlen 观察到的「反应时间随相干度对数线性、范围 300–900 毫秒」高度一致（模型与真猴差的那 100 毫秒，可归因于信号传到 LIP 和眼跳生成的额外延迟）。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么这很重要</span>
+        <p>同一套参数、同一个网络，<strong>不调一个旋钮</strong>，既给出正确率曲线、又给出反应时间分布，还分别匹配两组独立实验——这是计算模型「以一抵多」的说服力来源。它不是事后拟合一条曲线，而是让多个本来无关的现象从一个机制里同时掉出来。</p>
+      </div>
+
+      <div class="section-head-sub">发现四：积分时长越久，难度阈值越低</div>
+      <p>实验上早就知道：刺激看得越久，猴子越准。模型直接复现了这件事——当刺激时长从 250 毫秒拉到 1 秒，相干度阈值（达到 82% 正确所需的难度）从 <strong>50% 暴跌到 &lt;10%</strong>，并在刺激超过 1.5 秒后趋于平台。这是「网络确实在长时间窗上积分证据」的直接证明：看得久，弱信号也能被攒到足够分辨的程度。</p>
+
+      <div class="section-head" id="sec-viz">交互演示：看两群神经元如何分叉、一方冲向吸引子</div>
+      <p>纯文字很难传达「分叉」的动感。下面这个组件让你亲手转动<strong>相干度旋钮</strong>（给 A 群多大偏置），点「开始」就能看到两群神经元的发放率随时间演化：先在低位附近并行游走（还没拿主意），然后竞争性抑制把差距放大，<strong>胜出群冲向约 20 Hz 的高发放吸引子，落败群被压向静默</strong>。把相干度调到 0、按几次重置，你会看到它有时选 A、有时选 B——这就是「神经掷硬币」。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">竞争神经群的决策分叉演示</div>
+        <div class="viz-note">模拟数据基于论文报告的定性模式（吸引子约 20 Hz、对角起步、赢者通吃、低相干度时随机），用一个简化的双群相互抑制动力学展示定性行为，非论文原始脉冲仿真。</div>
+        <div class="viz-controls">
+          <label>给 A 群的证据偏置（相干度 c'）：<strong><span id="cohVal">0.0</span>%（偏 <span id="cohDir">无</span>）</strong></label>
+          <input type="range" id="coh" min="-51.2" max="51.2" step="0.1" value="0" style="width:240px;">
+        </div>
+        <div class="viz-controls">
+          <button id="runBtn">▶ 开始一次决策</button>
+          <button id="resetBtn" class="alt">↻ 重置</button>
+          <label style="margin-left:8px;">结果：<strong id="outcome" style="color:#c0392b;">—</strong></label>
+        </div>
+        <canvas id="decisionCanvas" width="760" height="380"></canvas>
+        <div class="viz-note" style="margin-top:10px;margin-bottom:0;">
+          红线 = A 群（偏好「左」）发放率；蓝线 = B 群（偏好「右」）。灰色虚线是约 20 Hz 的胜者吸引子高度与 3 Hz 的败者水平。把相干度调成 0 反复点「开始」，体会内部噪声如何打破平局。
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-control">关键控制分析</div>
+      <p>这篇论文的分量，一半在它的「拆台实验」——王晓京主动破坏模型的关键假设，看决策能力会不会垮，从而证明哪些成分是<strong>必需</strong>的。</p>
+
+      <div class="section-head-sub">控制一：回响必须「够强」也必须「够慢」</div>
+      <p>把群内递归权重从 w₊=1.7 <strong>调弱到 1.4</strong>，吸引子动力学撑不住了：爬升活动锐减（只剩约 200–300 毫秒）、低相干度下两群无法区分（做不成范畴化）、延迟期也没有持续活动（记不住）。反过来把 w₊ <strong>调强到 1.8</strong>，回响变得又快又猛，持续发放从 20 Hz 翻倍到 <strong>40 Hz</strong>，但积分时间被砍半、性能反而<strong>变差</strong>（c'=6.4% 时正确率从 72% 跌到 60%，阈值从 8.4% 升到 15.6%）。结论：存在一个<strong>最优的回响强度区间</strong>，太弱太强都不行。</p>
+      <p>「慢」同样不可省。若把递归兴奋从 NMDA 换成只有快 AMPA（时间常数&lt;5 毫秒），网络仍能有吸引子，但<strong>只能积分几十毫秒</strong>，并且会在刺激一开始就「锁死」到某个选项——做不成需要长时间积分的慢决策。这就是为什么论文断定 <strong>NMDA 介导的慢兴奋更适合做决策网络的时间积分器</strong>。</p>
+
+      <div class="section-head-sub">控制二：决策可以被「翻盘」，但有时间窗</div>
+      <p>真正的积分器应该既能累加正证据、也能减去负证据。王晓京在刺激中途<strong>反转</strong>输入（c' 从 +6.4% 切到 −6.4%）来测试。结果：若反转发生得<strong>早</strong>（刺激刚开始），效果等同于直接交换两个刺激（选 A 比例 28%）；随着反转时刻推后到约 600–700 毫秒，选 A 比例<strong>线性上升</strong>，正是「正负证据相减」的纯积分特征；但反转太晚（&gt;700 毫秒）就基本无效了。这个 700 毫秒的「饱和拐点」<strong>恰好等于平均决策时间</strong>——一旦网络落进吸引子，微弱的外部输入就压不过强大的内部递归了。</p>
+      <div class="info-block">
+        <span class="ib-title">两步走的决策图景</span>
+        <p>这个翻盘实验漂亮地揭示了模型的<strong>两个阶段</strong>：(1) 早期由爬升活动对输入做<strong>积分</strong>，此时证据还能相减、决策可逆；(2) 一旦达到阈值、落入吸引子，就转入<strong>范畴化锁定</strong>，靠吸引子动力学把选择稳稳存住。不过即便落进吸引子，只要新证据<strong>足够强</strong>（反转信号相干度超过 70%–80%），决策仍可被强行翻转——吸引子是「稳」而非「死锁」。</p>
+      </div>
+
+      <div class="section-head-sub">控制三：对称性破缺与鲁棒性</div>
+      <p>零相干度下要做到完美 50:50，要求网络两半绝对对称——这在真实皮层不现实。王晓京测试了<strong>功能不对称</strong>的后果：把 B 群的递归兴奋削弱 ρ=5%，结果两群持续发放出现 r_A−r_B=18 Hz 的差距（相对差 43%），零相干度下 A 的响应率升到 74%（偏离 50:50）。他坦承这是个<strong>不小的不对称</strong>，并指出真实大脑可能靠<strong>稳态突触缩放（homeostatic synaptic scaling）</strong>等机制把不同神经群的长期发放率调齐——这也成了模型一个明确的开放问题。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>把这篇论文的方法亮点列成一张表，方便看清它为什么经得起推敲。</p>
+      <table>
+        <thead>
+          <tr><th>设计选择</th><th>具体做法</th><th>为什么精妙</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>生物物理写实</td>
+            <td>用漏积分发放神经元，参数（电容、电导、受体时间常数）按真实电生理测量校准；NMDA/AMPA/GABA 分别建模</td>
+            <td>结论直接落到可被实验检验的细胞-突触量上，而非抽象自由参数；预测「NMDA 受体在决策回路中关键」可被药理/分子实验验证</td>
+          </tr>
+          <tr>
+            <td>最小化双选模型</td>
+            <td>只放两个选择群 + 一群共享中间神经元，刻意用「最简版本」</td>
+            <td>剥离干扰，让「慢回响 + 相互抑制 → 决策」的因果链清晰可见；易于解析理解</td>
+          </tr>
+          <tr>
+            <td>一套参数、多重匹配</td>
+            <td>同一网络不调参，同时复现爬升活动、正确率（Weibull α=9.2,β=1.5）、反应时间（200–800 ms）</td>
+            <td>避免「为每个现象单独拟合」的过拟合嫌疑；多现象同源是强证据</td>
+          </tr>
+          <tr>
+            <td>主动「拆台」证伪</td>
+            <td>调弱/调强回响、换掉 NMDA、反转信号、引入不对称，逐一观察决策崩溃方式</td>
+            <td>不只是「能行」，而是定位<strong>哪些成分必需、参数在什么范围有效</strong>，把模型逼到边界</td>
+          </tr>
+          <tr>
+            <td>决策空间可视化</td>
+            <td>把 r_A 对 r_B 画在二维相平面，看轨迹从对角线奔向某个吸引子角</td>
+            <td>把高维网络动力学压成一张能直觉理解的「地形图」，是吸引子叙事的点睛之笔</td>
+          </tr>
+          <tr>
+            <td>与抽象模型对接</td>
+            <td>推导出网络近似实现漂移扩散方程 X(t)=(s_L−s_R)t+噪声，并指出有限 τ 对应「漏积分」</td>
+            <td>在心理学经典模型与生物物理机制之间架桥，既继承又超越（补上竞争、记忆、噪声来源、有限时间常数）</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文站在两条研究线的交汇处，并把它们焊到了一起。</p>
+      <ul>
+        <li><strong>承接 Shadlen &amp; Newsome 的 LIP 实验</strong>：模型的全部「考核标准」都来自这一系列经典记录——爬升活动、与选择相关而非与刺激相关、正确/错误试次的差异。论文复现了一个微妙现象：高相干度时，正确试次里偏好方向的发放显著高于错误试次（因为胜出群在正确试次收到更大直接输入），而低相干度（3.2%）时正确与错误试次几乎一样。</li>
+        <li><strong>承接 Amit、Brunel、Wang 的持续活动理论</strong>：网络结构直接取自 Amit &amp; Brunel（1997）和 Wang（1999）关于工作记忆持续活动的脉冲网络。本文的贡献是把「能记忆的回路」推广为「能决策的回路」，主张二者同源。</li>
+        <li><strong>对话漂移扩散模型（Ratcliff；Usher &amp; McClelland）</strong>：心理学的积分-判定模型能拟合反应时间，但说不清四件事——竞争怎么实现、决策怎么被记住、噪声从哪来、为何能积分这么久（经典扩散假设时间常数无穷大，不现实）。本文逐一回应：竞争=反馈抑制；记忆=吸引子；噪声=内部泊松；长积分=NMDA 慢突触 + 强回响把有限 τ 放大。它还对应上了 Usher &amp; McClelland 的「漏积分-判定」模型——有限 τ 就是那个「漏」。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>对神经科学</strong>：提出一个统一原则——<strong>慢回响（slow reverberation）可能是认知计算的通用底层</strong>。同一套吸引子机制，调节回响强度就能在「短期记忆」「证据积分」「范畴化决策」之间连续过渡，暗示不同皮层区按各自需要把回响强度调到不同档位（论文指出 100–300 毫秒积分对某些区域可能已足够）。</li>
+        <li><strong>对人工智能 / 类脑计算</strong>：这是「循环网络靠递归动力学实现时间积分与决策」的一个生物物理样板。它说明<strong>恰当的时间常数和递归强度</strong>，而非更多层数，才是让网络「能等、能攒、能拍板」的关键——对设计需要在不确定中权衡证据的智能体有直接启发。</li>
+        <li><strong>对认知科学 / 心理学</strong>：给抽象的漂移扩散模型提供了「神经实现层」，让「决策变量」「证据积分」「决策边界」这些心理学构念有了对应的发放率、突触电流和吸引子，把行为层与机制层接通。</li>
+        <li><strong>可验证的实验预言</strong>：论文明确给出两个层面的检验——细胞层面，决策回路应高度依赖 NMDA 受体（并引用免疫学证据：顶叶/前额叶的 NMDA 受体 mRNA 表达远高于初级视觉区）；行为层面，信号反转可作为区分「吸引子模型」与「线性积分模型」的判据。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>除了论文自己承认的局限，这里也补几点它没明说的边界。</p>
+      <ul>
+        <li><strong>对称性是个真问题（作者承认）</strong>：零相干度下做到 50:50 要求网络两半近乎对称，而 5% 的递归差就造成 43% 的发放不对称。论文寄望于稳态突触缩放来「自动调齐」，但在本模型里并未实现，属于明确的悬而未决。</li>
+        <li><strong>参数需要落在窄窗内（作者承认）</strong>：要达到最长的积分时间，网络递归强度必须「高到接近、但又不超过」吸引子出现的分岔点。这意味着模型对参数有一定敏感性——虽然作者说大部分参数沿用前作、不必精细微调，但「接近分岔」本身就要求一定的调谐精度，鲁棒性边界尚未完全厘清。</li>
+        <li><strong>MT 输入被极度简化（作者承认）</strong>：感觉端只用两路独立泊松输入近似，忽略了 MT 神经元之间的池化、噪声相关、以及可能存在的自上而下调制——真实的证据编码要复杂得多。</li>
+        <li><strong>只做了二选一（作者承认）</strong>：现实决策方向是 0–360° 的连续量。论文提出可推广为「空间连续的吸引子」（一圈持续活动峰），但本文未实现。</li>
+        <li><strong>没有复现反应时间的完整分布（作者承认）</strong>：模型给出了反应时间的均值和大致宽度，但没有精细匹配正确/错误试次反应时间分布的形状，作者明言这超出本文范围。</li>
+        <li><strong>解读者补充——「同源」是论证而非铁证</strong>：论文主张「能记忆的回路就是能决策的回路」，这在模型内自洽且优美，但实验上「同一群 LIP 神经元同时承担记忆与决策」更多是相关观察。模型证明了「可以这样」，尚未证明「大脑就是这样」——这是计算模型的固有边界。</li>
+        <li><strong>解读者补充——单细胞 NMDA 阻断的因果实验在当时缺位</strong>：论文用 mRNA 表达差异间接支持「NMDA 关键」，但「在决策回路里特异性阻断 NMDA 会否选择性损害积分」这一最直接的因果检验，在文中只是预言、尚待后续实验完成。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下每条评价都尽量挂靠到文中证据，无证据处标注为「解读者观点」。</p>
+      <p><strong>它是一篇奠基性的、机制清晰的好论文。</strong>依据：(1) 用一个生物物理写实网络，从单一机制（NMDA 慢回响 + 反馈抑制 → 吸引子）同时导出了爬升活动、Weibull 心理物理曲线（α=9.2,β=1.5）、对数线性反应时间（200–800 ms）三类本来独立的现象，且分别落在 Shadlen 与 Roitman 实验区间内——多现象同源是强解释力的标志。(2) 通过系统的「拆台」实验（调弱 w₊ 到 1.4 决策崩溃、换掉 NMDA 只剩几十毫秒积分、信号反转 700 毫秒拐点），定位了每个成分的必要性和参数有效范围，而非停留在「能跑通」。</p>
+      <p><strong>它最大的概念贡献，是把「慢」从突触搬到了网络。</strong>依据：τ_eff = τ_syn/(1−w_syn) 这个放大关系，加上「只用 AMPA 则积分塌缩到几十毫秒」的对照，清楚说明长积分时间是<strong>回响的集体涌现属性</strong>，而非任何单个慢分子——这是它区别于此前快速循环网络模型的关键，也是后续整个领域的出发点（解读者观点：从引用史看，这一框架几乎定义了「决策的吸引子模型」这一子领域）。</p>
+      <p><strong>它的诚实程度值得称道，但也暴露了真实弱点。</strong>依据：作者主动报告对称性破缺的代价（5% 递归差→43% 发放不对称→74% 偏向），并承认需要尚未实现的稳态机制来补救；也承认参数需接近分岔点。这些不是装饰性免责，而是模型确实的脆弱处——它在「优雅自洽」和「生物鲁棒」之间还有距离。</p>
+      <p><strong>解读者观点——它的说服力来自「约束」而非「自由度」。</strong>正因为它把参数钉死在电生理测量上、用一套参数硬碰多组实验、还主动证伪，它的成功才不像「调出来的」。一个有十几个自由参数的抽象模型拟合一条曲线不稀奇；一个参数被生物学锁死的网络同时对上三类现象，才是真正难得的。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>王晓京（2002）用一个 2000 神经元的脉冲网络证明：只要回路里有<strong>足够慢（NMDA，τ≈100 ms）又足够强（w₊=1.7）的递归回响</strong>加上<strong>共享反馈抑制</strong>，「慢慢积分证据」和「赢者通吃地二选一」就会从<strong>同一套吸引子动力学</strong>里同时涌现——它一套参数复现了 LIP 爬升活动、猴子心理物理曲线（Weibull α=9.2、β=1.5）和反应时间（200–800 ms），把感知决策第一次落到了可计算、可验证、可证伪的细胞-突触机制上，并定义了此后整个「决策吸引子模型」的研究范式。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Wang, X.-J. (2002). Probabilistic Decision Making by Slow Reverberation in Cortical Circuits. <em>Neuron</em>, 36(5), 955–968.
+    <br><strong>说明：</strong>本页为深度解读，非论文原文；所有引用数字均取自论文正文与 Experimental Procedures。交互组件为定性演示，基于论文报告的吸引子模式（约 20 Hz 胜者 / 3 Hz 败者、对角起步、赢者通吃、低相干随机），非论文原始脉冲仿真数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById("decisionCanvas");
+  if(!canvas) return;
+  var ctx = canvas.getContext("2d");
+  var W = canvas.width, H = canvas.height;
+
+  var cohSlider = document.getElementById("coh");
+  var cohVal = document.getElementById("cohVal");
+  var cohDir = document.getElementById("cohDir");
+  var runBtn = document.getElementById("runBtn");
+  var resetBtn = document.getElementById("resetBtn");
+  var outcomeEl = document.getElementById("outcome");
+
+  // 绘图区边距
+  var padL = 56, padR = 18, padT = 22, padB = 40;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+
+  // 时间轴：0~2000 ms（1s 刺激 + 1s 延迟），发放率 0~30 Hz
+  var T_TOTAL = 2000;     // ms
+  var T_STIM = 1000;      // ms 刺激持续
+  var R_MAX = 30;         // Hz 纵轴上限
+  var R_WIN = 20;         // 胜者吸引子高度 (Hz)
+  var R_LOSE = 3;         // 败者水平 (Hz)
+  var R0 = 3;             // 起始发放率附近
+
+  function xOf(t){ return padL + (t/T_TOTAL)*plotW; }
+  function yOf(r){ return padT + plotH - (r/R_MAX)*plotH; }
+
+  function drawAxes(){
+    ctx.clearRect(0,0,W,H);
+    // 背景
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0,0,W,H);
+
+    // 刺激期阴影
+    ctx.fillStyle = "rgba(192,57,43,0.05)";
+    ctx.fillRect(xOf(0), padT, xOf(T_STIM)-xOf(0), plotH);
+
+    // 网格 + Y 轴刻度
+    ctx.strokeStyle = "#eceef0";
+    ctx.fillStyle = "#9aa1ab";
+    ctx.font = "11px -apple-system,sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for(var r=0;r<=R_MAX;r+=10){
+      var y = yOf(r);
+      ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+      ctx.fillText(r+"", padL-8, y);
+    }
+    // Y 轴标题
+    ctx.save();
+    ctx.translate(14, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "12px -apple-system,sans-serif";
+    ctx.fillText("群发放率 (Hz)", 0, 0);
+    ctx.restore();
+
+    // 吸引子参考线（胜者 ~20Hz，败者 ~3Hz）
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle = "#c9ccd1";
+    ctx.beginPath(); ctx.moveTo(padL,yOf(R_WIN)); ctx.lineTo(W-padR,yOf(R_WIN)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(padL,yOf(R_LOSE)); ctx.lineTo(W-padR,yOf(R_LOSE)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#9aa1ab";
+    ctx.textAlign = "left";
+    ctx.fillText("胜者吸引子 ~20 Hz", padL+6, yOf(R_WIN)-9);
+    ctx.fillText("败者 ~3 Hz", padL+6, yOf(R_LOSE)-9);
+
+    // X 轴刻度
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "#9aa1ab";
+    for(var t=0;t<=T_TOTAL;t+=500){
+      var x = xOf(t);
+      ctx.beginPath(); ctx.moveTo(x, padT+plotH); ctx.lineTo(x, padT+plotH+4);
+      ctx.strokeStyle = "#c9ccd1"; ctx.stroke();
+      ctx.fillText(t+"", x, padT+plotH+8);
+    }
+    ctx.fillText("时间 (ms)", xOf(T_TOTAL)-30, padT+plotH+22);
+
+    // 刺激/延迟标注
+    ctx.fillStyle = "#b02a1e";
+    ctx.font = "11px -apple-system,sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("刺激", xOf(T_STIM/2), padT+6);
+    ctx.fillStyle = "#9aa1ab";
+    ctx.fillText("延迟（记忆）", xOf(T_STIM + (T_TOTAL-T_STIM)/2), padT+6);
+  }
+
+  // 轨迹数据
+  var trajA = [], trajB = [];
+  var anim = null;
+
+  // 生成一次决策的完整轨迹（简化双群相互抑制 + 噪声）
+  function simulate(coh){
+    // coh: -51.2 ~ 51.2 ; >0 偏 A
+    var dt = 5; // ms per step
+    var steps = T_TOTAL/dt;
+    var rA = R0 + (Math.random()-0.5)*0.6;
+    var rB = R0 + (Math.random()-0.5)*0.6;
+    var A = [], B = [];
+    // 输入偏置：把相干度映射成两群的有效驱动差
+    var bias = coh/51.2; // -1~1
+    // 噪声幅度：内部泊松涨落（论文强调噪声主要来自内部）
+    var noiseAmp = 1.4;
+    // 决定胜负的潜在倾向（含随机，零相干时纯随机）
+    var winA = (bias*1.0 + (Math.random()-0.5)*1.0) >= 0;
+    for(var i=0;i<=steps;i++){
+      var t = i*dt;
+      var stimOn = t < T_STIM;
+      // 驱动项：刺激期有外部偏置 + 自我增强 - 相互抑制
+      var driveA = (stimOn ? (0.30 + bias*0.18) : 0);
+      var driveB = (stimOn ? (0.30 - bias*0.18) : 0);
+      // 自我增强（向各自吸引子靠拢的非线性）+ 相互抑制
+      var selfA = 0.018*rA*(1 - rA/26);
+      var selfB = 0.018*rB*(1 - rB/26);
+      var inhibA = 0.020*rB;
+      var inhibB = 0.020*rA;
+      // 随胜负设定的微小确定性推力（让赢者通吃更干脆，但仍允许翻盘）
+      var pushA = (winA? 0.08 : -0.02);
+      var pushB = (winA? -0.02 : 0.08);
+      var nA = (Math.random()-0.5)*noiseAmp;
+      var nB = (Math.random()-0.5)*noiseAmp;
+
+      rA += driveA + selfA - inhibA + pushA + nA*0.5;
+      rB += driveB + selfB - inhibB + pushB + nB*0.5;
+
+      // 延迟期：胜者锁定在吸引子附近，败者被压住
+      if(!stimOn){
+        // 轻微回拉到稳态，模拟持续活动的稳定
+        if(rA>rB){ rA += (R_WIN-rA)*0.03; rB += (R_LOSE-rB)*0.05; }
+        else     { rB += (R_WIN-rB)*0.03; rA += (R_LOSE-rA)*0.05; }
+      }
+      if(rA<0) rA=0; if(rB<0) rB=0;
+      if(rA>R_MAX) rA=R_MAX; if(rB>R_MAX) rB=R_MAX;
+      A.push({t:t, r:rA});
+      B.push({t:t, r:rB});
+    }
+    return {A:A, B:B};
+  }
+
+  function drawTrajUpTo(n){
+    drawAxes();
+    function path(arr, color){
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for(var i=0;i<n && i<arr.length;i++){
+        var x = xOf(arr[i].t), y = yOf(arr[i].r);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    path(trajB, "#2f5fb0"); // 蓝 B
+    path(trajA, "#c0392b"); // 红 A
+    // 当前点圆点
+    if(n>0){
+      var ia = Math.min(n-1, trajA.length-1);
+      var ib = Math.min(n-1, trajB.length-1);
+      ctx.fillStyle="#c0392b";
+      ctx.beginPath(); ctx.arc(xOf(trajA[ia].t), yOf(trajA[ia].r), 3.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle="#2f5fb0";
+      ctx.beginPath(); ctx.arc(xOf(trajB[ib].t), yOf(trajB[ib].r), 3.5, 0, Math.PI*2); ctx.fill();
+    }
+  }
+
+  function run(){
+    if(anim){ cancelAnimationFrame(anim); anim=null; }
+    var coh = parseFloat(cohSlider.value);
+    var sim = simulate(coh);
+    trajA = sim.A; trajB = sim.B;
+    outcomeEl.textContent = "决策中…";
+    outcomeEl.style.color = "#9aa1ab";
+    var n = 0;
+    var total = trajA.length;
+    function step(){
+      n += 4;
+      drawTrajUpTo(n);
+      if(n < total){
+        anim = requestAnimationFrame(step);
+      } else {
+        anim = null;
+        var last = total-1;
+        var winner = trajA[last].r > trajB[last].r ? "A（偏好『左』）" : "B（偏好『右』）";
+        outcomeEl.textContent = "网络选了 " + winner;
+        outcomeEl.style.color = "#c0392b";
+      }
+    }
+    step();
+  }
+
+  function reset(){
+    if(anim){ cancelAnimationFrame(anim); anim=null; }
+    trajA = []; trajB = [];
+    outcomeEl.textContent = "—";
+    outcomeEl.style.color = "#c0392b";
+    drawAxes();
+  }
+
+  function updateCohLabel(){
+    var v = parseFloat(cohSlider.value);
+    cohVal.textContent = Math.abs(v).toFixed(1);
+    if(Math.abs(v) < 0.05) cohDir.textContent = "无（纯随机）";
+    else cohDir.textContent = (v>0 ? "A 群" : "B 群");
+  }
+
+  cohSlider.addEventListener("input", updateCohLabel);
+  runBtn.addEventListener("click", run);
+  resetBtn.addEventListener("click", reset);
+
+  // 初始化
+  updateCohLabel();
+  drawAxes();
+})();
+</script>
+</body>
+</html>

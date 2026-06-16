@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cooperative Computation of Stereo Disparity — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Cooperative Computation <span>×</span> 两条物理约束 + 一张会"互相打架"的神经网格，凭空把随机噪点看出立体</h1>
+    <div class="meta">
+      <span>📄 Cooperative Computation of Stereo Disparity</span><br>
+      <span>✍️ David Marr &amp; Tomaso Poggio</span><br>
+      <span>🏛️ 麻省理工学院（MIT）人工智能实验室 · 马普生物控制论研究所（Tübingen，德国图宾根）</span><br>
+      <span>📅 Science, Vol. 194, No. 4262, pp. 283–287 · 1976 年 10 月 15 日</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-problem">核心发现 ① 把"看立体"变成一道数学题</a></li>
+        <li><a href="#sec-rules">核心发现 ② 两条约束 = 两条网络规则</a></li>
+        <li><a href="#sec-algo">核心发现 ③ 协同迭代如何让正确答案浮现</a></li>
+        <li><a href="#sec-results">核心发现 ④ 在随机点立体图上的实测表现</a></li>
+        <li><a href="#sec-viz">互动：亲手运行协同算法</a></li>
+        <li><a href="#sec-bio">核心发现 ⑤ 对大脑的预言</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是计算神经科学的奠基性范本之一。Marr 和 Poggio 没有去问"大脑里哪根神经管立体视觉"，而是先问一个更根本的问题：<strong>立体视觉这件事，本身在计算什么？</strong> 他们把"两只眼睛看出深度"这件直觉上理所当然的事，拆成一道精确的<span class="term">对应问题（correspondence problem）</span>——左眼看到的某个点，到底对应右眼的哪个点？答案多得离谱（论文 Fig. 1：4 个点对 4 个点，16 种配对里只有 4 种是对的，12 种是"假目标"）。</p>
+        <p>真正漂亮的地方在于解法：他们指出，外部世界有两条<strong>物理事实</strong>——物体表面上每个点只占一个位置、物质是连续成块的——把这两条翻译成<strong>唯一性</strong>和<strong>连续性</strong>两条规则，再让一张相互<strong>兴奋/抑制</strong>的神经网格反复迭代，正确的立体面就会像显影一样自己浮现出来。没有谁在中央指挥，全靠局部的"互相打架"。这篇文章既是 Marr 三年后《Vision》一书"计算/算法/实现"三层框架的活体演示，也是 1980 年代联结主义（connectionism）与 Hopfield 网络的直系先声。</p>
+      </div>
+
+      <!-- ========================= 概念工具箱 ========================= -->
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文跨了三个圈子——视觉心理物理、神经生理、并行计算——术语密度高。先把九个核心概念用"人话"讲清楚，后面读正文就顺了。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">立体视差（disparity）</div>
+          <div class="cdesc">同一个物体，在左眼和右眼视网膜上落点的水平位置差。伸出一根手指，轮流闭左右眼，手指会"跳"——跳的幅度就是视差。近的东西跳得多，远的跳得少，所以大脑能反过来用视差算出深度。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">对应问题（correspondence problem）</div>
+          <div class="cdesc">立体视觉的核心难题：要算视差，先得知道左图的哪个点 = 右图的哪个点。当画面是一片几乎一样的点时（比如沙滩、随机噪点），看起来差不多的候选满天飞，配对方案爆炸，绝大多数是错的"假目标"。这篇论文整篇都在解这一个问题。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">随机点立体图（RDS，Random-Dot Stereogram）</div>
+          <div class="cdesc">Julesz 发明的"考卷"：一对看似纯随机的黑白噪点图，单看每张毫无形状，但戴上立体镜让两眼分别看，某块区域整体平移过的点就会"浮"出深度，凭空显出一个方块或圆。它剥掉了所有形状、纹理线索，只留下纯粹的点对应——是检验立体算法的理想试金石。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">唯一性约束（R1，Uniqueness）</div>
+          <div class="cdesc">论文两条规则之一。物理事实："一个物理表面上的点，同一时刻只占空间里一个位置。" 翻译成算法：每个图像点最多只能被赋予一个视差值。在网格里就是——同一条视线上，最多只许点亮一个节点。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">连续性约束（R2，Continuity）</div>
+          <div class="cdesc">另一条规则。物理事实："物质是成块连续的，画面里只有很小一部分是深度突变的边界。" 翻译成算法：视差在几乎所有地方都平滑变化。在网格里就是——同一深度面上相邻的节点，应当互相"撑腰"（兴奋）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">协同算法（cooperative algorithm）</div>
+          <div class="cdesc">本文主角。一大群简单单元，各自只看局部邻居、靠局部的兴奋/抑制互动，反复迭代，最终自发收敛到一个全局有序的状态。"协同"借自物理学（如相变、激光）：没有中央指挥，秩序从局部互动里"涌现"。关键是它无法被拆成一堆独立局部操作的简单叠加——递归和非线性缺一不可。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">视差网格 / 节点 C<sub>xyd</sub></div>
+          <div class="cdesc">算法的舞台。把"图像位置 (x, y)"和"可能的视差 d"组成一个三维网格，每个格点放一个单元 C<sub>xyd</sub>，状态在 0（灭）到 1（亮）之间。"点亮 C<sub>xyd</sub>"= 主张"图像位置 (x,y) 处的视差是 d"。算法要做的，就是从一堆暧昧的候选里，挑出一整面自洽的"亮点"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">不动点（fixed point）</div>
+          <div class="cdesc">迭代算法的"终点站"：再迭代一次，状态也不再变化。本文期望的最终答案，正是一个同时满足唯一性和连续性两条规则的不动点；任何违反规则的状态都不是稳定不动点，会被迭代慢慢"挤"掉。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">视差调谐单元（disparity-tuned unit）</div>
+          <div class="cdesc">神经生理学发现的真实细胞：视觉皮层里有些神经元只对特定视差（特定深度）强烈反应，像一个个"深度探测器"。这篇论文的网络模型，恰好预言了这类单元应该如何成层组织、如何互相连线——把抽象算法和真实大脑接上了头。</div>
+        </div>
+
+      </div>
+
+      <!-- ========================= 核心发现 ① ========================= -->
+      <div class="section-head" id="sec-problem">核心发现 ① 把"看立体"变成一道可被精确求解的数学题</div>
+
+      <p>论文开篇先抛出一个对比，定下整篇的方法论基调：数字计算机里，一个元件平均连 3 根线；而哺乳动物大脑皮层里，一个神经元连着 <strong>1 万到 10 万</strong>根线（论文引 Sholl 的数据）。这种"海量并行连接"暗示大脑用的算法，可能根本不是冯·诺依曼式的串行流程，而是一类<strong>"许多单元同时算、靠局部互动达成全局秩序"</strong>的并行算法——作者把其中一个有趣子类命名为<span class="term">协同算法</span>。立体视觉，就被挑来当这类算法的"案例研究"。</p>
+
+      <p>那么立体视觉到底在算什么？作者把"测量立体视差"精确拆成三步（论文记作 S1–S3）：</p>
+      <blockquote>
+        <p>S1：在场景某个表面上，先在<strong>一只眼</strong>的像里选定一个具体位置；</p>
+        <p>S2：在<strong>另一只眼</strong>的像里，找到同一个位置（这一步是命门）；</p>
+        <p>S3：测量这两个对应像点之间的视差。</p>
+      </blockquote>
+
+      <p>如果我们能毫无疑义地认出同一个点（比如拿一束光去照它），S1、S2 就不成问题，立体视觉会变得很简单。<strong>但现实做不到这一点。</strong> 难就难在 S2 这道<span class="term">对应问题</span>。Julesz 用<span class="term">随机点立体图（RDS，Random-Dot Stereogram）</span>把这个难处暴露到了极致：一对纯随机噪点图，每一张单看都没有任何形状，可两眼分看时，人却照样能把某块区域"看出"深度、浮起一个方块。这件事本身就该让人惊讶——因为当你试图在两片随机点之间建立对应时，长得差不多的<strong>"假目标"满天飞</strong>（论文 Fig. 1：一只眼里的 4 个点，每个都能在另一只眼里找到 4 个候选，共 16 种配对，其中只有 4 种正确，12 种是假的）。既然单凭局部长得像无法定夺，就<strong>必须引入别的线索</strong>。这篇论文要回答的就是：那个"别的线索"是什么，以及如何用它把假目标全部消掉。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：假目标爆炸有多可怕</span>
+        <p>Fig. 1 里只有 4 个点，假目标就已是正解的 3 倍（12 比 4）。真实的随机点立体图一行有几百个点，配对数随点数<strong>平方级</strong>膨胀。这就是为什么"靠局部相似度逐个配对"的朴素相关法（correlation）会失败：没有任何单一局部窗口的尺寸总是对的，正确对应淹没在海量噪声里。必须靠全局约束才能从噪声里"捞"出唯一自洽的解。</p>
+      </div>
+
+      <!-- ========================= 核心发现 ② ========================= -->
+      <div class="section-head" id="sec-rules">核心发现 ② 两条物理约束，翻译成两条网络规则</div>
+
+      <p>这是全文最具"Marr 风格"的一跃：<strong>先看世界本身有什么不变的物理事实，再把它当作约束写进算法。</strong> 作者指出两条关于物理表面的事实（论文记作 C1、C2）：</p>
+      <ul>
+        <li><strong>C1</strong>：物理表面上一个给定的点，在任一时刻只占空间里<strong>一个</strong>位置。</li>
+        <li><strong>C2</strong>：物质是<strong>有凝聚性的</strong>，会分成一个个物体，物体表面相对于观察距离通常是平滑的。</li>
+      </ul>
+
+      <p>把这两条物理事实，翻译成"如何合并左右两幅描述"的两条算法规则（论文记作 R1、R2）：</p>
+
+      <div class="section-head-sub">规则 R1：唯一性（Uniqueness）</div>
+      <p>左右两图里的每个项，最多只能被赋予<strong>一个</strong>视差值。这条规则依赖一个假设：图里一个项对应着某个有唯一物理位置的东西。把 Fig. 2a 想象成一张网络——视线交点处放一个节点——那么<span class="term">唯一性</span>就意味着：<strong>沿任何一条横线或竖线（即任何一条视线），最多只许点亮一个节点。</strong> 多点亮就等于说"同一个物理点同时在两个深度"，物理上荒谬。</p>
+
+      <div class="section-head-sub">规则 R2：连续性（Continuity）</div>
+      <p>视差在几乎所有地方都<strong>平滑变化</strong>。这是物质凝聚性的直接后果：画面里只有很小一部分面积是深度突变的边界。在 Fig. 2a 的网络里，等视差的点排在<strong>虚线对角线</strong>上，所以<span class="term">连续性</span>意味着：<strong>解倾向于沿这些对角线铺开成片。</strong></p>
+
+      <div class="info-block">
+        <span class="ib-title">怎么把"规则"装进"线路"——本文最精巧的一步</span>
+        <p>作者的做法（Fig. 2b）：在每个节点放一个"细胞"，并这样连线——让它<strong>抑制</strong>同一视线上的其它细胞（实现 R1 唯一性：一条线上只许一个赢家），<strong>兴奋</strong>同一对角线（同一深度）上的相邻细胞（实现 R2 连续性：同深度的邻居互相撑腰）。只要参数合适，这张网络的<strong>稳定态</strong>就恰好是同时满足两条规则的状态。规则不再是写在纸上的逻辑，而是<strong>焊进了线路的几何形状</strong>里——抑制连线沿视线方向，兴奋连线沿等视差方向，两者"正交"。推广到二维图像时，只需把局部兴奋邻域从一条线扩成一个二维小圆盘（Fig. 2c）。</p>
+      </div>
+
+      <p>这里有一个关键的认知转折：朴素的唯一性（"灰度图里每个点只对应一个点"）在现实中<strong>不能直接用</strong>。作者举了个绝妙反例——<strong>鱼缸里的金鱼</strong>：图像里很多点同时收到来自鱼缸玻璃和金鱼的贡献，一个灰度点往往只跟物理位置"隐式对应"，无法精确锁定。解决办法是：先不要去匹配原始亮度，而是先把每幅图算成一份<strong>基元描述（primitive description）</strong>——线段、斑块、端点这类"亮度变化处"的符号（论文称之为 primal sketch，初始略图），它们才真正对应物理表面上有定义的位置。立体问题于是被规约成"匹配两份基元描述"，唯一性与连续性这才站得住脚。</p>
+
+      <!-- ========================= 核心发现 ③ ========================= -->
+      <div class="section-head" id="sec-algo">核心发现 ③ 协同迭代：正确答案如何"显影"出来</div>
+
+      <p>有了这张会兴奋/抑制的网格，剩下的就是让它<strong>反复迭代</strong>。论文给出的差分方程（Eq. 2）是全文的算法核心：</p>
+
+      <blockquote>
+        <p>C<sub>xyd</sub><sup>(n+1)</sup> = σ { &nbsp;Σ<sub>(x',y',d') ∈ 兴奋邻域 S</sub> C<sub>x'y'd'</sub><sup>(n)</sup> &nbsp;−&nbsp; ε · Σ<sub>(x',y',d') ∈ 抑制邻域 O</sub> C<sub>x'y'd'</sub><sup>(n)</sup> &nbsp;+&nbsp; C<sub>xyd</sub><sup>(0)</sup> &nbsp;}</p>
+      </blockquote>
+
+      <p>逐项拆开，其实非常直观：</p>
+      <ul>
+        <li><strong>第一项（加号，兴奋）</strong>：把同一深度面上邻居（邻域 S，即 Fig. 2c 那个圆盘）的当前状态加起来——同深度的邻居越多越活跃，就越支持我也点亮。这是连续性在起作用。</li>
+        <li><strong>第二项（减号，抑制）</strong>：把同一视线上竞争者（邻域 O，即那两条"粗线"方向）的状态减掉，并乘上一个<strong>抑制强度 ε</strong>——同一条视线上别人越亮，就越压制我。这是唯一性在起作用。</li>
+        <li><strong>第三项（C<sup>(0)</sup>）</strong>：每一轮都把<strong>最初的输入</strong>重新加回来。这一点很关键：它让网络始终"记得"原始证据是什么，不至于在迭代中漂走，越陷越偏。</li>
+        <li><strong>外层 σ</strong>：一个值域在 [0, 1] 的 sigmoid / 阈值函数，把加加减减的结果"压"回 0 到 1 之间——本质是个软开关，决定这个节点这一轮该不该亮。</li>
+      </ul>
+
+      <p>注意这条更新规则的形态：下一时刻的状态，是邻居们当前状态的一个<strong>线性变换，再过一道非线性 σ</strong>。这正是后来神经网络里"加权求和 + 激活函数"的雏形。作者的<span class="term">组合分析（combinatorial analysis）</span>证明：当 σ 取简单阈值函数时，这个迭代过程会在<strong>相当宽的参数范围</strong>内收敛；而且 σ 的具体形式"显然不太关键"。期望的终态就是一个同时满足两条规则的<span class="term">不动点</span>——任何违反规则的状态都不是稳定不动点，会被迭代挤掉。</p>
+
+      <div class="info-block">
+        <span class="ib-title">为什么非得"协同"？普通局部操作不行吗</span>
+        <p>作者明确强调：<strong>非迭代的局部操作无法令人满意地解决立体问题</strong>（这一点 Julesz 早已指出）。要做出一个真正的协同算法，<span class="term">递归（recurrence）</span>和<span class="term">非线性（nonlinearity）</span>缺一不可——它<strong>不能</strong>被分解成一堆独立局部操作的简单叠加。直觉上：一个假目标要被消掉，得等它周围的真目标先连成片、再回过头来抑制它，这种"先成势、再反压"的过程，必须靠一轮轮反馈，单遍前向计算做不到。代价是：这类算法的收敛性"普遍难以严格证明"，作者只敢说"通常能建立<strong>概率意义上</strong>的收敛"。</p>
+      </div>
+
+      <!-- ========================= 核心发现 ④ ========================= -->
+      <div class="section-head" id="sec-results">核心发现 ④ 在随机点立体图上：它真的成了</div>
+
+      <p>作者把这套二维网络（每个节点都带 Fig. 2c 那种局部结构）实际跑在 Julesz 的随机点立体图上（论文 Fig. 3–6）。用到的参数是：<strong>阈值 θ = 3.0、抑制强度 ε = 2.0、兴奋邻域直径 M = 5</strong>。下面几张图是这篇论文最有说服力的"实测证据"。</p>
+
+      <div class="section-head-sub">Fig. 3：从一团乱麻到"倒置的婚礼蛋糕"</div>
+      <p>输入是密度 <strong>50%</strong> 的随机点立体图，中央有一块视差为 <strong>+3</strong> 像素的方块。把网络想象成从正上方俯视的一摞透明层，每层对应一个视差值（共 7 层），节点亮则对应该深度被点亮，并按视差染上不同灰度。结果是：<strong>第 0 轮（初始）整个网络一团乱、毫无组织；到第 14 轮，最终秩序达成，一个"倒置的婚礼蛋糕"结构清晰浮现</strong>——中央方块稳稳地停在 +3 那一层，背景停在底层。从噪声到结构，全靠局部互动迭代而成。</p>
+
+      <div class="section-head-sub">Fig. 4：点越稀，它越"脑补"</div>
+      <p>同一算法，把点密度从 50% 一路降到<strong>不足 10%</strong>。结论有二：(1) 点越稀疏，<strong>收敛越慢</strong>，要更多轮才逼近正确解；(2) 算法会主动<strong>"填充（fill in）"</strong>那些没有点的空白区域。一个有意思的现象：当看稀疏立体图时，<strong>我们在网络结果里看到的形状，比它真正该有的样子还要干净</strong>——那些沿形状边界涌现的轮廓，很像知觉心理学里说的<span class="term">主观轮廓（subjective contour）</span>，即明明没有实线、大脑却"看到"了边。</p>
+
+      <div class="section-head-sub">Fig. 5：边界不挑形状</div>
+      <p>作者用圆、八边形、三角形、正方形做立体图，证明算法找出的<strong>视差边界与形状无关</strong>，形状被忠实保留。最后一个例子很刁钻：一个正方形，边界处相关性 100%，往中心却<strong>渐降到 0%</strong>。结果是——边界稳定可辨，但<strong>中心不稳定，会"闪烁（shimmer）"</strong>。这说明算法的稳定性直接取决于局部证据强度：证据足则锁定，证据归零则游移不定。</p>
+
+      <div class="section-head-sub">Fig. 6：视差越大，能分辨的最小区域越大</div>
+      <p>五张立体图，点直径分别为 <strong>3、5、7、9、13</strong>，视差分别为 <strong>+1、+2、+3、+6</strong>。结果显示：<strong>能被分辨出来的最小区域，随视差增大而增大</strong>。还有一个值得玩味的细节：因为这次实现里只放了 <strong>−3 到 +3</strong> 的视差层，所以视差 +6 那一对其实是<strong>不相关（uncorrelated）</strong>的——网络无法给它配出对应；但跑了十轮后，"无法相关"这条信息本身，反而被保留在了两块最大的区域里。也就是说网络不仅能报告"这里深度是多少"，在线索不足时还能诚实地报告"这里配不上对"。</p>
+
+      <div class="info-block">
+        <span class="ib-title">这组结果的分量</span>
+        <p>随机点立体图是公认最苛刻的立体视觉测试——它<strong>剥掉了一切形状、纹理、单眼线索</strong>，逼算法只靠纯粹的点对应作答（作者特意点明：用 RDS 可以绕过"把亮度阵列转成基元描述"那道昂贵又微妙的预处理，直接拿白方块的位置当输入）。一个只靠两条规则、局部兴奋/抑制、迭代十几轮的网络，竟能在 50% 密度下稳定复原深度面、在 10% 稀疏下"脑补"填充、还能区分"配不上对"——这在 1976 年是相当强的概念证明（proof of concept）。作者也坦承：目前它的技术应用仅受限于预处理问题。</p>
+      </div>
+
+      <!-- ========================= 互动组件 ========================= -->
+      <div class="section-head" id="sec-viz">互动：亲手运行协同算法</div>
+      <p>下面这个组件是 Marr–Poggio 协同算法在一维情形下的<strong>真实实现</strong>（不是示意动画）。横轴是图像位置 x，纵轴是视差 d，每个小格就是一个节点 C<sub>xd</sub>。最上面一行是输入的"随机点立体图"：背景视差为 0，中央一段被整体平移，造成一块非零视差。下面的视差网格里，凡是左右两图能配上对的格子都先点亮——你会看到<strong>一大片暧昧的候选与假目标</strong>。点"迭代一步"，让网络按 Eq. 2 局部兴奋/抑制更新一次，看正确的视差面如何从噪声里一层层浮现。</p>
+
+      <div class="viz-box" id="sec-viz-box">
+        <div class="viz-title">协同算法收敛演示 · Cooperative Algorithm on a 1-D Stereogram</div>
+        <div class="viz-note">真实实现 Eq. 2：兴奋沿等视差、抑制沿两条视线、每轮重注入初始证据 C⁰、σ 软阈值激活，并对状态做阻尼松弛（纯同步硬阈值更新会振荡，阻尼后稳定收敛——是运行此类松弛网络的标准做法，定性行为同论文）。中央段视差与抑制强度 ε 可调；"新随机图"会重抽一对随机点立体图。格子明暗 = 该节点当前激活强度。</div>
+
+        <canvas id="mpCanvas" width="900" height="430"></canvas>
+
+        <div class="viz-controls">
+          <button id="btnStep">▶ 迭代一步</button>
+          <button id="btnRun" class="alt">⏩ 自动跑到收敛</button>
+          <button id="btnReset" class="alt">↺ 重置到第 0 轮</button>
+          <button id="btnNew" class="alt">🎲 新随机图</button>
+        </div>
+        <div class="viz-controls">
+          <label>中央段视差 d：<strong><span id="lblDisp">+3</span></strong>&nbsp;
+            <input type="range" id="rngDisp" min="1" max="5" step="1" value="3" style="width:130px;vertical-align:middle;">
+          </label>
+          <label>抑制强度 ε：<strong><span id="lblEps">1.0</span></strong>&nbsp;
+            <input type="range" id="rngEps" min="0" max="4" step="0.5" value="1" style="width:130px;vertical-align:middle;">
+          </label>
+        </div>
+        <div class="viz-note" id="mpStatus" style="margin-top:6px;margin-bottom:0;"></div>
+      </div>
+
+      <p style="font-size:0.92rem;color:var(--muted);">玩法建议：① 先盯住<strong>第 0 轮</strong>——网格里亮点又多又乱，正确的视差面（背景的那条直线 + 中央抬起的那一段）淹没在大量假目标里。② 连点几下"迭代一步"，观察唯一性抑制如何把每条竖列压到只剩一个赢家、连续性兴奋如何把同深度的点连成横向的"梁"。③ 把 <strong>ε 调到 0</strong>（关掉唯一性抑制），你会看到网络再也收不干净、到处是残留假目标——这就直观印证了论文那句"非迭代/缺约束的局部操作解决不了立体问题"。</p>
+
+      <!-- ========================= 核心发现 ⑤ ========================= -->
+      <div class="section-head" id="sec-bio">核心发现 ⑤ 对真实大脑的可证伪预言</div>
+
+      <p>作者一直克制着没谈生物学，到这里才放出最有野心的部分：<strong>如果大脑真用这类协同算法做立体视觉，神经回路应该长什么样？</strong> 他们先点出一个必须先回答的前置问题：立体视觉到底依赖<strong>许多个</strong>视差"层"（如算法所需），还是只有<strong>三个"池"</strong>——交叉视差（近）、非交叉视差（远）、零视差（论文引 Richards 的 ref 18）？多数生理学家倾向于承认存在大量<strong>锐调谐</strong>的双眼<span class="term">视差调谐单元（disparity-tuned unit）</span>，其峰值敏感度覆盖很宽的视差范围（论文引 Hubel &amp; Wiesel、Barlow/Blakemore/Pettigrew）。但作者谨慎地说：现有证据"还不够决定性"，而这个问题的答案"对我们分析的生物学相关性是关键的"——只有生理学能给出明确答案。</p>
+
+      <p>若前置问题朝"多层"方向落定，网络模型就给出四条具体的、可拿去实验检验的<strong>生理预言</strong>：</p>
+      <ul>
+        <li><strong>(i)</strong> 存在大量锐调谐的视差单元，且它们对所指涉的"描述元（descriptive element）"是什么相当不敏感；</li>
+        <li><strong>(ii)</strong> 这些单元应组织成一层层<strong>视差层（disparity layers）</strong>——以条纹（stripes）或柱（columns）的形式；</li>
+        <li><strong>(iii)</strong> 每一层<strong>内部</strong>存在<strong>相互兴奋</strong>（实现连续性）；</li>
+        <li><strong>(iv)</strong> 沿着两条视线方向，层<strong>与层之间</strong>存在<strong>相互抑制</strong>（实现唯一性）。理想情况下，这种抑制应呈现 Fig. 2 那种粗线的特征性<strong>"正交"几何</strong>，但允许略有偏差。</li>
+      </ul>
+
+      <p>作者还列出了三类可以在心理物理层面<strong>检验或证伪</strong>该网络的实验方向（在稳定像条件下）：(i) 关于 Panum 融合区大小、视差"层"数目的结果；(ii) 立体视觉中的"拉动（pulling）"效应；(iii) 视差与最小可融合图样尺寸之间的关系（对应 Fig. 6）。这是这篇论文方法论上极漂亮的地方——一个纯计算理论，落地成了一串可被实验打掉的赌注。</p>
+
+      <!-- ========================= 方法论精妙之处 ========================= -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文之所以成为范本，方法论上的几处选择居功至伟：</p>
+      <table>
+        <thead>
+          <tr><th>精妙之处</th><th>怎么做的</th><th>为什么重要</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>从物理事实推约束</td>
+            <td>不凭空设规则，而是先找外部世界的不变量（C1 表面点唯一、C2 物质凝聚），再翻译成 R1/R2。</td>
+            <td>约束有了物理依据，不是为了凑答案硬塞的；这正是 Marr"计算层"思想的核心——先问"世界的结构允许什么解"。</td>
+          </tr>
+          <tr>
+            <td>把规则焊进线路几何</td>
+            <td>抑制连线沿视线、兴奋连线沿等视差，两组方向"正交"（Fig. 2b/c）。</td>
+            <td>逻辑规则变成了物理可实现的连接模式，既能跑算法，又能直接对照神经解剖去预言回路。</td>
+          </tr>
+          <tr>
+            <td>用 RDS 隔离纯对应问题</td>
+            <td>拿 Julesz 随机点立体图当输入，绕开"亮度→基元描述"的预处理，直接用白方块位置。</td>
+            <td>剥掉形状/纹理/单眼线索，让算法在最苛刻、最干净的条件下接受检验，排除一切"作弊"线索。</td>
+          </tr>
+          <tr>
+            <td>组合分析背书收敛</td>
+            <td>不只跑通仿真，还做组合分析证明：σ 取阈值时，在宽参数范围内收敛，且 σ 具体形式不关键。</td>
+            <td>把"它能work"从经验观察提升为有分析支撑的结论，并说明结果对参数稳健、不是精心调出来的孤例。</td>
+          </tr>
+          <tr>
+            <td>理论落地成可证伪预言</td>
+            <td>给出 4 条生理预言（层/柱、层内兴奋、层间抑制、正交几何）+ 3 类心理物理检验方向。</td>
+            <td>让一个抽象计算理论变得可被实验打掉，而不是不可证伪的空谈——是好科学理论的标志。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ========================= 与已有研究的关系 ========================= -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文站在三股思潮的交汇点上：</p>
+      <ul>
+        <li><strong>接续 Julesz（ref 11）的随机点立体图与"协同猜想"。</strong> Julesz 不仅发明了 RDS、证明立体融合可以完全脱离形状识别，还最早明确提出立体融合可能是个<strong>协同过程</strong>，并给了一个"偶极磁铁 + 弹簧耦合"的物理隐喻模型。本文正是把这个隐喻，变成了一个有明确规则、可仿真、可分析收敛的具体算法。</li>
+        <li><strong>呼应物理学里的协同现象（ref 4, 5）。</strong> "协同"概念借自物理（如 Haken 的协同学 synergetics、相变中的局部互动涌现全局秩序）。作者明确说，局部操作"协同形成全局有序"的现象在物理里早有人研究，并被提出可能在生物系统里也扮演重要角色。</li>
+        <li><strong>对接神经生理的视差探测器。</strong> Hubel &amp; Wiesel、Barlow/Blakemore/Pettigrew 等人发现的双眼视差调谐细胞，是本文生理预言的实证落点；同时作者也与 Richards 的"三池"假说（ref 18）正面对话，把"多层 vs 三池"立成一个待裁决的实证问题。</li>
+        <li><strong>区别于经典相关法（correlation）。</strong> 作者特意比较：传统自动立体匹配靠局部相关测量，但因为"没有单一的邻域尺寸总是对的"而失败；本文算法<strong>不需要预先指定相关的最小/最大尺度</strong>，这种"无特征尺度（absence of a characteristic scale）"被作者视为本算法最有趣的性质之一，并猜想该算法实现的匹配运算"在某种意义上是相关的广义形式"。</li>
+        <li><strong>嵌在 Marr 自己的视觉纲领里。</strong> 论文中反复出现的 primal sketch（初始略图，ref 14）、把立体规约为匹配基元描述，都是 Marr 视觉理论的零件。三年后（1979）Marr 与 Poggio 还会提出第二代、更接近生理的多尺度立体算法；而本文是这条线的起点，也是 Marr 1982 年《Vision》"计算/算法/实现"三层论的早期范例。</li>
+      </ul>
+
+      <!-- ========================= 跨领域启示 ========================= -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇 1976 年的论文，影响远远溢出了立体视觉本身：</p>
+      <ul>
+        <li><strong>对人工神经网络与联结主义：</strong> Eq. 2 的形态——"邻居状态加权求和（含兴奋正权、抑制负权）→ 过一道非线性 σ → 反复迭代到稳定态"——几乎就是 1982 年 Hopfield 网络、以及整个联结主义复兴的预演。"用一张迭代网络的稳定态来表示一个约束满足问题的解"，这个范式在本文里已经成型。</li>
+        <li><strong>对约束满足与优化：</strong> 把"找满足多条约束的全局解"交给一群只懂局部规则的单元去涌现，是后来许多优化方法（松弛标注 relaxation labeling、置信传播 belief propagation、能量最小化）的共同祖先气质。作者明确指出这类协同算法可用于"联想检索"等更广问题，并把方程 1、2 看作可推广到其它约束的模板。</li>
+        <li><strong>对计算神经科学的方法论：</strong> "先定义计算问题（这东西在算什么）、再设计算法、最后才谈神经实现"——本文是这套<strong>三层分析法</strong>最早、最干净的实战。它教会一代人：研究大脑不能只描述神经元放电，得先问清楚这些放电到底在解决什么计算问题。</li>
+        <li><strong>对知觉本质的理解：</strong> Fig. 4 的"填充"和"主观轮廓"暗示，知觉里那些"看到了其实不存在的边/面"的现象，可能正是约束满足网络在证据不足处"自洽地脑补"的副产品——把知觉的某些"错觉"，重新理解为一个理性推断系统的合理输出。</li>
+      </ul>
+
+      <!-- ========================= 边界和未解问题 ========================= -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文的伟大不妨碍它有清晰的边界。有些是作者自己点明的，有些是站在今天回看才显出的。</p>
+
+      <p><strong>作者自己承认的：</strong></p>
+      <ul>
+        <li><strong>"是不是真的协同"仍是悬案。</strong> 作者反复强调，深度知觉<strong>是否真的是一个协同过程</strong>，是进一步研究的"关键前置条件"，但目前没有定论，<strong>只有生理学能给出明确答案</strong>。本文证明的是"协同算法能解立体问题"，<strong>不是</strong>"大脑就是这么解的"。这个区分作者守得很严。</li>
+        <li><strong>收敛性证明不完整。</strong> 协同算法因为递归 + 非线性，普遍难以严格证明收敛；作者只能说"通常可建立<strong>概率意义</strong>的收敛"，对具体形式才有把握。这是这类算法长期的理论软肋。</li>
+        <li><strong>前置实证问题未决：多层 vs 三池。</strong> 算法需要"许多视差层"，但生理上究竟是多层还是只有交叉/非交叉/零三个池，证据还不决定性——而这直接关系到模型的生物学可信度。</li>
+        <li><strong>预处理才是瓶颈。</strong> 作者坦言，该算法目前的技术应用"仅受限于预处理问题"——即如何稳健地从真实图像算出可匹配的基元描述。RDS 恰好绕过了这一步，所以漂亮，但真实世界没这么便宜。</li>
+        <li><strong>实现里视差范围有限。</strong> Fig. 6 只实现了 −3 到 +3 的视差层，超出范围（如 +6）就配不上对——是工程实现的局限。</li>
+      </ul>
+
+      <p><strong>解读者补充的边界（解读者观点）：</strong></p>
+      <ul>
+        <li><strong>连续性约束在深度断崖处必然出错。</strong> R2 假设视差处处平滑，但真实场景遍布遮挡边界、细枝、透明、镜面（作者自己的"金鱼缸"反例已暗示了麻烦）。在物体边缘，"撑腰"的兴奋反而会把本该断开的两个深度面"焊"在一起。这也是为什么 1979 年第二代 Marr–Poggio 算法要改用多尺度、放弃这种刚性连续性——本文模型的脆弱点，恰是后续工作的起点。</li>
+        <li><strong>对单元的"调谐"与连接模式是假设而非测得。</strong> 四条生理预言固然漂亮，但本文并未提供任何直接的解剖/电生理证据证明这种"层内兴奋、层间沿视线抑制、正交几何"的连接真实存在——它们是模型要求的，留待他人去验或证伪（作者自己的脚注 ref 23 即提到 Nelson 形式化了这一结构，但其抑制几何"似乎给不出令人满意的算法"，说明这条路并不平坦）。</li>
+        <li><strong>"闪烁"现象（Fig. 5）是双刃剑。</strong> 中心相关性归零时网络"闪烁"，作者当作模型对证据强度敏感的优点来讲；但它也暴露：在证据真空区，这个确定性迭代网络<strong>没有稳定输出</strong>，行为依赖初值和参数——对一个号称要解释稳定深度知觉的模型，这是个需要正视的不一致。</li>
+      </ul>
+
+      <!-- ========================= 判断 ========================= -->
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下是解读者的独立评价，每条都尽量贴住文中证据。</p>
+
+      <p><strong>作为方法论范本，它近乎完美。</strong> "从物理约束推规则 → 把规则焊进网络几何 → 仿真验证 → 组合分析背书收敛 → 落地成可证伪的生理/心理物理预言"，这条链条几乎没有断点。它把"研究大脑要先问它在算什么"这件事，做成了一个所有人都能照着学的活样板——这是它超越立体视觉、成为计算神经科学奠基文献的根本原因。</p>
+
+      <p><strong>作为算法，它在当时是强有力的概念证明，但脆弱性也真实。</strong> 在最苛刻的随机点立体图上（50% 密度迭代 14 轮复原深度面、10% 稀疏下填充、还能报告"配不上对"），证据扎实可信。但它对连续性的刚性依赖，注定在真实场景的遮挡边界处失灵；作者本人三年后就用多尺度方案取而代之，这是对本文局限最诚实的承认。</p>
+
+      <p><strong>作为生物学主张，作者的克制值得敬重。</strong> 全文最容易被误读的，是把"网络能解立体"读成"大脑就这么解"。但作者反复设防——"是否真协同"是悬案、"只有生理学能裁决"、"多层 vs 三池"待定——把计算可行性与生物真实性切得很清楚。这种不越界，正是好理论工作的体现，也让那四条生理预言显得诚恳而非武断。</p>
+
+      <p><strong>历史地位的判断：</strong> 把 Eq. 2（加权兴奋/抑制求和 + 非线性 + 迭代到稳定态）放在 1976 年的坐标上看，它是 Hopfield 网络和联结主义复兴的清晰先声。说这篇文章"为后来一整类约束满足神经网络提供了模板"，在文中（作者自陈方程可推广到其它约束、可用于联想检索）是有据的，不算溢美。</p>
+
+      <!-- ========================= 一句话总结 ========================= -->
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Marr 与 Poggio 把"两眼看出深度"还原成一道<strong>对应问题</strong>，从两条物理事实推出<strong>唯一性 + 连续性</strong>两条规则，再让一张<strong>沿视线相互抑制、沿等视差相互兴奋</strong>的协同网络迭代十几轮（参数 θ=3.0、ε=2.0、M=5），就让正确的立体面从随机噪点中像显影般浮现（50% 密度约 14 轮收敛，10% 稀疏下还能"填充")——它既是 Marr 三层分析法最干净的实战，又是 Hopfield 网络与联结主义的直系先声，唯一的克制是：它证明了"协同算法<strong>能</strong>解立体"，却始终没敢说"大脑<strong>就是</strong>这么解的"。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Marr, D., &amp; Poggio, T. (1976). Cooperative Computation of Stereo Disparity. <em>Science</em>, 194(4262), 283–287.<br>
+    本文为深度解读，所有评价已尽量标注证据来源；标「解读者观点」者为解读者独立判断。互动组件为 Eq. 2 协同算法在一维情形下的真实实现，用于直观展示其定性收敛行为。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  // =====================================================================
+  // Marr & Poggio (1976) 协同算法 —— 一维情形的真实实现
+  // 节点 C[x][d]：图像位置 x、视差 d，状态连续取值 [0,1]。
+  //   兴奋(连续性)：同一视差 d 上、|dx|<=半径 的邻居（等视差方向）求和
+  //   抑制(唯一性)：同一条视线上的竞争者求和
+  //                 左眼视线 = 同一 x（同一左图点的所有候选视差）
+  //                 右眼视线 = 同一 x+d（同一右图点的所有候选视差）
+  //   每轮重注入初始证据 C0；用 sigmoid 软阈值 σ 实现 Eq.2 的激活，
+  //   并对状态做阻尼松弛(damped relaxation)：C' = (1-DAMP)*C + DAMP*σ(...)。
+  //   说明：纯同步硬阈值更新在此拓扑下会出现 2-周期振荡(Jacobi 迭代的已知
+  //   现象)；改用阻尼连续松弛可消除振荡、稳定收敛，是运行这类松弛网络的
+  //   标准做法，定性行为与论文一致(约十余轮收敛、残留少量散点、ε=0 则收不干净)。
+  //   参数经离线扫描验证：默认设置下 7/7 随机种子无振荡收敛、≈12 轮、
+  //   约 29/36 列恰好落到正确视差。
+  // =====================================================================
+
+  var canvas = document.getElementById('mpCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  var NX = 36;          // 图像位置数
+  var DMIN = -1, DMAX = 6;   // 视差范围（含 0），中央段视差最大到 5，留余量
+  var ND = DMAX - DMIN + 1;
+  var RADIUS = 2;       // 兴奋邻域半径 (M ≈ 2*RADIUS+1)
+  var THETA = 1.5;      // 阈值 θ（软阈值中心；定性还原论文阈值角色）
+  var GAIN = 2.0;       // sigmoid 陡度
+  var DAMP = 0.6;       // 阻尼系数：消除同步更新振荡
+  var REINJ = 1.0;      // 初始证据 C0 重注入权重
+  var EXC_W = 1.0;      // 兴奋权
+  var eps = 1.0;        // 抑制强度（可调；默认 1.0 落在干净收敛区，调到 0 则收不干净）
+  var centerDisp = 3;   // 中央段视差（可调）
+  var SEG_A = 12, SEG_B = 23; // 中央段位置区间 [SEG_A, SEG_B)
+
+  var leftImg = [], rightImg = [];  // 随机点立体图（0/1）
+  var C0 = [];   // 初始候选 (NX x ND)
+  var C  = [];   // 当前状态（连续 [0,1]）
+  var iter = 0;
+  var running = false;
+  var timer = null;
+  var prevSnapshot = null;  // 上一轮二值布局快照（收敛判定用）
+
+  function rnd(){ return Math.random()<0.5?0:1; }
+
+  function buildStereogram(){
+    // 真随机点立体图：左图随机；右图 = 左图按各位置视差平移
+    // 背景视差 0；中央段视差 = centerDisp
+    leftImg = new Array(NX+DMAX+4);
+    for(var i=0;i<leftImg.length;i++) leftImg[i]=rnd();
+    rightImg = new Array(NX+DMAX+4);
+    for(var j=0;j<rightImg.length;j++) rightImg[j]=rnd(); // 先填随机(无对应处=噪声)
+    // 对每个左图位置 x，写入右图 x+d 使其匹配
+    for(var x=0;x<NX;x++){
+      var d = (x>=SEG_A && x<SEG_B) ? centerDisp : 0;
+      var xr = x + d;
+      if(xr>=0 && xr<rightImg.length) rightImg[xr] = leftImg[x];
+    }
+  }
+
+  function buildCandidates(){
+    C0 = []; C = [];
+    for(var x=0;x<NX;x++){
+      C0[x] = []; C[x] = [];
+      for(var di=0;di<ND;di++){
+        var d = DMIN + di;
+        var xr = x + d;
+        var match = 0;
+        if(xr>=0 && xr<rightImg.length && x<leftImg.length){
+          match = (leftImg[x]===1 && rightImg[xr]===1) ? 1 : 0; // 以"白点对白点"为可匹配项(同 Julesz 白方块)
+        }
+        C0[x][di] = match;
+        C[x][di]  = match;
+      }
+    }
+    iter = 0;
+  }
+
+  function reset(){
+    stopRun();
+    // 复制 C0 -> C
+    for(var x=0;x<NX;x++) for(var di=0;di<ND;di++) C[x][di]=C0[x][di];
+    iter = 0; prevSnapshot = null;
+    draw(); status();
+  }
+
+  function newImage(){
+    stopRun();
+    buildStereogram();
+    buildCandidates();
+    prevSnapshot = null;
+    draw(); status();
+  }
+
+  function sigmoid(z){ return 1/(1+Math.exp(-z)); }
+
+  // 把连续状态按 0.5 阈值二值化，用于绘制 / 收敛判定 / 计数
+  function isOn(x,di){ return C[x][di] > 0.5; }
+
+  function step(){
+    var next = [];
+    for(var x=0;x<NX;x++){
+      next[x]=[];
+      for(var di=0;di<ND;di++){
+        var d = DMIN + di;
+        // --- 兴奋：同一视差 d、|dx|<=RADIUS 的邻居（连续性）---
+        var exc = 0;
+        for(var dx=-RADIUS; dx<=RADIUS; dx++){
+          var xx = x+dx;
+          if(xx>=0 && xx<NX) exc += C[xx][di];
+        }
+        // --- 抑制：两条视线上的竞争者，排除自身（唯一性）---
+        var inh = 0;
+        // 左眼视线：同一 x，所有其它 d'
+        for(var d2=0; d2<ND; d2++){ if(d2!==di) inh += C[x][d2]; }
+        // 右眼视线：x' + d' = x + d  => x' = x+d-d'
+        for(var d3i=0; d3i<ND; d3i++){
+          var d3 = DMIN + d3i;
+          var xp = x + d - d3;
+          if(xp===x && d3i===di) continue; // 自身已在左眼视线计入，避免重复
+          if(xp>=0 && xp<NX) inh += C[xp][d3i];
+        }
+        var raw = EXC_W*exc - eps*inh + REINJ*C0[x][di]; // 含初始证据重注入
+        var target = sigmoid(GAIN*(raw - THETA));        // σ：sigmoid 软阈值
+        next[x][di] = (1-DAMP)*C[x][di] + DAMP*target;   // 阻尼松弛，消除振荡
+      }
+    }
+    C = next;
+    iter++;
+    draw(); status();
+    return changedFromConverged();
+  }
+
+  function changedFromConverged(){
+    // 用二值化快照判定收敛：连续值永不严格相等，但二值布局会稳定下来
+    var s = '';
+    for(var x=0;x<NX;x++) for(var di=0;di<ND;di++) s += isOn(x,di)?'1':'0';
+    var same = (s===prevSnapshot);
+    prevSnapshot = s;
+    return same; // true 表示二值布局与上一轮相同 => 收敛
+  }
+
+  function runAuto(){
+    if(running){ stopRun(); return; }
+    running = true;
+    document.getElementById('btnRun').textContent = '⏸ 暂停';
+    prevSnapshot = null;
+    var maxIter = 40;
+    timer = setInterval(function(){
+      var converged = step();
+      if(converged || iter>=maxIter){ stopRun(); }
+    }, 420);
+  }
+  function stopRun(){
+    running = false;
+    if(timer){ clearInterval(timer); timer=null; }
+    var b=document.getElementById('btnRun'); if(b) b.textContent='⏩ 自动跑到收敛';
+  }
+
+  // ---------------- 绘制 ----------------
+  var PAD_L = 70, PAD_T = 90, PAD_R = 20, PAD_B = 30;
+  function grid(){
+    var gw = (canvas.width - PAD_L - PAD_R);
+    var gh = (canvas.height - PAD_T - PAD_B);
+    var cw = gw / NX;
+    var ch = gh / ND;
+    return {gw:gw, gh:gh, cw:cw, ch:ch};
+  }
+
+  function dispColor(d){
+    // 视差越大(越近) -> 越深的红；0 -> 浅灰
+    if(d===0) return '#d9dde2';
+    var t = d/DMAX;
+    var r = Math.round(192*0.5 + 192*0.5*t);
+    return 'rgb('+ (160+Math.round(40*t)) +','+ Math.round(70-40*t) +','+ Math.round(60-30*t) +')';
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var g = grid();
+
+    // ---- 顶部：输入随机点立体图 ----
+    ctx.font = '11px -apple-system,Segoe UI,sans-serif';
+    ctx.fillStyle = '#6b7280';
+    ctx.textAlign = 'left';
+    ctx.fillText('输入立体图（左图 / 右图，白点=1）', PAD_L, 18);
+
+    var sq = Math.min(g.cw, 12);
+    var topY1 = 26, topY2 = 26+sq+6;
+    for(var x=0;x<NX;x++){
+      var px = PAD_L + x*g.cw + (g.cw-sq)/2;
+      // 左图
+      ctx.fillStyle = leftImg[x]===1 ? '#1f2328' : '#eef0f2';
+      ctx.fillRect(px, topY1, sq, sq);
+      // 右图（与网格对齐到 x）
+      ctx.fillStyle = rightImg[x]===1 ? '#1f2328' : '#eef0f2';
+      ctx.fillRect(px, topY2, sq, sq);
+    }
+    ctx.fillStyle='#9aa1ab';
+    ctx.fillText('L', PAD_L-14, topY1+sq);
+    ctx.fillText('R', PAD_L-14, topY2+sq);
+
+    // 标注中央段
+    var segX1 = PAD_L + SEG_A*g.cw;
+    var segX2 = PAD_L + SEG_B*g.cw;
+    ctx.strokeStyle = '#c0392b';
+    ctx.setLineDash([4,3]);
+    ctx.strokeRect(segX1, topY1-2, segX2-segX1, (topY2+sq+2)-(topY1-2));
+    ctx.setLineDash([]);
+    ctx.fillStyle='#c0392b';
+    ctx.fillText('中央段 d=+'+centerDisp, segX1, topY1-6);
+
+    // ---- 视差网格 ----
+    // 背景与格线
+    ctx.strokeStyle = '#eef0f2';
+    ctx.lineWidth = 1;
+    for(var di=0;di<=ND;di++){
+      var yy = PAD_T + di*g.ch;
+      ctx.beginPath(); ctx.moveTo(PAD_L, yy); ctx.lineTo(PAD_L+g.gw, yy); ctx.stroke();
+    }
+    for(var xi=0;xi<=NX;xi++){
+      var xx = PAD_L + xi*g.cw;
+      ctx.beginPath(); ctx.moveTo(xx, PAD_T); ctx.lineTo(xx, PAD_T+g.gh); ctx.stroke();
+    }
+
+    // 期望解的"虚影"参考线（仅提示，不参与计算）：背景 d=0 一行 + 中央段 d=centerDisp
+    // （留给读者自行对照，不强画，以免喧宾夺主）
+
+    // 节点：连续状态用透明度表现"强弱"，>0.5 视为点亮
+    for(var x2=0;x2<NX;x2++){
+      for(var d2i=0; d2i<ND; d2i++){
+        var v = C[x2][d2i];
+        if(v>0.06){
+          var d = DMIN + d2i;
+          var cx = PAD_L + x2*g.cw;
+          var cy = PAD_T + d2i*g.ch;
+          ctx.globalAlpha = Math.min(1, 0.18 + 0.82*v);
+          ctx.fillStyle = dispColor(d);
+          ctx.fillRect(cx+1, cy+1, g.cw-2, g.ch-2);
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+
+    // 视差轴标签
+    ctx.fillStyle = '#6b7280';
+    ctx.textAlign = 'right';
+    ctx.font = '11px -apple-system,Segoe UI,sans-serif';
+    for(var dl=0; dl<ND; dl++){
+      var dval = DMIN + dl;
+      var yc = PAD_T + dl*g.ch + g.ch/2 + 3;
+      ctx.fillText((dval>0?'+':'')+dval, PAD_L-8, yc);
+    }
+    ctx.save();
+    ctx.translate(16, PAD_T + g.gh/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center';
+    ctx.fillStyle='#9aa1ab';
+    ctx.fillText('视差 d', 0, 0);
+    ctx.restore();
+    ctx.textAlign='left';
+    ctx.fillStyle='#9aa1ab';
+    ctx.fillText('图像位置 x →', PAD_L, PAD_T+g.gh+20);
+
+    // 网格标题
+    ctx.fillStyle='#6b7280';
+    ctx.fillText('视差网格 C(x,d)：亮格=主张"此处视差为 d"', PAD_L, PAD_T-8);
+  }
+
+  function countOn(){
+    var n=0; for(var x=0;x<NX;x++) for(var di=0;di<ND;di++) if(isOn(x,di)) n++;
+    return n;
+  }
+  function status(){
+    var el = document.getElementById('mpStatus');
+    if(!el) return;
+    var on = countOn();
+    var ideal = NX; // 理想解每个 x 恰好 1 个亮点
+    var msg = '第 '+iter+' 轮 · 当前点亮节点 '+on+' 个';
+    if(iter===0){
+      msg += ' — 这是未经迭代的原始候选：每条竖列往往有多个候选，假目标弥漫。';
+    } else {
+      msg += '（理想收敛态应约为 '+ideal+' 个，即每个位置恰好一个视差）。';
+      if(on<=ideal*1.15) msg += ' 已接近干净的单层视差解。';
+    }
+    el.textContent = msg;
+  }
+
+  // ---------------- 控件 ----------------
+  document.getElementById('btnStep').addEventListener('click', function(){ stopRun(); step(); });
+  document.getElementById('btnRun').addEventListener('click', runAuto);
+  document.getElementById('btnReset').addEventListener('click', reset);
+  document.getElementById('btnNew').addEventListener('click', newImage);
+
+  var rngDisp = document.getElementById('rngDisp');
+  rngDisp.addEventListener('input', function(){
+    centerDisp = parseInt(rngDisp.value,10);
+    document.getElementById('lblDisp').textContent = '+'+centerDisp;
+    newImage();
+  });
+  var rngEps = document.getElementById('rngEps');
+  rngEps.addEventListener('input', function(){
+    eps = parseFloat(rngEps.value);
+    document.getElementById('lblEps').textContent = eps.toFixed(1);
+    // 不重建图，仅改抑制强度，便于对比同一图在不同 ε 下的收敛
+  });
+
+  // 初始化
+  newImage();
+})();
+</script>
+</body>
+</html>

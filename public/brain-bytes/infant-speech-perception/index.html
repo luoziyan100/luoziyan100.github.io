@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuhl 2004 · 早期语言习得：破解语音密码 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Cracking the Speech Code <span>×</span> 婴儿如何在一岁内统计出母语、并把大脑"焊死"在母语上</h1>
+    <div class="meta">
+      <span>📄 Early Language Acquisition: Cracking the Speech Code</span><br>
+      <span>✍️ Patricia K. Kuhl</span><br>
+      <span>🏛️ 学习与脑科学研究所 & 言语与听觉科学系，华盛顿大学（University of Washington）</span><br>
+      <span>📅 Nature Reviews Neuroscience · 2004 年 11 月 · 第 5 卷 · 831–843 页（综述）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-puzzle">谜题：机器破解不了的密码</a></li>
+        <li><a href="#sec-find1">发现一 · 分类知觉与知觉磁吸</a></li>
+        <li><a href="#sec-viz">交互 · 知觉窄化滑块</a></li>
+        <li><a href="#sec-find2">发现二 · 统计学习破解音与词</a></li>
+        <li><a href="#sec-find3">发现三 · 社会互动是门控</a></li>
+        <li><a href="#sec-find4">发现四 · 母语神经焊死（NLNC）</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>每个正常孩子都在三岁前、几乎不费力地学会了母语——这件全人类天天发生的"小事"，恰恰是人工智能（AI，Artificial Intelligence）至今没能真正复刻的"大事"：计算机能下赢围棋，却破解不了人类幼儿轻松破解的"语音密码"。这篇综述是该领域奠基人 Kuhl 在 2004 年的一次盘点，它把过去十年三条看似无关的发现拧成一根绳：婴儿用<strong>统计学习</strong>（像数据分析师一样统计声音出现的频率）发现母语的音素和单词；母语听辨力<strong>越练越强</strong>、非母语听辨力却<strong>同步退化</strong>（"世界公民"变成"文化囚徒"）；而这套学习有一道<strong>社会开关</strong>——同样的语音，真人当面教就学得会，电视/录音放给孩子听却学不会。最后它提出"母语神经焊死"假说，把这些拼图与困扰几代人的"为什么成年后学外语这么难"连了起来。</p>
+        <p>这是一篇综述（review），不是单一实验，所以它的价值不在某一个 p 值，而在<strong>把一整套范式级实验和它们的关键数字组织成一个可证伪的理论框架</strong>。读它，等于一次性拿到婴儿语言科学的"地图"。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>下面 9 个概念是读懂全文的钥匙。正文出现的术语都能在这里找到对应卡片。</p>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">音素（phoneme）</div>
+          <div class="cdesc">一种语言里能"区分词义"的最小声音单位。把 bat 换成 pat，词义就变了，所以 /b/ 和 /p/ 是两个音素。全世界语言加起来约有 600 个辅音、200 个元音，但<strong>每种语言只挑用约 40 个</strong>。婴儿的任务就是先搞清楚自己母语用了哪 40 个。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">音位单元（phonetic unit，语音单元）</div>
+          <div class="cdesc">具体发出来的、物理上略有差异的声音片段。同一个音素其实是一<strong>组</strong>不完全相同的音位单元。比如英语里 rake 和 lake 的 r、l 是两个不同音素；而日语把 r 和 l 这两个音位单元归进了同<strong>一个</strong>音素——这就是日本人难分英语 r/l 的根。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">分类知觉（categorical perception，范畴知觉）</div>
+          <div class="cdesc">把连续变化的声音"一刀切"成几类，类内的差别听不出、跨类的差别一下就听到。像把一条颜色渐变光谱硬分成"红"和"橙"：橙里偏红和橙里偏黄你觉得"都是橙"，可一旦越过边界就突然"变红了"。语音的边界靠极小的声学差就能触发（见下条）。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">嗓音起始时间（VOT，Voice Onset Time）</div>
+          <div class="cdesc">辅音从"爆破"到"声带开始振动"之间的时间差，是区分 /b/ 与 /p/ 这类音的关键声学线索。论文给的直觉数字：时域上仅<strong>变化 10 毫秒</strong>，知觉就从 /b/ 跳到 /p/。婴儿出生起就能分辨这种细微差别。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">统计学习（statistical learning）</div>
+          <div class="cdesc">通过"数频率"来获取知识：哪些声音常一起出现、哪个音后面大概率跟哪个音。婴儿像个无意识的统计员，听多了就摸出母语声音分布的规律。论文把它和韵律线索并列为破解密码的两大计算引擎。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">知觉磁吸效应（perceptual magnet effect）</div>
+          <div class="cdesc">母语里那个"最标准"的元音（原型，prototype）像磁铁，会把它周围一圈相近的变体"吸"得听起来都和它一样，于是同类声音的内部差异被压扁。结果：母语类别里"听着更像一家人"。关键对照——<strong>猴子不出现这个效应</strong>，说明它需要语言经验，是人类独有的。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">音位排列规则（phonotactic patterns，语音组合规则）</div>
+          <div class="cdesc">一种语言里"哪些音能挨着排、哪些不能"的潜规则。比如 zb 在英语里不合法、在波兰语里合法。婴儿到 9 个月就能分辨母语中常见与罕见的音序——这成了切分单词的线索之一。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">转移概率（transitional probabilities，过渡概率）</div>
+          <div class="cdesc">"听到音节 A 之后，下一个是音节 B"的条件概率。词<strong>内部</strong>音节间概率高（如 pretty 里 pre→ty），跨<strong>词边界</strong>处概率低。婴儿利用这种高低落差，在没有空格、没有停顿的连续语流里"嗅"出单词的边界。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">母语神经焊死（NLNC，Native Language Neural Commitment）</div>
+          <div class="cdesc">本文的核心假说。早期语言经验会让大脑神经网络"承诺/专一化"到母语的统计与韵律模式上——这<strong>既</strong>促进了对符合母语模式的后续学习，<strong>又</strong>干扰了不符合母语模式（如外语）的学习。它为"敏感期"和"成年学外语难"提供了一个可证伪的机制解释。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-puzzle">谜题：机器破解不了的密码</div>
+      <p>论文开篇把问题摆得很尖锐：幼儿学母语"骗人地简单"（deceptively simple）——6 个月开始咿呀，3 岁能说整句，且<strong>不分文化走同一条发育路径</strong>。可一旦你想用机器复刻，它就难得离谱。语言学家、心理学家、神经科学家长期为此争论，再加上"造一台能学语言的计算机"屡屡失败，于是有了那个比喻：言语是一段被深度加密的"密码"（speech code），人类婴儿破解它如同儿戏，机器和成人却束手无策。<strong>为什么？</strong></p>
+      <p>Kuhl 给出的答案框架是："婴儿带着一套初始知觉能力上场（这些能力并非人类独有），随后用<strong>模式探测 + 计算能力</strong>（统计学习）叠加上<strong>独有的社会技能</strong>，迅速从语言暴露中学习。"两条约束同样重要：知觉/计算上的约束（婴儿并不会去学所有可能的声学模式）、以及社会上的约束（学习被限定在社交互动的情境里——这也解释了为什么其他物种不会进一步走向语言）。换句话说，<strong>婴儿不是万能的统计奴隶，而是"被启动/被框定"（primed）去学语言规律的</strong>。这个"约束 + 计算"的双重视角，是全文的骨架。</p>
+
+      <div class="section-head" id="sec-find1">发现一 · 分类知觉与知觉磁吸：母语在重塑"听觉地图"</div>
+      <p>第一块拼图关于"怎么把连续的声音切成类别"。早期三个发现奠定了基础。其一，<strong>分类知觉</strong>：Eimas 及同事证明，年幼婴儿对落在音素边界上的声学变化格外敏感——<strong>包括那些他们母语里根本没有的边界</strong>。婴儿几乎能分辨世界各语言用到的所有音位单元，而成人不能。其二，这种分辨能力依赖的声学差异极小：时域上 <strong>10 毫秒</strong>的 VOT 变化、或频域上同等微小的差异，就能让 /b/ 跳到 /p/、/p/ 跳到 /k/。婴儿从出生起就能听出这些细微差别。</p>
+      <p>但故事的转折是"<strong>此消彼长</strong>"。婴儿初始的"普世辨音能力"必须让位于一种<strong>母语特异</strong>的听辨方式。Werker 与同事的经典发现：学英语的婴儿在 <strong>6 个月</strong>时还能轻松分辨印地语（Hindi）和萨利希语（Salish）的辅音对比，但到 <strong>12 个月</strong>这种能力大幅衰退；学日语的婴儿对英语 r–l 的分辨越来越差；学英语的婴儿对一个西班牙语对比、一个普通话对比的分辨也同步下滑——这些都不是英语用到的对比。<strong>与此同时，对母语音素的分辨能力却在提升。</strong>Kuhl 把这个转折概括为：婴儿从"世界公民"（citizens of the world）变成了"受文化束缚的听者"（culture-bound listeners）。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：一升一降的剪刀差</span>
+        <p>同一个孩子，从 6 个月到 12 个月：<strong>母语</strong>音素对比的辨别能力<strong>上升</strong>，<strong>非母语</strong>音素对比的辨别能力<strong>下降</strong>。这不是"全面变笨"或"全面变强"，而是<strong>知觉资源向母语收窄</strong>（perceptual narrowing，知觉窄化）。下面的交互组件就是让你亲手拖动月龄，看这把"剪刀"是怎么张开的。</p>
+      </div>
+
+      <p>第二块是<strong>知觉磁吸效应</strong>。Kuhl 团队用 6 个月的美国（英语）与瑞典婴儿做对照：给每种语言准备一个"原型元音"（英语的 /i/、瑞典语的 /y/），再用计算机在关键声学维度上小步微调，生成每个原型的 <strong>32 个变体</strong>。婴儿先听原型作背景音，被训练成"听到原型变成某个变体时转头"（head-turn，转头法），转对了有奖励（动画玩具亮起）。预测是：母语原型会像<strong>知觉磁铁</strong>，把周围变体"吸成"听起来都和原型一样。结果证实——<strong>美国婴儿把美式 /i/ 的变体"听成一团"（磁吸强），却把瑞典 /y/ 的变体听得更分散；瑞典婴儿的模式正好相反</strong>。这说明语言经验提高了"母语类别内"声音的相似知觉。最关键的对照：<strong>猴子对元音不出现原型磁吸效应</strong>，证明该效应是人类独有、需要语言经验的。</p>
+      <p>分类知觉本身并不为人类独有——栗鼠（chinchilla）和猴子也会在语言安放音素边界的地方切分声音。Kuhl 由此提出一个微妙立场：通用听觉系统提供了一些"基本切口"（basic cuts），各语言的音素边界正是<strong>利用</strong>了这些天然的听觉不连续点；但这些切口是原始、粗糙的，真正精细的边界要靠后天经验来打磨。也就是说，<strong>天生听觉给了草稿，母语经验做了精修</strong>。</p>
+
+      <div class="viz-box" id="sec-viz">
+        <div class="viz-title">交互组件 · 知觉窄化：拖动月龄，看母语与非母语辨音力的反向变化</div>
+        <div class="viz-note">模拟数据，定性复现论文报告的发育模式（Werker 等的母语上升 / 非母语下降，Kuhl 的知觉磁吸；非论文原始数值，仅展示定性趋势与"剪刀差"形状）。</div>
+        <div class="viz-controls">
+          <label>婴儿月龄：<strong><span id="ageLabel">6</span> 个月</strong></label>
+          <input type="range" id="ageSlider" min="0" max="12" step="0.5" value="6" style="flex:1;min-width:180px;">
+        </div>
+        <div class="viz-controls">
+          <button id="btnPlay">▶ 自动播放发育历程</button>
+          <button class="alt" id="btnReset">重置到 6 个月</button>
+        </div>
+        <canvas id="narrowCanvas" width="900" height="430"></canvas>
+        <div class="viz-note" id="vizCaption" style="margin-top:14px;font-size:0.88rem;color:#3a4048;"></div>
+      </div>
+
+      <div class="section-head" id="sec-find2">发现二 · 统计学习：用"数频率"破解音、破解词</div>
+      <p>第二大支柱回答"婴儿凭什么完成发现一里的窄化"。Kuhl 的核心假说：<strong>婴儿在分析周遭语言里声音的统计分布</strong>。成人听 r 和 l，要么觉得是两个音（英语者），要么觉得是一个音（日语者）；但两种语言的说话者实际发出的声音都<strong>高度可变</strong>。当你分析这些声音的声学特征，会发现：在语言<strong>安放</strong>音素类别的地方，声音出现的"<strong>众数/峰值</strong>"密集；而在类别<strong>边界</strong>处，频率很低（分布的"谷")。于是声音的<strong>分布形状本身就泄露了音素结构</strong>——若婴儿对这种相对频率敏感，就能"按峰分组"完成类别学习。</p>
+      <p><strong>关键实验（Maye 等，让分布可控）：</strong>给 6–8 个月婴儿约 <strong>2 分钟</strong>暴露在一段 /da/–/ta/ 连续体的 8 个声音里。"双峰组"（bimodal）听到的频率在连续体<strong>两端</strong>更高（暗示这是两类）；"单峰组"（unimodal）听到的频率在<strong>中间</strong>更高（暗示这是一类）。结果用听觉偏好法测出：<strong>双峰组婴儿能分辨这两个端点音，单峰组婴儿不能</strong>。仅仅是改变了声音的统计分布，就改变了婴儿"分几类"的知觉——这是统计学习在音素层面起作用的直接证据。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：2 分钟就能改写"几类"</span>
+        <p>不是几个月的浸泡，而是<strong>实验室里 2 分钟</strong>的不同分布，就能让同龄婴儿在"这是一个音还是两个音"上分道扬镳。这说明统计学习的引擎极其敏捷——也为后面"为什么真人 vs 电视会有天壤之别"埋下伏笔：引擎快不等于什么情境都肯启动。</p>
+      </div>
+
+      <p><strong>从音到词：Saffran 的转移概率实验。</strong>口语没有空格，连续语流里"一个词在哪结束、下一个在哪开始"没有可靠的声学标记（论文用 "prettybaby" 举例）。Saffran 等给 8 个月婴儿播 <strong>2 分钟</strong>计算机合成的、没有停顿/重音/语调的音节串（如 tibudopabikugolatudaropi…）。串里藏着四个"伪词"，<strong>词内</strong>相邻音节的转移概率为 <strong>1.0</strong>，<strong>跨词边界</strong>处仅 <strong>0.33</strong>。要听出这些词，婴儿必须追踪相邻音节的统计关系。测试时婴儿对"违反了原结构的部分词"（part-words）表现出<strong>新异偏好</strong>（听得更久），说明他们确实抽取到了原串里的统计规律——<strong>仅 2 分钟连续音节暴露，就足以让婴儿锁定候选单词</strong>。</p>
+      <p>韵律也来帮忙。约 <strong>90%</strong> 的英语多音节词在自然口语里重音落在<strong>第一个</strong>音节（强–弱型，即扬抑格 trochaic；与波兰语等的弱–强型/抑扬格 iambic 相反）。到 <strong>7.5 个月</strong>，学英语的婴儿能用"强–弱"模式切词——听到 "guitar is" 时会把 "taris" 当成词，因为它以重读音节开头。Johnson 与 Jusczyk 的巧妙对照还显示：婴儿的策略<strong>随月龄切换</strong>——8 个月时，当统计线索与重音线索冲突，婴儿<strong>更信重音</strong>；而 7 个月时<strong>更信统计</strong>。发育曲线上，引擎的"权重"是会变的。</p>
+      <p>这些统计学习能力同样不为语言、也不为人类独有：婴儿能追踪音调序列里、视觉模式里的转移概率；当 Saffran 的刺激改用音节时，猴子也能追踪。但有重要边界：婴儿（和猴子）目前只在<strong>相邻</strong>单元间算统计，<strong>非相邻依赖</strong>（如名词–动词一致这种远距离语法关系）要到发育更晚才掌握。论文坦言：若婴儿只在相邻单元上探测规律，那么靠统计手段习得语法会"严重受限"。</p>
+
+      <div class="section-head" id="sec-find3">发现三 · 社会互动是门控：电视为什么教不会</div>
+      <p>到这里，前两块拼图给人一种印象：婴儿是台高效的统计自动机，只要喂对声音就能学。<strong>Kuhl 的第三块拼图恰恰反驳了这一点。</strong></p>
+      <p><strong>标志性实验（Kuhl 等的普通话研究）：</strong>给 9 个月大的美国婴儿安排 <strong>12 次</strong>课程，由四位普通话母语者给婴儿读书、聊天。课后用一个<strong>英语里不存在</strong>的普通话音素对比、以转头法测试，看外语暴露能否逆转"非母语辨音力的常规下滑"。结果：<strong>真人当面互动（live）的婴儿，学会了这个普通话对比</strong>；其辨别表现远超只听英语的对照组。</p>
+      <p>真正的"暴击"在对照条件：另一组婴儿看<strong>同样四位</strong>普通话者的<strong>电视画面</strong>，或只听他们的<strong>录音</strong>。声学输入、说话内容、"母亲腔"（motherese）的使用，在电视/录音组与真人组<strong>完全相同</strong>。结果——<strong>电视组和录音组的普通话辨别成绩并不优于（只听英语的）对照组</strong>，等于<strong>没学会</strong>。Kuhl 的结论掷地有声：<strong>"婴儿显然不是计算自动机——学习自然语言时，他们可能需要一位社会性的导师（social tutor）。"</strong></p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：同样的声音，差别全在"有没有真人"</span>
+        <p>把变量控制到极致：唯一不同的，是声音从<strong>真人</strong>嘴里出来，还是从<strong>屏幕/喇叭</strong>里出来。真人 → 学会；屏幕/喇叭 → 学不会。这意味着社会互动不是"锦上添花"，而像一道<strong>门控开关（gating）</strong>：它决定那台高效的统计引擎到底<strong>启不启动</strong>。Kuhl 的解读是——社会互动把学习"<strong>圈定</strong>"在来自人类、对孩子有意义的语言上，避免婴儿把算力浪费在无意义的统计上。</p>
+      </div>
+
+      <p>第二个社会实验从"知觉"转到"产出"。Goldstein 等操纵了社会反馈：在"<strong>偶联条件</strong>"（CC，Contingent Condition）下，母亲被要求在婴儿一发声就<strong>即时</strong>用微笑、靠近、触摸来回应；在"<strong>轭式对照</strong>"（YC，Yoked-Control）下，母亲的反应<strong>一模一样，但时机被错开</strong>（按实验者指令、与另一组婴儿的发声同步）。结果：<strong>CC 组婴儿发声更多、且更成熟（更接近成人）</strong>。可见即便是语音<strong>产出</strong>，社会反馈的"<strong>偶联性/即时性</strong>"也在塑造它——重点不只是有没有反馈，而是反馈<strong>是否对准了孩子此刻的行为</strong>。</p>
+      <p>Kuhl 反复把这套现象类比到<strong>鸣禽（songbirds）学歌</strong>：幼年斑胸草雀（zebra finch）需要与导师鸟的<strong>视觉互动</strong>才能学会歌；它们天生偏好同种的歌，但若由本氏鸟（Bengalese finch）养父喂养，会被养父的歌"覆盖"，哪怕旁边就放着成年斑胸草雀的歌。在猫头鹰、白冠雀身上，更丰富的社会环境甚至能<strong>延长</strong>学习的敏感期。人类与鸣禽的平行，是 Kuhl 论证"社会门控"具有生物学普遍性的重要支点。同样的逻辑也延伸到手语：失聪婴儿用手做出的"手语咿呀"，与听力正常婴儿的口语咿呀<strong>遵循同一时间表</strong>——社会互动对学习手语同样重要。</p>
+
+      <div class="section-head" id="sec-find4">发现四 · 母语神经焊死（NLNC）：把敏感期讲成一个机制</div>
+      <p>四块拼图的收口，是 Kuhl 提出的<strong>母语神经焊死假说（NLNC）</strong>。它的主张是：早期语言经验会让大脑神经网络<strong>"承诺/专一化"</strong>到母语早期就学到的统计与韵律规律上（这些正是导致音素学习、词学习的规律）。这种"焊死"是<strong>双刃</strong>的——<strong>促进</strong>符合母语模式的后续学习（让孩子更快走向复杂语言结构），同时<strong>干扰</strong>不符合母语模式（如外语）的学习。一句话：<strong>母语学得越牢，外语的"心理滤镜"就越厚</strong>。</p>
+      <p><strong>脑成像证据：</strong>Dehaene-Lambertz 等用功能性磁共振成像（fMRI，functional Magnetic Resonance Imaging）测 3 个月婴儿对正放/倒放语音的脑反应，发现婴儿与成人激活相似的脑区，但对倒放语音的反应存在差异；Pena 等用光学地形成像（optical topography）发现新生儿处理正放语音时<strong>左半球反应更强</strong>。<strong>事件相关电位（ERP，Event-Related Potential）证据</strong>更直接刻画了"焊死"的时间进程：Rivera-Gaxiola 等记录 7 个月与 11 个月美国婴儿对母语/非母语辅音对比的反应，发现两类应答者——以 150–250 毫秒正向脑波反应的"P 型应答者"，与以 250–550 毫秒负向脑波反应的"N 型应答者"。<strong>群体平均看，对非母语对比的辨别反应在 11 个月时消失了</strong>（与行为数据一致）；<strong>但按个体成分拆成两个亚组后，发现婴儿其实仍保留对非母语对比的敏感性</strong>——两个亚组对母语对比的反应在 11 个月时都增强了。这提醒我们：群体平均会<strong>掩盖</strong>个体层面的精细结构。</p>
+      <p>NLNC 还把"<strong>敏感期/关键期</strong>（sensitive period / critical period）"从一个现象讲成了一个<strong>机制</strong>。为什么 5 岁学外语像玩，50 岁学却难如登天？NLNC 的解释：婴儿若用某元音输入的"分布"来表征它，并对分布的可变程度敏感，那么当<strong>新说话者的"啊"音不再改变这个底层分布</strong>时（即分布已被听够、趋于稳定），该语音学习的敏感期就开始关闭、学习随之衰退。也就是说，<strong>敏感期的关闭由"统计分布的稳定"来触发</strong>，而不是某个被硬编码的生物钟。失聪儿童若 6 岁后才首次接触手语，会出现终身的语言能力衰减，正是敏感期受成熟因素调控的证据；而<strong>仅仅早期经历一门语言、哪怕自己不产出，也能对成年后学这门语言留下持久好处</strong>。</p>
+
+      <div class="info-block">
+        <span class="ib-title">关键应用：双语儿童（bilingual children）为什么能轻松"双修"</span>
+        <p>这是 NLNC 一个漂亮且可证伪的推论。论文原话的意思是：双语儿童在映射<strong>两套不同的系统</strong>（two distinct systems），听到的输入有一部分分给每种语言。NLNC 预测，对双语儿童来说，这个"分布稳定化（stabilization）"的过程会<strong>耗时更长</strong>，相关研究正在进行以检验该假说。其中的关键直觉是：<strong>在很小的年纪，任一门语言都还没达到统计上的稳定，因而都不太可能去干扰另一门</strong>——所以幼儿能<strong>轻松同时习得两种语言</strong>。NLNC 还顺带预测：学第二语言的难易，应取决于两门语言在统计与韵律特征上的<strong>重叠程度</strong>——越像越好学，越不像越难。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇综述里被反复引用的实验，胜在"<strong>把一个看不见的内部过程，逼成一个可观测、可对照的行为差异</strong>"。下面把它们的设计要点列成表。</p>
+      <table>
+        <thead>
+          <tr><th>方法 / 范式</th><th>解决了什么观测难题</th><th>精妙的对照设计</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>转头法（head-turn）</td>
+            <td>婴儿不会作答，如何知道"它听出了变化"？</td>
+            <td>把"听到声音变化"训练成"转头"，转对了用动画玩具奖励——把内部知觉外化成一个可计分的动作。</td>
+          </tr>
+          <tr>
+            <td>听觉偏好法（auditory preference）</td>
+            <td>更小、更难训练的婴儿怎么测？</td>
+            <td>用"看向声源的注视时长"当指标：对新异/违例刺激看得更久 = 它察觉到了差异（如 Maye、Saffran 实验）。</td>
+          </tr>
+          <tr>
+            <td>双峰 vs 单峰分布暴露</td>
+            <td>统计分布"是否真能塑造类别"难以直接证明</td>
+            <td>只改变 2 分钟暴露里声音的<strong>分布形状</strong>、其余全等；双峰组能分辨、单峰组不能——把"分布→类别"做成了因果对照。</td>
+          </tr>
+          <tr>
+            <td>转移概率人工语流</td>
+            <td>自然语流变量太多，无法隔离"统计切词"</td>
+            <td>合成无停顿/重音/语调的音节串，词内概率 1.0、跨词 0.33，<strong>剔除一切其他线索</strong>，证明仅靠统计就能切词。</td>
+          </tr>
+          <tr>
+            <td>真人 vs 电视 vs 录音（普通话）</td>
+            <td>"社会互动是否必要"易被混入声学差异</td>
+            <td>三条件的<strong>声学输入完全相同</strong>，唯一变量是"真人在场 vs 屏幕/喇叭"——干净地分离出社会因素。</td>
+          </tr>
+          <tr>
+            <td>偶联 vs 轭式社会反馈（CC/YC）</td>
+            <td>"反馈量"与"反馈时机"难以拆开</td>
+            <td>两组母亲反馈<strong>内容相同、仅时机错开</strong>，证明起作用的是反馈与婴儿行为的<strong>偶联性</strong>，而非反馈本身。</td>
+          </tr>
+          <tr>
+            <td>ERP 个体亚组拆分</td>
+            <td>群体平均"非母语反应消失"是否=能力真消失？</td>
+            <td>按 P/N 成分把婴儿拆成两亚组，揭示群体均值<strong>掩盖</strong>了个体仍保留的非母语敏感性——同一份数据，换个切法结论更细。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>值得专门点出的是<strong>跨物种对照</strong>这一招贯穿全文：用栗鼠/猴子做"通用听觉基线"，凡是<strong>它们也会</strong>的（如基础分类知觉、相邻音节统计），就不算人类独有的语言专属能力；凡是<strong>它们不会</strong>的（如元音的知觉磁吸效应），才可能是语言经验雕刻出的人类特性。这把"哪些是天生通用、哪些是后天语言专属"切得很利落。</p>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇综述的位置，可以放在三组对话里看。</p>
+      <p><strong>对话一：与天赋论/规则论（Chomsky 传统）。</strong>历史上的主流理论家假设语言习得靠<strong>先天的语言规则</strong>，并对婴儿的实际策略"未作预测"（论文明确说 infants' strategies are "not predicted by the main historical theorists"）。Kuhl 这一脉提供的是经验数据：婴儿先用一套<strong>知觉/计算</strong>能力起步，再叠加社会技能——把"先天 vs 后天"的二分，换成"<strong>先天约束 + 经验驱动的计算</strong>"的连续体。NLNC 既不否认敏感期，又不诉诸神秘的语言器官，而是用"分布稳定化"给敏感期一个可检验的机制。</p>
+      <p><strong>对话二：与行为主义/单纯暴露论。</strong>统计学习实验（Maye、Saffran）一度可能被读成"喂够声音就能学"的现代版强化学习。但普通话真人 vs 电视实验<strong>反过来</strong>给行为主义/单纯暴露论划了红线：<strong>"婴儿不是计算自动机"</strong>。社会门控的引入，让这套理论既有"计算"的硬核，又不沦为机械的输入-输出。</p>
+      <p><strong>对话三：与比较生物学（鸣禽学歌）。</strong>Kuhl 反复援引 Doupe & Kuhl 等关于鸣禽的工作，把"社会互动门控发声学习"放进跨物种框架。人类婴儿与斑胸草雀、白冠雀的平行（需要视觉/社会互动、有敏感期、社会环境能调节敏感期长短），让"语言学习需要社会脑"不只是人类轶事，而有了演化生物学的支撑。论文也借此回答"为什么非人动物不会进一步走向语言"——它们缺的可能正是把学习圈定到"对孩子有意义的人类语言"上的那套社会约束。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p><strong>给人工智能：</strong>论文反复用"计算机至今破解不了语音密码"作为反衬。它的潜台词对今天的机器学习仍然锋利——婴儿的强项不只是"大数据统计"（这台引擎机器也有），而是<strong>把统计学习嵌进一个被社会情境和先天约束框定的系统里</strong>：知道<strong>该学什么、不该学什么、跟谁学</strong>。当下大模型恰恰是"无差别吞数据"的统计奴隶，Kuhl 二十年前点出的"约束"与"社会门控"，正是纯统计路线的盲区。</p>
+      <p><strong>给教育与育儿：</strong>"真人 vs 电视"的对照有直接的现实含义——<strong>屏幕不能替代真人互动来教婴儿语言</strong>（至少在音素学习这个层面）。婴儿需要的是对准其行为的<strong>偶联反馈</strong>（CC vs YC），以及共同注意（joint attention，论文提到婴儿会跟随说话者的注视）。这为"少屏幕、多互动"的早教建议提供了机制层面的支持。</p>
+      <p><strong>给第二语言学习：</strong>NLNC 给"成年学外语难"一个非宿命的解释——难度取决于母语与目标语在<strong>统计与韵律上的重叠</strong>，而非单纯"老了脑子硬了"。它也解释了为何童年哪怕被动接触过一门语言，成年后再学也更有优势（神经层面"留了一道门")。</p>
+      <p><strong>给双语家庭：</strong>如上所述，幼儿"双修"两种语言之所以轻松，是因为早期两门语言都还没统计稳定、互不干扰。这为"越早接触双语越好"提供了一个清晰的机制直觉（同时也提示：双语者各语言的分布稳定可能更慢，需更长时间）。</p>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>综述本身坦承了不少局限，这里把它自己点到的、以及读者应警惕的一并列出。</p>
+      <ul>
+        <li><strong>统计学习的"天花板"是语法。</strong>论文明说：婴儿目前主要在<strong>相邻</strong>单元间算统计，而语言里大量关键关系是<strong>非相邻依赖</strong>（名词–动词一致等）。若只靠相邻统计，习得语法会"严重受限"。从"破解语音/单词"到"破解语法"，这条路本文并未走通，留作未来工作。</li>
+        <li><strong>"社会互动"到底是哪一部分在起作用，仍是黑箱。</strong>论文反复设问：起作用的是社会互动本身，还是它<strong>伴随</strong>的注意力与偶联性？文中坦言"对婴儿和鸟而言，这一点都还不清楚"。社会脑如何支持语言学习，"机制仍是个谜"。</li>
+        <li><strong>NLNC 仍是"假说"，多处证据是相关而非因果。</strong>双语稳定化更慢、第二语言难度取决于语言重叠——这些都是 NLNC 的<strong>预测</strong>，论文明说"研究正在进行中"以检验。脑成像证据（fMRI/ERP）多为相关性，且 ERP 那个"群体平均掩盖个体"的发现本身就提醒：现有测量的颗粒度可能还不足以盖棺定论。</li>
+        <li><strong>"几分钟实验室暴露"与"真实习得"之间有鸿沟。</strong>论文自己提醒：自然语言学习"可能需要更多、更不同种类的信息"，不能因为 2 分钟暴露能改变知觉，就等同于真实世界里的语言习得。</li>
+        <li><strong>解读者补充的警惕点：综述的"选择性"。</strong>作为奠基人撰写的综述，文中证据高度围绕作者自己一脉（Kuhl、Saffran、Werker、Rivera-Gaxiola）的范式组织，对天赋论一侧的正面反驳较少展开。读者应把它当作"一个强势研究纲领的自我陈述"，而非领域的中立裁决——这是综述体裁的常见特征，并非本文独有缺陷，但读时宜留一分清醒。</li>
+        <li><strong>跨物种类比的限度（解读者观点）。</strong>"婴儿像鸣禽"是富有启发的类比，但鸣禽学的是"歌"、人类学的是"语言+语义+语法"。社会门控在两者间或许同构，知觉/计算层面却未必可直接外推。论文用它支撑"社会必要性"是稳的，若进一步外推到语法/语义则需谨慎。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>（本节每条评价都尽量绑定文中证据；属解读者个人评价处已标注。）</p>
+      <p><strong>这是一篇"框架级"综述，地图价值高于单点发现。</strong>依据：它把分类知觉、知觉磁吸、统计学习、社会门控、神经焊死<strong>五件事</strong>组织进"约束 + 计算 + 社会"的统一骨架，并以 NLNC 收口为可证伪假说。对想入门婴儿语言科学的读者，它一次性给齐了范式、关键数字与理论坐标——这是综述能提供的最高价值。</p>
+      <p><strong>最扎实的一块是"统计学习"，最有想象力也最未完成的一块是"社会门控 + NLNC"。</strong>依据：Maye 的双峰/单峰、Saffran 的转移概率，都是<strong>把分布做成因果对照</strong>的干净实验，结论稳。而社会门控虽有普通话真人 vs 电视这个漂亮对照，但"社会互动里到底哪一部分起作用"论文自己承认是黑箱；NLNC 的多条推论（双语、二语难度）也仍"研究进行中"。所以我的判断是：本文在"婴儿会统计学习"上已近定论，在"为什么需要社会、以及大脑如何焊死"上仍是<strong>有力但开放</strong>的纲领。</p>
+      <p><strong>普通话真人 vs 电视实验是全文最有冲击力的一击（解读者观点）。</strong>依据：它用"声学输入完全相同、唯一变量是真人在场"的极简对照，把"婴儿=统计自动机"这个看似被前两块拼图支持的直觉<strong>直接证伪</strong>，并由作者本人用 "infants are apparently not computational automatons" 一锤定音。在一篇容易给人"统计万能"印象的综述里，作者主动安放这块反例，体现了论证的自觉。</p>
+      <p><strong>对今天读者，它的"前瞻性"被时间验证了一部分（解读者观点）。</strong>依据：文中"纯统计/纯暴露不够、需要约束与社会情境"的核心论点，正是当下纯数据驱动大模型的盲区所在。一篇 2004 年的婴儿研究综述，在 AI 时代读来反而更显锋利——这是它生命力的旁证（此为读者向的外推，非论文原文主张）。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>婴儿在出生第一年里，靠<strong>统计学习</strong>（2 分钟不同分布就能改写"几个音"、2 分钟连续音节就能切出词）把母语的音素与单词从无标记的语流里"算"出来，使母语辨音力上升、非母语辨音力在 <strong>6→12 个月</strong>间退化（"世界公民"变"文化囚徒"，且 <strong>knowledge 磁吸效应猴子不会、需语言经验</strong>）；但这台引擎有一道<strong>社会门控</strong>——同样的普通话，真人当面教学得会、电视/录音教学不会（"婴儿不是计算自动机"）；最终早期经验把大脑<strong>焊死</strong>在母语模式上（NLNC），既助母语、又阻外语，从而为敏感期、二语难度与双语轻松"双修"给出一个可证伪的机制解释。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Kuhl, P. K. (2004). Early language acquisition: cracking the speech code. <em>Nature Reviews Neuroscience</em>, 5(11), 831–843. doi:10.1038/nrn1533
+    <br><strong>说明：</strong>本页为该综述的中文深度解读，含 1 个交互组件（知觉窄化滑块，模拟数据定性复现论文报告的发育模式）。文中所有数字均取自论文正文/图注；判断章节区分了论文证据与解读者观点。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('narrowCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var slider = document.getElementById('ageSlider');
+  var ageLabel = document.getElementById('ageLabel');
+  var caption = document.getElementById('vizCaption');
+  var btnPlay = document.getElementById('btnPlay');
+  var btnReset = document.getElementById('btnReset');
+
+  var W = canvas.width, H = canvas.height;
+  var RED = '#c0392b';
+  var BLUE = '#2c7fb8';
+  var INK = '#1f2328';
+  var MUTED = '#6b7280';
+  var GRID = '#e6e8eb';
+
+  // 绘图区
+  var padL = 64, padR = 28, padT = 28, padB = 64;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+
+  // 月龄 0..12 映射到 x
+  function ageToX(a){ return padL + (a/12)*plotW; }
+  // 正确率 40..90 映射到 y（chance=50）
+  var yMin = 40, yMax = 90;
+  function accToY(p){ return padT + (1-(p-yMin)/(yMax-yMin))*plotH; }
+
+  // 模拟两条曲线（定性复现论文：母语上升 / 非母语下降；6mo 接近交叉、12mo 剪刀张开）
+  // 非母语：从 ~72 起步，随月龄下滑到 ~52（接近 chance）
+  function nativeAcc(a){
+    // S 形上升：55 -> 84
+    var t = a/12;
+    var s = 1/(1+Math.exp(-(t-0.45)*8));
+    return 55 + s*(84-55);
+  }
+  function foreignAcc(a){
+    // S 形下降：73 -> 52
+    var t = a/12;
+    var s = 1/(1+Math.exp(-(t-0.55)*7));
+    return 73 - s*(73-52);
+  }
+
+  function drawAxes(){
+    ctx.clearRect(0,0,W,H);
+    // 背景
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,W,H);
+
+    // 网格 + Y 轴刻度
+    ctx.strokeStyle = GRID;
+    ctx.lineWidth = 1;
+    ctx.fillStyle = MUTED;
+    ctx.font = '12px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    var yt = [40,50,60,70,80,90];
+    for(var i=0;i<yt.length;i++){
+      var y = accToY(yt[i]);
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(W-padR, y);
+      ctx.stroke();
+      ctx.fillText(yt[i]+'%', padL-8, y);
+    }
+    // chance 线 (50%) 强调
+    ctx.strokeStyle = '#bbbbbb';
+    ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    var yc = accToY(50);
+    ctx.moveTo(padL, yc); ctx.lineTo(W-padR, yc); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#999999';
+    ctx.textAlign = 'left';
+    ctx.fillText('随机水平 (chance)', padL+6, yc-10);
+
+    // X 轴刻度
+    ctx.fillStyle = MUTED;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for(var a=0;a<=12;a+=2){
+      var x = ageToX(a);
+      ctx.beginPath();
+      ctx.strokeStyle = GRID;
+      ctx.moveTo(x, padT); ctx.lineTo(x, H-padB); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.fillText(a+'', x, H-padB+8);
+    }
+    ctx.fillStyle = INK;
+    ctx.font = '13px -apple-system,Segoe UI,sans-serif';
+    ctx.fillText('婴儿月龄（months）', padL+plotW/2, H-padB+30);
+
+    // Y 轴标题（竖排）
+    ctx.save();
+    ctx.translate(18, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = INK;
+    ctx.fillText('辨别正确率（%）', 0, 0);
+    ctx.restore();
+  }
+
+  function drawCurve(fn, color){
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for(var a=0;a<=12;a+=0.25){
+      var x = ageToX(a), y = accToY(fn(a));
+      if(a===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+
+  function drawDot(a, fn, color, label){
+    var x = ageToX(a), y = accToY(fn(a));
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x,y,6,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // 数值标签
+    ctx.fillStyle = color;
+    ctx.font = 'bold 13px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    var val = Math.round(fn(a));
+    ctx.fillText(' '+val+'%', x+8, y);
+    return {x:x,y:y};
+  }
+
+  function legend(){
+    var lx = padL+16, ly = padT+10;
+    // 母语
+    ctx.fillStyle = RED;
+    ctx.beginPath(); ctx.arc(lx, ly, 5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = INK; ctx.font='12px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText('母语音素对比（native）', lx+12, ly);
+    // 非母语
+    ctx.fillStyle = BLUE;
+    ctx.beginPath(); ctx.arc(lx, ly+20, 5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = INK;
+    ctx.fillText('非母语音素对比（non-native）', lx+12, ly+20);
+  }
+
+  function render(a){
+    drawAxes();
+    drawCurve(nativeAcc, RED);
+    drawCurve(foreignAcc, BLUE);
+    // 当前月龄竖线
+    var x = ageToX(a);
+    ctx.strokeStyle = 'rgba(192,57,43,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, H-padB); ctx.stroke();
+    ctx.setLineDash([]);
+    var pN = drawDot(a, nativeAcc, RED);
+    var pF = drawDot(a, foreignAcc, BLUE);
+    legend();
+
+    // 剪刀差竖向标注
+    var diff = Math.round(nativeAcc(a)-foreignAcc(a));
+    ctx.strokeStyle = '#999';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, pN.y); ctx.lineTo(x, pF.y); ctx.stroke();
+
+    ageLabel.textContent = (a % 1 === 0)? a.toFixed(0) : a.toFixed(1);
+
+    // 文案
+    var msg;
+    if(a < 4){
+      msg = '约 '+ageLabel.textContent+' 个月：典型的"世界公民"阶段。婴儿几乎能分辨世界各语言的音素对比，母语与非母语的辨别力都还在较高、彼此接近的水平——此时大脑尚未"选边站"。';
+    } else if(a < 8){
+      msg = '约 '+ageLabel.textContent+' 个月：转折期（6 个月前后）。统计学习与知觉磁吸开始把资源向母语倾斜，母语辨别力上行、非母语开始下滑，"剪刀"正在张开（当前差约 '+diff+' 个百分点）。';
+    } else if(a < 11){
+      msg = '约 '+ageLabel.textContent+' 个月：知觉窄化加速。母语辨别力明显升高，非母语向随机水平滑落——婴儿正从"世界公民"变成"受文化束缚的听者"（当前差约 '+diff+' 个百分点）。';
+    } else {
+      msg = '约 '+ageLabel.textContent+' 个月：窄化基本成形。非母语辨别力已接近随机水平、母语辨别力高企，"剪刀差"达到约 '+diff+' 个百分点——母语神经焊死（NLNC）的雏形：母语被强化，外语滤镜增厚。';
+    }
+    caption.textContent = msg;
+  }
+
+  // 交互
+  slider.addEventListener('input', function(){
+    stopPlay();
+    render(parseFloat(slider.value));
+  });
+
+  var playing = false, raf = null, dir = 1;
+  function stopPlay(){
+    playing = false;
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    btnPlay.textContent = '▶ 自动播放发育历程';
+  }
+  function step(){
+    if(!playing) return;
+    var v = parseFloat(slider.value);
+    v += dir*0.06;
+    if(v >= 12){ v = 12; dir = -1; }
+    else if(v <= 0){ v = 0; dir = 1; }
+    slider.value = v;
+    render(v);
+    raf = requestAnimationFrame(step);
+  }
+  btnPlay.addEventListener('click', function(){
+    if(playing){ stopPlay(); return; }
+    playing = true;
+    dir = 1;
+    if(parseFloat(slider.value) >= 12){ slider.value = 0; }
+    btnPlay.textContent = '⏸ 暂停';
+    raf = requestAnimationFrame(step);
+  });
+  btnReset.addEventListener('click', function(){
+    stopPlay();
+    slider.value = 6;
+    render(6);
+  });
+
+  // 初始
+  render(6);
+})();
+</script>
+</body>
+</html>

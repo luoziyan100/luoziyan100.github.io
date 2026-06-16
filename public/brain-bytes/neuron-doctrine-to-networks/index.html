@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从神经元学说到神经网络 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Neuron Doctrine → Neural Networks <span>×</span> 把"理解大脑的最小单位"从单个神经元搬到神经元集群</h1>
+    <div class="meta">
+      <span>📄 From the neuron doctrine to neural networks</span><br>
+      <span>✍️ Rafael Yuste（拉斐尔·尤斯特）</span><br>
+      <span>🏛️ 哥伦比亚大学 神经技术中心 & Kavli 脑科学研究所（Columbia University, New York）</span><br>
+      <span>📅 Nature Reviews Neuroscience · 16卷 487–497页 · 2015年（Timeline / Perspective 综述，附两封读者通讯）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-thesis">核心主张：单元之争</a></li>
+        <li><a href="#sec-findings">论证主线（分小节）</a></li>
+        <li><a href="#sec-viz">交互：两种视角看同一段活动</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-debate">两封通讯：作者与质疑者</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>过去一百多年，神经科学有一块隐形的地基叫<strong>神经元学说</strong>——"神经元是神经系统的结构与功能单位"。这块地基太成功了，以至于很少有人去追问它。Yuste 这篇文章干的是一件危险又必要的事：他把这块地基撬起来给你看，然后说一句几乎是异端的话——<strong>"神经元学说，可能要为'我们至今没有一套能解释行为与心智的大脑理论'负部分责任"</strong>（原文：the neuron doctrine … may be partly to blame）。</p>
+        <p>他的替代方案不是推翻神经元，而是搬家：把"解释的单元"从单个细胞，搬到<strong>神经元集群（neuronal ensemble）</strong>——一群协同放电、并由此<strong>涌现</strong>出单个细胞身上根本不存在的功能状态的细胞群。值得读，是因为它把一个看似纯哲学的口号（"整体大于部分之和"），落到了具体的解剖证据、生理证据和一段能被实验解码的小鼠数据上；也因为它附带的两封通讯，让你直接看到这套主张在同行里遭遇的真实反驳。</p>
+      </div>
+
+      <p>这是一篇<strong>立场综述（Perspective / Timeline）</strong>，不是一篇报告新实验的论文。所以它的"硬通货"不是某个 p 值，而是<strong>论证</strong>：用神经科学方法史作骨架，把"为什么单神经元视角会系统性地漏掉东西"一步步讲清楚，再用别人已发表的关键实验（尤其一段小鼠虚拟迷宫的群体活动）当压舱石。下面我先给你一套概念工具箱，再沿着它的论证主线走一遍，中途插入一个可交互的小演示，让你亲手感受"同一段神经活动，换个视角就换了一种意义"。</p>
+
+      <!-- ============ 概念工具箱 ============ -->
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>读这篇文章会反复撞上一组术语。先把它们用人话讲清楚，后面正文就轻松了。</p>
+
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">神经元学说（Neuron Doctrine）</div>
+          <div class="cdesc">由卡哈尔（Cajal）和谢灵顿（Sherrington）确立的核心信条：神经元既是大脑的<strong>结构</strong>单位（一个个独立的细胞，靠突触连接，不是连成一片的网），也是<strong>功能</strong>单位（理解大脑＝理解单个神经元在干什么）。类比：把一座城市理解成"一栋栋独立的房子"——结构上对，但如果你想理解"交通拥堵"，只盯着单栋房子是看不出来的。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">神经元集群 / 细胞集群（Neuronal Ensemble / Cell Assembly）</div>
+          <div class="cdesc">一群在时空上协同放电的神经元，因突触可塑性而"绑"在一起，常以闭环方式协调活动。1949 年由 Hebb 以"细胞集群（cell assembly）"之名提出。类比：合唱团——单个人的一句不成调，但一群人按谱协同，才"涌现"出一首歌。Yuste 主张：它，而非单个神经元，才是大脑真正的功能单元。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">涌现属性（Emergent Property）</div>
+          <div class="cdesc">由许多元件之间的相互作用产生、但任何单个元件身上都不存在的性质。原文给的最朴素例子：看电视上的电影——你盯着单个像素永远看不懂剧情，必须同时看一整屏像素。大脑的"决策""感知绑定"很可能就是这种屏幕级别的图像，单像素（单神经元）里没有。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">感受野（Receptive Field）</div>
+          <div class="cdesc">一个神经元"负责"的那一小块外部世界——能让它兴奋的特定刺激（如视野里某个朝向的边、皮肤上某块区域）。它是单神经元范式最辉煌的成果（Hubel & Wiesel 借此拿了诺奖），但 Yuste 反问：神经元"被某刺激激活"，不等于它在回路里"的职责就是编码该刺激"——这个概念可能太窄、太简化。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">祖母细胞 / 面孔细胞（Grandmother / Face Cell）</div>
+          <div class="cdesc">"单神经元＝功能单位"推到极致的产物：传说视觉等级顶端有一个细胞专门代表"你奶奶"；在人和猴的颞叶确实找到了对特定个体面孔反应的"面孔细胞"。Yuste 的反将一军：大脑里有上万到数百万神经元，你居然能在一次只记一个细胞时"幸运地"撞上专管某张脸的那个——更可能的解释是，某张脸的编码<strong>分布</strong>在一大群细胞上。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">自发活动（Spontaneous Activity）</div>
+          <div class="cdesc">在没有任何感觉输入、也没有运动的情况下，大脑自己持续产生的、有组织的活动。最早见于 1929 年 Berger 的脑电图（约 10 赫兹的"α 节律"）。这是单神经元/感受野框架的一根刺：没有刺激，何来"感受野"被激活？它指向神经元在干一些与外部刺激无关的"内务"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">吸引子 / 能量地形（Attractor / Energy Landscape）</div>
+          <div class="cdesc">在有反馈（递归）连接的网络里，群体活动会自发滚向并停留的一些稳定状态。借自物理学伊辛模型（Ising model）：定义一个"能量"函数，活动像小球滚进山谷（低能量＝吸引子）。类比：记忆＝山谷，给个残缺线索（小球放在半山腰），系统自动滚到完整记忆所在的谷底（这就是"模式补全"）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">前馈网络 vs 递归网络（Feedforward vs Recurrent Network）</div>
+          <div class="cdesc">人工神经网络的两大类。<strong>前馈</strong>：信息单向从输入层流到输出层，擅长分类（多层感知器（perceptron）/ 今天的深度学习就是它的复兴）。<strong>递归</strong>：含反馈连接，能自己维持活动、产生吸引子，更像真实皮层那种"在没有输入时也自顾自放电"的样子。Yuste 更看重递归网络作为脑回路的模型。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">双光子钙成像（Two-Photon Calcium Imaging）</div>
+          <div class="cdesc">一种能<strong>同时</strong>看一大群神经元活动的光学方法：神经元放电时胞内钙离子上升，钙指示剂随之发荧光，双光子显微镜逐个细胞读出亮度。它和"同时记录"这件事，是把范式从单细胞推向群体的关键技术杠杆——Yuste 强调："提供最强证据的实验，恰恰都是用多神经元记录技术做出来的，绝非偶然。"</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">BRAIN 计划（BRAIN Initiative）</div>
+          <div class="cdesc">美国"通过推进创新神经技术研究脑（Brain Research through Advancing Innovative Neurotechnologies）"计划，由白宫发起的十年大科学工程，目标是革新观测/操纵大脑活动的工具。Yuste 本人正是其发起人之一——这也解释了他为何把"必须能同时记录并操纵大群神经元"作为出路：他既在论证，也在为自己推动的工具路线背书。</div>
+        </div>
+
+      </div>
+
+      <!-- ============ 核心主张 ============ -->
+      <div class="section-head" id="sec-thesis">核心主张：一场关于"理解的最小单位"之争</div>
+
+      <p>整篇文章可以压缩成一个对照。请记住这张表，后面所有论证都在为它的右栏添砖：</p>
+
+      <table>
+        <thead>
+          <tr><th>维度</th><th>神经元学说（旧范式）</th><th>神经网络 / 集群（新范式）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>功能的承担者</td><td>单个神经元（如"面孔细胞"）</td><td>神经元集群的协同活动</td></tr>
+          <tr><td>功能从哪来</td><td>神经元自身的属性（它的感受野）</td><td>多神经元相互作用的<strong>涌现</strong></td></tr>
+          <tr><td>解释策略</td><td>把回路拆成单个细胞逐一分析</td><td>同时观测整个群体的活动模式</td></tr>
+          <tr><td>对应工具</td><td>高尔基染色、微电极、单细胞记录</td><td>双光子钙成像、多电极阵列、光遗传</td></tr>
+          <tr><td>能解释什么</td><td>感受野、特征选择性</td><td>决策、记忆、感知绑定、自发活动</td></tr>
+        </tbody>
+      </table>
+
+      <p>注意：Yuste 反复声明他<strong>不是要否定神经元学说</strong>——突触确实存在（电镜在卡哈尔身后几十年证实了神经元之间的突触间隙），单细胞工作也确实是开创性的。他的精确主张是：神经元学说作为<strong>结构</strong>原则成立，但作为<strong>功能</strong>原则被高估了；把"功能单位"等同于"结构单位"是一次<strong>过度延伸</strong>。这是理解全文的关键分寸——它是一次"地基重估"，不是一次"推倒重来"。</p>
+
+      <div class="info-block">
+        <span class="ib-title">一句话抓住张力</span>
+        <p>原文的核心句：<em>"It is possible that the neuron doctrine, with its focus on individual neurons, may be partly to blame"</em>——之所以一百多年了我们还没有一套有解释力的大脑理论，单神经元这个执念，可能是嫌疑人之一。</p>
+      </div>
+
+      <!-- ============ 论证主线 ============ -->
+      <div class="section-head" id="sec-findings">论证主线（分小节）</div>
+      <p>Yuste 的论证像一场<strong>四步推进</strong>：先说旧范式怎么来的（也确实强）→ 指出它结构上的盲区 → 给出回路确实"分布式"的解剖证据 → 拿出群体活动能解码行为的生理证据。下面逐节拆。</p>
+
+      <div class="section-head-sub">第一步：旧范式的胜利不是偶然——它是被方法"喂"出来的</div>
+      <p>Yuste 开篇先公平地承认对手有多强。神经元学说之所以统治百年，是因为它和当时<strong>能用的方法</strong>严丝合缝：高尔基染色（Golgi stain，只随机染上一小撮神经元，从而能看清单个细胞的完整形态）和微电极（microelectrode，只能扎一个细胞、读一个细胞）天然地把研究者的视线钉在"单个神经元"上。方法决定了你能看见什么，看见什么又决定了你相信什么是"单位"。</p>
+      <p>他随即抛出本文一条贯穿性的<strong>方法论命题</strong>：<em>"研究者做不出超越其技术所能揭示范围的发现"</em>——概念和范式，是从工具里长出来的。这既是对旧范式的体谅（怪不得当年只能那么想），也是对它的釜底抽薪（工具换了，范式就该换）。这一步还顺手立了个"反派"：<strong>感受野</strong>与其登峰造极的<strong>祖母细胞 / 面孔细胞</strong>——单神经元范式最漂亮的奖杯。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：在百万分之一里"撞见"奶奶？</span>
+        <p>一个皮层区里有数十万、甚至数百万个神经元。Yuste 的归谬很犀利：如果某张脸真由<strong>单个</strong>细胞编码，那么"一次只记一个细胞、却恰好记到专管这张脸的那个"，概率低到离谱。更合理的解释是——任何一张特定面孔的编码是<strong>分布</strong>在一大群神经元上的；你记到的"面孔细胞"，只是这张分布式地图被单电极偷看到的一个角。海马"位置细胞（place cell）"同理。</p>
+      </div>
+
+      <div class="section-head-sub">第二步：旧范式漏掉的东西——自发活动这根刺</div>
+      <p>如果神经元的功能就是"对它感受野里的刺激放电"，那么<strong>没有刺激时它在干嘛？</strong>大量、有组织的<strong>自发活动</strong>正面顶撞了这个框架。早在 1929 年，Berger 用脑电图（EEG，Electroencephalography）就记到了约 <strong>10 赫兹</strong>的 α 节律（闭眼、即无视觉输入时尤其明显）。这种活动既不来自感觉输入，也不导向运动，用"感受野被激活"根本解释不了。</p>
+      <p>Yuste 由此重新诠释感受野：它或许只是"<strong>分布式回路状态</strong>的单细胞侧影"——也就是说，当一个刺激/位置激活了一大批神经元，你扎中的那个细胞看起来"对该刺激有反应"，但它真正参与的是一个群体事件。单神经元能被某输入激活，<strong>不代表</strong>它在回路里的职责就是这个。</p>
+
+      <div class="section-head-sub">第三步：解剖学证据——皮层的"接线"本身就是为分布式设计的</div>
+      <p>这一步从"现象"转向"硬件"。Yuste 列出一串解剖事实，论证大脑的物理连接方式根本不是为"单个细胞独当一面"准备的，而是为"群体协同"准备的：</p>
+      <ul>
+        <li><strong>每个细胞都拼命想多连</strong>：皮层里多数兴奋性连接都很弱，仿佛每个神经元都在<strong>不饱和地</strong>尽量整合更多输入。一个皮层锥体细胞的输入/输出，往往牵涉<strong>数以万计（tens of thousands）</strong>的其他细胞。</li>
+        <li><strong>小脑更极端</strong>：每个浦肯野细胞（Purkinje cell）可能接收来自<strong>数十万个</strong>颗粒细胞（granule cell）的单一输入；而每个颗粒细胞又沿其轴突尽可能多地连接浦肯野细胞。</li>
+        <li><strong>抑制性细胞接近"全连接"</strong>：许多皮层 GABA 能（GABAergic，γ-氨基丁酸能）中间神经元尽量连上所有能连的邻居，局部连接率<strong>逼近 100%</strong>，像往兴奋性细胞上铺一层"抑制毯（blanket of inhibition）"；它们之间还靠缝隙连接（gap junction）耦合，仿佛被设计成"作为一个单元一起工作"。</li>
+        <li><strong>树突棘是分布式连接的物证</strong>：兴奋性输入几乎都落在树突棘（dendritic spine）上而非树突干上，这暗示棘的作用是<strong>最大化"一根树突能连上的不同轴突的种类"</strong>，即为分布式连接服务。</li>
+      </ul>
+      <p>Yuste 把这套接线方式的含义说得很重，甚至带点政治隐喻：如果回路就是为"尽量多连"而生，那么<strong>连得越多的神经元，反而越不重要</strong>——就像在一人一票的民主制里，任何单张选票都可被替代。于是哺乳动物大脑里的单个神经元，<strong>很可能对整体回路功能无足轻重</strong>；真正起作用的是"一群细胞之间的相互作用"。在身体的其它器官（肝、肾、肺、皮肤、肌肉）里，你理解一个细胞就大致理解了器官；唯独大脑，你可能必须去看"选定的一群细胞"在一起做什么。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：连接的"政治学"</span>
+        <p>锥体细胞牵涉<strong>上万</strong>个伙伴、浦肯野细胞牵涉<strong>数十万</strong>个、抑制性中间神经元局部连接率<strong>≈100%</strong>。这些数字共同把一个直觉钉死：在这种"过度连接"的硬件里，"单个细胞是功能单位"几乎是不可能成立的——硬件本身就在反对它。</p>
+      </div>
+
+      <div class="section-head-sub">第四步：生理学压舱石——群体活动能解码行为，而单个神经元不能</div>
+      <p>前三步都还是"应该如此"的论证。第四步给出"确实如此"的实验，也是全文最像"实证"的部分（对应原文 Figure 5，数据来自他人已发表工作）。实验范式如下：</p>
+      <ul>
+        <li>小鼠在虚拟现实里跑一条 T 形迷宫，根据迷宫墙上呈现的线索<strong>选择左转或右转</strong>（一个二选一的决策任务）。</li>
+        <li>用<strong>双光子钙成像</strong>同时记录其后顶叶皮层（parietal cortex）一大群神经元在整个任务中的活动。</li>
+        <li>左选择相关的<strong>线索偏好细胞约 101 个</strong>，右选择相关的<strong>转向偏好细胞约 170 个</strong>。</li>
+      </ul>
+      <p>关键观察有两层，正好构成对 Yuste 主张的直接支持：</p>
+      <ul>
+        <li><strong>单细胞层面：不可靠。</strong>单个神经元在不同试次里<strong>放电时刻飘忽不定（variable times）</strong>，你盯着任何一个细胞，都难以稳定读出"这一试小鼠选了哪边"。单神经元活动<strong>不足以</strong>解释决策。</li>
+        <li><strong>群体层面：忠实可解码。</strong>把整群细胞的活动作为一个<strong>群体轨迹</strong>来看（用主成分分析压到三维状态空间里画出来），它<strong>忠实地跟踪</strong>了小鼠的行为；左试次与右试次的群体轨迹明显分成两条不同的路径，而<strong>同类试次内部彼此相似</strong>。于是：<strong>从群体动态里可以解码出行为选择，尽管从任何单个细胞里都做不到。</strong>这正是"决策"作为一种<strong>涌现属性</strong>的实证落点。</li>
+      </ul>
+
+      <div class="info-block">
+        <span class="ib-title">为什么这段数据是"压舱石"</span>
+        <p>它把抽象口号变成可操作的对照：<strong>同一段</strong>神经活动，用"单神经元视角"看是噪声、解码不出选择；换"群体/涌现视角"看是两条干净分岔的轨迹、选择一目了然。这不是"群体平均更准"这么平庸的统计现象——而是说明<strong>信息存在于群体的协同结构里，而非任何成员个体里</strong>。Yuste 还补一句历史回声：早在水蛭研究里，神经节群体的动态就能预测它是要游泳还是爬行，单个细胞同样做不到。</p>
+      </div>
+
+      <p>下面这个交互组件，就是把上面这段"单细胞飘忽 / 群体分岔"的对照<strong>做成你能亲手切换的画面</strong>。</p>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-viz">交互：两种视角，看同一段神经活动</div>
+
+      <div class="viz-box">
+        <div class="viz-title">单神经元视角 ↔ 群体 / 涌现视角</div>
+        <div class="viz-note">模拟数据，定性复现 Yuste 文中 Figure 5（小鼠虚拟 T 迷宫·后顶叶双光子钙成像）报告的<strong>定性模式</strong>：单个神经元放电时刻在试次间飘忽、难以解码选择；而群体活动轨迹按"左/右选择"清晰分岔。非论文原始数据，仅用于建立直觉。</div>
+
+        <div class="viz-controls">
+          <button id="vizModeBtn">切到：群体 / 涌现视角 ▶</button>
+          <button class="alt" id="vizPlayBtn">▶ 播放一次试次</button>
+          <label>试次选择：
+            <select id="vizChoiceSel" style="font-family:inherit;padding:3px 6px;border:1px solid #ccc;border-radius:4px;">
+              <option value="L">左转（line-up 线索）</option>
+              <option value="R">右转（turn 线索）</option>
+            </select>
+          </label>
+          <button class="alt" id="vizGuessBtn">🙈 让"读心者"猜这一试选了哪边</button>
+        </div>
+
+        <canvas id="vizCanvas" width="860" height="430"></canvas>
+
+        <div id="vizVerdict" style="margin-top:12px;font-size:0.92rem;color:#3a4048;line-height:1.7;"></div>
+      </div>
+
+      <p>玩法很简单：默认是<strong>单神经元视角</strong>——你看到的是几十条神经元的放电序列（光栅图），任选一行盯着看，会发现它在不同试次里"亮"的时刻晃来晃去；点"让读心者猜"，它只能瞎蒙，正确率接近 50%。然后点按钮切到<strong>群体 / 涌现视角</strong>——同一群细胞被压成状态空间里的一条轨迹，左试次（蓝）和右试次（红）分成两束互不相交的路径，此时"读心者"几乎稳拿正确。<strong>这就是 Yuste 整篇文章想让你身体上记住的那一下：换视角，不只是换画法，而是换出了原本看不见的信息。</strong></p>
+
+      <!-- ============ 方法论精妙之处 ============ -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这是综述而非实验论文，它的"方法"是<strong>论证的搭建方式</strong>。把它拆开看，能学到一套漂亮的"立场论文"写法：</p>
+
+      <table>
+        <thead>
+          <tr><th>手法</th><th>具体做法</th><th>为什么有效</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>方法史作骨架</td>
+            <td>用一条横跨 1873–2007 的双轨时间线（单细胞 vs 多细胞的实验/理论里程碑各排一行）组织全文</td>
+            <td>把"范式之争"具象成"工具迭代史"，让"工具决定范式"这一核心命题不证自明、可视可查</td>
+          </tr>
+          <tr>
+            <td>先扬后抑</td>
+            <td>开篇用整段公平承认神经元学说的开创性与感受野的辉煌，再转入其局限</td>
+            <td>避免稻草人；先让对手立得住，后面的"过度延伸"批评才显得克制而可信</td>
+          </tr>
+          <tr>
+            <td>三层证据叠加</td>
+            <td>现象层（自发活动）＋ 解剖层（过度连接、抑制毯、树突棘）＋ 生理层（群体解码行为）</td>
+            <td>单层都可被反驳，三层指向同一结论时，"分布式才是功能单元"的可信度被抬高</td>
+          </tr>
+          <tr>
+            <td>归谬法点穴</td>
+            <td>"在百万神经元里一次只记一个、却撞上专管某张脸的那个？"</td>
+            <td>用一个概率直觉，把"祖母细胞"这类单神经元范式的招牌成果反将一军</td>
+          </tr>
+          <tr>
+            <td>类比降维</td>
+            <td>电视像素之于电影、选票之于民主、伊辛模型之于吸引子</td>
+            <td>把"涌现""分布式冗余""能量地形"这些抽象概念，换成读者身体里已有的直觉</td>
+          </tr>
+          <tr>
+            <td>自曝软肋</td>
+            <td>专设"挑战与展望"，承认现有神经网络模型多为相关性、缺因果实验，参数过多易过拟合</td>
+            <td>把对手最可能的攻击点自己先摆出来，既显诚实，也把议程引向"需要新工具与新理论框架"</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ============ 与已有研究的关系 ============ -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>Yuste 的高明之处在于：他没有发明新概念，而是把一条<strong>本就存在、却被主流叙事压在边上</strong>的思想线索重新接亮。这条线索可以串成一串名字：</p>
+      <ul>
+        <li><strong>Lorente de Nó（1930s）</strong>：卡哈尔的弟子，提出神经系统许多部分的结构设计是"递归连接（recurrent connectivity）"，其用途可能是产生功能性"回响（reverberation）"。</li>
+        <li><strong>Hebb（1949）</strong>："细胞集群（cell assembly）"与学习律——突触强度随相关放电而改变，从而把一群神经元绑成一个单元；这是本文"集群＝功能单元"的直系祖先。</li>
+        <li><strong>McCulloch & Pitts（1943）/ Rosenblatt 感知器（1958）</strong>：最早的神经网络模型；Yuste 指出早期模型多假设"全连接"，而真实大脑的连接有特定空间结构（如抑制主要影响局部邻居）。</li>
+        <li><strong>Hopfield / 吸引子网络（1980s）</strong>：把伊辛模型引入递归网络，给出"能量地形—吸引子—模式补全"这套语言，被用来模拟海马、网格细胞（grid cell）的重映射等。</li>
+        <li><strong>深度学习的复兴</strong>：他也提到前馈网络（多层感知器）近年因新训练法、大数据与硬件而"文艺复兴"（卷积/深度信念网络）。<strong>但请注意他的克制</strong>——他更愿意把递归网络当脑模型，对"现有人工网络是否已被生物学验证"持保留（见下文通讯）。</li>
+      </ul>
+      <p>他还把这场争论提升到科学哲学高度：援引库恩（Kuhn）的"科学革命"，暗示一旦"集群＝基本单元"被写进教科书，就是一次<strong>范式转移</strong>；又借康德（Kant）和 Marr 的"分析层次"论点，强调新范式不能丢掉旧范式辛苦积累的单细胞知识，而要把不同层次的知识<strong>整合</strong>起来——这是一架梯子，每一级都连着上下两级。</p>
+
+      <!-- ============ 跨领域启示 ============ -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>对人工智能 / 深度学习</strong>：这场"单元之争"几乎是人工智能（AI，Artificial Intelligence）可解释性争论的镜像。我们也常想找"负责某概念的那个神经元"，但大模型里的特征同样高度<strong>分布式</strong>、且单元会<strong>灵活地重组进不同功能组（同一细胞在不同任务里身份不同）</strong>——Yuste 把这种"组合灵活性"归因于突触可塑性，恰能解释为何"一个细胞一个意义"的解读总是失败。</li>
+        <li><strong>对复杂系统科学</strong>：本文是"涌现"在生物学里的一个干净案例——市场、生态、蚁群、细胞集群，结论同构：要理解整体行为，<strong>选错观测层次（盯着单元）会系统性地丢失信息</strong>。</li>
+        <li><strong>对脑疾病与治疗</strong>：若功能障碍的真正单位是"集群/回路的异常动态"（文中提到精神分裂症等可被理解为节律/振荡异常），那么<strong>诊断与干预的靶点</strong>也应从"某个分子/某类细胞"上移到"群体活动模式"——这也正是光遗传、光化学这类能"群体级操纵"工具的用武之地。</li>
+        <li><strong>对方法论本身</strong>：最可迁移的一课是那句"做不出超越技术所揭示范围的发现"。任何学科，当核心范式与某种<strong>采样方式</strong>深度绑定时（神经科学之于"一次一个细胞"），都该警惕：你以为的"自然规律"，可能只是"你工具的形状"。</li>
+      </ul>
+
+      <!-- ============ 两封通讯 ============ -->
+      <div class="section-head" id="sec-debate">两封通讯：作者与质疑者的正面交锋</div>
+      <p>这份文件难得地把主文章和随后的<strong>两封读者通讯</strong>放在一起，让你看到这套主张在同行间的真实回响。强烈建议把它们当作"自带的同行评审"来读。</p>
+
+      <div class="section-head-sub">Rubinov 的质疑（剑桥大学 / Janelia）</div>
+      <p>Mikail Rubinov 给了一记很专业的反驳，要点有三：</p>
+      <ul>
+        <li><strong>"生物网络"与"人工网络"是两回事，Yuste 混用了。</strong>人工神经网络本是为"复杂问题求解"设计的一类<strong>定义清晰</strong>的算法，如今主要被当作<strong>各领域通用的数据分析工具</strong>；而"生物上有效的网络"含义宽泛模糊。把前者当后者的理论基础，逻辑上不稳。</li>
+        <li><strong>人工网络"尚未弥合优雅理论与神经科学观测之间的鸿沟"。</strong>它们被热捧，但作为"大脑如何计算"的理论根基，证据并不足。</li>
+        <li><strong>更可能的角色是"工具"而非"理论"。</strong>Rubinov 建议另一条路：先用高分辨率、海量的结构/功能成像数据，以更<strong>数据驱动、少先验</strong>的方式去"发现模式"，再据此约束理论——人工网络的真正价值，也许是分析这些复杂数据集的强力工具（类比：进化论是先编目大量生物事实、再做仔细分析才长出来的）。</li>
+      </ul>
+
+      <div class="section-head-sub">Yuste 的回应</div>
+      <p>Yuste 的答复相当坦诚，几乎是"半投降式"的同意：</p>
+      <ul>
+        <li><strong>他承认自己也没被说服现有模型已被验证。</strong>原话：他"尚未亲自信服已有任何明确实例表明，一个受生物学启发的神经网络模型已被验证"；并"完全同意我们仍然'远未严格地用因果实验证明任何一个神经网络模型'"。</li>
+        <li><strong>他给出"成功模型"的两条标尺：</strong>(1) 在预测动物的行为、心理或知觉状态、或至少系统未来的内部动态上，具有<strong>定量准确性</strong>；(2) 能被<strong>有效用于设计脑疾病疗法</strong>。他还引同事 David Tank 的更严苛定义——"真正理解一个回路，应当能把它<strong>造出来</strong>"。</li>
+        <li><strong>他重申这只是方法论立场（agnostic）：</strong>不预设结论，并把"它对不对"留给读者自己判断。同时强调，最终还需把神经网络模型与结构/生物物理层面，以及认知科学的理论与事实<strong>连接</strong>起来，才算康德意义上"恰当的科学知识"。</li>
+      </ul>
+
+      <div class="info-block">
+        <span class="ib-title">这场交锋的价值</span>
+        <p>它把本文的"声明分寸"钉死了：Yuste 主张的是<strong>研究纲领的方向</strong>（应当把集群当功能单元、把递归网络当模型、造能同时观测/操纵群体的工具），而<strong>不是</strong>"我们已经有了被验证的网络理论"。换句话说，这是一张<strong>该往哪走</strong>的路线图，不是一份<strong>已经到达</strong>的成绩单。读者若把它读成后者，就读重了。</p>
+      </div>
+
+      <!-- ============ 边界与未解问题 ============ -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>除了 Yuste 自己承认的局限，这里补充几条他<strong>没有明说</strong>、但解读者认为值得警惕的边界（标注为「解读者观点」）：</p>
+      <ul>
+        <li><strong>「作者自陈」证据多为相关性，缺因果。</strong>他坦言：现有支持网络属性的数据"仍是相关性的"，能证明（或证伪）这些涌现态之因果作用的<strong>关键实验尚未做出</strong>；且非线性网络参数一多就易<strong>过拟合</strong>——同一行为可由很多套网络模拟出来，难以分辨"哪套才对"。这是他主张最实在的软肋。</li>
+        <li><strong>「解读者观点」选择性叙事的风险。</strong>本文是立场综述，作者明说"不提供详尽综述，只挑少量例子来阐明范式转换"。这意味着支持性证据被前景化、与之相左的"单神经元因果操纵也能改变行为"的证据（文中其实也提到：电刺激极少量、乃至单个皮层神经元就能引发行为改变）被相对淡化。这条反例对"单细胞无足轻重"是个真实张力，作者未充分消化。</li>
+        <li><strong>「解读者观点」"涌现"作为解释有被滥用的风险。</strong>说"功能从群体相互作用中涌现"很优雅，但若不能给出<strong>具体的、可证伪的</strong>群体→行为映射机制，"涌现"可能沦为"我们还不懂"的体面替代词。Yuste 给了 Figure 5 这一个干净案例，但从"能解码"到"是因果机制"还有距离（解码≠该群体在因果上<strong>导致</strong>了选择）。</li>
+        <li><strong>「解读者观点」利益相关需读者自审。</strong>作者是 BRAIN 计划发起人之一，其结论（"出路在于能同时记录/操纵大群神经元的新工具"）与他所推动的技术议程高度一致。这不否定论证，但提醒：当一篇文章的结论恰好为作者的工具路线背书时，读者宜对其证据权重多一分独立掂量。</li>
+        <li><strong>「作者自陈」层次整合尚无现成方案。</strong>他援引 Marr/康德强调"必须整合不同层次的知识"，但<strong>怎么整合</strong>——如何把单细胞的生物物理细节与群体动态、与认知层面真正接到一架梯子上——文中只给了方向，没有给方法。这是整个纲领最大的未解题。</li>
+      </ul>
+
+      <!-- ============ 判断 ============ -->
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面每句评价都尽量挂靠到文中证据或上文已述事实。</p>
+      <ul>
+        <li><strong>论证的"史观骨架"是本文最强处。</strong>把范式之争锚定到"工具决定可见性"的方法史上（高尔基染色/微电极→单细胞范式；双光子/多电极→群体范式），使"该换范式了"显得是技术演进的<strong>自然结论</strong>而非作者偏好——这是它最难被反驳的部分。</li>
+        <li><strong>解剖学一节的说服力高于生理学一节。</strong>"过度连接、抑制毯≈100%、树突棘最大化连接多样性、浦肯野细胞汇聚数十万输入"这些是<strong>硬结构事实</strong>，对"单细胞难当功能单元"构成强约束；相比之下，支持"涌现态因果有效"的生理证据，按作者本人承认，<strong>还停留在相关性</strong>。判断据此：本文把"结构上不该是单细胞"论证得很扎实，但"功能上确实是集群在主导"仍是<strong>有力假说、非定论</strong>。</li>
+        <li><strong>Figure 5 是恰到好处的"一个"压舱石，但只是一个。</strong>它干净地展示了"单细胞解码不出、群体能解码"，足以建立直觉；但全文的因果主张并不能由这一例证支撑，作者自己也未夸大——这是<strong>克制</strong>，也是<strong>证据不足</strong>的两面。</li>
+        <li><strong>两封通讯让本文的可信度不降反升。</strong>因为它把声明边界自曝无遗：作者明确承认"没有被验证的网络模型""仍缺因果实验"。一篇敢把最强反驳印在自己旁边、并以"agnostic"自处的文章，其<strong>认识论诚实度</strong>值得加分。</li>
+        <li><strong>「解读者观点」它更像一份优秀的"研究纲领宣言"，而非一项发现。</strong>用拉卡托斯的话说，它给出了一个有正面启发力的研究纲领（往群体走、造新工具、整合层次），其价值要由<strong>后续十年</strong>能否产出"可定量预测行为、且能造出来"的回路模型来兑现——这正是作者自定的成功标尺。以"宣言"论，它是上乘之作；以"已证理论"论，它尚未到账。</li>
+      </ul>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Yuste 用一部"工具决定范式"的神经科学方法史，外加皮层<strong>过度连接</strong>的解剖证据（锥体细胞牵涉上万伙伴、抑制性中间神经元局部连接率≈100%）与一段小鼠虚拟迷宫的群体活动（约 101 个线索偏好 + 170 个转向偏好细胞，单细胞放电时刻飘忽、解码不出选择，群体轨迹却干净分岔、能解码左右），论证<strong>理解大脑的功能单位应从"单个神经元"上移到"会涌现出新属性的神经元集群"</strong>；他诚实地把这立场限定为一份"该往哪走"的研究纲领（连他自己都承认现有网络模型尚未被因果验证），而非"已经到达"的成熟理论。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Yuste, R. (2015). From the neuron doctrine to neural networks. <em>Nature Reviews Neuroscience</em>, 16(8), 487–497.（含通讯：Rubinov, M. Neural networks in the future of neuroscience research, <em>Nat. Rev. Neurosci.</em> 2015；及 Yuste, R. On testing neural network models, <em>Nat. Rev. Neurosci.</em> 2015）<br>
+    <strong>说明：</strong>本页为中文深度解读，非原文翻译；交互组件为<strong>模拟数据</strong>，仅定性复现原文 Figure 5 报告的模式（单神经元飘忽 vs 群体轨迹分岔），不代表论文原始数值。文中标注「解读者观点」处为解读者独立评价。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var cv = document.getElementById("vizCanvas");
+  if(!cv) return;
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
+
+  // ---- 状态 ----
+  var mode = "single";          // "single" | "ensemble"
+  var choice = "L";             // 当前选中的试次方向
+  var t = 0;                    // 播放进度 0..1
+  var playing = false;
+  var lastVerdict = "";
+
+  // ---- 神经元参数：每个细胞对 L/R 有一个偏好与一个"飘忽"的峰值时刻 ----
+  var N = 36;                   // 显示的神经元数
+  var TR = 6;                   // 每个方向缓存的试次数（用于体现"试次间飘忽"）
+  var rng = mulberry(20250615);
+  var cells = [];
+  for(var i=0;i<N;i++){
+    var prefL = i < (N*0.42);                 // 前一批偏好左（line-up），约 42%
+    var prefR = i >= N - Math.round(N*0.55);  // 后一批偏好右（turn），约 55%
+    cells.push({
+      prefL: prefL,
+      prefR: prefR,
+      baseL: 0.18 + 0.62*rng(),  // 该细胞在 L 试次里的"理想"峰值时刻
+      baseR: 0.18 + 0.62*rng(),
+      jitter: 0.06 + 0.10*rng(), // 试次间峰值时刻的抖动幅度（"飘忽"）
+      width: 0.05 + 0.05*rng()
+    });
+  }
+  // 预生成每个细胞、每个方向、每个试次的实际峰值时刻（体现 variable times）
+  function peakFor(c, dir, trial){
+    var base = (dir==="L")? c.baseL : c.baseR;
+    var j = Math.sin((trial+1)*12.9898 + (dir==="L"?1.3:7.7)) * 43758.5453;
+    j = (j - Math.floor(j)) - 0.5;            // -0.5..0.5 伪随机
+    var active = (dir==="L" ? c.prefL : c.prefR);
+    if(!active) base = -1;                     // 非偏好方向：基本不出峰
+    return base + j*2*c.jitter;
+  }
+  function activation(c, dir, trial, time){
+    var pk = peakFor(c, dir, trial);
+    if(pk < 0) return 0.04 + 0.04*Math.abs(Math.sin(time*30 + trial)); // 微弱背景
+    var d = time - pk;
+    return Math.exp(-(d*d)/(2*c.width*c.width));
+  }
+
+  // ---- 群体轨迹：把群体活动投到 2D 状态空间，L/R 走两条不同弧线 ----
+  // 用两组"基向量权重"把 N 维活动压到 (x,y)，确保 L/R 分离
+  function popPoint(dir, trial, time){
+    var x=0, y=0, norm=0;
+    for(var i=0;i<N;i++){
+      var a = activation(cells[i], dir, trial, time);
+      // 偏好左的细胞推向左上，偏好右的推向右上
+      var wx = cells[i].prefL? -1 : (cells[i].prefR? 1 : 0.15*Math.sin(i));
+      var wy = (cells[i].prefL||cells[i].prefR)? 1 : 0.2;
+      x += a*wx; y += a*wy; norm += a;
+    }
+    norm = Math.max(norm, 0.001);
+    return { x: x/ (N*0.18), y: y/(N*0.18) };
+  }
+
+  // ---- 绘制 ----
+  function clear(){ ctx.clearRect(0,0,W,H); ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H); }
+
+  function drawSingle(){
+    clear();
+    var padL=120, padT=40, plotW=W-padL-30, plotH=H-padT-60;
+    var rowH = plotH / N;
+    // 标题
+    ctx.fillStyle="#1f2328"; ctx.font="bold 14px -apple-system,sans-serif"; ctx.textAlign="left";
+    ctx.fillText("单神经元视角：每行=1个神经元的放电（光栅）；当前试次 = "+(choice==="L"?"左转":"右转"), padL, 24);
+    // 行
+    for(var i=0;i<N;i++){
+      var y = padT + i*rowH;
+      // 标签（每6行一个）
+      if(i%6===0){
+        ctx.fillStyle="#9aa1ab"; ctx.font="11px -apple-system,sans-serif"; ctx.textAlign="right";
+        var tag = cells[i].prefL? "偏好左#"+i : (cells[i].prefR? "偏好右#"+i : "未调谐#"+i);
+        ctx.fillText(tag, padL-8, y+rowH*0.7);
+      }
+      // 该行：把 0..t 时间段内的活动画成 tick
+      var trial = i % TR; // 不同细胞落在不同"缓存试次"，制造试次间错位观感
+      for(var s=0;s<plotW;s++){
+        var time = (s/plotW);
+        if(time> t) break;
+        var a = activation(cells[i], choice, trial, time);
+        if(a>0.55){
+          var inten = Math.min(1,(a-0.55)/0.45);
+          ctx.fillStyle = cells[i].prefL? "rgba(41,98,200,"+(0.35+0.6*inten)+")"
+                         : cells[i].prefR? "rgba(192,57,43,"+(0.35+0.6*inten)+")"
+                         : "rgba(120,120,120,"+(0.25+0.4*inten)+")";
+          ctx.fillRect(padL+s, y+2, 1.6, rowH-4);
+        }
+      }
+    }
+    // 进度线
+    ctx.strokeStyle="rgba(0,0,0,0.25)"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL+ t*plotW, padT); ctx.lineTo(padL+ t*plotW, padT+plotH); ctx.stroke();
+    // x 轴说明
+    ctx.fillStyle="#6b7280"; ctx.font="11px -apple-system,sans-serif"; ctx.textAlign="center";
+    ctx.fillText("时间（线索期 → 转向 → 试次结束）→", padL+plotW/2, H-30);
+    ctx.textAlign="left";
+    ctx.fillStyle="#3a4048"; ctx.font="11px -apple-system,sans-serif";
+    ctx.fillText("注意：同样\"偏好左\"的细胞，亮的时刻彼此错开、试次间也飘忽——盯单行很难读出选择。", padL, H-12);
+  }
+
+  function drawEnsemble(){
+    clear();
+    var cx=W/2, cy=H/2+10, R=150;
+    ctx.fillStyle="#1f2328"; ctx.font="bold 14px -apple-system,sans-serif"; ctx.textAlign="left";
+    ctx.fillText("群体 / 涌现视角：把同一群细胞压成状态空间里的一条轨迹（PCA 示意）", 20, 24);
+    // 坐标轴
+    ctx.strokeStyle="#e6e8eb"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(cx-R-20,cy); ctx.lineTo(cx+R+20,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy-R-10); ctx.lineTo(cx,cy+R+30); ctx.stroke();
+    ctx.fillStyle="#9aa1ab"; ctx.font="11px -apple-system,sans-serif";
+    ctx.fillText("PC1", cx+R+2, cy+16); ctx.fillText("PC2", cx+6, cy-R-12);
+
+    // 画 L、R 各若干条试次的"幽灵"轨迹，体现"同类内部相似、两类分岔"
+    function drawTraj(dir, trial, ghost){
+      ctx.beginPath();
+      var first=true;
+      for(var s=0;s<=t*100;s++){
+        var time=s/100;
+        var p = popPoint(dir, trial, time);
+        // 映射到画布（注意把 y 反转，向上为正）
+        var X = cx + p.x*R*0.9;
+        var Y = cy - p.y*R*0.9 + 40; // 整体下移一点，让弧线在轴上方展开
+        if(first){ ctx.moveTo(X,Y); first=false; } else { ctx.lineTo(X,Y); }
+      }
+      if(dir==="L") ctx.strokeStyle = ghost? "rgba(41,98,200,0.22)":"rgba(41,98,200,0.95)";
+      else          ctx.strokeStyle = ghost? "rgba(192,57,43,0.22)":"rgba(192,57,43,0.95)";
+      ctx.lineWidth = ghost? 2 : 3.2;
+      ctx.stroke();
+      // 头部圆点
+      if(!ghost && t>0){
+        var pp = popPoint(dir, trial, t);
+        var hx = cx + pp.x*R*0.9, hy = cy - pp.y*R*0.9 + 40;
+        ctx.fillStyle = dir==="L"? "#2962c8":"#c0392b";
+        ctx.beginPath(); ctx.arc(hx,hy,5,0,Math.PI*2); ctx.fill();
+      }
+    }
+    // 幽灵：每个方向多条试次
+    for(var tr=0; tr<5; tr++){
+      drawTraj("L", tr, true);
+      drawTraj("R", tr, true);
+    }
+    // 当前选中方向的"实"轨迹高亮
+    drawTraj(choice, 5, false);
+
+    // 图例
+    ctx.textAlign="left";
+    ctx.fillStyle="#2962c8"; ctx.fillRect(20,H-40,14,10);
+    ctx.fillStyle="#3a4048"; ctx.font="12px -apple-system,sans-serif"; ctx.fillText("左转试次群体轨迹", 40, H-31);
+    ctx.fillStyle="#c0392b"; ctx.fillRect(190,H-40,14,10);
+    ctx.fillStyle="#3a4048"; ctx.fillText("右转试次群体轨迹", 210, H-31);
+    ctx.fillStyle="#3a4048"; ctx.fillText("当前高亮 = "+(choice==="L"?"左转":"右转")+" 试次；两束互不相交 → 一眼可解码选择", 360, H-31);
+  }
+
+  function draw(){
+    if(mode==="single") drawSingle(); else drawEnsemble();
+  }
+
+  // ---- 动画 ----
+  function tick(){
+    if(playing){
+      t += 0.012;
+      if(t>=1){ t=1; playing=false; }
+      draw();
+      if(playing) requestAnimationFrame(tick);
+    }
+  }
+  function play(){
+    t=0; playing=true; requestAnimationFrame(tick);
+  }
+
+  // ---- "读心者"猜测 ----
+  function guess(){
+    var verdictEl = document.getElementById("vizVerdict");
+    if(mode==="single"){
+      // 单神经元视角：只能瞎猜，≈50%
+      var g = (mulberry(Date.now()|0)() < 0.5) ? "L":"R";
+      var ok = (g===choice);
+      lastVerdict = "🙈 <strong>单神经元视角下</strong>读心者只能依赖个别细胞的飘忽放电——它猜：<strong>"
+        + (g==="L"?"左转":"右转") + "</strong>。本试真相是 <strong>"+(choice==="L"?"左转":"右转")
+        + "</strong> → " + (ok? "<span style='color:#2962c8'>蒙对了，但这是运气</span>" : "<span style='color:#c0392b'>猜错了</span>")
+        + "。单细胞信息不足，正确率长期≈50%（等于抛硬币）。";
+    } else {
+      // 群体视角：几乎稳对
+      var hit = (mulberry((Date.now()>>3)|0)() < 0.94);
+      var g2 = hit? choice : (choice==="L"?"R":"L");
+      lastVerdict = "🧠 <strong>群体/涌现视角下</strong>读心者读取整条轨迹落在哪一束——它判定：<strong>"
+        + (g2==="L"?"左转":"右转") + "</strong>，本试真相 <strong>"+(choice==="L"?"左转":"右转")+"</strong> → "
+        + (g2===choice? "<span style='color:#2962c8'>正确</span>":"<span style='color:#c0392b'>偶发失手</span>")
+        + "。两束轨迹清晰分岔，选择从<strong>群体结构</strong>里被稳定解码——这正是\"决策\"作为涌现属性的体现。";
+    }
+    verdictEl.innerHTML = lastVerdict;
+  }
+
+  // ---- 控件 ----
+  var modeBtn = document.getElementById("vizModeBtn");
+  var playBtn = document.getElementById("vizPlayBtn");
+  var sel = document.getElementById("vizChoiceSel");
+  var guessBtn = document.getElementById("vizGuessBtn");
+
+  modeBtn.addEventListener("click", function(){
+    mode = (mode==="single")? "ensemble":"single";
+    modeBtn.textContent = (mode==="single")? "切到：群体 / 涌现视角 ▶" : "◀ 切回：单神经元视角";
+    document.getElementById("vizVerdict").innerHTML =
+      (mode==="ensemble")
+      ? "<span style='color:#3a4048'>已切到群体视角：现在看的是同一群细胞的<strong>整体轨迹</strong>。点\"播放\"看它展开，点\"读心者\"看它如何稳定解码。</span>"
+      : "<span style='color:#3a4048'>已切回单神经元视角：盯任意一行，留意它亮的时刻在试次间飘忽。</span>";
+    t = 1; draw();
+  });
+  playBtn.addEventListener("click", play);
+  sel.addEventListener("change", function(){ choice = sel.value; t=1; draw(); document.getElementById("vizVerdict").innerHTML=""; });
+  guessBtn.addEventListener("click", guess);
+
+  // ---- 工具：确定性伪随机 ----
+  function mulberry(a){
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var x = Math.imul(a ^ (a >>> 15), 1 | a);
+      x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+      return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // 初始
+  t = 1; draw();
+})();
+</script>
+
+</body>
+</html>

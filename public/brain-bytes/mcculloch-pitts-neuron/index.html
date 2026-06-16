@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>McCulloch & Pitts 1943 — 神经活动的逻辑演算 · 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Formal Neuron <span>×</span> 把"神经元开火"翻译成"一句话为真"，于是大脑成了一台逻辑机器</h1>
+    <div class="meta">
+      <span>📄 A Logical Calculus of the Ideas Immanent in Nervous Activity</span><br>
+      <span>✍️ Warren S. McCulloch（沃伦·麦卡洛克）&amp; Walter Pitts（沃尔特·皮茨）</span><br>
+      <span>🏛️ University of Illinois 医学院 · University of Chicago 伊利诺伊神经精神病研究所精神病学系</span><br>
+      <span>📅 Bulletin of Mathematical Biophysics（《数理生物物理学通报》）卷 5, 115–133 · 1943 年</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-question">它到底想回答什么</a></li>
+        <li><a href="#sec-bigidea">核心一·神经元＝命题</a></li>
+        <li><a href="#sec-rules">形式神经元的五条铁律</a></li>
+        <li><a href="#sec-viz">🔴 交互：用神经元拼逻辑门</a></li>
+        <li><a href="#sec-theorems">核心二·两个方向的定理</a></li>
+        <li><a href="#sec-equiv">核心三·等价定理</a></li>
+        <li><a href="#sec-turing">核心四·与图灵机的关系</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是整个人工智能（AI，Artificial Intelligence）与神经网络的"创世第一章"。1943 年，一位精神科神经生理学家和一位还没拿到学位的少年逻辑天才合作，做了一件听上去像变魔术的事：他们把"一个神经元放电还是不放电"这个生物事实，<strong>等同于</strong>"一个命题为真还是为假"这个逻辑事实——然后证明，只要把这种"全有全无"的神经元按特定方式连起来，就能搭出任意复杂的逻辑运算，整个神经网的行为都可以用命题逻辑（propositional logic）精确写下来。</p>
+        <p>这一步的后果极其深远：它第一次给出"大脑＝信息处理机器"的严格数学版本，直接催生了<strong>人工神经元</strong>这一概念，是后来感知机、深度学习里每一个"神经元"的祖宗；它也启发了冯·诺依曼（von Neumann）的计算机设计，并和图灵（Turing）的可计算性理论接上了头。这篇文章符号密、读起来劝退，但它的<strong>核心思想一句话就能讲清，而且一旦讲清就再也忘不掉</strong>。本文的任务，就是把那一堆吓人的逻辑符号，翻译成你能上手玩的"神经元搭逻辑门"。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的语言来自三个不同的世界——神经生理学、数理逻辑、和刚萌芽的计算理论。先把工具摆齐，后面读正文就不打结了。文中大量符号其实只在说几件简单的事。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">全有全无律（All-or-None Law）</div>
+          <div class="cdesc">神经元要么<strong>完整地放一次电</strong>（产生一个动作电位），要么<strong>完全不放</strong>，没有"放一半"。就像电灯开关只有开和关，不存在半亮。正是这个"非黑即白"的特性，让神经元可以被当成逻辑里的"真/假"来处理——这是全文的物理地基。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">形式神经元（Formal Neuron / M-P Neuron）</div>
+          <div class="cdesc">McCulloch 和 Pitts 抽象出来的"理想神经元"：把真实神经元简化成一个只认数的小开关——数一数上一刻有几个兴奋输入到了，够不够阈值；只要有一个抑制输入到了就一票否决。后世直接叫它 <strong>M-P 神经元</strong>（M-P＝两位作者姓氏首字母），是所有人工神经网络的最小积木。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">阈值（Threshold，θ）</div>
+          <div class="cdesc">神经元被点燃所需的"最低票数"。论文里说，必须在极短的"潜伏相加期"内有<strong>足够数目</strong>的突触同时被激发，神经元才会发出一个冲动。阈值高＝难被点燃（像"与门"，要所有人都同意）；阈值低＝容易被点燃（像"或门"，一个人同意就行）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">兴奋性与抑制性突触（Excitatory / Inhibitory Synapse）</div>
+          <div class="cdesc">两种相反的输入：兴奋性突触是"投赞成票"，凑够阈值就让神经元开火；抑制性突触是"一票否决"——论文的假设里，只要任何一个抑制性突触在该时刻活动，就<strong>绝对阻止</strong>这个神经元放电（叫"绝对抑制"）。后面会看到，正是抑制让"非门"成为可能。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">突触延迟（Synaptic Delay）</div>
+          <div class="cdesc">冲动从一个神经元传到下一个，要花一点点固定时间（论文测得 &gt;0.5 毫秒）。本文把它<strong>当成网络里唯一重要的时间单位</strong>，记作"一拍"。所以 <code>N(t)</code> 取决于上一拍 <code>N(t−1)</code> 的输入——这一拍一拍的节奏，是把"时间"塞进逻辑的关键。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">命题逻辑（Propositional Logic）</div>
+          <div class="cdesc">只处理"整句话的真假"和它们的组合（与 AND、或 OR、非 NOT）的那套逻辑，不深入句子内部结构。论文借用罗素与怀特海《数学原理》和卡尔纳普（Carnap）的符号体系，用它来给神经网"记账"——每个神经元放电对应一个命题为真。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">时间命题表达式（TPE，Temporal Propositional Expression）</div>
+          <div class="cdesc">本文自创的核心工具：一个<strong>带时间标记</strong>的逻辑命题，形如"上一拍 N₁ 为真"。它由四种基本操作搭成——延迟（往前推一拍）、与、或、合取否定（AND-NOT）。论文证明：<strong>无环神经网能表达的，恰好就是全体 TPE</strong>。把它想成"神经元能讲出来的句子"的语法。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">可实现性（Realizability，狭义 / 广义）</div>
+          <div class="cdesc">一个逻辑要求"能不能用真神经网造出来"。<strong>狭义</strong>＝直接用基本神经元就能造；<strong>广义</strong>＝允许在前面接若干"辅助延迟神经元"后能造。论文反复用"广义"，因为它对各种生理细节的争议不敏感——只要不在乎冲动穿过全网的精确耗时，结论都成立。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">无环网 / 有环网（Nets without / with Circles）</div>
+          <div class="cdesc">网络里有没有"回路"。<strong>无环网</strong>＝信号单向前进、走到头就停，像流水线，行为简单、能用 TPE 完全刻画。<strong>有环网</strong>＝存在让信号绕圈跑的回路，活动可以一直回荡（reverberate）下去——这正是"记忆"的雏形，但分析起来难得多，要用递归函数处理。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">等价（Equivalence in the Extended Sense）</div>
+          <div class="cdesc">两张结构不同的神经网，如果对一切输入给出相同的输出模式（可以差几拍时间），就叫"广义等价"。论文最漂亮的一类结果就是证明：很多看似关键的生理机制（抑制方式、易化、可塑突触……）<strong>彼此等价</strong>，造出来的网行为一样。于是你不必赌生物学上到底哪种为真。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-question">它到底想回答什么</div>
+      <p>把时间拨回 1943 年。那时人们对单个神经元已经知道得不少：它有阈值，要被足够的输入激发才放电，放电是"全有全无"的，冲动沿轴突传播、跨突触传给下一个神经元。但从"一堆这样的小开关"到"思想、感觉、推理"之间，横着一道看不见底的鸿沟。心理活动似乎是某种<strong>主观、私密、说不清</strong>的东西，和冷冰冰的电脉冲完全不在一个世界。</p>
+      <p>McCulloch 多年来一直被一个念头困扰：能不能把神经元的反应，<strong>看作一个断言"它的恰当刺激出现了"的命题</strong>？如果可以，那么神经元之间的生理连接，就对应命题之间的逻辑关系；整张神经网的行为，就能用逻辑符号写下来。他找到当时还是芝加哥大学一名十几岁、自学逻辑的天才 Walter Pitts 来把这个想法做成严密的数学。论文要回答的核心问题因此非常清晰：</p>
+      <div class="info-block">
+        <span class="ib-title">核心研究问题</span>
+        <p>既然神经活动是<strong>"全有全无"</strong>的，能否用<strong>命题逻辑</strong>把任意复杂的神经网行为精确地描述出来？反过来——对任何一个满足特定条件的逻辑表达式，能不能<strong>总是找到一张神经网</strong>，让它的放电行为恰好实现这个逻辑？换句话说：神经网与逻辑演算，是不是同一枚硬币的两面？</p>
+      </div>
+      <p>注意这个提问的双向性，它是全文骨架：一边是"<strong>分析</strong>"——给我任何一张网，我能写出它在算什么；另一边是"<strong>综合</strong>"——给我任何一个（合规的）逻辑要求，我能给你造出实现它的网。论文用十条定理把这两个方向都钉死了。而它没碰、却老实承认的，是"网怎么<strong>学会</strong>该连成什么样"——学习的问题被它有意搁置（见后文边界一节）。</p>
+
+      <div class="section-head" id="sec-bigidea">核心发现一：神经元放电 ＝ 一句话为真</div>
+      <p>全文最重要的、也最反直觉的一步，是一个"翻译"动作。论文用记号 <code>N_i(t)</code> 表示"<strong>第 i 个神经元在时刻 t 放电</strong>"这个命题。它要么真（放电），要么假（不放电）——因为全有全无律保证了没有中间态。于是：</p>
+      <ul>
+        <li>神经元 <strong>放电</strong> ↔ 命题 <strong>为真</strong>；</li>
+        <li>神经元之间的 <strong>突触连接</strong> ↔ 命题之间的 <strong>逻辑蕴含</strong>；</li>
+        <li>整张网随时间的 <strong>活动模式</strong> ↔ 一串命题之间的 <strong>逻辑关系</strong>。</li>
+      </ul>
+      <p>这个等同不是打比方，而是论文反复强调的"<strong>形式等价</strong>（formal equivalence）"。它的意思是：神经活动里成立的关系，和命题逻辑里成立的关系，<strong>一模一样、可以互相替换</strong>。论文里有一句几乎像哲学宣言的话：每个神经元的每一次反应，都对应"一个简单命题的断言"。而既然神经元只有开/关两态，整套逻辑就是<strong>二值逻辑</strong>——非真即假，没有第三种可能。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么这一步是"降维打击"</span>
+        <p>一旦"放电＝为真"成立，研究大脑就不必再纠缠电化学的脏细节，而可以<strong>整个搬进逻辑的世界</strong>用纯符号推演。论文据此放话：facilitation（易化）、extinction（消退）、learning（学习）这些底层的电化学涨落，<strong>丝毫不改变</strong>从逻辑层面得到的结论——因为我们总能用一张"连接和阈值都不变的等效虚拟网"去替换那张真在变化的网。这就是为什么作者敢说他们处理的是大脑的"<strong>内在思想（ideas immanent）</strong>"——思想被还原成了网中活动的逻辑形式。</p>
+      </div>
+      <p>论文还顺手提了一个深刻的小观察：神经冲动的"特异性"（specificity，即它代表什么信息）<strong>只取决于它在何时、何地发生</strong>，而不取决于冲动本身有什么不同——所有冲动都长得一样。信息全在"哪个神经元、在哪一拍"放了电。这正是今天"神经编码"思想的雏形：意义在连接结构里，不在信号本身。</p>
+
+      <div class="section-head" id="sec-rules">形式神经元的五条铁律</div>
+      <p>为了让"无环网"可以被严格演算，论文在第 2 节列出五条<strong>物理假设</strong>。它们把真实神经元剥到只剩骨架——正是这种刻意的简化，换来了数学上的干净。理解了这五条，你就理解了之后所有人工神经元的出厂设置。</p>
+      <table>
+        <thead>
+          <tr><th>假设</th><th>人话翻译</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>① 全有全无</td>
+            <td>神经元的活动是"全有全无"的：放电或不放电，二选一，没有中间值。这让它能被当成逻辑真值。</td>
+          </tr>
+          <tr>
+            <td>② 固定阈值</td>
+            <td>必须在"潜伏相加期"内有<strong>固定数目</strong>的突触被激发，才能点燃神经元；而且这个数目与神经元过去的活动、与突触在细胞上的位置都<strong>无关</strong>。即：只数票数，不看资历、不看座位。</td>
+          </tr>
+          <tr>
+            <td>③ 唯一的延迟是突触延迟</td>
+            <td>整个系统里<strong>唯一重要的耗时</strong>就是突触延迟（轴突传导时间被忽略）。于是时间被切成等长的"一拍"，全网同步走拍。</td>
+          </tr>
+          <tr>
+            <td>④ 抑制是绝对的</td>
+            <td>任何一个抑制性突触只要在该时刻活动，就<strong>绝对阻止</strong>神经元在这一刻放电——不管有多少兴奋输入。这是"一票否决"，也是"非门"的来源。</td>
+          </tr>
+          <tr>
+            <td>⑤ 网络结构不随时间变</td>
+            <td>连接图固定不变。这一条等于明确把"学习/可塑性"踢出无环网的讨论范围——结构是给定的，不会自己长出新连接。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>有了这五条，一个形式神经元的行为就完全确定了，可以写成一条统一的放电公式（论文的式 1，这里翻成人话）：</p>
+      <blockquote>
+        <p>神经元 i 在 t 放电  ⇔  （上一拍 t−1，它的抑制输入<strong>全都没</strong>放电）</p>
+        <p>            <strong>并且</strong>（它的兴奋输入里，放电的那一组的"权数和"<strong>达到了阈值 θ_i</strong>）</p>
+      </blockquote>
+      <p>用论文的符号写就是 <code>N_i(t) ≡ S{ (∏ ~N_inhib(t−1)) · (Σ_κ ∏ N_excit(t−1)) }</code>，其中 <code>S</code> 是"延迟一拍"算子，<code>∏</code> 是逻辑"与"、<code>Σ</code> 是逻辑"或"，<code>~</code> 是"非"。别被吓到——它说的就是上面那句大白话：<strong>没有否决票，且赞成票够数，就放电</strong>。下面的交互组件，就是让你亲手把这条规则搭成各种逻辑门。</p>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-viz">🔴 交互：用几个 M-P 神经元，亲手拼出逻辑门</div>
+      <div class="viz-box">
+        <div class="viz-title">神经元＝逻辑命题 — 形式神经元逻辑门模拟器</div>
+        <div class="viz-note">这不是动画，是<strong>真在跑论文的式 1</strong>：每个输出神经元按"抑制全无 且 兴奋达阈值"的规则计算放电。① 选一个逻辑门 → ② 点击输入神经元 N₁ / N₂ 切换开（放电，红）/ 关（灰）→ ③ 看输出神经元是否被点亮，并对照右侧真值表里高亮的当前行。兴奋性突触画成实心箭头（▶），抑制性突触画成空心小圆（○＝一票否决），输出神经元体内的数字是它的阈值 θ。亲手验证：同一种小开关，靠改"阈值＋是兴奋还是抑制"，就能变出与、或、非、与非——这就是"神经元能讲逻辑"的全部秘密。</div>
+
+        <div class="viz-controls">
+          <span style="font-size:0.85rem;color:#6b7280;">选逻辑门：</span>
+          <button id="gateAND" class="alt">与门 AND（θ=2）</button>
+          <button id="gateOR" class="alt">或门 OR（θ=1）</button>
+          <button id="gateNOT" class="alt">非门 NOT（抑制）</button>
+          <button id="gateNAND" class="alt">与非门 NAND</button>
+          <button id="gateIMPLY" class="alt">N₁ 且 非N₂</button>
+        </div>
+        <div class="viz-controls">
+          <span style="font-size:0.85rem;color:#6b7280;">切换输入：</span>
+          <button id="toggleN1">N₁ ：关</button>
+          <button id="toggleN2">N₂ ：关</button>
+          <button id="reset" class="alt">全部置关</button>
+        </div>
+
+        <canvas id="mpCanvas" width="660" height="340"></canvas>
+
+        <div id="readout" style="text-align:center;font-size:0.92rem;color:#3a4048;margin-top:14px;line-height:1.8;"></div>
+        <div class="viz-note" style="margin-top:14px;margin-bottom:0;">读法：左边两个圆是输入神经元 N₁、N₂（你点它们切换开/关）；右边圆是输出神经元，里面的数字是阈值 θ。连线上 <strong>▶</strong>＝兴奋性突触（投赞成票），<strong>○</strong>＝抑制性突触（一票否决）。当"亮着的赞成票数 ≥ θ 且 没有任何否决票被激活"时，输出神经元变红（放电＝该命题为真）。对照右侧真值表，你会发现输出列正好就是这扇逻辑门——<strong>「非门」尤其值得玩</strong>：它没有阈值竞赛，靠的纯粹是抑制性突触的"否决"，所以输入开时输出反而关。这就是论文图 1（Fig. 1）里 a–d 那四个基本网元的可玩版。</div>
+      </div>
+      <p>玩过之后，论文图 1 的小图就不再是天书了：图 1a 是"延迟"（把上一拍原样传下来），1b 是"或"，1c 是"与"，1d 是"与非/抑制"（<code>N₃(t) ≡ N₁(t−1) · ~N₂(t−1)</code>，即"N₁ 来了<strong>而且</strong> N₂ 没来"）。论文证明的第一件大事就是：<strong>仅凭这四块积木，就能搭出任何 TPE</strong>——也就是任何无环神经网能表达的全部逻辑。</p>
+
+      <div class="section-head" id="sec-theorems">核心发现二：两个方向，十条定理</div>
+      <p>论文的主体是十条定理（Theorem 1–10），它们把"神经网 ⇄ 逻辑"这件事两个方向都证严密了。这里不堆符号，只讲每条在说什么、为什么重要。</p>
+
+      <div class="section-head-sub">方向 A：分析 —— 任何网，我都能写出它在算什么</div>
+      <p><strong>定理 1（Theorem 1）</strong>：任何<strong>零阶</strong>网（即无环网）都能用时间命题表达式（TPE）解出来。直觉：无环网信号单向流动，你从输出神经元一路往输入端"回代"，每个神经元的放电条件都能用它上游神经元的放电写出来，层层代换到底，最终整张网就变成一个只含输入神经元、且带时间标记的逻辑公式。<strong>这就是"分析"方向的核心成果：给我任何无环网，我能机械地写出它实现的逻辑。</strong></p>
+
+      <div class="section-head-sub">方向 B：综合 —— 任何（合规的）逻辑，我都能造出实现它的网</div>
+      <p><strong>定理 2（Theorem 2）</strong>：反过来——<strong>任何 TPE 都能被一张零阶网实现</strong>。证明方法极具建设性：因为延迟、与、或、与非这四种操作各自都有对应的小网（图 1a–d），而任何 TPE 都是由这四种操作搭起来的，于是把这些小网像搭积木一样拼起来，就得到实现整个表达式的网。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：4 块积木 → 任意真值表</span>
+        <p>定理 2 有一个杀手级推论，论文写得很硬气：对<strong>任何一张"状态描述"</strong>（即给网中每个神经元的真/假指定一个具体组合），都存在<strong>一个</strong>神经元，它放电的<strong>充要条件</strong>就是这张描述成立。说人话：任何你能用真值表写出来的逻辑函数，都能用 M-P 神经元造出来；而且实现同一个逻辑的网有<strong>无穷多张</strong>拓扑各异的版本。这正是后来"神经网络是通用函数逼近器"这一信念的最古老源头——只不过 1943 年说的是精确的布尔函数，用的积木只有"与/或/非/延迟"四种。</p>
+      </div>
+      <p><strong>定理 3（Theorem 3）</strong>：给出了一个表达式"<strong>到底算不算合格 TPE</strong>"的精确判据（用真值表的最后一行是否为假、或希尔伯特析取范式等三个等价条件来判定）。它划清了"哪些逻辑要求是神经网原则上能满足的"这条边界——例如，一个要求网络"未卜先知"（输出依赖<strong>未来</strong>输入）的逻辑就不合格，造不出来。</p>
+      <p>论文还用一个具体的<strong>感觉错觉</strong>当例子来炫技：把一个冷物体短暂贴上皮肤会感到"热"，贴久了只觉冷。作者用 <code>N₃</code>（感热）、<code>N₄</code>（感冷）和两个皮肤感受器 <code>N₁、N₂</code> 写出这套时序逻辑，再用定理 2 的方法把它造成具体的网（图 1e）。这个例子的妙处在于点明：<strong>"热"的感觉并不忠实反映外界，而是被中间那张神经网的结构所决定的</strong>——知觉是网的产物，不是世界的镜子。</p>
+
+      <div class="section-head" id="sec-equiv">核心发现三：等价定理 —— 别去赌生物学哪种为真</div>
+      <p>定理 4–7 是论文里最有"四两拨千斤"味道的一组。它们证明：很多在生理学上争得不可开交的机制，其实<strong>彼此等价</strong>——造出来的网行为完全一样（广义等价）。于是理论家不必押注哪种生物学假设为真。</p>
+      <table>
+        <thead>
+          <tr><th>定理</th><th>它证明了什么等价</th><th>为什么重要</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>定理 4</td>
+            <td><strong>相对抑制 ＝ 绝对抑制</strong>。"抑制只是抬高阈值"（相对）和"抑制一票否决"（绝对）造出的网等价。</td>
+            <td>当年没人确定抑制到底是哪种机制。论文说：随便哪种，结论都不变。一笔勾销了一场争论。</td>
+          </tr>
+          <tr>
+            <td>定理 5</td>
+            <td><strong>消退（extinction）＝ 绝对抑制</strong>。神经元放电后阈值暂时升高这种"自我疲劳"，可以用一圈抑制回路等效替代。</td>
+            <td>把一种动态的、随时间变的现象，翻译成一个静态的固定结构。动态被结构吸收了。</td>
+          </tr>
+          <tr>
+            <td>定理 6</td>
+            <td><strong>易化与时间相加 ＝ 空间相加</strong>。"同一来源的多个冲动在时间上累积"可以换成"插入若干条不同长度的延迟链，让信号在空间上汇聚"。</td>
+            <td>说明大体网络层面观察到的时间相加，<strong>不一定</strong>意味着单个神经元层面真有时间累积机制——可能只是接线方式。警惕"宏观现象≠微观机制"。</td>
+          </tr>
+          <tr>
+            <td>定理 7</td>
+            <td><strong>可改变的突触 ＝ 环路</strong>。会因经验而"长出来"的可塑突触（学习的物理基础），可以用一个固定的环形回路等效替代。</td>
+            <td>这是全文最大胆的一步：连"学习"的结构性后果，都能被一个不变的环路顶替——为后面"有环网＝记忆"埋下伏笔。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>这组定理共同传递一个深刻的方法论：<strong>在"广义等价"的意义下，许多生理细节是无关紧要的</strong>。你研究的是网的<strong>逻辑性质</strong>，而逻辑性质在这些等价变换下不变。论文因此可以挑选"对演算最方便"的那套物理假设来用，而不必担心赌错生物学。</p>
+
+      <div class="section-head-sub">有环网：当信号开始绕圈，记忆就出现了</div>
+      <p>第 3 节转向<strong>有环网</strong>，难度陡增。关键在于：有了回路，活动可以"<strong>回荡</strong>（reverberate）"——一个冲动绕着环一直跑，于是网络<strong>当下的状态可以依赖任意久远的过去</strong>。论文用递归函数和大量逻辑机器（定理 8–10）去刻画哪些这类行为是可实现的。技术细节非常重，但要点只有一个，而且极重要：</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：环 ＝ 把时间存进网里</span>
+        <p>无环网是"无记忆"的——输出只取决于<strong>最近几拍</strong>的输入，过去一笔勾销。一旦引入环路，活动可以无限期回荡，网络就有了<strong>记忆</strong>：它对"很久以前是否出现过某种输入模式"保持着痕迹。论文一针见血地指出，这使得对过去的指涉变得"<strong>不确定</strong>（indefinite）"——你只知道过去曾实现过<strong>某一类</strong>配置，却无法从现在精确反推是哪一个。<strong>这正是后来一切循环神经网络（RNN，Recurrent Neural Network）与吸引子记忆模型的思想原点：回路 ＝ 状态 ＝ 记忆。</strong></p>
+      </div>
+
+      <div class="section-head" id="sec-turing">核心发现四：和图灵机一样强 —— 但也一样不强</div>
+      <p>论文在结尾抛出一个分量极重的结论（在第 3 节末尾点明）。它说：一张配上"<strong>纸带 + 读写头</strong>"（即接上无限存储和输入输出装置）的神经网，能计算的数，<strong>恰好就是图灵机（Turing machine）能计算的那些数</strong>，不多也不少。</p>
+      <div class="info-block">
+        <span class="ib-title">这句话的两层意思，缺一不可</span>
+        <p><strong>第一层（能行）</strong>：神经网在计算能力上<strong>等价于图灵机</strong>——凡是能被某个有机体（大脑）计算出来的数，都能被图灵机算出来，反之亦然。这给了"图灵可计算性"一个<strong>来自生物学的独立佐证</strong>：丘奇（Church）的 λ-可定义性、克莱尼（Kleene）的原始递归、图灵机、和神经网，<strong>圈定的是同一个"可计算"边界</strong>。</p>
+        <p><strong>第二层（也不能行）</strong>：注意——这同时是一道<strong>天花板</strong>。神经网<strong>不能</strong>超越图灵机。所以凡是图灵机算不出来的（如停机问题），大脑这种网也算不出来。论文把这解读为"对图灵可计算性的一种心理学/生物学辩护"：可计算这个概念，是稳健的、跨多种刻画一致的。</p>
+      </div>
+      <p>更细的一句区分也很讲究：<strong>有环网（带回路、但不带无限纸带）</strong>能算的数，是图灵机能算的数里的<strong>一部分</strong>——能算机器能算的一些，但不是全部，也会算出机器算的之外的某些。真正要够上完整图灵机的力量，<strong>必须外挂无限存储（纸带）</strong>。这其实预演了今天的认识：光有循环结构还不够，通用计算需要可无限扩展的内存。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文没有一台仪器、没有一个被试，它的"方法"全是<strong>思想上的精确选择</strong>。把这些选择列出来，就能看清它为什么能从一个比喻走到一组硬定理。</p>
+      <table>
+        <thead>
+          <tr><th>精妙的选择</th><th>它解决了什么 / 为什么关键</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>抓住"全有全无"作为支点</td>
+            <td>神经元有无数生理细节，但只要抓住"放电是二值的"这一条，就立刻获得了通往二值逻辑的桥。<strong>选对了那个唯一重要的属性</strong>，全文才得以展开。</td>
+          </tr>
+          <tr>
+            <td>把突触延迟设为唯一时间单位</td>
+            <td>忽略轴突传导等其他时间，让时间被切成整齐的"一拍"，于是"上一刻→这一刻"可以写成 <code>N(t−1)→N(t)</code> 的离散递推。<strong>连续的生理过程被离散化，逻辑才接得上。</strong></td>
+          </tr>
+          <tr>
+            <td>引入"广义等价"概念</td>
+            <td>允许结果"差几拍时间"也算相同，从而绕开了大量关于精确时序的生理争议。<strong>正是这层宽容，让等价定理（4–7）成立，让结论稳健。</strong></td>
+          </tr>
+          <tr>
+            <td>双向证明（分析＋综合）</td>
+            <td>不只证"网能写成逻辑"（定理 1），还证"逻辑能造成网"（定理 2）。<strong>两个方向都钉死，才真正建立起"神经网 ⇄ 逻辑"的等价，而不是单边类比。</strong></td>
+          </tr>
+          <tr>
+            <td>用建设性证明，而非存在性证明</td>
+            <td>定理 2 不是抽象地说"存在这样的网"，而是<strong>给出搭法</strong>（把图 1a–d 拼起来）。这让理论可以直接指导"造网"，是后来工程化的种子。</td>
+          </tr>
+          <tr>
+            <td>把"学习/可塑"先用等价吸收掉</td>
+            <td>面对最棘手的学习问题，论文不硬碰，而是用定理 7 证明"可塑突触≈固定环路"，把动态难题暂时转化成静态结构，<strong>使主线（固定网的逻辑分析）得以贯通</strong>。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇论文站在三股思想潮流的交汇点上，又把它们拧成了一根新绳。</p>
+      <ul>
+        <li><strong>对数理逻辑（罗素、怀特海、卡尔纳普、希尔伯特）</strong>：论文直接借用《数学原理》（Principia Mathematica，Russell &amp; Whitehead 1925）的点记号、卡尔纳普《语言的逻辑句法》（Carnap 1938）的"语言 II"符号体系、以及希尔伯特与阿克曼（Hilbert &amp; Ackermann 1927）的范式理论。<strong>贡献不是发明逻辑，而是把现成的逻辑"接"到生物神经元上</strong>，让符号有了血肉。</li>
+        <li><strong>对图灵的可计算性理论（1936）</strong>：论文与图灵机、丘奇 λ-演算、克莱尼递归论<strong>会师</strong>，论证它们圈定同一个可计算边界，给图灵的抽象机器提供了一个生物学的镜像。</li>
+        <li><strong>对神经生理学</strong>：它建立在谢灵顿（Sherrington）一脉关于阈值、突触、兴奋/抑制的实验之上，但做了一件生理学家没做的事——<strong>把这些事实抽象成可计算的形式系统</strong>。它甚至明确讨论了当时关于抑制是否消耗时间、是否需要中间神经元的实验争论，并用等价定理证明这些争论<strong>无关结论</strong>。</li>
+      </ul>
+      <p>而它向<strong>后</strong>辐射的影响更惊人：冯·诺依曼在 1945 年的离散变量自动电子计算机（EDVAC，Electronic Discrete Variable Automatic Computer）报告里直接引用本文的形式神经元来描述计算机的逻辑元件；它是 1958 年罗森布拉特（Rosenblatt）感知机、乃至今天每一个深度网络里"神经元"的概念祖先；Hebb（1949）的学习规则填上了本文有意留白的"学习"那一块；而有环网回荡的思想，则在 Hopfield（1982）的吸引子记忆里开花结果。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>一篇 1943 年的纯理论文章，它真正的能量在于<strong>跨界</strong>——它在好几个领域同时点了一把火。</p>
+      <ul>
+        <li><strong>对人工智能 / 深度学习</strong>：它确立了"<strong>简单的阈值单元，连起来就能算任意逻辑</strong>"这个信念。今天网络里每个"神经元"做的"加权求和→过激活函数"，正是 M-P 神经元的连续化后裔。"神经网络是通用计算/逼近器"的最古老凭据，就在定理 2。</li>
+        <li><strong>对计算机科学</strong>：它把"大脑"和"逻辑电路"画上等号，启发了用逻辑门搭建数字计算机的整套思路。冯·诺依曼架构里的逻辑设计语言，借了它的形式神经元。</li>
+        <li><strong>对认知科学 / 心智哲学</strong>：它提供了"<strong>计算主义</strong>"最早的硬核版本——心智活动（"psychons"，作者生造的"心理原子"，每个不过是一个神经元的活动）具有命题性、可被还原为二值逻辑。论文结尾甚至宣称：心理学（无论内省的、行为的还是生理的）的基本关系，<strong>就是二值逻辑的关系</strong>。这是"心灵即计算"论题的源头之一。</li>
+        <li><strong>对神经科学</strong>：它给出"信息在哪个神经元、哪一拍"的编码观，以及"回路＝记忆"的洞见，至今仍是计算神经科学的底层直觉。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文的伟大与它的盲点同样值得讲清。有些是作者自己老实承认的，有些是今天回看才显形的。</p>
+      <ul>
+        <li><strong>学习被刻意搁置（作者承认）</strong>：全文的网<strong>结构固定不变</strong>（假设 5）。论文用定理 7 把可塑突触"等价"成固定环路，<strong>巧妙地绕过</strong>了学习，但这并没有真正回答"网络如何<strong>获得</strong>正确的连接"。这块空白六年后才由 Hebb 的学习规则、十五年后由感知机的训练算法填补——而这恰恰是现代深度学习的全部重心所在。</li>
+        <li><strong>形式神经元过度理想化</strong>：真实神经元不是全有全无的纯数字开关——它有连续变化的放电率、随时间积累的膜电位、复杂的树突计算、神经调质的影响。论文的五条假设把这些全抹掉了。它换来了数学的干净，代价是离生物现实相当远（这是合理的建模取舍，但须知边界）。</li>
+        <li><strong>二值逻辑可能太窄</strong>：论文断言心智的基本关系"就是"二值逻辑。但人脑显然处理概率、模糊、连续量、不确定性——把一切归约为非真即假的命题，在今天看来是一个<strong>强且可争议的哲学主张</strong>，而非已被证实的事实。论文把它当结论下了，证据其实并不充分（此为解读者观点）。</li>
+        <li><strong>"广义等价"掩盖了时间细节</strong>：论文的诸多漂亮结论建立在"不在乎差几拍"之上。但真实神经系统里<strong>精确时序本身就携带信息</strong>（如相位编码、脉冲时序依赖可塑性）。被等价定理"洗掉"的那部分时间结构，恰恰是后来神经科学发现的重要编码维度。</li>
+        <li><strong>有环网部分极其晦涩、近乎无法验证</strong>：作者自己在文中坦言"由于篇幅所限，上述论证写得非常潦草（very sketchily）"，并承诺另文展开。第 3 节的递归函数机器异常抽象，难以对照具体生物网络，其实践价值长期偏弱。</li>
+        <li><strong>从"能"到"是"的跳跃</strong>：论文证明了大脑<strong>可以</strong>被描述为逻辑机器，但这不等于大脑<strong>就是</strong>按命题逻辑工作的。"可如此描述"和"实际如此运作"之间有一道鸿沟，论文结尾的哲学雄心（"思想即网中活动""thing-in-itself 不再不可知"）在这道鸿沟上走得相当远（此为解读者观点）。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>下面每一句评价都尽量挂靠到文中证据，或明确标注为解读者观点。</p>
+      <p><strong>它的历史地位无可撼动，且名副其实。</strong>论文双向证明了"神经网 ⇄ 命题逻辑"的等价（定理 1 与定理 2），并把这套网与图灵机的可计算边界对齐（第 3 节末）。这两点合起来，第一次给了"大脑是信息处理装置"一个<strong>可演算的严格版本</strong>。它被后续整个领域（冯·诺依曼、感知机、深度学习、Hopfield 网络）反复回溯为起点，这个影响是历史事实，不是溢美。</p>
+      <p><strong>它的核心洞见至今成立。</strong>"简单阈值单元连起来能实现任意逻辑"（定理 2 的推论：任一真值表都有对应神经元）这条，是现代神经网络通用性的最早凭据，从未被推翻，只是被推广（从布尔函数推广到连续函数逼近）。<strong>这是论文最坚固、最经得起时间的部分。</strong></p>
+      <p><strong>但它的工程相关性，主要落在"无环网＋等价定理"那半。</strong>有环网部分（定理 8–10）作者自承写得潦草、异常抽象，长期难以对照真实网络或落地——<strong>论文的"可用遗产"是不均匀的</strong>（此为解读者观点，依据是作者本人"very sketchily"的自白与该部分的技术密度）。</p>
+      <p><strong>它最大的硬伤是绕开了学习。</strong>固定结构假设（假设 5）使全文无法回答"网络如何获得正确连接"——而这正是后世 AI 的命门。论文用定理 7 的等价巧妙回避，但回避不等于解决。<strong>这不是失误，而是 1943 年的合理边界；只是读者须知，今天 AI 的重心几乎全在这块空白上。</strong></p>
+      <p><strong>它的哲学主张走得比证据远。</strong>"心智关系就是二值逻辑关系""thing-in-itself 不再不可知"这类结尾断言，气势磅礴，但从"大脑<strong>可</strong>被逻辑描述"推到"心智<strong>就是</strong>二值逻辑"，中间的逻辑跳跃论文并未补全（此为解读者观点）。把它当作一个<strong>富有启发的纲领</strong>来读，比当作已证结论更恰当。</p>
+      <p><strong>综合判断：</strong>这是一篇思想价值远超其技术细节、奠基性意义怎么强调都不为过的论文。它的"神经元＝命题"这一翻译，是 20 世纪最有生产力的科学比喻之一。读它最好的方式，不是死磕那些晦涩符号（很多符号今天已被更清爽的表述取代），而是<strong>抓住那个一旦理解就忘不掉的核心动作</strong>——并亲手用几个神经元拼一次逻辑门。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>McCulloch &amp; Pitts 用一条物理假设（神经元放电是<strong>全有全无</strong>的）作支点，把"神经元放电"等同于"命题为真"，再用十条定理双向证明：<strong>任何无环神经网的行为都能写成命题逻辑（定理 1），任何合规的逻辑表达式都能用「与/或/非/延迟」四块神经元积木造出来（定理 2），而配上无限纸带的神经网与图灵机算力完全相等</strong>——由此，他们为"大脑是逻辑机器"和今天所有人工神经元，写下了创世的第一行代码。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>McCulloch, W. S. &amp; Pitts, W. (1943). A Logical Calculus of the Ideas Immanent in Nervous Activity. <em>Bulletin of Mathematical Biophysics</em>, 5, 115–133.（本解读据 1990 年 <em>Bulletin of Mathematical Biology</em> 卷 52(1/2): 99–115 重印本。）<br>
+    <strong>说明：</strong>交互组件按论文式 1 的放电规则（抑制全无 且 兴奋达阈值）实时计算逻辑门输出，非模拟动画；用于直观体会"神经元＝逻辑命题"。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById("mpCanvas");
+  if(!canvas) return;
+  var ctx = canvas.getContext("2d");
+
+  // ---- 状态 ----
+  // 输入神经元 N1, N2 的开/关
+  var inputs = {n1:false, n2:false};
+  // 当前逻辑门定义
+  // 每个门定义：name, threshold(theta), syn(N1->out, N2->out) 类型: 'exc'|'inh'|'none',
+  //            truth(给定 n1,n2 -> 输出布尔), table 行说明, hint
+  var gates = {
+    AND: {
+      label:"与门 AND（θ=2）", theta:2, s1:"exc", s2:"exc",
+      desc:"输出神经元阈值 θ=2：必须 N₁ 和 N₂ 都放电（凑满 2 张赞成票）才点燃。",
+      fn:function(a,b){return a&&b;}
+    },
+    OR: {
+      label:"或门 OR（θ=1）", theta:1, s1:"exc", s2:"exc",
+      desc:"输出神经元阈值 θ=1：N₁ 或 N₂ 任意一个放电（1 张赞成票）即可点燃。",
+      fn:function(a,b){return a||b;}
+    },
+    NOT: {
+      label:"非门 NOT（抑制）", theta:0, s1:"none", s2:"inh", baseFire:true,
+      desc:"非门只看 N₂：N₂ 经抑制性突触（○＝一票否决）连到输出。输出本想放电（有背景驱动），一旦 N₂ 放电就被否决而熄灭——输入开则输出关。",
+      fn:function(a,b){return !b;}
+    },
+    NAND: {
+      label:"与非门 NAND", theta:0, s1:"inh", s2:"inh", baseFire:true,
+      desc:"输出有背景驱动想放电；N₁、N₂ 各用一个抑制性突触接它。只要任一输入放电就否决输出——这正是“与门取反”。",
+      fn:function(a,b){return !(a&&b);}
+    },
+    IMPLY: {
+      label:"N₁ 且 非N₂", theta:1, s1:"exc", s2:"inh",
+      desc:"对应论文图 1d：N₁ 经兴奋性突触（θ=1）推动输出，N₂ 经抑制性突触否决输出。只有“N₁ 来了而且 N₂ 没来”时输出才放电。",
+      fn:function(a,b){return a && !b;}
+    }
+  };
+  var current = "AND";
+
+  // ---- 计算输出是否放电（严格按论文式1：抑制全无 且 兴奋达阈值）----
+  function computeOutput(g, a, b){
+    // 抑制：任一被激活的抑制突触 -> 否决
+    if(g.s1==="inh" && a) return false;
+    if(g.s2==="inh" && b) return false;
+    // 兴奋赞成票计数
+    var votes = 0;
+    if(g.s1==="exc" && a) votes++;
+    if(g.s2==="exc" && b) votes++;
+    if(g.baseFire){
+      // 有背景驱动（用于 NOT / NAND）：默认想放电，已通过上面的抑制否决检查
+      return true;
+    }
+    return votes >= g.theta;
+  }
+
+  // ---- 颜色 ----
+  var RED="#c0392b", GREY="#9aa1ab", INK="#1f2328", LINE="#d7dadf", SOFT="#fdecea";
+
+  // 神经元几何
+  var N1 = {x:120, y:110, r:34, label:"N₁"};
+  var N2 = {x:120, y:240, r:34, label:"N₂"};
+  var OUT= {x:500, y:175, r:40, label:"out"};
+
+  function drawNeuron(n, on, fillText){
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+    ctx.fillStyle = on ? RED : "#ffffff";
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = on ? RED : GREY;
+    ctx.stroke();
+    ctx.fillStyle = on ? "#ffffff" : INK;
+    ctx.font = "bold 17px -apple-system,sans-serif";
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(n.label, n.x, n.y-6);
+    if(fillText){
+      ctx.font = "12px -apple-system,sans-serif";
+      ctx.fillStyle = on ? "#ffffff" : "#6b7280";
+      ctx.fillText(fillText, n.x, n.y+12);
+    }
+  }
+
+  // 画一条突触连线，type: 'exc'|'inh'|'none'
+  function drawSynapse(from, to, type, active){
+    if(type==="none") return;
+    // 连线终点落在输出神经元边缘
+    var dx = to.x-from.x, dy = to.y-from.y;
+    var dist = Math.sqrt(dx*dx+dy*dy);
+    var ux=dx/dist, uy=dy/dist;
+    var sx = from.x + ux*from.r, sy = from.y + uy*from.r;
+    var ex = to.x - ux*(to.r+ (type==="inh"?10:8)), ey = to.y - uy*(to.r+ (type==="inh"?10:8));
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(ex, ey);
+    ctx.lineWidth = active ? 3.2 : 1.8;
+    ctx.strokeStyle = active ? RED : "#b8bdc4";
+    ctx.stroke();
+    if(type==="exc"){
+      // 实心箭头
+      var ang = Math.atan2(ey-sy, ex-sx);
+      var ah = 11;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex - ah*Math.cos(ang-0.4), ey - ah*Math.sin(ang-0.4));
+      ctx.lineTo(ex - ah*Math.cos(ang+0.4), ey - ah*Math.sin(ang+0.4));
+      ctx.closePath();
+      ctx.fillStyle = active ? RED : "#b8bdc4";
+      ctx.fill();
+    } else if(type==="inh"){
+      // 空心小圆（抑制）
+      ctx.beginPath();
+      ctx.arc(ex, ey, 7, 0, Math.PI*2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.lineWidth = active ? 3 : 2;
+      ctx.strokeStyle = active ? RED : "#b8bdc4";
+      ctx.stroke();
+    }
+  }
+
+  function render(){
+    var g = gates[current];
+    var out = computeOutput(g, inputs.n1, inputs.n2);
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // 标题：当前门
+    ctx.fillStyle = RED;
+    ctx.font = "bold 15px -apple-system,sans-serif";
+    ctx.textAlign="left"; ctx.textBaseline="alphabetic";
+    ctx.fillText("当前逻辑门： "+g.label, 20, 28);
+
+    // 突触线（先画线，再画神经元盖在上面）
+    drawSynapse(N1, OUT, g.s1, inputs.n1);
+    drawSynapse(N2, OUT, g.s2, inputs.n2);
+
+    // 输出神经元体内显示阈值（非门/与非门用背景驱动，标注▼）
+    var outFill;
+    if(g.baseFire){ outFill = "背景驱动"; }
+    else { outFill = "θ="+g.theta; }
+
+    // 神经元
+    drawNeuron(N1, inputs.n1, inputs.n1?"放电":"静息");
+    drawNeuron(N2, inputs.n2, inputs.n2?"放电":"静息");
+    drawNeuron(OUT, out, outFill);
+
+    // out 标注：放电/静息
+    ctx.fillStyle = out ? RED : "#6b7280";
+    ctx.font = "bold 13px -apple-system,sans-serif";
+    ctx.textAlign="center";
+    ctx.fillText(out?"输出：放电（真）":"输出：静息（假）", OUT.x, OUT.y + OUT.r + 22);
+
+    // 图例
+    ctx.textAlign="left";
+    ctx.font = "12px -apple-system,sans-serif";
+    ctx.fillStyle = "#6b7280";
+    // 兴奋图例
+    ctx.beginPath(); ctx.moveTo(20, 312); ctx.lineTo(52,312); ctx.strokeStyle="#b8bdc4"; ctx.lineWidth=2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(52,312); ctx.lineTo(45,308); ctx.lineTo(45,316); ctx.closePath(); ctx.fillStyle="#b8bdc4"; ctx.fill();
+    ctx.fillStyle="#6b7280"; ctx.fillText("▶ 兴奋性突触（赞成票）", 60, 316);
+    // 抑制图例
+    ctx.beginPath(); ctx.moveTo(250, 312); ctx.lineTo(280,312); ctx.strokeStyle="#b8bdc4"; ctx.lineWidth=2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(286,312,6,0,Math.PI*2); ctx.fillStyle="#fff"; ctx.fill(); ctx.strokeStyle="#b8bdc4"; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle="#6b7280"; ctx.fillText("○ 抑制性突触（一票否决）", 298, 316);
+
+    // 真值表（右侧）
+    drawTruthTable(g);
+
+    // 文字读出
+    updateReadout(g, out);
+    // 按钮文字
+    document.getElementById("toggleN1").textContent = "N₁ ："+(inputs.n1?"开":"关");
+    document.getElementById("toggleN2").textContent = "N₂ ："+(inputs.n2?"开":"关");
+  }
+
+  function drawTruthTable(g){
+    var tx = 560, ty = 60, rowH = 30, colW = 30;
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    // 表头
+    ctx.font="bold 12px -apple-system,sans-serif";
+    ctx.fillStyle=RED;
+    ctx.fillText("真值表", tx+45, ty-22);
+    var heads=["N₁","N₂","out"];
+    ctx.fillStyle="#ffffff";
+    for(var c=0;c<3;c++){
+      ctx.fillStyle=RED;
+      ctx.fillRect(tx+c*colW, ty-12, colW-2, rowH-4);
+      ctx.fillStyle="#ffffff";
+      ctx.fillText(heads[c], tx+c*colW+colW/2-1, ty+3);
+    }
+    var combos=[[false,false],[false,true],[true,false],[true,true]];
+    ctx.font="12px -apple-system,sans-serif";
+    for(var r=0;r<4;r++){
+      var a=combos[r][0], b=combos[r][1];
+      var o=g.fn(a,b);
+      var rowY = ty-12 + rowH*(r+1);
+      var isCurrent = (a===inputs.n1 && b===inputs.n2);
+      // 当前行高亮
+      if(isCurrent){
+        ctx.fillStyle=SOFT;
+        ctx.fillRect(tx-2, rowY, colW*3, rowH-4);
+        ctx.strokeStyle=RED; ctx.lineWidth=1.6;
+        ctx.strokeRect(tx-2, rowY, colW*3, rowH-4);
+      }
+      var vals=[a,b,o];
+      for(var cc=0;cc<3;cc++){
+        ctx.fillStyle = vals[cc] ? RED : "#9aa1ab";
+        if(cc===2){ ctx.font="bold 13px -apple-system,sans-serif"; }
+        else { ctx.font="12px -apple-system,sans-serif"; }
+        ctx.fillText(vals[cc]?"1":"0", tx+cc*colW+colW/2-1, rowY+rowH/2-2);
+      }
+    }
+  }
+
+  function updateReadout(g, out){
+    var el = document.getElementById("readout");
+    var a=inputs.n1, b=inputs.n2;
+    var inputStr = "N₁="+(a?"1":"0")+", N₂="+(b?"1":"0");
+    var reason;
+    if(g.baseFire){
+      var vetoed = (g.s1==="inh"&&a) || (g.s2==="inh"&&b);
+      reason = vetoed ? "存在被激活的抑制突触 → <b>一票否决</b>，输出熄灭" : "无抑制被激活 → 背景驱动让输出放电";
+    } else {
+      if((g.s1==="inh"&&a)||(g.s2==="inh"&&b)){
+        reason = "存在被激活的抑制突触 → <b>一票否决</b>，无论阈值如何，输出熄灭";
+      } else {
+        var votes=0; if(g.s1==="exc"&&a)votes++; if(g.s2==="exc"&&b)votes++;
+        reason = "赞成票数 = "+votes+"，阈值 θ = "+g.theta+" → "+(votes>=g.theta?"达阈值，放电":"未达阈值，静息");
+      }
+    }
+    el.innerHTML =
+      '<b style="color:#c0392b;">'+g.label+'</b> ｜ 输入 '+inputStr+
+      ' → 输出 <b style="color:'+(out?'#c0392b':'#9aa1ab')+';">'+(out?'放电（命题为真）':'静息（命题为假）')+'</b><br>'+
+      '<span style="font-size:0.85rem;color:#6b7280;">判定：'+reason+'。</span><br>'+
+      '<span style="font-size:0.85rem;color:#3a4048;">'+g.desc+'</span>';
+  }
+
+  // ---- 事件 ----
+  function setGate(name){
+    current=name;
+    // 切换门时重置输入，便于观察
+    render();
+    // 高亮选中按钮
+    var map={AND:"gateAND",OR:"gateOR",NOT:"gateNOT",NAND:"gateNAND",IMPLY:"gateIMPLY"};
+    ["gateAND","gateOR","gateNOT","gateNAND","gateIMPLY"].forEach(function(id){
+      var btn=document.getElementById(id);
+      if(id===map[name]){ btn.classList.remove("alt"); }
+      else { btn.classList.add("alt"); }
+    });
+  }
+  document.getElementById("gateAND").addEventListener("click",function(){setGate("AND");});
+  document.getElementById("gateOR").addEventListener("click",function(){setGate("OR");});
+  document.getElementById("gateNOT").addEventListener("click",function(){setGate("NOT");});
+  document.getElementById("gateNAND").addEventListener("click",function(){setGate("NAND");});
+  document.getElementById("gateIMPLY").addEventListener("click",function(){setGate("IMPLY");});
+
+  document.getElementById("toggleN1").addEventListener("click",function(){inputs.n1=!inputs.n1; render();});
+  document.getElementById("toggleN2").addEventListener("click",function(){inputs.n2=!inputs.n2; render();});
+  document.getElementById("reset").addEventListener("click",function(){inputs.n1=false; inputs.n2=false; render();});
+
+  // 点击 canvas 上的输入神经元也能切换
+  canvas.addEventListener("click",function(e){
+    var rect=canvas.getBoundingClientRect();
+    var scaleX=canvas.width/rect.width, scaleY=canvas.height/rect.height;
+    var mx=(e.clientX-rect.left)*scaleX, my=(e.clientY-rect.top)*scaleY;
+    function hit(n){var dx=mx-n.x,dy=my-n.y;return dx*dx+dy*dy<=n.r*n.r;}
+    if(hit(N1)){inputs.n1=!inputs.n1; render();}
+    else if(hit(N2)){inputs.n2=!inputs.n2; render();}
+  });
+
+  // 初始
+  setGate("AND");
+})();
+</script>
+</body>
+</html>

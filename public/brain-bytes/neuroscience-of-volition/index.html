@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人类意志：迈向意志的神经科学 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Human Volition <span>×</span> 你的大脑在你"决定"之前，已经先动了手</h1>
+    <div class="meta">
+      <span>📄 Human volition: towards a neuroscience of will</span><br>
+      <span>✍️ Patrick Haggard（帕特里克·哈格德）</span><br>
+      <span>🏛️ 伦敦大学学院认知神经科学研究所（Institute of Cognitive Neuroscience, University College London）</span><br>
+      <span>📅 Nature Reviews Neuroscience（《自然·神经科学评论》）· 2008 年 12 月 · 第 9 卷 · 934–946 页 · DOI:10.1038/nrn2497</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-measure">把"意志"塞进实验室</a></li>
+        <li><a href="#sec-libet">核心发现一：脑活动跑在意识前面</a></li>
+        <li><a href="#sec-circuits">核心发现二：意志的脑回路</a></li>
+        <li><a href="#sec-decision">核心发现三：意志＝一串决策</a></li>
+        <li><a href="#sec-viz">交互演示：准备电位时间线</a></li>
+        <li><a href="#sec-veto">核心发现四：否决权与有意识抑制</a></li>
+        <li><a href="#sec-agency">核心发现五：能动感是怎么"拼"出来的</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>"我决定动一下手指，于是手指就动了"——这是几乎所有人对自己的默认理解：有一个"我"，先做出有意识的决定，然后这个决定<strong>导致</strong>了身体动作。哲学上这叫"二元论"，语言里"我选择""我让它发生"全都暗含这个图景。Haggard 这篇综述，是把这个最日常、最不容置疑的直觉，整个搬进神经科学实验室拷问的一次集大成。</p>
+        <p>它的杀伤力在于一个已被反复复现的事实：用脑电记录到的<span class="term">准备电位（RP，Readiness Potential）</span>，在你"感到自己想动"之前<strong>整整 1 秒甚至更早</strong>就已经在大脑里启动了；而你报告的有意识意愿，只比肌肉动作早约 <strong>206 毫秒</strong>。换句话说，当你"意识到要动"的时候，大脑早就在准备了。这被很多人当成"自由意志不存在"的科学证据。</p>
+        <p>但 Haggard 的真正贡献不是煽情地宣布"自由意志已死"，而是给出一个建设性的替代方案：意志不是一个神秘的、瞬间的"灵魂决定"，而是<strong>一连串可以被脑回路实现的决策——决定要不要做（whether）、做什么（what）、什么时候做（when）</strong>。这篇是理解"自由意志神经科学"整个领域的最佳单篇入口：综述、模型、临床证据、哲学含义一网打尽。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇综述横跨电生理、脑成像、临床神经学和心灵哲学，术语密度很高。先把核心工具备齐，后面就轻松了。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">自主动作（Voluntary Action）</div>
+          <div class="cdesc">不是被外界刺激直接"逼"出来的动作，而是"内生"的、自己发起的动作。Haggard 把它放在一根连续轴的一端：另一端是膝跳反射这种纯反射。判断标准是"摆脱即时性的自由"（freedom from immediacy）——动作的形式与时机不由当下刺激直接决定。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">准备电位（RP，Readiness Potential）</div>
+          <div class="cdesc">头皮脑电图上，在自主动作发生前一段持续缓慢上升的负电位（德语原名 Bereitschaftspotential）。像运动员起跑前肌肉慢慢绷紧——它是大脑"正在为动作做准备"的电信号，可早于动作 1 秒以上出现。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">意识意愿时刻 W（W，时间 W / "想动"的那一刻）</div>
+          <div class="cdesc">Libet 实验里被试报告的"我第一次感到想动手"的主观时间点（用旋转时钟读出）。平均只比肌肉启动早约 206 毫秒，却比准备电位的启动晚得多——这个时间差是整场争论的火药桶。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">脑电图（EEG，Electroencephalography）</div>
+          <div class="cdesc">在头皮贴电极、记录大脑群体神经元电活动的技术。时间分辨率极高（毫秒级），所以能捕捉到"动作前一秒"这种精细时间结构——准备电位就是靠它发现的。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">前辅助运动区（pre-SMA，Pre-Supplementary Motor Area）</div>
+          <div class="cdesc">本文的"主角脑区"。位于额叶"认知区"与"运动执行区"（辅助运动区 SMA 与初级运动皮层 M1）之间的枢纽位置，负责把想法转成动作。准备电位的早期源头就定位在这里；它既能发起动作，也能抑制对环境的自动反应。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">辅助运动区／初级运动皮层（SMA / M1，Supplementary Motor Area / Primary Motor Cortex）</div>
+          <div class="cdesc">SMA 是更偏"执行"的运动区，紧挨着 pre-SMA；M1 是运动指令的"最后出口"，直接把命令经脊髓发给肌肉。本文把 M1 称为自主动作的"最终公共通路"（final common path）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">额极皮层（FPC，Frontopolar Cortex）</div>
+          <div class="cdesc">额叶最前端的皮层（也写作 anterior prefrontal cortex，前额叶前部）。负责长程的计划与意图、"分支控制"（一边执行当前任务、一边挂着备选任务）。解码研究发现它的活动模式能在动作前最多 8 秒预测你将用左手还是右手。它与<strong>前瞻记忆（Prospective Memory，"记住将来要做某事"，如"路过药店要买药"）</strong>共享脑机制——长程意图像计划、需"心理时间旅行"，与即时的"想动"冲动属不同意识层次。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">基底神经节（Basal Ganglia）</div>
+          <div class="cdesc">大脑深部的一组皮层下核团，向 pre-SMA 输入信号，被认为在"发起动作"中扮演关键角色。来自黑质（substantia nigra）的多巴胺输入能按"奖赏模式"调节这股驱动——帕金森病正是这条通路受损，导致动作更少、更慢。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">否决／有意识抑制（Veto / Intentional Inhibition）</div>
+          <div class="cdesc">在动作即将执行的最后一刻"喊停"。Libet 称之为"自由不（free won't）"。这是本文"晚期 whether 决策"的核心：不是决定去做，而是决定<strong>临时取消</strong>已经准备好的动作——对应前额叶内侧（额中线区）与脑岛的激活。这一道检查与<strong>行为责任（Responsibility for Action）</strong>最相关——罗马法的"犯罪行为（actus reus）＋犯罪意图（mens rea）"正是物理动作与有意识体验的对应。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">能动感（Sense of Agency）</div>
+          <div class="cdesc">"是我让这件事发生的"那种主观感受——按下开关、灯亮了，你觉得是"我"造成的。它关乎对外部感觉后果的体验，区别于"意图体验"（关乎动作前的准备与努力）。本文认为它部分由额叶运动区基于意图生成的预测"隐式"产生。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-measure">把"意志"塞进实验室：一个根本性的方法难题</div>
+
+      <p>为什么神经科学和行为主义心理学长期回避"意志"这个题目？Haggard 一针见血：因为标准实验范式与"自主"在逻辑上互相打架。</p>
+
+      <p>典型实验是"给系统一个已知输入（刺激），测量它的响应"。可一旦你给了被试明确的刺激或指令，这个动作就<strong>部分地被刺激决定</strong>了——它就不再纯粹"自主"。为绕开这个悖论，研究者只能从三个方向"半放手"：<span class="term">让被试自己决定何时做（when）</span>、<span class="term">让被试在几个动作里选一个（what）</span>、<span class="term">让被试决定要不要做（whether）</span>。这三条路，恰好预示了后文意志的三个决策成分。</p>
+
+      <div class="info-block">
+        <span class="ib-title">一个尖锐的批评，以及 Haggard 的回应</span>
+        <p>有一种激进观点（Nachev & Husain）认为：所谓"自主性"根本是实验情境制造出来的<strong>社会假象</strong>，而非真正的认知过程——你让被试"随意一点"，他只是在配合演出对"自由意志"的理解。Haggard 承认这批评有力，但反驳道：实验确实抓住了自主动作的一个关键计算特征——<strong>被试必须自己生成完成动作所需的信息</strong>。即便是配合演出，"自己生成信息"这件事本身是真实的认知操作。</p>
+      </div>
+
+      <p>把自主动作与反射对照，能得到几个有用的神经科学线索：反射可以是纯脊髓的，自主动作必然牵涉大脑皮层；反射出生时已存在，自主动作在个体发育中很晚才成熟；最关键的是——自主动作伴随两种反射所没有的<strong>主观体验</strong>：<span class="term">意图体验（intention，打算去做某事）</span>与<span class="term">能动体验（agency，事后"是我造成的"那种确认感）</span>。</p>
+
+      <div class="section-head" id="sec-libet">核心发现一：脑活动跑在意识前面（Libet 的经典实验）</div>
+
+      <p>这是整篇综述的"原爆点"，也是大众最熟悉的部分。1983 年 Libet 改造了 Wundt 的旧范式：被试盯着屏幕上快速旋转的光点（相当于一个秒针），<strong>在自己选定的随机时刻</strong>自发地动一下右手；事后报告"第一次感到想动"时光点的位置；同时头皮电极记录运动皮层的准备活动。</p>
+
+      <div class="info-block">
+        <span class="ib-title">关键数字：那个让人不安的时间差</span>
+        <p>平均而言，被试报告的<strong>有意识意愿（W）出现在肌肉活动前约 206 毫秒</strong>。而<strong>准备性脑活动（准备电位）早在动作前 1 秒甚至更早就开始了</strong>。结论刺眼：大脑在你"意识到要动"之前，已经准备这个动作相当长一段时间了——准备电位领先意识约 800 毫秒量级。</p>
+      </div>
+
+      <p>这被反复解读为对"自由意志"日常概念的反驳：如果在你产生有意识意图之前，神经准备就已启动，那这个有意识意图怎么可能是动作的<strong>原因</strong>？它顶多是个"事后通知"。</p>
+
+      <p>但 Haggard 谨慎地列出了这个实验遭到的、同样被广泛接受的批评（这正是好综述的价值——不替你下结论，把弹药都摆出来）：</p>
+      <ul>
+        <li><strong>"真正的自主动作"被偷换了</strong>：真正的自由决定，是被试一开始"决定参加这个实验"，而不是每一次"感到想动"的瞬间。</li>
+        <li><strong>主观计时不可靠</strong>：被试要在"读时钟"和"监控自己冲动"之间分配注意力，结果会随之系统性偏移。</li>
+        <li><strong>大脑会"事后造表"</strong>：大脑常常在事件发生后才制造出有意识体验，再把它<strong>回插（retro-insert）</strong>进意识流里——所以"我先想动"的感觉，可能本身就是被重构出来的。</li>
+      </ul>
+
+      <p>Haggard 自己的立场（后文展开）：与其纠结"意识在前还是脑在前"，不如承认<strong>有意识意图和神经准备很可能由同一个共同原因（神经准备）驱动</strong>，于是问错了问题。</p>
+
+      <div class="section-head" id="sec-circuits">核心发现二：意志的脑回路（不是一个点，而是几张网）</div>
+
+      <p>Haggard 描绘了汇聚到初级运动皮层 M1 的两套皮层运动回路，它们处理两类不同的动作：</p>
+
+      <div class="section-head-sub">回路一：基底神经节—pre-SMA 回路（内生、自主）</div>
+      <p>关键输入从 <span class="term">pre-SMA</span> 到达 M1，而 pre-SMA 又接收来自<strong>基底神经节</strong>和<strong>前额叶</strong>的输入。多项人类脑成像研究比较了"自选时机的手动作"与"对外部刺激做出的手动作"，发现<strong>自发动作时 pre-SMA 激活更强</strong>。头皮电极也确认：pre-SMA 在自主动作前 1 秒以上就出现持续增强的负电活动——准备电位的早期源头就在这里。</p>
+
+      <div class="info-block">
+        <span class="ib-title">为什么是"回路"而不是"直线"？</span>
+        <p>Haggard 提醒一个易被忽视的细节：自主动作的脑机制更像<strong>环路（loops）</strong>而非"刺激→反应"的线性链条。基底神经节向 pre-SMA 的输入把大量皮层信号整合起来驱动当前合适的动作；而来自黑质的多巴胺输入则按奖赏模式调节这股驱动。临床证据：帕金森病患者基底神经节到 pre-SMA 的输出减弱，动作就更少、更慢。更惊人的是，植入基底神经节的电极能在动作前约 <strong>2 秒</strong>记录到预测即将到来的自主反应的信号——比典型准备电位还早。</p>
+      </div>
+
+      <div class="section-head-sub">回路二：顶叶—运动前区回路（即时感觉引导）</div>
+      <p>第二套网络处理动作的即时感觉引导。来自早期感觉皮层（其中初级体感皮层为 S1，Primary Somatosensory Cortex）的信息被中继到<strong>顶叶皮层（Parietal Cortex）</strong>，再到运动前区外侧部，最后投射到 M1。这条"背侧路径"负责抓握等以物体为对象、依赖当前感觉输入的动作。猴子的顶内沟（IPS，Intraparietal Sulcus）外侧区（LIP，Lateral Intraparietal Area）在"两个同等回报的选项里选一个"时，会编码动物的具体行为选择。</p>
+
+      <div class="info-block">
+        <span class="ib-title">两条回路，两种决策</span>
+        <p>Haggard 的洞见：这不是冗余，而是分工。<strong>需要即时行动</strong>时，顶叶—运动前区回路在动作选项间仲裁；<strong>缺乏即时指令、要靠内部发起</strong>时，基底神经节—pre-SMA 回路更多参与。两条回路实现了不同种类的决策，都与人类意志相关。</p>
+      </div>
+
+      <div class="section-head" id="sec-decision">核心发现三：意志＝一串决策（whether / what / when 模型）</div>
+
+      <p>这是全文最具建设性的核心模型（论文图 2："人类意志的自然化模型"）。Haggard 的主张是：与其把意志看成"一个内生心理选择的瞬间"，不如把它<strong>拆成一串决策过程</strong>，每个过程指定动作的不同细节。意志因此是一种<strong>决策（decision making）</strong>。</p>
+
+      <div class="section-head-sub">① 早期"whether 决策"：要不要做？</div>
+      <p>动作的第一个、也是最根本的决策：到底要不要发起一个动作。它有早期成分和动机成分——需求、欲望、行动的理由在此发挥作用。Haggard 指出有意识自主动作通常出于三种情形之一：常规处理无法给出唯一答案（要在两个含糊选项里选）；突然冒出新的行动理由（饥饿、想找朋友）；或纯粹是为了<strong>探索行为图景（exploration）</strong>。这一决策会临时<strong>暂停</strong>基于刺激的常规控制，把运动系统从"感觉驱动"切换到"意志输入"。</p>
+
+      <div class="section-head-sub">② "what 决策"：做什么？（目标选择 + 动作选择）</div>
+      <p>这进一步分两层。<strong>任务/目标选择</strong>（从一堆目标里挑一个去做，并安排先后次序）——这与<strong>前额叶</strong>有关；额叶损伤、尤其 pre-SMA 受损的患者会出现"利用行为（utilization behaviour）"：环境里摆个东西就强迫性地去抓去用。<strong>动作选择</strong>（用什么动作实现已定目标，如"够取那个物体"）——主要在<strong>顶叶与运动前区</strong>的背侧视觉运动流里完成。</p>
+
+      <div class="info-block">
+        <span class="ib-title">一个戏剧性的临床证据：异手综合征</span>
+        <p>"异手综合征（anarchic hand syndrome）"——单侧额叶损伤导致对侧的手会<strong>自动对环境刺激做出反应</strong>，哪怕患者明确说"我不想做这个动作"，那只手照样去做。这正面说明：pre-SMA 区域的正常功能之一，是<strong>抑制</strong>对当前环境的自动反应。该区受损者因此"反应过度"。Box 2 里那位患者 CU 的对话堪称经典：他看到桌角故意放的苹果和刀，就削了吃；问他为什么，他答"因为它在那儿"——目标完全由环境里最突出的东西决定。</p>
+      </div>
+
+      <div class="section-head-sub">③ "when 决策"：什么时候做？</div>
+      <p>动作的时机。自选时机（self-paced）的动作可视为"when 决策"的产物。比较"自定时机"与"外部触发"的条件发现，pre-SMA 与背外侧前额叶皮层（DLPFC，Dorsolateral Prefrontal Cortex）参与了时机决定。但 Haggard 谨慎指出：日常生活里的"when 决策"形态与实验室不同——真实动作的时机往往取决于"对其他潜在动作与常规进程的协调安排"，并不总需要一个明确的"现在就做"的时刻。</p>
+
+      <div class="section-head" id="sec-viz">交互演示：准备电位时间线 × 三个决策成分</div>
+
+      <div class="viz-box">
+        <div class="viz-title">大脑何时"决定"，你又何时"知道"——以及意志的三道闸门</div>
+        <div class="viz-note">交互演示。上半部：基于 Libet（1983）及本文图 1/图 4 报告的时间结构，模拟准备电位（RP）曲线、有意识意愿时刻 W 与动作起点（0）的时序关系；曲线为定性示意，关键时间标注（约 −1 s 起准备电位、−206 ms 起意识意愿）取自论文。下半部：whether / what / when 三个决策成分，点选查看各自的脑区与含义。模拟数据用于展示定性模式，非论文原始波形。</div>
+
+        <div class="viz-controls">
+          <button id="vizPlay">▶ 播放时间线</button>
+          <button id="vizReset" class="alt">重置</button>
+          <label><input type="checkbox" id="vizShowW" checked> 显示意识意愿 W（−206 ms）</label>
+          <label><input type="checkbox" id="vizShowEarly" checked> 显示解码可预测窗口（最早约 −8 s）</label>
+        </div>
+
+        <canvas id="rpCanvas" width="860" height="340"></canvas>
+
+        <div class="viz-controls" style="margin-top:18px;">
+          <span style="font-size:0.88rem;color:#3a4048;font-weight:700;">三个决策成分（点选）：</span>
+          <button class="alt vizDec" data-dec="whether">whether 要不要做</button>
+          <button class="alt vizDec" data-dec="what">what 做什么</button>
+          <button class="alt vizDec" data-dec="when">when 何时做</button>
+        </div>
+        <div id="decInfo" style="font-size:0.92rem;color:#3a4048;line-height:1.7;background:#fdecea;border-left:4px solid #c0392b;border-radius:0 6px 6px 0;padding:12px 18px;margin-top:6px;">
+          点上面任一按钮，看这一道"意志闸门"对应哪些脑区、出了问题会怎样。
+        </div>
+      </div>
+
+      <p>这张图想传达纯文字给不了的一个直觉：所谓"做决定的那一刻"，在脑活动的时间轴上其实是<strong>糊成一片</strong>的——准备电位早早爬升，能动用解码技术甚至更早（最多 8 秒前）就能从额极皮层读出你的选择，而你"感到自己想动"只是这条长长因果链上很晚的一个点。意志不是一个开关被按下，而是一串决策在时间里展开。</p>
+
+      <div class="section-head" id="sec-veto">核心发现四：否决权与有意识抑制（"自由不"）</div>
+
+      <p>如果说前面是"如何发起动作"，这一节是 Haggard 特别看重、也是后续研究最活跃的方向：<strong>如何在最后一刻喊停</strong>。他把这称为"晚期 whether 决策（late whether decision）"，对应计算模型里的"最终预测检查（final predictive check / forward model）"。</p>
+
+      <p>逻辑很优雅：早期 whether 决策做出时，动作的全部细节还没确定；要等动作信息被充分整合，完整图景才浮现——而那时动作可能已经"上膛"。所以系统需要一道<strong>临门检查</strong>：把前向模型预测的后果与目标描述比对，若代价过高就<span class="term">否决（veto）</span>它。日常版本就是"快要发火回邮件、最后一秒忍住了"。</p>
+
+      <div class="info-block">
+        <span class="ib-title">关键证据：否决行为有自己的神经底物</span>
+        <p>Libet 早就报告过：被试在"决定否决已准备好的动作、最终没动"的试次里，仍能记录到准备电位——即准备照常发生，只是被叫停。Brass 与 Haggard（2007）用功能磁共振成像（fMRI，Functional Magnetic Resonance Imaging）做了更精细的实验：被试在自选时刻准备并执行按键，但在某些试次最后一刻<strong>主动撤销</strong>。结果发现：<strong>前额叶内侧、pre-SMA 前方的额中线区（frontomedian cortex）</strong>在否决试次中比执行试次激活更强（论文图 3a）；同时<strong>左右前腹侧脑岛（anterior insula）</strong>也被激活（图 3b），与"对未能落地的意图产生情绪反应"一致。这是"晚期 whether 决策"的神经相关物。</p>
+      </div>
+
+      <p>Haggard 还点出一个深刻含义：否决本身也可能是某些先前无意识神经活动的后果——也就是说，"自由不"和"有意识意图"一样，未必是凭空的"终极发起者"。但他强调：这并不意味着要回到二元论的"灵魂喊停"，它依然完全可以是脑过程。</p>
+
+      <div class="section-head-sub">pre-SMA：为什么它是这篇综述的真正主角</div>
+      <p>论文专门用 Box 2 把 pre-SMA 立为"自主动作的关键结构"。三条互补证据：①直接电刺激 pre-SMA，低电流产生"想动"的<strong>主观冲动</strong>，高电流则产生对应身体部位的<strong>实际动作</strong>（Fried 1991）——同一个区域既管"想"又管"动"。②它的核心功能之一是<strong>抑制</strong>对环境的自动反应（异手综合征即其失灵）。③猴子 pre-SMA 单神经元为<strong>整段复杂动作序列</strong>编码，还编码序列内动作之间的<strong>过渡</strong>（如"转→拉"激活、"转→推"不激活）。一句话：pre-SMA 占据了额叶"认知区"与"运动执行区"之间的枢纽，是把意图变成动作、又能临门叫停的关键节点。</p>
+
+      <div class="section-head" id="sec-agency">核心发现五：能动感是怎么"拼"出来的</div>
+
+      <p>最后 Haggard 转向意志的主观一面。自主动作伴随两类特定体验：<strong>意图体验</strong>（动作前，关乎准备与努力）与<strong>能动体验</strong>（动作后，"是我造成了那个外部结果"）。他在论文图 4 给出一个精彩的"重构"模型。</p>
+
+      <div class="info-block">
+        <span class="ib-title">能动感不是直接读出来的，是"绑定 + 推断"拼出来的</span>
+        <p>底层是三组神经事件依时间排开：<strong>运动准备 → 实际运动 → 感觉后果</strong>。它们各自引发的体验（意图、动作、结果）被两个认知过程"合成"为对一次动作的<strong>单一整体印象</strong>：一是<strong>预测（prediction）</strong>——意图预测动作及其指向的目标效果；二是<strong>重构推断（reconstructive inference）</strong>——动作及其后果的感觉体验，反过来触发对"行动意图"的重建。这两个过程把零散成分在时间上<strong>压缩绑定</strong>，最终生成"我是一个能流畅自主控制的主体"的自我表征。</p>
+      </div>
+
+      <p>这里藏着对"自由意志"最锋利的哲学解构。Wegner 提出：人脑默认存在一条"从有意识意图到动作"的因果路径，用来解释二者之间的相关；但实际上，这种相关之所以存在，是因为<strong>有意识意图和动作由同一个共同原因（神经准备）驱动</strong>。更激进的观点（Wundt 一脉）甚至认为：有意识意图根本不是真正的、事先的心理状态，而是事后被<strong>回溯性地插入</strong>意识流的一个"假设性原因"。</p>
+
+      <div class="info-block">
+        <span class="ib-title">反驳"事后重构"的最佳证据：神经外科刺激</span>
+        <p>如果有意识意图只是"事后编故事"，那就无法解释这个发现：当 Fried 等人在神经外科手术中<strong>直接电刺激 pre-SMA</strong>，患者报告对侧身体特定部位"有一股想动的冲动"——而他们当时<strong>还没有动</strong>，所以这不可能是对已发生动作的事后解释。这说明，类似意图的有意识体验是自主运动正常神经准备的一部分，而非纯粹的事后追认。Wittgenstein 那句被引用的发问点出了哲学内核："当我把'我的手臂抬起来'减去'我的手臂上升了'，还剩下什么？"——剩下的，可能正是这股神经源头的意图体验。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这是一篇综述，"方法"在于它如何编排不同范式相互印证、如何用临床/刺激证据补脑成像的相关性短板。下表梳理本文倚重的几条证据线及各自能回答与回答不了的问题。</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>证据线 / 范式</th>
+            <th>能回答什么</th>
+            <th>固有局限（本文亦坦承）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Libet 时钟 + 准备电位（EEG）</td>
+            <td>有意识意愿 W 与神经准备的精确时序（毫秒级）</td>
+            <td>主观计时不可靠；基线该取在何时本身预设了"知道神经准备何时开始"；"事后回插"难排除</td>
+          </tr>
+          <tr>
+            <td>自定时机 vs 外部触发对比（fMRI/EEG）</td>
+            <td>分离"内生发起"特有的脑区（pre-SMA、DLPFC）</td>
+            <td>相关而非因果；实验"自主性"可能是情境制造的</td>
+          </tr>
+          <tr>
+            <td>多变量解码 / "读心"（Soon 2008）</td>
+            <td>动作前最早约 8 秒，从额极皮层模式预测左/右手选择</td>
+            <td>"可预测"不等于"已决定"；早期激活也可能是长程意图而非具体选择</td>
+          </tr>
+          <tr>
+            <td>否决 / 有意识抑制（Brass &amp; Haggard 2007）</td>
+            <td>定位"晚期 whether 决策"：额中线区 + 前脑岛</td>
+            <td>否决本身是否也由无意识活动驱动，尚不清楚</td>
+          </tr>
+          <tr>
+            <td>直接电刺激（Fried 1991，神经外科）</td>
+            <td>因果证据：刺激 pre-SMA 产生"想动"冲动乃至实际动作</td>
+            <td>样本特殊（癫痫手术患者）；刺激诱发的冲动是否等同正常意图，未知</td>
+          </tr>
+          <tr>
+            <td>损伤 / 临床综合征（异手、利用行为）</td>
+            <td>因果证据：pre-SMA/额叶损伤 → 自动反应失控</td>
+            <td>损伤范围常不精确；个体差异大</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>这套"相关（脑成像）＋因果（刺激与损伤）＋时序（脑电）"的三角互证，是本文方法论上最值得学习的地方：单靠任何一条都说不清意志，叠在一起才勾出可信轮廓。</p>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+
+      <p><strong>对二元论传统的清算。</strong>语言、罗马法（actus reus + mens rea）、日常直觉都内嵌"有意识的我导致动作"。本文明确拒绝"机器里的幽灵（ghost in the machine，Ryle 之喻）"，主张意志就是脑过程，没有独立于脑与身体的"心灵/灵魂"作为原因。</p>
+
+      <p><strong>承接并修正 Libet。</strong>本文不是简单复述 Libet，而是把那个"令人不安的时间差"放进一个更大的框架：与其问"意识在前还是脑在前"，不如承认二者由共同神经原因驱动，并把研究重心从"发起"转向"否决"与"预测性监控"。</p>
+
+      <p><strong>整合计算与系统神经科学。</strong>把 Shadlen 等人的"知觉决策"机制借来描述"动作决策"，但强调关键差异：知觉决策是把复杂刺激<strong>化简</strong>，动作决策却要<strong>无中生有地生成</strong>达成动作所需的新信息（"该不该做""怎么做"本质上是欠定的）。还吸收了 Cisek 的"前额叶信号偏置运动前区竞争"模型、前向模型/逆模型的运动控制框架。</p>
+
+      <p><strong>把意志与四种一般计算原理挂钩。</strong>本文提出自主动作可被看作：探索行为（exploration，对应额极区编码探索性选择）、随机行为噪声（赢者通吃机制中打破对称的随机扰动）、条件化反应（记忆塑造选择，但自传体记忆奇怪地不在主流意志理论中）、目标导向性（teleological pull，意动理论一脉，但有滑回二元论的风险）。这把零散的意志现象统一进了认知科学的通用词汇。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+
+      <ul>
+        <li><strong>法律与道德责任。</strong>Box 3 直面这点：若意志只是"相对不受约束情境下关于动作的决策"，那"早期 whether 决策（有动机、有理由）"与"最终检查（该不该叫停）"才与责任最相关，而"怎么做""何时做"反而次要。更深的一点：什么算"可接受的行动理由"、何时"应当叫停"，本身由<strong>文化和教育</strong>写入大脑的认知—运动回路——责任因此既是脑的事，也是社会的事。</li>
+        <li><strong>精神与神经疾病。</strong>意志失调（如意志缺乏 abulia、精神病 psychosis）、注意缺陷多动障碍（ADHD，Attention-Deficit Hyperactivity Disorder）儿童的易分心（可能是 pre-SMA 系统的发育障碍）、图雷特综合征（Tourette syndrome）抽动前的"先兆冲动"、强迫性利用行为——都能在这个决策框架里重新定位。</li>
+        <li><strong>脑机接口与神经工程。</strong>Haggard 在结论里点明：能"介入控制"人类自主运动系统的少数场景之一正是脑机接口（brain–computer interfacing）与神经外科探查；用工程学"介入—测量"的思路设计实验，可能给意志研究带来新洞见。</li>
+        <li><strong>人工智能与自主性。</strong>虽然本文未直接谈人工智能（AI，Artificial Intelligence），但"自主动作＝自己生成达成动作所需信息＋在欠定情境下做一串 whether/what/when 决策＋带预测性的最终否决检查"这套刻画，本身就是一份关于"什么是真正的能动性（agency）"的工程规格说明，对设计自主智能体很有启发。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+
+      <p>除了本文自己坦承的局限（计时不可靠、相关非因果、自主性可能是情境产物等，已见前文），还有几处更深的、论文没有充分点破的张力：</p>
+
+      <ul>
+        <li><strong>"可预测" ≠ "已被决定"，但全文常在二者间滑动。</strong>解码研究说"动作前 8 秒能预测左右手"，这极具冲击力；但能预测的也许只是<strong>偏置（bias / 倾向）</strong>，真正的选择仍可能晚得多才坍缩。把"早期可解码信号"直接等同于"决定已做出"，是这一领域（不止本文）反复出现的过度解读。<em>（解读者观点）</em></li>
+        <li><strong>"自由不"的回归问题没有真正解决。</strong>Haggard 诚实地指出否决本身也可能由先前无意识活动驱动——但这其实把"无限后退"问题原样保留了：如果否决也被前因决定，那"控制"到底落脚在哪？本文给了现象学定位（额中线区），没给出"控制"的规范性出口。<em>（解读者观点，文中亦埋有此线索）</em></li>
+        <li><strong>"意图体验"的内容与强度几乎没被实验刻画。</strong>本文坦言：有意识意图的<strong>强度维度</strong>"几乎没有被实验研究过"；现有研究多停在"何时"（timing），对"想动的感觉具体是什么样、有无身体定位、强弱如何变化"了解极少。这是主观一面最大的空白。</li>
+        <li><strong>因果证据来自特殊人群，外推存疑。</strong>最强的因果证据（pre-SMA 电刺激）几乎都来自癫痫/肿瘤手术患者，刺激诱发的"冲动"是否等同健康人的正常意图，本文也只能存疑。</li>
+        <li><strong>能动感的神经基础"仍不清楚"。</strong>本文明说能动感（agency）的神经基础尚不明，图 4 的"预测＋重构"模型是理论框架而非已证机制——这一块比意图体验更欠缺直接证据。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+
+      <p>以下为解读者评价，每条都尽量锚定文中证据。</p>
+
+      <p><strong>它最大的贡献是"去神秘化"而非"证伪自由意志"。</strong>大众把这条线索读成"科学证明没有自由意志"，但本文的实际工作是把"意志"从一个不可分析的瞬间，拆成 whether/what/when 三段加一道否决检查的<strong>可研究的决策序列</strong>（图 2），并为每一段挂上脑区与临床证据。这是从"灵魂"到"机制"的范式转换，比任何"自由意志已死"的标题都更有建设性。<em>（依据：图 2 模型 + 各决策成分的脑区/损伤证据）</em></p>
+
+      <p><strong>把研究重心从"发起"转向"否决"，是真正有远见的一步。</strong>结论里 Haggard 明确呼吁"未来研究应聚焦于<strong>抑制</strong>自主动作的决策，以及预测性监控的贡献"。把"自由不（free won't）"提到与"自由意志"同等地位，既化解了 Libet 困局（你即使没发起的自由，也有叫停的自由），又对接了自我控制、临床抑制障碍等大量现实问题。Brass & Haggard（2007）的额中线区+前脑岛证据让这一步落了地。<em>（依据：结论段 + 图 3）</em></p>
+
+      <p><strong>pre-SMA 作为核心节点的论证相当扎实，是全文最可信的部分。</strong>它同时拿到了三类证据：相关（自发动作激活更强）、因果（电刺激产生冲动→动作）、损伤（异手/利用行为）。三角互证下，"pre-SMA 是意志关键结构"几乎是本文立得最稳的结论。<em>（依据：Box 2 三条证据线）</em></p>
+
+      <p><strong>但在解读解码研究时，本文（连同整个领域）偏乐观。</strong>"动作前 8 秒可预测"被放在很显眼的位置，却没有同等力度地强调"可预测的可能只是倾向、而非已坍缩的决定"。这是我对全文最主要的保留：它在"可预测"与"已决定"之间的滑动，可能让读者高估了"决定早已注定"的程度。<em>（解读者观点）</em></p>
+
+      <p><strong>哲学处理克制而成熟。</strong>它没有借科学之名越界宣判道德责任的存亡，而是（Box 3）指出责任概念如何与"早期 whether/最终检查"两道决策对接，并强调文化教育才是写入这些回路的"规范信号"。这种"神经科学能贡献证据、但未必能穷尽社会法律责任之微妙"的自觉，是这篇综述格调高的地方。<em>（依据：Box 3 末段）</em></p>
+
+      <p><strong>总评：</strong>作为 2008 年的综述，它定义了"自由意志神经科学"此后十余年的议程——whether/what/when 框架、pre-SMA 中心地位、从发起转向抑制、能动感的预测—重构模型，几乎都成了该领域的标准坐标。论证的薄弱处不在它说了什么，而在它（以及整个领域）对"早期神经信号＝决定已定"的修辞偏好。瑕不掩瑜，这是理解该主题无法绕开的奠基性文献。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Haggard 用脑电、脑成像、电刺激与临床损伤的三角互证证明：所谓"自由意志"既不是灵魂下达的瞬间命令（准备电位早于有意识意愿 W 约 800 毫秒、领先动作 1 秒以上），也不因此就"不存在"——它其实是一串可被脑回路（以 pre-SMA 为枢纽）实现的决策：<strong>要不要做（whether）、做什么（what）、何时做（when）</strong>，外加最后一刻"自由不（free won't）"的否决检查；而"是我做的"那种能动感，是大脑把意图、动作、结果在时间上压缩绑定、再重构推断拼出来的整体印象。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Haggard, P. (2008). Human volition: towards a neuroscience of will. <em>Nature Reviews Neuroscience</em>, 9(12), 934–946. DOI:10.1038/nrn2497.<br>
+    <strong>说明：</strong>本页为中文深度解读，非论文原文翻译；交互演示中的准备电位波形为定性示意（关键时间标注取自论文报告），用于帮助建立时序直觉，不代表论文原始数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+
+  // ====== 准备电位时间线 canvas ======
+  var canvas = document.getElementById("rpCanvas");
+  if(!canvas) return;
+  var ctx = canvas.getContext("2d");
+  var W = canvas.width, H = canvas.height;
+
+  // 时间轴：从 -2.2 s 到 +1.0 s
+  var tMin = -2.2, tMax = 1.0;
+  var padL = 60, padR = 24, padT = 28, padB = 46;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+  var zeroY = padT + plotH * 0.62; // 基线（0 µV）位置
+
+  function tToX(t){ return padL + (t - tMin)/(tMax - tMin) * plotW; }
+  // 准备电位：相对基线为负电位（脑电惯例负电位向上画）。这里 y 值越小越往上。
+  function rpAmp(t){
+    // 定性示意：约 -1.0 s 起缓慢上升，动作起点(0)附近达峰，随后回落并小幅振荡
+    if(t < -1.05) return 0;
+    if(t <= 0){
+      var u = (t + 1.05)/1.05;            // 0..1
+      return Math.pow(u, 1.7);            // 缓慢加速上升至 1
+    }
+    // 动作后回落 + 阻尼振荡
+    var d = t;
+    return Math.cos(d*7.5) * Math.exp(-d*2.2) * 0.55 + Math.exp(-d*2.6)*0.45;
+  }
+
+  var showW = document.getElementById("vizShowW");
+  var showEarly = document.getElementById("vizShowEarly");
+
+  var anim = { playing:false, t:tMin, raf:null };
+
+  function drawAxes(){
+    ctx.clearRect(0,0,W,H);
+    // 标题
+    ctx.fillStyle = "#3a4048";
+    ctx.font = "13px -apple-system,'PingFang SC',sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("准备电位（RP，Readiness Potential）幅度 →（脑电负电位向上）", padL, 16);
+
+    // 纵轴基线
+    ctx.strokeStyle = "#cfd4da";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.setLineDash([4,4]);
+    ctx.moveTo(padL, zeroY); ctx.lineTo(W - padR, zeroY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#9aa1ab";
+    ctx.font = "11px sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("0 µV", padL - 8, zeroY + 4);
+
+    // 时间刻度
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#6b7280";
+    var ticks = [-2,-1,0,1];
+    ticks.forEach(function(tk){
+      var x = tToX(tk);
+      ctx.strokeStyle = "#e6e8eb";
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+plotH); ctx.stroke();
+      ctx.fillStyle = "#6b7280";
+      ctx.fillText(tk + " s", x, padT+plotH+18);
+    });
+    ctx.fillStyle = "#3a4048";
+    ctx.font = "12px sans-serif";
+    ctx.fillText("时间（秒），0 = 动作起点 / 肌肉启动（EMG，肌电图 Electromyogram）", (padL+W-padR)/2, H-6);
+  }
+
+  function drawEarlyWindow(){
+    if(!showEarly.checked) return;
+    // 解码可预测窗口：最早约 -8 s（超出本图左界），用左侧渐隐箭头+标注示意
+    var xStart = tToX(tMin);          // 图左界
+    var xEnd = tToX(-0.05);
+    var grad = ctx.createLinearGradient(xStart,0,xEnd,0);
+    grad.addColorStop(0,"rgba(192,57,43,0.03)");
+    grad.addColorStop(1,"rgba(192,57,43,0.16)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(xStart, padT, xEnd-xStart, plotH);
+    ctx.fillStyle = "#c0392b";
+    ctx.font = "11px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("◀ 额极皮层（FPC）解码可预测左/右手选择（最早约 −8 s，在图左界之外）", xStart+6, padT+14);
+  }
+
+  function drawRPUpTo(tNow){
+    // 画准备电位曲线（脑电负电位向上：y = zeroY - amp*scale）
+    var scale = (zeroY - padT) * 0.92;
+    ctx.strokeStyle = "#c0392b";
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    var started = false;
+    for(var t = -1.05; t <= Math.min(tNow, tMax); t += 0.01){
+      var x = tToX(t);
+      var y = zeroY - rpAmp(t)*scale;
+      if(!started){ ctx.moveTo(x,y); started = true; } else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    // 在 -1.05 s 标"准备电位起点"
+    if(tNow >= -1.05){
+      var xs = tToX(-1.05);
+      ctx.fillStyle = "#c0392b";
+      ctx.beginPath(); ctx.arc(xs, zeroY, 4, 0, Math.PI*2); ctx.fill();
+      ctx.font = "11px sans-serif"; ctx.textAlign="center";
+      ctx.fillText("准备电位启动 ≈ −1 s", xs, zeroY+34);
+    }
+  }
+
+  function drawW(tNow){
+    if(!showW.checked) return;
+    if(tNow < -0.206) return;
+    var xw = tToX(-0.206);
+    ctx.strokeStyle = "#1f2328";
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([5,3]);
+    ctx.beginPath(); ctx.moveTo(xw, padT); ctx.lineTo(xw, padT+plotH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#1f2328";
+    ctx.font = "bold 11px sans-serif"; ctx.textAlign="center";
+    ctx.fillText("意识意愿 W", xw, padT-2);
+    ctx.font = "11px sans-serif";
+    ctx.fillText("≈ −206 ms", xw, padT+12);
+  }
+
+  function drawMovementLine(tNow){
+    if(tNow < 0) return;
+    var x0 = tToX(0);
+    ctx.strokeStyle = "#2563eb";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x0, padT); ctx.lineTo(x0, padT+plotH); ctx.stroke();
+    ctx.fillStyle = "#2563eb";
+    ctx.font = "bold 11px sans-serif"; ctx.textAlign="center";
+    ctx.fillText("动作起点 0", x0, padT-2);
+  }
+
+  function drawPlayhead(tNow){
+    if(!anim.playing) return;
+    var x = tToX(tNow);
+    ctx.strokeStyle = "rgba(0,0,0,0.18)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+plotH); ctx.stroke();
+  }
+
+  function render(tNow){
+    drawAxes();
+    drawEarlyWindow();
+    drawRPUpTo(tNow);
+    drawW(tNow);
+    drawMovementLine(tNow);
+    drawPlayhead(tNow);
+  }
+
+  function fullStatic(){ render(tMax); }
+
+  function step(){
+    anim.t += (tMax - tMin) / 220; // 约 3.6 秒走完
+    if(anim.t >= tMax){
+      anim.t = tMax; anim.playing = false;
+      render(tMax);
+      return;
+    }
+    render(anim.t);
+    anim.raf = requestAnimationFrame(step);
+  }
+
+  document.getElementById("vizPlay").addEventListener("click", function(){
+    if(anim.raf) cancelAnimationFrame(anim.raf);
+    anim.playing = true; anim.t = tMin;
+    anim.raf = requestAnimationFrame(step);
+  });
+  document.getElementById("vizReset").addEventListener("click", function(){
+    if(anim.raf) cancelAnimationFrame(anim.raf);
+    anim.playing = false; fullStatic();
+  });
+  showW.addEventListener("change", function(){ if(!anim.playing) fullStatic(); });
+  showEarly.addEventListener("change", function(){ if(!anim.playing) fullStatic(); });
+
+  // ====== 三个决策成分信息 ======
+  var decData = {
+    whether: {
+      title: "whether 决策 · 要不要做？",
+      body: "意志的第一道、也是最根本的闸门：到底要不要发起一个动作。有早期（动机）成分——需求、欲望、行动理由在此起作用；也有晚期成分——动作即将执行时的最终预测检查与「否决（veto，自由不）」。脑区：早期与前额叶/动机系统相关；晚期否决对应 pre-SMA 前方的额中线区（frontomedian cortex）+ 前脑岛（anterior insula）。临床：与自我控制、强迫、成瘾密切相关。"
+    },
+    what: {
+      title: "what 决策 · 做什么？（目标选择 + 动作选择）",
+      body: "分两层。目标/任务选择：从一堆目标里挑一个并排序——与前额叶相关；受损会出现「利用行为（utilization behaviour）」：摆个东西就强迫性去用。动作选择：用什么动作实现已定目标（如「够取物体」）——主要在顶叶（Parietal Cortex）与运动前区的背侧视觉运动流。临床：异手综合征（anarchic hand）——对侧手自动响应环境，患者主观不想做也照做。"
+    },
+    when: {
+      title: "when 决策 · 何时做？",
+      body: "动作的时机。自选时机（self-paced）动作是「when 决策」的产物。脑区：pre-SMA 与背外侧前额叶皮层（DLPFC，Dorsolateral Prefrontal Cortex）参与时机决定；准备电位的早期源头（pre-SMA）正反映这种内部定时。要点：日常的「何时做」常取决于对其他动作与常规进程的协调，未必有一个明确的「现在！」时刻——所以实验室的 when 决策与真实生活并不完全一样。"
+    }
+  };
+  var decInfo = document.getElementById("decInfo");
+  Array.prototype.forEach.call(document.querySelectorAll(".vizDec"), function(btn){
+    btn.addEventListener("click", function(){
+      var d = decData[btn.getAttribute("data-dec")];
+      decInfo.innerHTML = "<strong style='color:#c0392b;'>"+d.title+"</strong><br>"+d.body;
+    });
+  });
+
+  // 初始静态渲染
+  fullStatic();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Felleman & Van Essen 1991 — 皮层分布式分层处理 · 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Cortical Hierarchy <span>×</span> 用「连线落在第几层」给大脑视觉皮层排出 10 级处理金字塔</h1>
+    <div class="meta">
+      <span>📄 Distributed Hierarchical Processing in the Primate Cerebral Cortex</span><br>
+      <span>✍️ Daniel J. Felleman & David C. Van Essen</span><br>
+      <span>🏛️ 德州大学医学院（休斯顿）神经生物学与解剖学系 · 加州理工学院生物学部</span><br>
+      <span>📅 Cerebral Cortex（《大脑皮层》）· 1991 年创刊号 · 第 1 卷第 1 期 · 1–47 页</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-question">它到底想解决什么问题</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-viz">交互：可点选的皮层层级图</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是系统神经科学被引用最多的论文之一，也是「大脑皮层不是一锅粥、而是有等级的层级系统」这一观念的奠基性证据。Felleman 和 Van Essen 做的事情听上去几乎不可能：把猕猴（macaque，恒河猴属的旧大陆猴，视觉系统与人类高度相似）大脑中 <strong>32 个视觉相关脑区、305 条已知连接</strong>，仅凭「神经纤维终止在皮层的第几层」这一条解剖学线索，排成了一座 <strong>10 级的处理金字塔</strong>。</p>
+        <p>它的伟大不在于发现了某条新连接，而在于提出了一套<strong>可重复、可证伪的客观规则</strong>——前馈连接终止于第 4 层、反馈连接避开第 4 层——把零散的解剖事实变成了一张有方向、有层级的全局电路图。这张图（论文的 Figure 4）几乎成了视觉神经科学的「元素周期表」，至今仍是深度学习「层级特征提取」叙事最常被引用的生物学背书。读懂它，等于拿到了理解整个视觉皮层组织逻辑的钥匙。</p>
+      </div>
+
+      <p>在开始之前先说清楚一件事：这篇论文是一篇<strong>综述兼元分析（meta-analysis）</strong>，作者本人没有做新的示踪实验，而是把当时 50 多个实验室、上百篇文献里的连接数据，用一套统一的数据库和判定规则<strong>重新整合</strong>成一个内部自洽的层级。所以它的「数据」不是 t 检验和被试数，而是<strong>脑区数、连接数、层级数、规则的例外比例</strong>。下面我们会带着这些精确数字逐一拆解。</p>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的术语密度极高，几乎每句话都是脑区缩写。先把最关键的概念用人话讲清楚——理解了这 9 个，后面就能畅通无阻。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">皮层层级（Cortical Hierarchy，皮层处理金字塔）</div>
+          <div class="cdesc">把脑区像公司组织架构一样排出「上下级」：低层处理简单特征（一条边、一个点），高层处理复杂概念（一张脸、一个物体）。本文的核心贡献就是给视觉皮层排出了这座金字塔，共 10 级。注意「层级（hierarchy）」是脑区之间的高低，别和下面的「皮层分层（layer）」混淆。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">皮层的六层结构（Cortical Layers，第 1–6 层）</div>
+          <div class="cdesc">大脑新皮层在显微镜下像千层饼，从表面到深部分 6 层。第 4 层（layer 4）是「输入接收层」，专门接外来的感觉输入。本文的判定全靠看一条连接的纤维落在第几层——这是「分层（layer）」，是单个脑区内部的纵深结构。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">前馈 / 反馈（Forward / Feedback，上行 / 下行）</div>
+          <div class="cdesc">前馈（forward，论文记作 ascending 上行）= 信息从低层流向高层，像数据往上汇报；反馈（feedback，记作 descending 下行）= 高层往低层发指令，像上级下达调整。本文最锋利的洞察：这两个方向在解剖上长得不一样，可以用纤维终止的层次区分开。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">第 4 层规则（Layer 4 Rule，F/M 终止模式）</div>
+          <div class="cdesc">本文的「黄金判据」：前馈连接的纤维末梢密集终止在<strong>第 4 层</strong>（记作 F 模式，forward-type）；反馈连接<strong>避开第 4 层</strong>、终止在浅层和深层（记作 M 模式，multilaminar）；同层连接则在所有层均匀分布成柱状（记作 C 模式，columnar）。看落点就能判方向。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">细胞起源模式（Origin Pattern，S/I/B）</div>
+          <div class="cdesc">用逆行示踪看「发出这条连接的细胞躲在哪层」。S（supragranular，颗粒层上方>70%）对应上行；I（infragranular，颗粒层下方>70%）对应下行；B（bilaminar，双层混合）则上下层都有、含义模糊。和终止模式互相印证来定方向。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">逆行 / 顺行示踪（Retrograde / Anterograde Tracer）</div>
+          <div class="cdesc">把示踪剂注进一个脑区：顺行示踪（anterograde）顺着纤维流向下游，告诉你「输出末梢终止在哪层」；逆行示踪（retrograde）逆着流回上游胞体，告诉你「发出连接的细胞在哪层」。本文所有判定都建立在这两类实验的层次信息上。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">连接的互惠性（Reciprocity，双向往返）</div>
+          <div class="cdesc">视觉皮层连接的一条铁律：A 连到 B，则 B 几乎一定也连回 A。本文 305 条连接里有 242 条（121 对）被证明是双向往返的。正因为大多数连接成对、且前馈与反馈方向解剖上互补（一上一下），层级才能自洽地排出来。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">分布式处理（Distributed Processing，并行多通道）</div>
+          <div class="cdesc">「分层」不等于「单线串行」。本文标题里的「分布式」强调：同一层级常并排站着好几个脑区（如第 5 级有 6 个区），信息走多条平行通道、还彼此串扰。所以视觉皮层是「有等级的网络」，而非一条流水线。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">M 通道 / P 通道（Magnocellular / Parvocellular，大细胞 / 小细胞流）</div>
+          <div class="cdesc">视觉信息从视网膜起就分两路：M 通道（magnocellular，大细胞，管运动/深度，快而粗）和 P 通道（parvocellular，小细胞，管颜色/细节，慢而精）。P 通道在初级视觉区（V1，Visual area 1）又分成 P-B（斑点流，blob，皮层细胞色素氧化酶染色出的深色斑点，管颜色）和 P-I（斑点间流，interblob，斑点之间的区域，管形状）。这是金字塔底部「并行流」的来源。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-question">它到底想解决什么问题</div>
+      <p>1991 年的视觉神经科学正陷入一个甜蜜的烦恼。整个 1980 年代，新发现的视觉脑区数量<strong>爆炸式增长</strong>，已识别的连接更是激增。问题是：知道得越多，越乱。Hubel 和 Wiesel（1962、1965）最早提出的「严格串行流水线」模型（LGN → 简单细胞 → 复杂细胞 → 超复杂细胞）已经撑不住了，因为人们发现连接到处是<strong>高度互惠的（reciprocal）、平行的（parallel）</strong>，根本不是单行道。</p>
+
+      <div class="info-block">
+        <span class="ib-title">两个极端之间的中间地带</span>
+        <p>作者用了一个绝妙的类比：一个组织（比如美国政府）的结构，可以从「完全无政府」到「军队式铁腕等级」之间任意取值。视觉皮层也一样——一端是 Hubel-Wiesel 的<strong>严格串行</strong>，另一端是<strong>完全无序的网络</strong>。真相在中间：存在层级，但是「分布式」的、有弹性的。本文要回答的精确问题是：<strong>能不能用一套客观、可重复的解剖学规则，把所有已知脑区和连接整合进一个内部自洽（internally consistent）的单一层级？</strong></p>
+      </div>
+
+      <p>此前已有人尝试过：Van Essen & Maunsell（1983）排过 6 级（基于 13 个区、36 条连接），Van Essen（1985）扩展到 7 级（17 个区、92 条连接）。但近 5 年里有用层次信息的连接<strong>翻了三倍多</strong>，老框架装不下了。本文的雄心是：把脑区扩到 32 个、连接扩到 305 条，看同一套原则能否撑起一个更庞大的层级。这需要建一个计算机数据库——作者用了当时的 <span class="term">Excel</span>（微软的电子表格软件，在此当数据库用）来管理这堆复杂数据，这在 1991 年本身就是方法论上的创新。</p>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+
+      <div class="section-head-sub">发现一：视觉皮层是大脑里最大的「地皮」，32 个区瓜分它</div>
+      <p>作者先盘了一张「家底」。在这个半球的皮层图（论文 Figure 1、Figure 2）上，他们认定了 <strong>32 个</strong>与视觉相关的新皮层区：其中 <strong>25 个</strong>被判为「主要或纯粹视觉」，另 <strong>7 个</strong>是联系稍弱的「视觉联合区（visual-association areas）」。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：视觉占了半个大脑</span>
+        <p>整个新皮层校正缩水后是 <strong>9940 mm²</strong>，而视觉皮层（含视觉联合区）占了约 <strong>5385 mm²，等于新皮层的 55%</strong>。作者打了个比方：整个半球皮层像一块大饼干（直径约 12 cm），而视觉皮层就有一块中号饼干那么大（直径约 8 cm）。相比之下，体感皮层只占 11%、运动皮层 8%、听觉皮层 3%。视觉在灵长类大脑里是绝对的「地主」。</p>
+        <p>具体面积：<strong>V1（初级视觉区，Visual area 1）= 1120 mm²（占视觉皮层 20.8%）</strong>，<strong>V2（次级视觉区，Visual area 2）= 1190 mm²（22.1%）</strong>——这两个区就吃掉了视觉皮层四成多。<strong>V4（第四视觉区，Visual area 4）= 540 mm²</strong>，约为它们的一半。脑区面积跨度达 50 倍，最小的 <span class="term">MSTl（内侧颞上区外侧部，Medial Superior Temporal, lateral）</span> 只有 25 mm²。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：305 条连接，是一张高度互联又高度互惠的网</div>
+      <p>这 32 个区之间，文献里报告了 <strong>305 条连接</strong>。作者用几个角度刻画了这张网的「分布式」程度：</p>
+      <ul>
+        <li><strong>互联密度高：</strong>32 个区两两全连的话理论上有 992 条（即 N×(N−1)/2 中考虑方向后的可能路径）。实测 305 条 = <strong>理论上限的 31%</strong>。但作者指出，只有约 680 条路径被真正测试过；在被研究透的 5 个区〔V1、V2、第三视觉区（V3，Visual area 3）、V4、中颞区（MT，Middle Temporal）〕里平均每区有 27 条连接，据此外推真实连接度<strong>接近 40–50%</strong>。</li>
+        <li><strong>每个区都是枢纽：</strong>平均每个区有约 <strong>19 条连接</strong>（近 10 个输入 + 10 个输出）；研究最透的区平均 27 条。<span class="term">V4（第四视觉区）</span>是「超级枢纽」，与 21 个区有连接、共 39 条，可能在多种皮层处理中扮演中枢角色。</li>
+        <li><strong>互惠是铁律：</strong>305 条里有 <strong>242 条（121 对）</strong>被证明是双向往返的。剩下的 63 条「单向」中，绝大多数（58 条）其实只是<strong>反向还没被测过</strong>，并非真单向。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：为什么互惠这么重要</span>
+        <p>互惠不是花絮，它是整个层级方法能成立的<strong>地基</strong>。因为若 A→B 是前馈（上行）、B→A 是反馈（下行），这一对连接在解剖上就是「互补」的（一个终止于第 4 层、一个避开第 4 层）。作者正是利用这种互补性来交叉验证每一对连接的方向判定——65 对连接里有 49 对呈现清晰的「上行—下行（A-D）」互补，只有 5 对是「双侧向（L-L）」的模糊情形。</p>
+      </div>
+
+      <div class="section-head-sub">发现三（核心）：第 4 层规则——把解剖事实变成层级方向的「金尺」</div>
+      <p>这是全篇的灵魂。怎么不靠主观判断、客观地说「A 在 B 上面」？作者把前人（尤其 Rockland & Pandya 1979）的观察提炼成一套<strong>可机械执行的判据</strong>（论文 Figure 3）：</p>
+      <table>
+        <thead>
+          <tr><th>看什么</th><th>前馈/上行（A）</th><th>反馈/下行（D）</th><th>同层/侧向（L）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>纤维终止模式<br>（顺行示踪）</td><td><strong>F 模式</strong>：密集终止于<strong>第 4 层</strong></td><td><strong>M 模式</strong>：<strong>避开第 4 层</strong>，分布于浅层+深层</td><td><strong>C 模式</strong>：柱状，所有层均匀</td></tr>
+          <tr><td>细胞起源模式<br>（逆行示踪）</td><td><strong>S 模式</strong>：胞体在颗粒层上方（>70%）</td><td><strong>I 模式</strong>：胞体在颗粒层下方（>70%）</td><td>—</td></tr>
+          <tr><td>含义</td><td>低层 → 高层<br>「往上汇报」</td><td>高层 → 低层<br>「往下指令」</td><td>同级之间<br>「平级沟通」</td></tr>
+        </tbody>
+      </table>
+      <p>关键的修正在这里：作者发现老规则「上行一定起源于浅层」有反例——比如 <span class="term">DP（背侧前月状区，Dorsal Prelunate）</span>到 <span class="term">7a（顶叶 7a 区，area 7a）</span>是双层（B）起源却终止在第 4 层。于是他们做了一个聪明的让步：<strong>凡是「双层（B）」的逆行模式一律视为「模糊、不作判定」</strong>，只用它来兼容其他证据，不让它单独定方向。这一步让规则既严格又不至于自相矛盾。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：规则有多干净</span>
+        <p>在 217 条有细胞起源数据的连接里，<strong>177 条（82%）</strong>干净地落入 S/B/I 三类之一；终止模式方面，156 条里 <strong>132 条（85%）</strong>干净落入 F/C/M。也就是说，绝大多数连接都「守规矩」。更妙的是统计检验：起源于单层（更明确方向）的连接，平均跨越的层级数显著多于双层起源的（S 模式 2.76 级 vs B 模式 1.71 级，<strong>p &lt; 0.005，Student t 检验</strong>）——说明这套层次特征确实和「跨多少级」在数量上相关，不是作者一厢情愿。</p>
+      </div>
+
+      <div class="section-head-sub">发现四：10 级金字塔——从初级视觉区到下颞皮层的全局排序</div>
+      <p>把 305 条连接的方向判定全部喂进数据库，再用「每个区必须放在所有给它发上行连接的区之上」这条约束<strong>逐级迭代</strong>，最终生成了那张著名的层级图（Figure 4）。结果：<strong>32 个视觉皮层区被排成 10 个层级</strong>。</p>
+      <ul>
+        <li><strong>最底层：</strong>V1（初级视觉区）独占第 1 级，V2 在第 2 级——它们是所有视觉信息的入口。</li>
+        <li><strong>中段并行：</strong>V3（第三视觉区）、VP（腹后区，Ventral Posterior）、V4、MT（中颞区，Middle Temporal）等占据中间层级，且<strong>同一层常并排多个区</strong>。</li>
+        <li><strong>顶端：</strong>颞叶的下颞皮层（IT，Inferotemporal Cortex，管物体/面孔识别）和顶叶的 7a 区（area 7a，顶叶后部的视觉相关区）位于高层，<strong>旁海马 TF 区（TF，parahippocampal area TF）与 TH 区（TH，parahippocampal area TH）</strong>在第 10 级封顶。</li>
+        <li><strong>扩展版：</strong>若把视网膜神经节细胞（RGC，Retinal Ganglion Cell）和外侧膝状体（LGN，Lateral Geniculate Nucleus）加在底部、把内嗅皮层（ER，Entorhinal cortex）和海马复合体（HC，Hippocampal Complex）加在顶部，整座金字塔有 <strong>14 级</strong>。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：信息要爬多少级</span>
+        <p>连接跨越的层级数（Figure 5）平均是 <strong>1.8 级</strong>——多数连接只连相邻或近邻层级。但跨度惊人：最极端的是 V3 和 VP 直接连到旁海马区 TF/TH，<strong>一跳跨 7 级</strong>！这意味着信号理论上可以只用很少几次中转就从金字塔底冲到顶。这种「跳级」连接正是「分布式」而非「严格串行」的铁证。</p>
+      </div>
+
+      <div class="section-head-sub">发现五：层级不完美，约 10% 是例外——但作者诚实地把它们标红</div>
+      <p>这篇论文最让人尊敬的地方，是它<strong>不掩盖矛盾</strong>。作者明确指出，约 <strong>10%</strong> 的连接（约 30 条，列在 Table 6）构成对层级规则的「违例」：有的连接两个方向都像前馈（F/F 冲突），有的起源—终止模式对不上。在最终的 Figure 4 里，这些违例连接被<strong>画成红线</strong>。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：违例其实很少</span>
+        <p>尽管原始数据里有约 10% 的违例，但作者强调：当全部约束放进迭代算法后，最终生成的 10 级层级<strong>只剩下 3 处真正无法消除的内部矛盾</strong>〔MSTd 与 7a、MSTd 与后下颞区（PIT，Posterior Inferotemporal）、前额叶 46 区（area 46）与前下颞区背部（AITd，Anterior Inferotemporal, dorsal）〕，而且这三处涉及的关系在更早阶段就已被标为「可疑」。作者坦诚表态：无法判断这 10% 的违例究竟是<strong>真实的生物学例外</strong>，还是<strong>测量误差/脑区边界划分不准</strong>所致。他们倾向认为多数是技术性问题——但不强求读者接受。这种「把不确定性摆上台面」的克制，是本文经久不衰的重要原因。</p>
+      </div>
+
+      <div class="section-head-sub">发现六：同一套规则在体感、运动、甚至猫脑里都成立</div>
+      <p>为了证明这不是视觉皮层独有的巧合，作者把同样的方法用到了别处：</p>
+      <ul>
+        <li><strong>体感—运动皮层：</strong>13 个区、62 条连接 → 排出 <strong>9 级</strong>层级（Figure 7）。区数不到视觉的一半，层级数却几乎一样多。</li>
+        <li><strong>猫的视觉皮层：</strong>用别人（Symonds & Rosenquist 1984）的数据，16 个区、62 条连接 → <strong>8 级</strong>（Figure 8）。说明层级组织可能是哺乳类新皮层的<strong>普遍设计原则</strong>。</li>
+        <li><strong>跨系统衔接：</strong>体感的 7b 区（area 7b）与视觉的 MST 复合体相连，把两个层级缝在一起；联合区（46、7a）和边缘系统（内嗅、海马）则坐在所有感觉层级的最顶端。</li>
+      </ul>
+
+      <div class="section-head-sub">发现七：「分层」之上还叠着「并行流」——M 与 P 两条命脉</div>
+      <p>作者反复强调：金字塔不是单线。在<strong>同一个层级</strong>上常并排站着多个区（第 5 级有 6 个、第 7 级有 7 个、第 8 级有 5 个），这就是「分布式」的字面含义。更深一层，整座金字塔从底部就分成两条<strong>平行处理流</strong>（下图中 4B、4Cβ 是 V1 内部的亚层名，MST 指内侧颞上区，Medial Superior Temporal，即图例中 MSTd/MSTl 所属的复合体）：</p>
+      <blockquote>
+        <p>M 流（大细胞，红色系）：LGN 的 M 层 → V1 的 4B 层 → V2 粗条纹 → V3 / MT / MST</p>
+        <p>         主管：运动、深度、空间（快而粗）→ 主要灌入<strong>顶叶</strong></p>
+        <p>P 流（小细胞，紫蓝系）：LGN 的 P 层 → V1 的 4Cβ → 又分 P-B（斑点）和 P-I（斑点间）</p>
+        <p>         主管：颜色、形状、细节（慢而精）→ 经 V4 主要灌入<strong>颞叶（IT）</strong></p>
+      </blockquote>
+      <p>但作者也澄清：这两条流<strong>不是完全隔离的</strong>，在很多层级上彼此「串扰（cross talk）」。比如 MT 主要吃 M 输入，却也从 V2 的细条纹收到一些 P 信息。所以视觉系统是「分得开、但又交织在一起」的——这正是「分布式」一词的全部分量。</p>
+
+      <!-- ============ 交互可视化 ============ -->
+      <div class="section-head" id="sec-viz">交互：可点选的皮层层级图</div>
+      <p>下面这张图把论文 Figure 4 的核心思想做成了可交互版。每个方块是一个视觉脑区，<strong>纵向位置对应它在 10 级金字塔中的层级</strong>（V1 在底、TF/TH 在顶），颜色对应它所在的脑叶（与论文 Figure 2 的配色一致）。<strong>点击任意脑区</strong>，会高亮它的全部上下游连接；<strong>切换按钮</strong>可以让你只看前馈（绿色，往上）或只看反馈（橙色，往下），亲眼看看「第 4 层规则」是如何把方向变成层级的。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">猕猴视觉皮层层级图 · 点选脑区看上下游</div>
+        <div class="viz-note">布局与层级依据论文 Figure 4 与 Table 7（简化保留主干连接，并非全部 305 条）。绿线=该脑区发出的前馈/上行连接（终止于下游第 4 层）；橙线=反馈/下行连接（避开第 4 层）；灰线=同级（侧向）连接。方向由两端实际层级自动判定。所有脑区缩写在下方图例中给出中文与全称。</div>
+        <div class="viz-controls">
+          <button id="btn-both" class="">显示全部连接</button>
+          <button id="btn-ff" class="alt">只看前馈（上行）</button>
+          <button id="btn-fb" class="alt">只看反馈（下行）</button>
+          <button id="btn-reset" class="alt">清除选择</button>
+          <span id="viz-status" style="font-size:0.85rem;color:#6b7280;margin-left:8px;">提示：点击任意方块</span>
+        </div>
+        <canvas id="hier-canvas" width="980" height="620"></canvas>
+        <div id="viz-legend" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 16px;margin-top:14px;font-size:0.8rem;color:#3a4048;line-height:1.5;"></div>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文的方法本身就是一项工程成就。它真正的创新不在「采集数据」，而在「如何把上百篇互相矛盾的文献炼成一个自洽结构」。下面几点是它做对的关键：</p>
+      <table>
+        <thead>
+          <tr><th>精妙之处</th><th>具体做法</th><th>为什么聪明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>把主观判断算法化</td>
+            <td>用「F 终止于第 4 层 / M 避开第 4 层」这条单一物理规则定义连接方向，再用「每个区放在所有上行来源之上」逐级迭代排序。</td>
+            <td>让「谁在谁上面」从争论题变成可复算的题。换个人、换批数据，只要遵守同一规则就能得到同一答案——这是科学性的根本。</td>
+          </tr>
+          <tr>
+            <td>用数据库管理复杂度</td>
+            <td>建立计算机化的 Excel 数据库（Table 5），逐条记录每条连接的起源模式、终止模式、方向、跨级数、原始文献页码与图号。</td>
+            <td>305 条连接 × 多个属性，靠脑子记不住也查不动。数据库让「反复核对、随时回查」成为可能——这在 1991 年是前瞻性的「数据驱动」思路。</td>
+          </tr>
+          <tr>
+            <td>三步交叉验证</td>
+            <td>① 单条连接定模式 → ② 起源与终止互相印证（如 S 应配 F）→ ③ 互惠对必须方向互补（A 配 D）→ ④ 全局约束消矛盾。</td>
+            <td>四道关卡层层把关，把单条噪声数据的影响降到最低。任何一步对不上都会暴露问题，逼着回去查原始文献。</td>
+          </tr>
+          <tr>
+            <td>把模糊证据「降权」而非硬判</td>
+            <td>双层（B）起源模式一律标为「不作方向判定」，只用来兼容其他证据；存疑连接用「?」「u（未知）」明确标注。</td>
+            <td>诚实处理不确定性。不把模糊数据强行塞进某个方向，避免了「为了好看而造假层级」，反而让结论更可信。</td>
+          </tr>
+          <tr>
+            <td>用「约束图」可视化推理</td>
+            <td>先做一张 Table 7「约束图」，列出每个区「确定低于谁/高于谁/与谁平级」，再据此自底向上摆放；最终图用 Canvas（一款 Macintosh 上的矢量绘图软件）做成可单独开关每条连接的「图层」。</td>
+            <td>把一个抽象的偏序排序问题变成看得见、可调整的拼图。这也是为什么我们今天能把它做成上面那张交互图。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p><strong>对 Hubel & Wiesel（1962, 1965）的继承与超越：</strong>Hubel-Wiesel 提出的「简单细胞→复杂细胞→超复杂细胞」串行流水线是整个领域的起点，但只覆盖少数几个区、且假设严格单行。本文继承了「逐级提取更复杂特征」的核心直觉，但用大规模连接数据证明：真实系统是<strong>互惠、平行、分布式</strong>的，串行模型只是粗糙近似。</p>
+      <p><strong>对 Rockland & Pandya（1979）的关键提炼：</strong>是他们最早注意到「一个方向的投射终止于第 4 层，反方向避开第 4 层」。本文把这个零散观察<strong>系统化为可机械执行的判据</strong>，并诚实修正了它的反例（双层起源的前馈连接），让规则适用于 305 条而非几条连接。</p>
+      <p><strong>对自家前作的扩展：</strong>Van Essen & Maunsell（1983）的 6 级（13 区、36 连接）和 Van Essen（1985）的 7 级（17 区、92 连接）是本文的直接前身。本文规模扩大近 3 倍而原则不变，证明了框架的<strong>可扩展性</strong>——这是「真理论」与「过拟合」的分水岭。</p>
+      <p><strong>与 Ungerleider & Mishkin（1982）「双流假说」的呼应：</strong>那篇提出视觉分「what 腹侧通路（物体识别，走颞叶）」与「where 背侧通路（空间定位，走顶叶）」。本文的层级图在解剖上<strong>支持并细化</strong>了这一图景：P 流主要灌入颞叶（what）、M 流主要灌入顶叶（where），但又指出两者并非完全隔离，存在大量串扰。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p><strong>对深度学习的隐喻（需谨慎）：</strong>这张「低层抽简单特征、高层抽复杂概念、信息逐级前馈」的图，几乎是卷积神经网络（CNN，Convolutional Neural Network）「层级特征提取」叙事最常被引用的生物学背书。但要诚实：本文反复强调真实皮层有<strong>大量反馈连接和跨级跳连</strong>，这恰恰是早期前馈 CNN 所<strong>缺失</strong>的——所以它既是 CNN 的灵感来源，也是对「纯前馈不够」的提醒（这一点在后来的反馈/循环网络、预测编码模型里才被重视）。</p>
+      <p><strong>对「连接组学（connectomics）」的奠基：</strong>本文是「用全脑连接矩阵理解大脑」这一范式的先驱。它证明了：哪怕没有新实验，只要把已有连接数据<strong>系统整合 + 用客观规则推理</strong>，就能得出全新的结构性洞见。今天的全脑连接组项目本质上是这套思路的工业化放大。</p>
+      <p><strong>对「层级 vs 网络」的普适思考：</strong>作者那个「组织结构光谱」的类比超越了神经科学——任何复杂系统（公司、生态、互联网）都面临「它有多少层级、又有多少是网络」的问题。本文给出的答案——<strong>「有等级但分布式」</strong>——是一种值得迁移的思维模型。</p>
+      <p><strong>预测编码与反馈的功能猜想：</strong>作者注意到反馈连接在解剖上「massive（极其庞大）」，并猜测它们负责<strong>注意力调制、超越经典感受野的环境影响、以及记忆的形成/读出</strong>。这一猜想后来直接喂养了「预测编码（predictive coding）」理论——高层向低层下传预测、低层上传预测误差。</p>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>除了作者已经坦诚标红的约 10% 违例，这里再指出几条论文自身性质带来的、值得读者警惕的边界：</p>
+      <ul>
+        <li><strong>它是「层级图」，不是「功能证明」。</strong>作者本人明确说：层级是基于<strong>解剖学判据</strong>排的，「每一级是否真的对应一个独立的信息处理阶段，是另一个必须靠生理和行为方法回答的问题」。换言之，这张图说的是「线怎么连」，不直接等于「信息怎么算」。把它当成功能流程图是过度解读。</li>
+        <li><strong>数据是「拼接」出来的，不是同一只猴子。</strong>305 条连接来自 50 多个不同实验室、不同动物、不同示踪剂和注射方法。作者自己承认：不同示踪剂的灵敏度可以差<strong>一个数量级以上</strong>，「稳健（robust）」连接可能只占总数的 30–50%。所以这张图是「群体平均」的理想化，掩盖了个体差异和连接强度的巨大变异。</li>
+        <li><strong>脑区边界本身就不确定。</strong>本文的层级只对应论文 Table 1 里那套脑区划分；许多脑区（尤其下颞皮层 IT、顶内沟区）的边界在文献里争议很大（置信度评级 3 = 显著不确定）。脑区划错，挂在上面的层级也会跟着错——作者怀疑多数「违例」正源于此。</li>
+        <li><strong>单个神经元层面的连接几乎是空白。</strong>所有判定都是「脑区对脑区、层对层」的群体统计，<strong>没有触及单个神经元</strong>。V4 里某个具体神经元到底投射给几个区？作者只能引用少量双标记研究估计「<strong>不到 10%</strong> 的细胞有双投射」，承认这是一大未解问题。层级在群体上成立，不保证在单细胞上成立。</li>
+        <li><strong>皮层下结构无法纳入层级。</strong>丘脑枕（pulvinar）这个最大的视觉相关核团，因为它对 V1 的投射终止于浅层、却又像是金字塔底部，作者明说「<strong>无法给它一个确定的层级位置</strong>」。所以这套规则只在皮层—皮层连接里干净，碰到皮层—皮层下回路就失灵。</li>
+        <li><strong>「前后即高低」可能藏着循环论证的风险。</strong>作者注意到「越靠前（颞叶/额叶方向）的区往往层级越高」这个地理趋势很强。虽然他们说地理位置「在排层级时完全没起作用」，但读者应警惕：当数据模糊时，这种强先验是否会无意识地影响判定？作者对此持开放但谨慎的态度。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>（以下为解读者综合评价，每条均给出文中依据。）</p>
+      <p><strong>这是一篇「方法即贡献」的范式级论文，评价应当极高。</strong>它真正的价值不是任何单条数据，而是<strong>把一个主观争论（谁在谁上面）转化为客观可复算的程序</strong>。证据：它给出了完整可执行的判据（Figure 3）、可回查的数据库（Table 5）、以及可独立开关的连接图层——这种「让别人能验证、能修正」的开放性，是它历经 30 余年仍是标准参考的根本原因。</p>
+      <p><strong>它的科学诚实度堪称典范。</strong>证据：作者主动把约 10% 的违例单列成表（Table 6）并在主图标成红线，反复使用「我们怀疑（we suspect）」「无法确定（it is unclear）」「这是推测（this is speculation）」等措辞，明确区分「数据支持的结论」与「我们的猜想」。它从不假装层级是完美的——恰恰是这份不完美的坦白，让结论更可信。</p>
+      <p><strong>但它的「确定性」常被后人过度消费。</strong>这不是论文的错，而是引用者的错。证据：作者本人白纸黑字说层级「是对现有数据的最佳拟合（best fit）」、「在很多方面是临时的（provisional）、很可能被修订」。把这张图当成大脑视觉系统的「定论」或当成 CNN 的「证明」，都背离了作者的原意——他们要的是一个<strong>可被证伪、可被改进的框架</strong>，而非一座纪念碑。</p>
+      <p><strong>它对「分布式」的强调常被忽略，是最可惜的地方。</strong>证据：标题第一个词就是 Distributed（分布式），正文用「同层多区并行」「跨 7 级跳连」「M/P 流交织串扰」反复论证视觉皮层<strong>不是流水线</strong>。可后世传播中，「层级（hierarchy）」被无限放大，「分布式（distributed）」却被遗忘——这是对原作的一种系统性误读。读这篇论文，最该带走的恰恰是后半句。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Felleman 和 Van Essen 仅凭「前馈纤维终止于第 4 层、反馈纤维避开第 4 层」这一条解剖学金尺，把猕猴大脑的 <strong>32 个视觉脑区、305 条连接</strong>客观地排成一座 <strong>10 级处理金字塔</strong>（含视网膜与海马则为 14 级），并坦诚标出约 <strong>10% 的例外</strong>；它最深的洞见不是「皮层有等级」，而是「皮层是一个<strong>有等级却高度互惠、平行、分布式</strong>的网络」——这既奠定了连接组学的范式，也为深度学习的层级隐喻提供了最常被引用、却也最常被过度解读的生物学注脚。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Felleman, D. J., & Van Essen, D. C. (1991). Distributed Hierarchical Processing in the Primate Cerebral Cortex. <em>Cerebral Cortex</em>, 1(1), 1–47.<br>
+    <strong>说明：</strong>本文为基于原文的中文深度解读，所有关键数字（32 区 / 305 连接 / 10 级 / 242 互惠 / 1.8 平均跨级 / 55% 面积占比等）均取自原文 Abstract、Table 2–7 与正文。交互图为依据 Figure 4 与 Table 7 的简化重绘，保留主干连接以传达定性结构，非原始 305 条全图。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById('hier-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  // ---- 脑区数据：层级 level (1=底 .. 10=顶)，所在脑叶 lobe，中文+全称 ----
+  // 颜色对应论文 Figure 2：枕叶=紫蓝紫红，顶叶=黄橙，颞叶=绿，额叶=棕
+  var LOBE = {
+    occ: {color:'#7a5da8', label:'枕叶 Occipital'},
+    par: {color:'#d99a2b', label:'顶叶 Parietal'},
+    tmp: {color:'#3f8f5b', label:'颞叶 Temporal'},
+    fro: {color:'#8a5a3c', label:'额叶 Frontal'}
+  };
+  // 每个脑区：id, 层级, 脑叶, 中文短名, 全称(中文（EN）)
+  var AREAS = [
+    {id:'V1',  lv:1,  lobe:'occ', cn:'初级视觉区',   full:'初级视觉区（V1，Visual area 1）'},
+    {id:'V2',  lv:2,  lobe:'occ', cn:'次级视觉区',   full:'次级视觉区（V2，Visual area 2）'},
+    {id:'V3',  lv:3,  lobe:'occ', cn:'第三视觉区',   full:'第三视觉区（V3，Visual area 3）'},
+    {id:'VP',  lv:3,  lobe:'occ', cn:'腹后区',       full:'腹后区（VP，Ventral Posterior）'},
+    {id:'V3A', lv:4,  lobe:'occ', cn:'V3A 区',       full:'第 V3A 视觉区（V3A，Visual area V3A）'},
+    {id:'V4',  lv:5,  lobe:'occ', cn:'第四视觉区',   full:'第四视觉区（V4，Visual area 4）'},
+    {id:'V4t', lv:5,  lobe:'occ', cn:'V4 过渡区',    full:'V4 过渡区（V4t，V4 transitional）'},
+    {id:'PO',  lv:4,  lobe:'par', cn:'顶枕区',       full:'顶枕区（PO，Parieto-Occipital）'},
+    {id:'MT',  lv:5,  lobe:'tmp', cn:'中颞区',       full:'中颞区（MT，Middle Temporal）'},
+    {id:'VOT', lv:5,  lobe:'occ', cn:'腹侧枕颞区',   full:'腹侧枕颞区（VOT，Ventral Occipitotemporal）'},
+    {id:'DP',  lv:6,  lobe:'par', cn:'背侧前月状区', full:'背侧前月状区（DP，Dorsal Prelunate）'},
+    {id:'LIP', lv:7,  lobe:'par', cn:'外侧顶内沟区', full:'外侧顶内沟区（LIP，Lateral Intraparietal）'},
+    {id:'VIP', lv:6,  lobe:'par', cn:'腹侧顶内沟区', full:'腹侧顶内沟区（VIP，Ventral Intraparietal）'},
+    {id:'MSTd',lv:6,  lobe:'par', cn:'内侧颞上区背部', full:'内侧颞上区背部（MSTd，Medial Superior Temporal, dorsal）'},
+    {id:'MSTl',lv:6,  lobe:'par', cn:'内侧颞上区外侧部', full:'内侧颞上区外侧部（MSTl，Medial Superior Temporal, lateral）'},
+    {id:'FST', lv:6,  lobe:'tmp', cn:'颞上沟底区',   full:'颞上沟底区（FST，Floor of Superior Temporal）'},
+    {id:'PITv',lv:7,  lobe:'tmp', cn:'后下颞区腹部', full:'后下颞区腹部（PITv，Posterior Inferotemporal, ventral）'},
+    {id:'PITd',lv:7,  lobe:'tmp', cn:'后下颞区背部', full:'后下颞区背部（PITd，Posterior Inferotemporal, dorsal）'},
+    {id:'7a',  lv:7,  lobe:'par', cn:'顶叶 7a 区',   full:'顶叶 7a 区（area 7a）'},
+    {id:'CITv',lv:8,  lobe:'tmp', cn:'中下颞区腹部', full:'中下颞区腹部（CITv，Central Inferotemporal, ventral）'},
+    {id:'CITd',lv:8,  lobe:'tmp', cn:'中下颞区背部', full:'中下颞区背部（CITd，Central Inferotemporal, dorsal）'},
+    {id:'FEF', lv:8,  lobe:'fro', cn:'额叶眼动区',   full:'额叶眼动区（FEF，Frontal Eye Field）'},
+    {id:'STPp',lv:8,  lobe:'tmp', cn:'颞上多感觉区后部', full:'颞上多感觉区后部（STPp，Superior Temporal Polysensory, posterior）'},
+    {id:'AITv',lv:9,  lobe:'tmp', cn:'前下颞区腹部', full:'前下颞区腹部（AITv，Anterior Inferotemporal, ventral）'},
+    {id:'AITd',lv:9,  lobe:'tmp', cn:'前下颞区背部', full:'前下颞区背部（AITd，Anterior Inferotemporal, dorsal）'},
+    {id:'STPa',lv:9,  lobe:'tmp', cn:'颞上多感觉区前部', full:'颞上多感觉区前部（STPa，Superior Temporal Polysensory, anterior）'},
+    {id:'46',  lv:9,  lobe:'fro', cn:'前额叶 46 区', full:'前额叶 46 区（area 46）'},
+    {id:'TF',  lv:10, lobe:'tmp', cn:'旁海马 TF 区', full:'旁海马 TF 区（TF，parahippocampal area TF）'},
+    {id:'TH',  lv:10, lobe:'tmp', cn:'旁海马 TH 区', full:'旁海马 TH 区（TH，parahippocampal area TH）'}
+  ];
+
+  // ---- 连接：from -> to，dir: 'ff'(前馈/上行,from低到高) 或 'fb'(反馈/下行) ----
+  // 简化保留主干。规则：低层级->高层级=前馈(ff)，高->低=反馈(fb)。互惠对各列一条方向。
+  // 这里只列"代表性上行边"，反馈由互惠自动镜像生成。
+  var FF_EDGES = [
+    ['V1','V2'],['V1','V3'],['V1','V3A'],['V1','V4'],['V1','MT'],['V1','PO'],
+    ['V2','V3'],['V2','VP'],['V2','V3A'],['V2','V4'],['V2','MT'],['V2','PO'],['V2','MSTd'],
+    ['V3','V3A'],['V3','V4'],['V3','MT'],['V3','PO'],['V3','LIP'],['V3','FST'],['V3','TF'],
+    ['VP','V4'],['VP','VOT'],['VP','MT'],['VP','MSTd'],['VP','FST'],['VP','TF'],
+    ['V3A','V4'],['V3A','MT'],['V3A','DP'],['V3A','MSTd'],['V3A','FST'],
+    ['V4','V4t'],['V4','VOT'],['V4','MT'],['V4','DP'],['V4','LIP'],['V4','FST'],['V4','PITv'],['V4','PITd'],['V4','TF'],
+    ['V4t','MT'],['V4t','MSTd'],['V4t','FST'],['V4t','FEF'],
+    ['PO','MT'],['PO','DP'],['PO','MSTd'],['PO','LIP'],['PO','VIP'],['PO','7a'],
+    ['MT','MSTd'],['MT','MSTl'],['MT','FST'],['MT','LIP'],['MT','VIP'],['MT','FEF'],['MT','46'],
+    ['DP','LIP'],['DP','MSTd'],['DP','7a'],['DP','FEF'],['DP','46'],
+    ['VIP','LIP'],['VIP','FEF'],['VIP','7a'],
+    ['MSTd','7a'],['MSTd','FEF'],['MSTd','STPp'],['MSTd','TF'],
+    ['MSTl','7a'],['MSTl','FEF'],['MSTl','STPp'],
+    ['FST','LIP'],['FST','FEF'],['FST','7a'],['FST','STPp'],['FST','TF'],
+    ['LIP','7a'],['LIP','FEF'],['LIP','46'],['LIP','PITv'],['LIP','TF'],
+    ['PITv','CITv'],['PITv','CITd'],['PITv','AITv'],['PITv','TF'],['PITv','TH'],
+    ['PITd','CITv'],['PITd','CITd'],['PITd','AITd'],
+    ['7a','AITd'],['7a','STPp'],['7a','FEF'],['7a','46'],['7a','TF'],['7a','TH'],
+    ['CITv','AITv'],['CITv','AITd'],['CITv','TF'],
+    ['CITd','AITd'],['CITd','AITv'],
+    ['FEF','46'],['FEF','STPp'],['FEF','AITd'],['FEF','TF'],
+    ['STPp','STPa'],['STPp','TF'],['STPp','TH'],['STPp','46'],
+    ['AITd','STPa'],['AITd','TF'],['AITd','TH'],['AITd','46'],
+    ['AITv','TF'],['AITv','TH'],
+    ['STPa','TF'],['STPa','TH'],['STPa','46'],
+    ['46','TF'],['46','TH']
+  ];
+
+  // 建立索引
+  var byId = {};
+  AREAS.forEach(function(a){ byId[a.id]=a; });
+
+  // 计算每层的脑区，分配 x 坐标
+  var W = canvas.width, H = canvas.height;
+  var padTop = 28, padBot = 40, padL = 70, padR = 20;
+  var maxLv = 10;
+  var levels = {};
+  AREAS.forEach(function(a){ (levels[a.lv]=levels[a.lv]||[]).push(a); });
+  // y: level 10 在顶, level 1 在底
+  function yOf(lv){
+    var t = (lv-1)/(maxLv-1); // 0..1
+    return H - padBot - t*(H - padTop - padBot);
+  }
+  // x: 在每层内均匀分布
+  Object.keys(levels).forEach(function(lv){
+    var arr = levels[lv];
+    arr.sort(function(p,q){ return p.id<q.id?-1:1; });
+    var n = arr.length;
+    var usable = W - padL - padR;
+    arr.forEach(function(a,i){
+      a.x = padL + usable*( (i+0.5)/n );
+      a.y = yOf(a.lv);
+    });
+  });
+
+  var BW = 62, BH = 24; // box size
+
+  // 构建邻接（含反向反馈）。方向由两端"实际层级"决定，保证可视化自洽：
+  // from 层级 < to 层级 => 前馈(ff,上行)；from > to => 反馈(fb,下行)；同级 => 侧向(lat)
+  // edge dir 始终相对 "from 的视角"。每条已知连接 + 其互惠回路各生成一条有向边。
+  var allEdges = [];
+  function dirOf(a,b){
+    if(a.lv < b.lv) return 'ff';
+    if(a.lv > b.lv) return 'fb';
+    return 'lat';
+  }
+  FF_EDGES.forEach(function(e){
+    var a=byId[e[0]], b=byId[e[1]];
+    if(!a||!b) return;
+    allEdges.push({from:a, to:b, dir:dirOf(a,b)}); // 正向
+    allEdges.push({from:b, to:a, dir:dirOf(b,a)}); // 互惠回路
+  });
+
+  var selected = null;     // 选中的脑区 id
+  var mode = 'both';       // 'both' | 'ff' | 'fb'
+  var hover = null;
+
+  var C_FF = '#3f8f5b';    // 前馈 绿
+  var C_FB = '#d98032';    // 反馈 橙
+  var C_LAT = '#8a8f98';   // 侧向(同级) 灰
+  var C_DIM = '#dfe2e6';
+  function edgeColor(dir){ return dir==='ff'?C_FF : dir==='fb'?C_FB : C_LAT; }
+
+  function levelColor(lv){
+    // 背景层带交替
+    return (lv%2===0)? '#fbfbfc' : '#f4f5f7';
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // 层带 + 层号
+    for(var lv=1; lv<=maxLv; lv++){
+      var yc = yOf(lv);
+      ctx.fillStyle = '#9aa1ab';
+      ctx.font = '11px -apple-system,sans-serif';
+      ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText('L'+lv, 8, yc);
+    }
+    // 顶底标注
+    ctx.fillStyle='#c0392b'; ctx.font='bold 11px -apple-system,sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText('▲ 高层（物体/概念）', 8, padTop-14);
+    ctx.fillText('▼ 低层（边缘/朝向）', 8, H-12);
+
+    // ---- 画边 ----
+    function visible(ed){
+      if(mode==='ff' && ed.dir!=='ff') return false;
+      if(mode==='fb' && ed.dir!=='fb') return false;
+      return true;
+    }
+    function involved(ed){
+      return selected && (ed.from.id===selected || ed.to.id===selected);
+    }
+    // 先画暗的非相关边（仅当有选择时）
+    allEdges.forEach(function(ed){
+      if(!visible(ed)) return;
+      if(selected && !involved(ed)) return; // 有选择时只画相关
+      if(!selected){
+        // 无选择：淡淡画全部（按方向上色但低透明）
+        drawEdge(ed, edgeColor(ed.dir), 0.13, 1);
+      }
+    });
+    // 再画相关的高亮边
+    if(selected){
+      allEdges.forEach(function(ed){
+        if(!visible(ed)) return;
+        if(!involved(ed)) return;
+        drawEdge(ed, edgeColor(ed.dir), 0.85, 2, true);
+      });
+    }
+
+    // ---- 画节点 ----
+    AREAS.forEach(function(a){
+      var lobe = LOBE[a.lobe];
+      var isSel = (selected===a.id);
+      var isNeighbor = false;
+      if(selected){
+        allEdges.forEach(function(ed){
+          if(!visible(ed)) return;
+          if(ed.from.id===selected && ed.to.id===a.id) isNeighbor=true;
+          if(ed.to.id===selected && ed.from.id===a.id) isNeighbor=true;
+        });
+      }
+      var dim = selected && !isSel && !isNeighbor;
+      ctx.globalAlpha = dim?0.28:1;
+      // box
+      roundRect(a.x-BW/2, a.y-BH/2, BW, BH, 5);
+      ctx.fillStyle = lobe.color;
+      ctx.fill();
+      if(isSel){ ctx.lineWidth=3; ctx.strokeStyle='#1f2328'; ctx.stroke(); }
+      else if(hover===a.id){ ctx.lineWidth=2; ctx.strokeStyle='#1f2328'; ctx.stroke(); }
+      // label
+      ctx.globalAlpha = dim?0.4:1;
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 12px -apple-system,sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(a.id, a.x, a.y);
+      ctx.globalAlpha = 1;
+    });
+    ctx.globalAlpha=1;
+  }
+
+  function drawEdge(ed, color, alpha, width, arrow){
+    var a=ed.from, b=ed.to;
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    // 起止点取盒子边缘
+    var x1=a.x, y1=a.y + (b.y>a.y? BH/2 : -BH/2);
+    var x2=b.x, y2=b.y + (a.y>b.y? BH/2 : -BH/2);
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    // 轻微贝塞尔避免完全重叠
+    var mx=(x1+x2)/2, my=(y1+y2)/2;
+    var dx=x2-x1;
+    ctx.quadraticCurveTo(mx + dx*0.06, my, x2, y2);
+    ctx.stroke();
+    if(arrow){
+      // 箭头指向 to
+      var ang = Math.atan2(y2-my, x2-(mx+dx*0.06));
+      var ah=6;
+      ctx.beginPath();
+      ctx.moveTo(x2,y2);
+      ctx.lineTo(x2 - ah*Math.cos(ang - Math.PI/7), y2 - ah*Math.sin(ang - Math.PI/7));
+      ctx.lineTo(x2 - ah*Math.cos(ang + Math.PI/7), y2 - ah*Math.sin(ang + Math.PI/7));
+      ctx.closePath();
+      ctx.fillStyle=color;
+      ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }
+
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  // ---- 命中检测 ----
+  function hit(mx,my){
+    for(var i=0;i<AREAS.length;i++){
+      var a=AREAS[i];
+      if(mx>=a.x-BW/2 && mx<=a.x+BW/2 && my>=a.y-BH/2 && my<=a.y+BH/2) return a;
+    }
+    return null;
+  }
+  function getPos(ev){
+    var rect = canvas.getBoundingClientRect();
+    var sx = canvas.width/rect.width, sy = canvas.height/rect.height;
+    var cx = (ev.touches? ev.touches[0].clientX : ev.clientX);
+    var cy = (ev.touches? ev.touches[0].clientY : ev.clientY);
+    return {x:(cx-rect.left)*sx, y:(cy-rect.top)*sy};
+  }
+
+  var statusEl = document.getElementById('viz-status');
+  function updateStatus(){
+    if(!selected){ statusEl.textContent='提示：点击任意方块'; return; }
+    var a=byId[selected];
+    var ups=[], downs=[], lats=[];
+    allEdges.forEach(function(ed){
+      if(ed.from.id===selected){
+        if(ed.dir==='ff') ups.push(ed.to.id);
+        else if(ed.dir==='fb') downs.push(ed.to.id);
+        else lats.push(ed.to.id);
+      }
+    });
+    var modeTxt = mode==='ff'?'（仅显示前馈/上行）':mode==='fb'?'（仅显示反馈/下行）':'';
+    var latTxt = lats.length? ('，同级 '+lats.length+' 区') : '';
+    statusEl.innerHTML = '已选 <b>'+a.id+'</b>（'+a.cn+'，第 '+a.lv+' 级）· 前馈上行至 '+ups.length+' 区，反馈下行至 '+downs.length+' 区'+latTxt+' '+modeTxt;
+  }
+
+  canvas.addEventListener('mousemove', function(ev){
+    var p=getPos(ev); var a=hit(p.x,p.y);
+    var nh = a?a.id:null;
+    if(nh!==hover){ hover=nh; canvas.style.cursor = a?'pointer':'default'; draw(); }
+  });
+  canvas.addEventListener('mouseleave', function(){ if(hover){hover=null; draw();} });
+  function clickHandler(ev){
+    ev.preventDefault();
+    var p=getPos(ev); var a=hit(p.x,p.y);
+    if(a){ selected = (selected===a.id)? null : a.id; }
+    else { selected=null; }
+    updateStatus(); draw();
+  }
+  canvas.addEventListener('click', clickHandler);
+  canvas.addEventListener('touchstart', clickHandler, {passive:false});
+
+  document.getElementById('btn-both').addEventListener('click', function(){ mode='both'; setActive(this); updateStatus(); draw(); });
+  document.getElementById('btn-ff').addEventListener('click', function(){ mode='ff'; setActive(this); updateStatus(); draw(); });
+  document.getElementById('btn-fb').addEventListener('click', function(){ mode='fb'; setActive(this); updateStatus(); draw(); });
+  document.getElementById('btn-reset').addEventListener('click', function(){ selected=null; updateStatus(); draw(); });
+
+  function setActive(btn){
+    ['btn-both','btn-ff','btn-fb'].forEach(function(id){
+      var b=document.getElementById(id);
+      if(b===btn){ b.className=''; } else { b.className='alt'; }
+    });
+  }
+
+  // ---- 图例 ----
+  var legend = document.getElementById('viz-legend');
+  // 脑叶颜色图例
+  var lobeHtml = '<div style="grid-column:1/-1;margin-bottom:4px;"><b>脑叶配色：</b>'+
+    Object.keys(LOBE).map(function(k){
+      var l=LOBE[k];
+      return '<span style="display:inline-block;width:11px;height:11px;background:'+l.color+';border-radius:2px;margin:0 4px 0 12px;vertical-align:middle;"></span>'+l.label;
+    }).join('') +
+    '<span style="margin-left:16px;color:#3f8f5b;font-weight:700;">━ 前馈/上行</span>'+
+    '<span style="margin-left:10px;color:#d98032;font-weight:700;">━ 反馈/下行</span>'+
+    '<span style="margin-left:10px;color:#8a8f98;font-weight:700;">━ 同级/侧向</span></div>';
+  var areaHtml = AREAS.slice().sort(function(a,b){return a.lv-b.lv || (a.id<b.id?-1:1);}).map(function(a){
+    return '<div><b style="color:'+LOBE[a.lobe].color+'">'+a.id+'</b> = '+a.full+'</div>';
+  }).join('');
+  legend.innerHTML = lobeHtml + areaHtml;
+
+  updateStatus();
+  draw();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自由能原理：统一的大脑理论？ — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Free Energy <span>×</span> 大脑为何要不停地"猜"，才能活下去</h1>
+    <div class="meta">
+      <span>📄 The free-energy principle: a unified brain theory?</span><br>
+      <span>✍️ Karl Friston</span><br>
+      <span>🏛️ 惠康神经影像中心，伦敦大学学院（The Wellcome Trust Centre for Neuroimaging, University College London）</span><br>
+      <span>📅 Nature Reviews Neuroscience · 2010 年 2 月 · 卷 11 · 页 127–138 · doi:10.1038/nrn2787</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-core">核心论证：从"抗熵"到"自由能"</a></li>
+        <li><a href="#sec-percept-action">感知与行动：降低自由能的两只手</a></li>
+        <li><a href="#sec-viz">交互演示：两只手如何合力降误差</a></li>
+        <li><a href="#sec-unify">一把尺子量八种理论</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <!-- ========== 为什么值得深读 ========== -->
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是过去二十年神经科学里被引用最猛、也最有野心的一篇综述：它试图用<strong>一个原理</strong>，把感知、行动、学习、注意、价值、甚至进化全部串起来。Friston 的核心断言听上去近乎狂妄——任何能跟环境维持平衡、不被熵冲垮的自组织系统（包括细胞、动物、大脑），都必须在做同一件事：<strong>最小化"自由能"</strong>。而自由能，是大脑"被环境吓到"程度（惊异）的一个数学上界。</p>
+        <p>值得深读的真正原因，不在于它"证明"了什么——它什么实验都没做——而在于它提供了一副<strong>统一的眼镜</strong>：戴上之后，贝叶斯大脑、预测编码、高效编码、赫布学习、注意的偏向竞争、神经达尔文主义、最优控制论……这八套各说各话的理论，突然都变成同一个方程的不同侧面。这种"把散落的拼图拼成一张图"的智识快感，是这篇论文经久不衰的来源。我们要做的，是把它高度抽象的数学，翻译成你能真正记住、一周后还讲得出来的人话。</p>
+      </div>
+
+      <!-- ========== 概念工具箱 ========== -->
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文术语密度极高，且大量借用了热力学、信息论、统计学的词汇。先把九件最关键的工具拆开讲透，后面读正文就顺了。每张卡片都配一个生活类比。</p>
+
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">自由能（Free Energy，自由能）</div>
+          <div class="cdesc">本文最核心的量。它<strong>不是</strong>物理学里的能量，而是一个<strong>信息论的量</strong>：衡量大脑的"内部模型"和"真实感官输入"之间的失配程度。类比：你对一道菜的<strong>预期味道</strong>，和它<strong>实际入口</strong>之间的落差感——落差越大，自由能越高。大脑的天职就是把这个落差压到最小。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">惊异（Surprise，惊异 / 惊讶度）</div>
+          <div class="cdesc">严格说是"自我信息"（surprisal）：一个事件越不可能发生，它的惊异值越高，数学上等于该事件概率的<strong>负对数</strong>。类比：你在客厅看到沙发，惊异≈0；看到一头活鱼，惊异爆表。"水里的鱼"惊异低，"岸上的鱼"惊异高——这也是为什么鱼必须待在水里。大脑想活，就得让自己长期处在惊异低的状态。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">熵 / 抗熵（Entropy，熵）</div>
+          <div class="cdesc">熵是"惊异的长期平均"，衡量一个系统状态的<strong>不可预测程度</strong>。热力学第二定律说万物趋向高熵（混乱）。但活的系统反其道而行：必须把自己的感官状态长期限制在少数几个低熵、可预测的状态里。类比：你的体温常年卡在 37℃ 附近（低熵），而不是随室温乱飘——维持这种"反常的有序"，就是抗熵。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">上界（Upper Bound，上界）</div>
+          <div class="cdesc">理解全文的<strong>钥匙</strong>。惊异本身没法直接算（要把所有可能的隐藏原因都积分一遍，算不动）；但自由能可以算，而且数学上保证<strong>自由能 ≥ 惊异</strong>。所以压低这个"够得着的天花板"，就等于间接压低了那个"够不着的真值"。类比：你不知道山到底多高（惊异），但你知道云层高度（自由能），且山一定在云下——压低云层，山顶必然跟着降。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">生成模型（Generative Model，生成模型）</div>
+          <div class="cdesc">大脑内部对"世界如何产生我看到的这些感官信号"的一套概率假设，记作 p(感官,原因)。它由两部分组成：似然（原因→感官）和先验（对原因本身的预期）。类比：一个会"脑补"的导演，心里有一套"剧本"，能根据剧本预测下一帧画面该长什么样。感知就是反过来问："是什么剧情，导致了我刚收到的这一帧？"</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">识别密度（Recognition Density，识别密度）</div>
+          <div class="cdesc">大脑对"当前感官是由什么原因造成的"所给出的<strong>当前最佳猜测</strong>，记作 q(原因)，由神经活动与突触连接编码。它是对真实后验概率的一个近似。类比：侦探手里那块写满推断的白板——板上的结论（q）未必等于真相（真后验），但破案过程就是不断改板，让它逼近真相。这正是"感知"在做的事。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">主动推断（Active Inference，主动推断）</div>
+          <div class="cdesc">本文最大胆的一步：行动也是为了降自由能。大脑不只被动地"改信念去匹配感官"，还能主动"改感官去匹配信念"——通过运动，去采集那些它<strong>预期会收到</strong>的信号。类比：黑暗中你伸手去摸，正是因为先预测了"这儿应该有个杯子"，于是用动作去把这个预测变成现实。行动 = 自我实现的预言。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">预测编码（Predictive Coding，预测编码）</div>
+          <div class="cdesc">大脑实现上述原理的一种具体神经机制。皮层分层级：高层用"自上而下"的连接送出预测，低层把预测和实际输入相减，只把<strong>对不上的部分（预测误差）</strong>"自下而上"地往上报。类比：公司只向上汇报"异常"，符合预期的事不占带宽。整个系统的目标，就是让预测误差越来越小。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">精度 / 偏向竞争（Precision，精度）</div>
+          <div class="cdesc">精度是预测误差的<strong>可信度权重</strong>（数学上是误差方差的倒数）。误差越可信，越该被重视。本文认为注意力的本质，就是<strong>调高</strong>某些预测误差通道的精度（突触增益），让它们更有发言权——这与"偏向竞争"（biased competition）的注意理论吻合，可能由多巴胺、乙酰胆碱等神经调质实现。类比：嘈杂会场里，你把"音量旋钮"拧向你想听的那个人。</div>
+        </div>
+
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">一句话把九件工具串起来</span>
+        <p>大脑揣着一套<strong>生成模型</strong>（剧本），据此对感官做<strong>预测</strong>；实际收到的信号与预测之差是<strong>预测误差</strong>，其加权（按<strong>精度</strong>）总和构成<strong>自由能</strong>——也就是<strong>惊异</strong>的<strong>上界</strong>。降低它有两条路：改<strong>识别密度</strong>（感知）或改采样（<strong>主动推断</strong>）。长期把自由能压低，感官状态的<strong>熵</strong>就低，系统就<strong>抗住了</strong>热力学第二定律，活了下来。</p>
+      </div>
+
+      <!-- ========== 核心论证 ========== -->
+      <div class="section-head" id="sec-core">核心论证：从"抗熵"到"自由能"</div>
+      <p>这篇论文是纯理论建构，没有数据，所以最好的读法是跟着它的<strong>逻辑链条</strong>一步步走。整条论证可以拆成四步，环环相扣。</p>
+
+      <div class="section-head-sub">第一步：活着 = 抗拒走向混乱</div>
+      <p>论文开篇的"动机"小节，从生物学最朴素的事实出发：生命的定义性特征，是在一个不断变化的环境里维持自身状态、维持自己的"形态"（phenotype，表型）。从大脑的视角看，"环境"既包括体外世界，也包括体内环境（internal milieu，内环境）。维持秩序，几乎完全靠<strong>稳态</strong>（homeostasis，稳态）。</p>
+      <p>翻译成信息论：一个生物体能合法存在的生理与感官状态，数量是<strong>有限</strong>的——这些状态定义了它的表型。数学上，这意味着这些状态出现的概率必须<strong>高</strong>，也就是感官状态的<strong>熵必须低</strong>。一条鱼频繁离开水（高惊异、高熵的状态），活不长。所以："生物体必须最小化惊异的长期平均（即熵），才能让感官的熵保持在低位。"换句话说，生命系统得设法<strong>违反</strong>热力学第二定律（更准确地说，违反推广了第二定律的<strong>涨落定理</strong>，fluctuation theorem）。</p>
+
+      <div class="info-block">
+        <span class="ib-title">关键直觉：惊异和熵都取决于"你是谁"</span>
+        <p>论文特别强调：惊异和熵都是<strong>相对于具体某个生物体</strong>而言的。"离开水"对一条鱼是天大的惊异，对一头鲸却稀松平常。所以并不存在客观的"低熵状态"——每个物种的生成模型，定义了对它而言什么叫"正常"。这一点后面会成为连接"价值/奖赏"的桥梁。</p>
+      </div>
+
+      <div class="section-head-sub">第二步：可惊异不可算，于是请出"上界"</div>
+      <p>问题来了：大脑想最小化惊异，可它<strong>根本算不出</strong>自己此刻有多惊异。因为惊异 = −ln p(感官)，而要得到 p(感官)，必须把"所有可能导致这个感官的隐藏原因"全部积分一遍（见补充材料 S2 式 S2.1：−ln p(s̃) = −ln ∫ p(s̃,ϑ)dϑ）——这个积分在数学上是<strong>难解</strong>的。</p>
+      <p>这正是自由能登场的地方，也是全文最漂亮的一招。Friston 借用了统计物理与机器学习里的<strong>变分自由能</strong>（variational free energy，变分自由能）：在惊异之上，<strong>加</strong>一个非负的项——大脑当前猜测 q(原因) 与真实后验 p(原因|感官) 之间的<strong>KL 散度</strong>（Kullback-Leibler divergence，KL 散度 / 相对熵）。由于 KL 散度永远 ≥ 0（吉布斯不等式，Gibbs' inequality），于是：</p>
+      <blockquote>
+        <p>自由能  F = 惊异 + KL散度( 当前猜测 ‖ 真实后验 )</p>
+        <p>F = −ln p(s̃)  +  D( q(ϑ) ‖ p(ϑ|s̃) )</p>
+        <p>因为 KL散度 ≥ 0，所以恒有：  F ≥ 惊异</p>
+      </blockquote>
+      <p>妙处有二：其一，自由能<strong>可以算</strong>——它只依赖两样东西：大脑收到的感官状态，以及大脑内部编码的那个识别密度（神经活动、突触连接强度）。其二，它是惊异的一个<strong>紧上界</strong>：你不必触碰那个算不动的真值，只要把这个够得着的天花板往下压，真值必被压低。补充材料 S1 进一步证明：<strong>感官状态的熵，又是环境隐藏状态的熵的上界</strong>——所以压低感官惊异，连带把"世界对你而言的混乱度"也压住了。</p>
+
+      <div class="section-head-sub">第三步：自由能的三张面孔</div>
+      <p>同一个自由能，可以代数变形成三种等价写法，每一种都揭示一层不同的含义（详见补充材料 S2）。这是理解后面"统一"的基础。</p>
+      <table>
+        <thead>
+          <tr><th>写法</th><th>公式（口语版）</th><th>它告诉你什么</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>惊异 + 散度</td>
+            <td>F = 惊异 + KL散度(猜测‖真后验)</td>
+            <td>F 是惊异的<strong>上界</strong>。只改信念（不改感官）去压低 F，就是让"猜测"逼近"真后验"，即<strong>感知</strong>。</td>
+          </tr>
+          <tr>
+            <td>能量 − 熵</td>
+            <td>F = ⟨能量⟩ − 熵（吉布斯能量形式）</td>
+            <td>把信息论和统计热力学接上了头。F 可被估计，因为它依赖"感官与其臆测原因的联合出现"。</td>
+          </tr>
+          <tr>
+            <td>复杂度 − 准确度</td>
+            <td>F = 复杂度 − 准确度</td>
+            <td>来自模型比较。准确度 = 模型对感官的解释程度；复杂度 = 猜测偏离先验的代价（即贝叶斯惊异，Bayesian surprise）。降 F = 在"解释得准"和"别想太复杂"之间取平衡，这正是奥卡姆剃刀。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>第三张面孔尤其重要：它表明"用最简洁的假设，把感官解释得最准"是自由能原理的内禀诉求——这后面会直接对应到"高效编码"和"稀疏编码"。</p>
+
+      <div class="section-head-sub">第四步：于是大脑有了两条降自由能的路</div>
+      <p>自由能依赖两样可被大脑操控的东西：<strong>识别密度</strong>（内部状态，神经活动与连接）和<strong>感官输入本身</strong>（可以通过行动改变）。于是：</p>
+      <ul>
+        <li><strong>路一·感知（更新信念）：</strong>固定感官，去调整识别密度 q，让它逼近真实后验。这压低的是"惊异 + 散度"里的<strong>散度</strong>项，让那个上界变紧。用第三张面孔看，就是去<strong>提高准确度</strong>（更好地预测/解释当前输入）。</li>
+        <li><strong>路二·行动（主动推断）：</strong>固定信念，去改变世界、改变采样，让收到的感官<strong>符合</strong>当前预测。这压低的是惊异本身。行动只能通过<strong>提高准确度</strong>来降 F——也就是有选择地去采集那些被模型预测到的输入。论文一句点睛：大脑会重新调配它的感官上皮（sensory epithelia），去采样它的识别密度所预测的输入，即<strong>最小化预测误差</strong>。</li>
+      </ul>
+      <p>这就是全文的"心脏"：<strong>感知与行动，是同一枚硬币（最小化自由能）的两面</strong>。这一刀把传统上泾渭分明的"知觉"与"运动"，统一进了同一个目标函数。</p>
+
+      <div class="rec">
+        <h4>把四步连成一句话</h4>
+        <p>生命必须抗熵 → 抗熵 = 最小化感官惊异 → 惊异算不动，改为最小化它的可计算上界"自由能" → 而自由能可以靠两只手压低：<strong>改信念去配世界（感知）</strong> 与 <strong>改世界去配信念（行动）</strong>。整个大脑，就是一台拼命压低自由能、从而拼命减少"被世界吓到"的推断机器。</p>
+      </div>
+
+      <!-- ========== 感知与行动 ========== -->
+      <div class="section-head" id="sec-percept-action">感知与行动：降低自由能的两只手</div>
+      <p>这一节把"两只手"讲得再细一点，因为它是后面所有"统一"的支点，也是交互演示要展示的内容。</p>
+
+      <div class="section-head-sub">感知：让"猜测"贴近"真相"</div>
+      <p>感知对应"贝叶斯大脑假说"（Bayesian brain hypothesis，贝叶斯大脑假说）：大脑是一台<strong>推断机器</strong>，主动预测并解释自己的感官输入。它把生成模型拆成似然（原因→感官）和先验（对原因的预期），感知就是<strong>反演</strong>这个似然——从感官倒推原因的后验概率。直接做精确反演太难，于是用自由能这个上界把它<strong>软化</strong>成一个更易解的优化问题。论文里那个鸟鸣识别的仿真（Figure 1）就是例子：一个用洛伦兹吸引子（Lorenz attractor）生成的"合成鸟鸣"，被另一只"合成鸟"通过最小化自由能而成功识别出其背后的因果状态，并在约 600 毫秒后以 90% 置信区间锁定，完成知觉归类（perceptual categorization）。</p>
+
+      <div class="info-block">
+        <span class="ib-title">分层级的妙用：先验从哪来？</span>
+        <p>对贝叶斯大脑的一个经典批评是："先验从哪来？"Friston 的回答是<strong>层级生成模型</strong>（hierarchical generative model）：每一层的"原因"，由<strong>上一层</strong>生成。于是每层的先验不是凭空规定的，而是被更高层<strong>动态供给</strong>的"经验先验"（empirical priors，经验先验）。各层先验彼此挂钩、互相约束，大脑因此能在线地、内部自洽地调整自己的预期——批评由此化解。这与皮层感觉区的层级解剖结构正好对应。</p>
+      </div>
+
+      <div class="section-head-sub">行动：让"世界"贴近"猜测"</div>
+      <p>这是更反直觉、也更有原创性的一半。传统观点里，运动是为了"达成目标""获取奖赏"。Friston 说：运动其实是为了<strong>消除预测误差</strong>。当你预测"手指即将碰到目标"，而当前感官说"还没碰到"，这个预测误差可以靠两种方式消除——要么改预测（承认没碰到），要么<strong>真的把手移过去</strong>，让感官变成"碰到了"。后者就是主动推断。论文用一个"线索引导的够物运动"仿真（Figure 2）展示：给手臂的生成模型装上一个"手指会被吸引到目标点"的先验，行动便自动产生平滑、准确的够物轨迹——目标，被实现为了一个"先验预期"。</p>
+      <p>更进一步，论文用"山地车问题"（mountain car problem，Figure 3）说明：通过给系统装上关于"运动应如何进行"的先验（一个让代价状态变得不稳定的成本函数 c(x)），可以诱导出<strong>探索行为</strong>——小车会先后退、积累动量，再冲上它单靠蛮力上不去的山坡。这把强化学习里著名的"探索-利用权衡"（exploration–exploitation trade-off）也纳入了进来。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：一个"够物"动作里发生了什么</span>
+        <p>在 Figure 2 的手臂仿真中，系统只有<strong>两个隐藏状态</strong>（双关节臂两个关节的角位置 x₁,x₂），却要同时整合<strong>两路感官</strong>：本体感觉（proprioception，本体感觉，报告关节角度）与视觉（报告手指相对目标的位置与亮度）。行动量 a 由 ȧ = −∂ₐε·ξ 给出——直白地说，肌肉指令的更新方向，就是"哪样动能最快削减加权预测误差 ξ"。没有显式的"奖赏函数"，只有"预测误差最小化"，平滑的够物轨迹便涌现了出来。</p>
+      </div>
+
+      <!-- ========== 交互演示 ========== -->
+      <div class="section-head" id="sec-viz">交互演示：两只手如何合力降误差</div>
+      <p>下面这个交互组件，把全文最抽象的两件事做成了可以亲手拨弄的画面：<strong>(1)</strong> 自由能为什么是惊异的"上界"；<strong>(2)</strong> 感知（移动你的信念）和行动（移动世界的采样点）如何<strong>分别、以及合力</strong>把预测误差压下去。建议玩法：先拖动滑块亲手降误差，再点"自动感知 / 自动行动"看大脑会怎么做。</p>
+
+      <div class="viz-box" id="sec-viz-box">
+        <div class="viz-title">惊异地形 × 感知与行动的双手降能演示</div>
+        <div class="viz-note">模拟数据：用一维高斯生成模型构造"惊异地形"（−ln p(s)），定性复现论文 Figure 1–3 报告的"靠改信念或改采样把预测误差降到谷底"的模式，非论文原始数据。</div>
+
+        <canvas id="feCanvas" width="900" height="430"></canvas>
+
+        <div class="viz-controls">
+          <label>① 你的信念位置 μ（识别密度峰）：
+            <input type="range" id="beliefSlider" min="-40" max="40" value="-28" step="0.5">
+            <span id="beliefVal" style="color:#c0392b;font-weight:700;"></span>
+          </label>
+        </div>
+        <div class="viz-controls">
+          <label>② 世界采样位置 s（行动改变的感官）：
+            <input type="range" id="senseSlider" min="-40" max="40" value="26" step="0.5">
+            <span id="senseVal" style="color:#c0392b;font-weight:700;"></span>
+          </label>
+        </div>
+        <div class="viz-controls">
+          <button id="btnPerceive">自动感知（移信念 → 配世界）</button>
+          <button id="btnAct" class="alt">自动行动（移采样 → 配信念）</button>
+          <button id="btnBoth">两手并用（主动推断）</button>
+          <button id="btnReset" class="alt">重置</button>
+        </div>
+
+        <div id="feReadout" style="font-size:0.95rem;line-height:1.7;margin-top:6px;"></div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">这个演示想让你"手感"到的三件事</span>
+        <p><strong>1. 上界恒在真值之上：</strong>无论你怎么拖，红色的"自由能"读数永远 ≥ 灰色的"惊异"读数——这就是吉布斯不等式的可视化。<strong>2. 信念与采样错位 = 高自由能：</strong>当"你的信念峰"和"世界采样点"离得远，预测误差（两者之差）巨大，自由能高企。<strong>3. 两条路都能降能，但落点不同：</strong>"自动感知"把信念<strong>滑向</strong>当前采样点（更新认识）；"自动行动"把采样点<strong>滑向</strong>信念预期处（改变现实）；两手并用时，系统会一起收敛到惊异地形的谷底——那正是"最不被世界吓到"的状态。</p>
+      </div>
+
+      <!-- ========== 统一 ========== -->
+      <div class="section-head" id="sec-unify">一把尺子量八种理论</div>
+      <p>这是本文标题里那个"统一"的兑现。Friston 逐一拆解了八套主流大脑理论，论证它们<strong>各自优化的量，本质上都是价值（≈负惊异）或自由能</strong>。下表是全文的"地图"，建议对照论文 Figure 4 那棵"理论之树"来看。</p>
+      <table>
+        <thead>
+          <tr><th>理论</th><th>它本来在说什么</th><th>在自由能框架里它其实在做什么</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>贝叶斯大脑假说</td>
+            <td>大脑用内部生成模型，对感官做贝叶斯式的最优推断。</td>
+            <td>就是"感知"那只手：最小化识别密度与真实后验的差，即压低自由能里的散度项。</td>
+          </tr>
+          <tr>
+            <td>预测编码 / 层级推断</td>
+            <td>皮层逐层传递预测误差，自上而下送预测、自下而上报误差。</td>
+            <td>自由能在大脑里的具体<strong>神经实现</strong>。最小化各层预测误差 = 用梯度下降最小化自由能。</td>
+          </tr>
+          <tr>
+            <td>高效编码 / 信息最大化（Infomax，Information Maximization）</td>
+            <td>神经表征应让"感官"与"内部表征"间的互信息最大，同时表征要简约。</td>
+            <td>自由能原理的一个<strong>特例</strong>：当我们忽略不确定性、用点估计表示原因时，最小化自由能就退化为信息最大化（补充材料 S3 给出证明）。可解释稀疏编码、经典感受野。</td>
+          </tr>
+          <tr>
+            <td>细胞集群 / 关联理论（赫布学习，Hebbian plasticity）</td>
+            <td>"一起放电的神经元连在一起"，突触按前后活动的相关性增强。</td>
+            <td>"改连接去降自由能"在数学上<strong>等同于赫布可塑性</strong>。学习参数（突触）= 最小化长期意义上的预测误差。</td>
+          </tr>
+          <tr>
+            <td>偏向竞争与注意（Biased Competition，偏向竞争）</td>
+            <td>注意是神经元间竞争时，被任务相关刺激"加权"的结果。</td>
+            <td>注意 = 优化预测误差的<strong>精度</strong>（突触增益）。调高某通道精度，等于让它在竞争中胜出，可能由多巴胺、乙酰胆碱调控。</td>
+          </tr>
+          <tr>
+            <td>神经达尔文主义 / 价值学习（神经元群体选择论，TNGS，Theory of Neuronal Group Selection）</td>
+            <td>神经元群体像物种一样受选择压，由"价值"信号决定哪些被保留。</td>
+            <td>价值与惊异<strong>成反比</strong>：高价值状态 = 高概率、低惊异状态。表型的进化价值 = 其经历的负惊异均值，即负熵。</td>
+          </tr>
+          <tr>
+            <td>最优控制论 / 强化学习</td>
+            <td>大脑优化"价值"（期望奖赏），用成本函数引导行为趋向高价值状态。</td>
+            <td>价值 ∝ 负惊异（补充材料 S4）。最优控制说"行动最小化期望成本"，自由能说"行动最小化自由能"——后者是前者的上界版本。</td>
+          </tr>
+          <tr>
+            <td>博弈论 / 最优决策论</td>
+            <td>在不确定下，最优决策最小化期望成本。</td>
+            <td>同上：策略可被写成关于"感官状态如何运动"的先验，行动去兑现它（最优性原理，principle of optimality）。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-block">
+        <span class="ib-title">"统一"成立的逻辑支点：价值 = 负惊异</span>
+        <p>整张表能拼起来，靠的是补充材料 S4 那个关键等式：在小涨落极限下，一个状态的<strong>价值</strong>正比于它的<strong>对数概率</strong>，也就是<strong>负惊异</strong>（V(x̃) = γ·ln p(x̃|m)）。换言之，"对生物体有价值的状态"和"生物体高概率停留的、不惊讶的状态"，是同一批状态。于是"最大化价值/奖赏"（强化学习的语言）和"最小化惊异/自由能"（本文的语言）说的是同一件事——所有理论的"优化目标"由此被翻译成同一种货币。</p>
+      </div>
+
+      <!-- ========== 方法论精妙之处 ========== -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这是一篇综述兼理论建构，"方法"指的是它的<strong>论证策略与数学工具</strong>。下面几处是它真正高明、也是它能说服人的地方。</p>
+      <table>
+        <thead>
+          <tr><th>精妙之处</th><th>具体做了什么</th><th>为什么高明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>把"难积分"变"易优化"</td>
+            <td>用变分自由能这个上界，绕开了无法计算的惊异/模型证据积分（S2.1 → S2.2）。</td>
+            <td>这是机器学习里"变分推断"的标准招数。Friston 把它移植到生物学，让一个本来纯哲学的命题（"大脑抗熵"）变得<strong>可计算、可仿真</strong>。</td>
+          </tr>
+          <tr>
+            <td>一式三变，连通三个学科</td>
+            <td>同一自由能写成"惊异+散度""能量−熵""复杂度−准确度"三形（S2.2–S2.4）。</td>
+            <td>分别对接了<strong>信息论、统计热力学、模型比较</strong>三套话语，让不同背景的读者都能找到入口，也为"统一八理论"备好了接口。</td>
+          </tr>
+          <tr>
+            <td>层级模型化解先验难题</td>
+            <td>用经验先验（高层供给低层）代替凭空规定的先验（Box 2）。</td>
+            <td>把贝叶斯大脑最大的软肋（先验主观武断）转化为优势，并与皮层<strong>真实的层级解剖</strong>对上号。</td>
+          </tr>
+          <tr>
+            <td>给抽象原理配可跑的仿真</td>
+            <td>鸟鸣识别（Fig.1）、够物运动（Fig.2）、山地车（Fig.3）三个仿真，分别演示感知、行动、探索。</td>
+            <td>纯理论文章最易流于空谈；三个<strong>可复现的数值例子</strong>把"自由能下降"变成看得见的轨迹与收敛曲线，大大增强可信度。</td>
+          </tr>
+          <tr>
+            <td>用"前向/反向连接不对称"做生物落点</td>
+            <td>主张前向连接传预测误差、反向连接传预测，并与皮层连接的解剖/生理不对称性、自适应共振理论（ART，Adaptive Resonance Theory）相印证（Box 2）。</td>
+            <td>让一个数学框架长出可被电生理<strong>检验</strong>的预测（如重复抑制、失匹配负波），而不只是自洽的形式系统。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ========== 与已有研究的关系 ========== -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>Friston 并不否认自己站在巨人肩上——他反复申明本文是"统一"而非"原创发明"，其思想根系可追到 19 世纪。</p>
+      <ul>
+        <li><strong>赫尔姆霍兹的"无意识推断"：</strong>论文反复用"赫尔姆霍兹式"（Helmholtzian，赫尔姆霍兹式）一词，把整个框架定位为 Helmholtz "知觉是无意识推断"思想的现代化身；中间经由 Barlow 的冗余约减、Dayan 等的"亥姆霍兹机"一脉相承。</li>
+        <li><strong>贝叶斯大脑 / 分析-综合：</strong>直接承接 Knill &amp; Pouget、Kersten 等关于"知觉即构建性推断"的工作，以及"分析-综合"（analysis by synthesis）与"认识论自动机"（epistemological automata）传统。</li>
+        <li><strong>预测编码：</strong>明确建立在 Rao &amp; Ballard、Mumford 的皮层预测编码模型之上，并与 Grossberg 的自适应共振理论（ART）形式相似性对照。</li>
+        <li><strong>高效编码：</strong>接续 Barlow → Linsker 的信息最大化 → Bell &amp; Sejnowski 的独立成分分析（ICA，Independent Component Analysis）→ Olshausen &amp; Field 的稀疏编码这条主线，并证明它们都是自由能的特例。</li>
+        <li><strong>价值与控制：</strong>与 Sutton &amp; Barto 的强化学习、Bellman 的动态规划、Rescorla–Wagner 学习、以及行为经济学/博弈论里的期望成本框架对接，把"价值"统一翻译为"负惊异"。</li>
+        <li><strong>神经达尔文主义：</strong>呼应 Edelman 的神经元群体选择论（theory of neuronal group selection，TNGS），把"价值依赖的可塑性"读作"对低惊异状态的选择"。</li>
+      </ul>
+      <p>简言之：本文的贡献不在于提出新数据或新机制，而在于<strong>指出这些既有理论彼此并不冲突，而是同一棵树上的不同枝条</strong>——树根，就是自由能。</p>
+
+      <!-- ========== 跨领域启示 ========== -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇论文的"溢出效应"远超神经科学本身。它提供的"最小化预测误差"框架，已经或正在影响多个领域：</p>
+      <ul>
+        <li><strong>人工智能与机器学习：</strong>本文与"变分推断""变分贝叶斯""集成学习"是同源的；近年深度学习里的变分自编码器、世界模型、基于预测的自监督学习，都能在"最小化自由能/重构误差"的语言下被重新理解。它也启发了机器人领域用主动推断做控制。</li>
+        <li><strong>精神病学：</strong>论文末尾点名——自由能形式已被用来解释<strong>精神分裂症</strong>的阳性症状（用"假推断"false inference 解释幻觉妄想）；对成瘾、帕金森病也有潜在解释力，关键在多巴胺到底编码奖赏预测误差还是惊异。这开启了"计算精神病学"的一条重要路径。</li>
+        <li><strong>进化生物学：</strong>把"表型的适应度"翻译为"负惊异/负熵"，意味着自然选择可以通过设定<strong>先天先验</strong>（写进基因的、对运动与目标状态的预期），来"内置"适应性行为——给"先天 vs 后天"提供了一个统一的数学说法。</li>
+        <li><strong>动力系统与复杂性科学：</strong>论文把"先验诱导动力学不稳定性"与亚稳态、自组织临界、协同学（synergetics，协同学）、自创生（autopoiesis，自创生）等概念连了起来，暗示适应性行为离不开"游走式"（itinerant）的混沌动力学。</li>
+        <li><strong>哲学（心智与具身认知）：</strong>"大脑是一台主动建构世界模型的推断机器"这一图景，直接喂养了当代的<strong>预测加工</strong>（predictive processing）哲学思潮与具身认知讨论。</li>
+      </ul>
+
+      <!-- ========== 边界和未解问题 ========== -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这一节是"独立批判"。Friston 本人相当坦诚，文中点出了若干局限；我们再补充几条他没明说、但读者应当警惕的问题。下面区分"作者自承"与"解读者观点"。</p>
+
+      <div class="section-head-sub">作者自己承认的局限</div>
+      <ul>
+        <li><strong>"它能预言什么新东西？"——作者直言：可能"不多"。</strong>论文在"结论与未来方向"里自问：如果自由能原理只是把已有理论收编，那它对未来的贡献"大概不大（not a lot）"。它的价值更多在<strong>统一与重新诠释</strong>，而非给出可证伪的全新预测。这是一个相当大的自我设限。</li>
+        <li><strong>遍历性假设只在有限时间尺度上成立。</strong>补充材料 S1 明确指出：把"长期惊异平均"等同于"熵"，依赖<strong>遍历假设</strong>（ergodic assumption），而对一个从生到死、处在单向轨迹上的真实生物体，这一假设只在某些时间尺度（如发育尺度的"局部平稳"、进化尺度的"局部平稳"）上近似成立。换言之，理论的根基带着一个理想化前提。</li>
+        <li><strong>仿真里有"未发表观察"撑场。</strong>Figure 2 的够物运动结果标注为"K.J.F. 等，未发表观察"（unpublished observations）——核心演示之一尚未经过同行评议的完整检验。</li>
+        <li><strong>多巴胺到底编码什么仍悬而未决。</strong>论文承认，能否区分多巴胺编码的是"奖赏预测误差"还是"（精度加权的）预测误差/惊异"，是检验该框架、并理解成瘾/帕金森/精神分裂的<strong>关键未决问题</strong>。</li>
+      </ul>
+
+      <div class="section-head-sub">解读者补充的疑问</div>
+      <ul>
+        <li><strong>"暗室问题"（解读者观点）：</strong>如果大脑一心想最小化惊异，那最优策略岂不是钻进一间漆黑安静、毫无意外的房间永不出来？本文用"先验会预期探索/对运动的预期"来挡这一刀（山地车例子），但"为什么生物体的先验恰好鼓励探索而非躲进暗室"，在本文里更像是被<strong>设定进去</strong>的，而非从原理<strong>推导出来</strong>的——这是该理论长期被诟病的痛点。</li>
+        <li><strong>不可证伪的风险（解读者观点）：</strong>一个能同时"解释"感知、行动、学习、注意、价值、进化的框架，其普适性恰恰也是其软肋——几乎任何观测都能被事后纳入"它在降自由能"的叙事。文中绝大多数"统一"是<strong>数学上的等价改写</strong>，而非新的、可被实验区分真伪的预测。其科学地位更接近一个<strong>组织性原理</strong>，而非一个标准意义上的可证伪理论。（此为对其认识论地位的评价，非贬低其价值。）</li>
+        <li><strong>从"形式等价"到"大脑真这么做"的跳跃（解读者观点）：</strong>"最小化预测误差在数学上等同于赫布可塑性""注意等同于精度优化"——这些是<strong>形式上的同构</strong>。同构不等于大脑在机制上确实如此实现。把数学等价当作生物学事实，需要更多直接的神经证据来兜底。</li>
+      </ul>
+
+      <!-- ========== 判断 ========== -->
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下每条评价都给出文内或逻辑依据，凡属解读者立场处均已标注。</p>
+      <p><strong>它是一篇极高量级的"理论综合"，而非"理论发现"。</strong>依据：作者本人反复强调本文目的是"统一"已有理论（标题即带问号），并自承对未来的新预测"大概不多"。把它当作一张<strong>领域地图</strong>、一副重新组织已有知识的眼镜来读，价值极大；若期待它给出某个具体、可立刻拿去实验室证伪的新假设，会失望。</p>
+      <p><strong>它最坚实的内核是数学，最脆弱的环节是"大脑真这么做"。</strong>依据：补充材料 S1–S5 的推导（自由能是惊异上界、是信息最大化的推广、价值正比于负惊异）在<strong>形式上无可挑剔</strong>；但从"形式等价"过渡到"神经机制确实如此"，文中主要靠类比与既有理论的相似性（如前向/反向连接不对称、ART），直接的因果性神经证据相对单薄。这不是缺陷，而是这类宏大理论的固有处境。</p>
+      <p><strong>它最大的智识贡献，是把"价值"和"惊异"兑换成同一种货币。</strong>依据：补充材料 S4 证明价值 ∝ 负惊异，这一步让强化学习、最优控制、进化适应度与贝叶斯推断<strong>共用一个目标函数</strong>。这种"换算"本身就是深刻的洞见——它揭示了"对我好的""我熟悉的""我不惊讶的"在数学上是一回事。</p>
+      <p><strong>它的普适性既是魅力也是风险（解读者观点）。</strong>依据：能解释一切的框架，往往难以被任何单一实验<strong>证伪</strong>；文中"统一"多为等价改写而非可区分真伪的新预测。因此更恰当的定位，是把它视为一个<strong>富有启发性的组织原理</strong>——它的成功标准，应是"激发了多少可检验的子理论与跨领域应用"，而非"它本身是否被某个实验直接证实"。从这个标准看，它在过去十余年的影响力（计算精神病学、主动推断机器人、预测加工哲学）是其价值的最好证词。</p>
+
+      <!-- ========== 一句话总结 ========== -->
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>大脑之所以能在一个随时想把它推向混乱的世界里活下去，是因为它一刻不停地在做同一件事——<strong>最小化"自由能"</strong>（被世界吓到程度的可计算上界）：一边<strong>改信念去贴合世界（感知）</strong>，一边<strong>改世界去贴合信念（行动）</strong>；而这一个原理，足以把贝叶斯推断、预测编码、高效编码、赫布学习、注意、价值学习与最优控制这八套理论，统一收进同一个方程。它未必能预言许多新东西，却给了我们一副重新理解大脑、乃至重新理解"何以为生命"的眼镜。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Friston, K. (2010). The free-energy principle: a unified brain theory? <em>Nature Reviews Neuroscience</em>, 11(2), 127–138. doi:10.1038/nrn2787<br>
+    <strong>说明：</strong>本文为基于原文的中文深度解读，所有数字与公式形式均取自论文正文及补充材料 S1–S5；交互演示使用模拟数据，仅用于定性展示论文所述机制，不代表论文原始数据。文中"解读者观点"为本文作者的独立评价。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById("feCanvas");
+  if(!canvas) return;
+  var ctx = canvas.getContext("2d");
+  var W = canvas.width, H = canvas.height;
+
+  // ---- 模型参数：一维高斯生成模型 ----
+  // 真实"世界中心" mu0：感官信号大概率落在这附近，惊异在此最低。
+  var WORLD_CENTER = 4;       // 惊异谷底（世界的"真相"位置）
+  var WORLD_SD = 11;          // 惊异地形的宽度（标准差）
+  // 状态：信念峰位置 belief(mu)，世界采样点 sense(s)
+  var belief = -28;
+  var sense  = 26;
+
+  // 坐标映射：值域 [-45,45] -> 画布 x
+  var X_MIN = -45, X_MAX = 45;
+  var padL = 56, padR = 24, padT = 28, padB = 56;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+
+  function valToX(v){ return padL + (v - X_MIN)/(X_MAX - X_MIN)*plotW; }
+  // 惊异：-ln p(s)，高斯 => 0.5*((v-c)/sd)^2 + const，取相对值
+  function surprise(v){ var z=(v-WORLD_CENTER)/WORLD_SD; return 0.5*z*z; }
+  var SURP_MAX = surprise(X_MIN); // 用于纵向缩放
+  function surpToY(sv){ return padT + plotH*(1 - sv/SURP_MAX*0.92); }
+
+  // 预测误差：信念峰与采样点之差（生成模型预测 = belief，观测 = sense）
+  function predErr(){ return sense - belief; }
+  // 自由能(定性)：惊异(在采样点) + 0.5*(预测误差/sd)^2  —— 始终 >= 惊异
+  function freeEnergy(){
+    var pe = predErr();
+    return surprise(sense) + 0.5*Math.pow(pe/WORLD_SD,2);
+  }
+
+  function fmt(x){ return (Math.round(x*100)/100).toFixed(2); }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // ---- 背景网格 ----
+    ctx.strokeStyle = "#eef0f2"; ctx.lineWidth = 1;
+    for(var gx=X_MIN; gx<=X_MAX; gx+=10){
+      var px = valToX(gx);
+      ctx.beginPath(); ctx.moveTo(px,padT); ctx.lineTo(px,padT+plotH); ctx.stroke();
+    }
+
+    // ---- 惊异地形曲线 ----
+    ctx.beginPath();
+    for(var v=X_MIN; v<=X_MAX; v+=0.5){
+      var px=valToX(v), py=surpToY(surprise(v));
+      if(v===X_MIN) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.strokeStyle = "#9aa1ab"; ctx.lineWidth = 2.4; ctx.stroke();
+
+    // 谷底标记
+    var cx=valToX(WORLD_CENTER), cyb=surpToY(surprise(WORLD_CENTER));
+    ctx.fillStyle="#3a4048"; ctx.font="12px -apple-system,sans-serif"; ctx.textAlign="center";
+    ctx.beginPath(); ctx.arc(cx,cyb,4,0,Math.PI*2); ctx.fillStyle="#3a4048"; ctx.fill();
+    ctx.fillText("惊异谷底（世界真相）", cx, cyb+20);
+
+    // ---- 信念分布（红色高斯钟形，峰在 belief）----
+    function bell(center,sd,scale){
+      ctx.beginPath();
+      for(var v=X_MIN; v<=X_MAX; v+=0.5){
+        var z=(v-center)/sd; var h=Math.exp(-0.5*z*z);
+        var px=valToX(v); var py=(padT+plotH) - h*scale;
+        if(v===X_MIN) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+    }
+    bell(belief, 6.5, plotH*0.34);
+    ctx.strokeStyle="#c0392b"; ctx.lineWidth=2.2; ctx.stroke();
+    ctx.fillStyle="rgba(192,57,43,0.08)";
+    ctx.lineTo(valToX(X_MAX), padT+plotH); ctx.lineTo(valToX(X_MIN), padT+plotH); ctx.closePath(); ctx.fill();
+
+    // 信念峰竖线 + 标签
+    var bx=valToX(belief);
+    ctx.strokeStyle="#c0392b"; ctx.lineWidth=1.6; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(bx,padT); ctx.lineTo(bx,padT+plotH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle="#c0392b"; ctx.textAlign="center";
+    ctx.fillText("① 信念 μ", bx, padT-10);
+
+    // ---- 世界采样点（蓝色竖线 + 圆点落在惊异曲线上）----
+    var sx=valToX(sense), sy=surpToY(surprise(sense));
+    ctx.strokeStyle="#1f6fb2"; ctx.lineWidth=1.6; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(sx,padT); ctx.lineTo(sx,padT+plotH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(sx,sy,6,0,Math.PI*2); ctx.fillStyle="#1f6fb2"; ctx.fill();
+    ctx.fillStyle="#1f6fb2"; ctx.fillText("② 采样 s", sx, padT-10);
+
+    // ---- 预测误差：连接 belief 与 sense 的横向区间 ----
+    var midY = padT + plotH + 30;
+    ctx.strokeStyle="#c0392b"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(bx,midY); ctx.lineTo(sx,midY); ctx.stroke();
+    // 端点
+    ctx.fillStyle="#c0392b"; ctx.beginPath(); ctx.arc(bx,midY,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#1f6fb2"; ctx.beginPath(); ctx.arc(sx,midY,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#6b7280"; ctx.font="11px -apple-system,sans-serif"; ctx.textAlign="center";
+    ctx.fillText("预测误差 = "+fmt(Math.abs(predErr())), (bx+sx)/2, midY-7);
+
+    // 纵轴标题
+    ctx.save();
+    ctx.translate(16, padT+plotH/2); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle="#9aa1ab"; ctx.font="11px -apple-system,sans-serif"; ctx.textAlign="center";
+    ctx.fillText("惊异 −ln p(s)  ↑", 0, 0);
+    ctx.restore();
+  }
+
+  function updateReadout(){
+    var su = surprise(sense);
+    var fe = freeEnergy();
+    var pe = Math.abs(predErr());
+    var gap = fe - su;
+    document.getElementById("beliefVal").textContent = fmt(belief);
+    document.getElementById("senseVal").textContent  = fmt(sense);
+    var statusColor = pe<1.5 ? "#2e7d32" : (pe<8 ? "#c0392b" : "#c0392b");
+    var verdict;
+    if(pe<1.5 && su<0.4) verdict="信念与采样几乎重合、且都落在谷底附近 —— 自由能逼近最低，系统'最不被世界吓到'。";
+    else if(pe<1.5) verdict="信念与采样对齐了（预测误差很小），但还没滑到谷底；自由能已被'对齐'压低不少。";
+    else verdict="信念与采样错位，预测误差大 —— 自由能高企。试试自动感知 / 自动行动。";
+    document.getElementById("feReadout").innerHTML =
+      "<span style='color:#9aa1ab;'>灰色·惊异（采样点处）</span> = <b>"+fmt(su)+"</b> &nbsp;&nbsp; "+
+      "<span style='color:#c0392b;'>红色·自由能（上界）</span> = <b>"+fmt(fe)+"</b> &nbsp;&nbsp; "+
+      "差额（KL散度 ≥ 0）= <b>"+fmt(gap)+"</b><br>"+
+      "<span style='color:"+statusColor+";'>"+verdict+"</span>";
+  }
+
+  function refresh(){ draw(); updateReadout(); }
+
+  // ---- 控件 ----
+  var bs=document.getElementById("beliefSlider");
+  var ss=document.getElementById("senseSlider");
+  bs.addEventListener("input", function(){ belief=parseFloat(bs.value); refresh(); });
+  ss.addEventListener("input", function(){ sense =parseFloat(ss.value); refresh(); });
+
+  function animateTo(getTarget, which, done){
+    var steps=0, maxSteps=120;
+    function tick(){
+      var moved=false;
+      if(which==="belief"||which==="both"){
+        var t=getTarget("belief"); var d=t-belief;
+        if(Math.abs(d)>0.3){ belief+=d*0.12; moved=true; } else belief=t;
+        bs.value=belief;
+      }
+      if(which==="sense"||which==="both"){
+        var t2=getTarget("sense"); var d2=t2-sense;
+        if(Math.abs(d2)>0.3){ sense+=d2*0.12; moved=true; } else sense=t2;
+        ss.value=sense;
+      }
+      refresh();
+      steps++;
+      if(moved && steps<maxSteps){ requestAnimationFrame(tick); } else if(done){ done(); }
+    }
+    tick();
+  }
+
+  // 自动感知：信念滑向当前采样点（更新信念去解释观测）
+  document.getElementById("btnPerceive").addEventListener("click", function(){
+    animateTo(function(){ return sense; }, "belief");
+  });
+  // 自动行动：采样点滑向当前信念预期（改变世界去符合预测）
+  document.getElementById("btnAct").addEventListener("click", function(){
+    animateTo(function(){ return belief; }, "sense");
+  });
+  // 两手并用：信念与采样一起收敛到惊异谷底（既对齐、又落到低惊异区）
+  document.getElementById("btnBoth").addEventListener("click", function(){
+    animateTo(function(kind){
+      // 共同目标：两者向 谷底 与 彼此中点 的折中收敛
+      var mid=(belief+sense)/2;
+      var target=(mid + WORLD_CENTER)/2;
+      return target;
+    }, "both");
+  });
+  document.getElementById("btnReset").addEventListener("click", function(){
+    belief=-28; sense=26; bs.value=belief; ss.value=sense; refresh();
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>

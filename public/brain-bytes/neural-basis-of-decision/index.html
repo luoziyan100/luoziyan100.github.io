@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>决策的神经基础 — 深度解读 · Gold &amp; Shadlen 2007</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Decision Variable <span>×</span> 大脑如何把摇摆的证据攒成一个「我决定了」</h1>
+    <div class="meta">
+      <span>📄 The Neural Basis of Decision Making</span><br>
+      <span>✍️ Joshua I. Gold &amp; Michael N. Shadlen</span><br>
+      <span>🏛️ 宾夕法尼亚大学神经科学系 · 华盛顿大学 / 霍华德·休斯医学研究所（HHMI）</span><br>
+      <span>📅 Annual Review of Neuroscience · 2007, 30:535–574</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-framework">核心框架：一个决策由什么零件组成</a></li>
+        <li><a href="#sec-viz">交互：拖动滑块，看决策如何「攒」出来</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是一篇被引上万次的「定调式」综述，它把一个看似玄学的问题——<strong>大脑怎么做决定</strong>——拆成了可以拿尺子量的工程问题。Gold &amp; Shadlen 的关键贡献不是某个新实验，而是搭了一座桥：把统计决策理论里两个古老而严格的数学框架（信号检测论、序贯分析），和猴子大脑里一群真实神经元的放电记录对应了起来。</p>
+        <p>它最值得学的，是一个反复出现的「拆零件」动作：把「证据」（瞬时的、转瞬即逝的感觉信号）和「<span class="term">决策变量</span>」（把证据随时间累积、存起来的量）严格区分开。一旦你拿着这把刀，整个领域里散落的现象——速度与准确率为何此消彼长、反应时为何那么长又那么飘、为什么顶叶有群神经元像爬坡一样发放——突然就被同一个机制串起来了。读它，等于一次性拿到了「决策神经科学」这门学科的骨架图。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇综述术语密度很高，但核心其实就是十来个零件。先把它们用人话过一遍，后面读起来会非常顺。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">证据（evidence, <em>e</em>）</div>
+          <div class="cdesc">与「某个假设是否成立」相关的信息。在感知任务里，就是感觉神经元此刻的发放——但它<strong>会被噪声污染</strong>，而且转瞬即逝。类比：犯罪现场的一根头发，本身有用，但只有放进「这人是否到过现场」的语境里才算证据。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">似然 / 似然比（likelihood / LR）</div>
+          <div class="cdesc">某个证据值在「假设1成立」和「假设2成立」两种世界里各有多大概率出现，二者之比就是<strong>似然比</strong> LR = P(e|b₁)/P(e|b₂)。它衡量「这条证据更偏向哪一方、偏多少」。取对数得到 <span class="term">logLR</span>，作者称之为「证据的权重（weight of evidence）」——好处是多条证据的权重可以直接相加。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">决策变量（DV，Decision Variable）</div>
+          <div class="cdesc">本文的主角。它把所有先验、证据、价值<strong>汇总成一个随时间变化的标量</strong>，是「正在审议中」那个内部量。和最终的离散选择不同，DV 是连续的、模拟量的，像一个不断被加加减减的天平读数。「找到 DV 的神经对应物」是整个领域的中心任务。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">决策规则 / 判据（decision rule / criterion）</div>
+          <div class="cdesc">决定「DV 攒到什么程度就拍板」的规则。最简单的形式是设一条<strong>阈线（criterion β 或边界 bound）</strong>：DV 一旦越过它，就宣布「我有结论了」。调这条线的高低，就能在不同目标（要准 vs 要快 vs 要奖励）之间切换。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">先验（prior，P(bᵢ)）与价值（value，v）</div>
+          <div class="cdesc"><strong>先验</strong>是看到任何证据之前、你对各假设成立概率的预估（陪审团的成见）。<strong>价值</strong>是各种结果带来的主观成本与收益（奖励、浪费的时间精力）。二者和证据一起被揉进 DV 或判据里——这也是为什么「最优」永远要看你追求的是什么目标。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">信号检测论（SDT，Signal Detection Theory）</div>
+          <div class="cdesc">处理「<strong>单次</strong>噪声观测 → 一个分类选择」的经典数学框架。核心动作：算出似然比，和判据 β 比大小。它的威力在于，只要换 β 的值，同一套机器就能服务不同目标（要准 → β=1；想多拿奖励 → β 偏向高价值一侧）。是本文的「静态版」决策模型。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">序贯分析（SA，Sequential Analysis）</div>
+          <div class="cdesc">SDT 的「动态升级版」：允许<strong>随时间收集多条证据</strong>。它多管一件 SDT 不管的事——「<strong>什么时候该停下来下结论</strong>」。DV 就是逐条证据 logLR 的累加和；攒到上/下边界就停。这把「速度」第一次正式纳入了决策模型。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">SPRT · 漂移扩散 · 速度-准确率权衡</div>
+          <div class="cdesc"><strong>SPRT（序贯概率比检验）</strong>是 SA 的具体实现：DV = logLR 累加，碰上下边界就停。Wald 证明它是区分两假设、达指定错误率所需<strong>样本数最少</strong>的检验（图灵破 Enigma 用过它）。证据按高斯分布、以极小时间步流入时，这个累积就成了「<span class="term">带漂移的扩散（diffusion with drift μ）</span>」——像布朗运动里一颗微粒被「漂移力」推向某边界。其中<strong>漂移率 μ = 证据的平均强度</strong>（相干性越高 μ 越大、越快越直冲正确边界）；而<strong>速度-准确率权衡</strong>源于边界高低：边界高→攒更多证据→更慢更准，边界低→更快更易错。这是全文母题。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">外侧顶内沟区（LIP，Lateral Intraparietal area）与中颞区（MT/V5，Middle Temporal area）</div>
+          <div class="cdesc">两个反复出场的脑区。<strong>MT/V5</strong>：对视觉运动方向敏感，提供「瞬时证据」。<strong>LIP</strong>：解剖上正好卡在感觉与运动的中段，接收 MT 输入、输出到眼动结构；它的神经元发放像爬坡一样随证据累积上升，是目前最被看好的「DV 的神经载体」。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">两个范式：VTF 与 RDM</div>
+          <div class="cdesc"><strong>VTF（vibrotactile frequency，振动触觉频率）辨别</strong>：比较先后两段振动 f1、f2 谁的频率高，需要工作记忆。<strong>RDM（random-dot motion，随机点运动）方向辨别</strong>：一片随机运动的点，判断净运动方向；调「相干性（% coherence）」控制难度。二者是本文用来「解剖」决策的两台主力实验台。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-framework">核心框架：一个决策由什么零件组成</div>
+
+      <p>读这篇综述，最该先吃透的是它在图 1 里画的那张「<strong>世界 vs 大脑</strong>」总图。左半边是世界：有两个可能状态（如点在「上」运动还是「下」运动），其中一个为真，它产生感觉数据。右半边是大脑：把感觉数据加工成有用的<span class="term">证据 e</span>，结合统计知识（先验、似然、价值）算出<span class="term">决策变量</span>，再用决策规则（越过判据就选某一边）产出一个动作。事后还有一条「评估」回路，根据收益更新整个过程。</p>
+
+      <p>这张图的高明之处，是把一个混沌的认知问题拆成了几个可以分别测量、分别在大脑里找对应物的模块。而本文真正的「思想钢印」是下面这条区分：</p>
+
+      <div class="info-block">
+        <span class="ib-title">本文最重要的一刀：证据 ≠ 决策变量</span>
+        <p><strong>证据（evidence）</strong>是瞬时的、会随刺激消失的——它由感觉神经元编码。<strong>决策变量（DV）</strong>是把证据<strong>随时间累积、并存起来</strong>的量，它跨越「从第一条相关信息出现」到「最终拍板」的整个时间窗。二者「在时间尺度上不同」，这正是把它们在神经记录里区分开的钥匙：感觉区的放电跟着刺激走、刺激没了就回落；而携带 DV 的区域，放电会像爬坡一样持续累积，直到下结论。</p>
+      </div>
+
+      <p>从 SDT 到 SA，是这套框架的两级台阶。<strong>SDT</strong> 回答「拿到一份噪声观测，怎么变成一个分类选择」：算似然比 l₁₂(e) = P(e|b₁)/P(e|b₂)，和判据 β 比大小。它的灵活性是优点也是麻烦——因为先验、证据、价值、β 可以互相代偿（只约束它们「以某种方式互动」，不约束各自的具体形式），所以光看大脑里某个量，很难断定它代表的是 DV 还是别的什么。作者给出的破解之道很关键：<strong>利用这些要素在「时间尺度」上的差异来拆解它们</strong>。</p>
+
+      <p><strong>SA（序贯分析）</strong>就是为此而来。它在 SDT 上加了「时间」这个维度，并多回答一个问题：<strong>何时停止</strong>。最朴素的实现是把每条独立证据的 logLR 累加成 DV：</p>
+
+      <blockquote>
+        <p>logLR₁₂ = log [ P(e₁,e₂,…,eₙ | b₁) / P(e₁,e₂,…,eₙ | b₂) ]</p>
+        <p>= Σᵢ log [ P(eᵢ | b₁) / P(eᵢ | b₂) ]   ……（即逐条「证据权重」相加）</p>
+      </blockquote>
+
+      <p>DV 攒到正边界就选 H₁、攒到负边界就选 H₂——这套「累积 + 双边界」正是<strong>序贯概率比检验（SPRT）</strong>。作者用一个掷硬币的玩具例子讲透了它：袋里两枚硬币，一枚公平、一枚「老千币」（正面率 60%）。每掷一次，按结果给一个证据权重——正面 +log(0.6/0.5)=<strong>+0.182</strong>，反面 +log(0.4/0.5)=<strong>−0.223</strong>——累加成 DV。设定容许错误率 α=β=0.05，规则就变成：累加值 |yₙ| ≥ log(19) 时停下并下结论，否则继续掷。<strong>想要更低的错误率，就得把边界推得离零更远，于是平均要掷更多次才停——这就是速度与准确率权衡的数学根。</strong></p>
+
+      <p>当证据不是离散的硬币、而是连续地、以极小时间步流进来时，这个累积过程在数学上就等价于<strong>带漂移的扩散</strong>：DV 像一颗在水里做布朗运动的微粒，既有随机抖动，又被一股恒定的「漂移力」推着走，漂移率 μ 正等于证据的平均强度。下面这个交互组件，就是让你亲手把这股「漂移力」调大调小，看决策怎么一点点「攒」出来。</p>
+
+      <div class="section-head" id="sec-viz">交互：拖动滑块，看决策如何「攒」出来</div>
+
+      <div class="viz-box">
+        <div class="viz-title">漂移扩散决策模拟器 — 证据强度 × 速度-准确率权衡</div>
+        <div class="viz-note">模拟数据基于论文描述的「带漂移的扩散」模型（图 2b、图 5），展示定性模式，非论文原始数据。决策变量从 0 出发，逐时刻加入「漂移 + 噪声」，触达上边界→选「向上」，触达下边界→选「向下」。</div>
+
+        <canvas id="ddmCanvas" width="860" height="380"></canvas>
+
+        <div class="viz-controls">
+          <label>证据强度（相干性 → 漂移率 μ）：<strong><span id="cohVal">12.8</span>%</strong></label>
+          <input type="range" id="cohSlider" min="0" max="51" step="0.1" value="12.8" style="width:200px;">
+        </div>
+        <div class="viz-controls">
+          <label>决策边界高度（判据 → 谨慎程度）：<strong><span id="bndVal">1.00</span></strong></label>
+          <input type="range" id="bndSlider" min="0.3" max="1.8" step="0.05" value="1.0" style="width:200px;">
+        </div>
+        <div class="viz-controls">
+          <button id="runBtn">▶ 单次决策（慢放）</button>
+          <button id="batchBtn" class="alt">⏩ 跑 200 次，看统计</button>
+          <button id="resetBtn" class="alt">清空</button>
+        </div>
+        <div id="ddmStats" style="font-size:0.9rem;color:#3a4048;margin-top:6px;line-height:1.7;">
+          调高「证据强度」→ 轨迹更快、更直地冲向正确边界（漂移率 μ 大）；调高「边界高度」→ 要攒更多证据才拍板，更慢但更准。这正是论文反复回到的母题：<strong>速度与准确率，本质是同一条边界的两端。</strong>
+        </div>
+      </div>
+
+      <p>玩几轮你会有几个直觉，而它们恰好对应论文的核心结论：（1）相干性接近 0 时，漂移率几乎为零，轨迹纯靠噪声乱走，左右边界各占一半——这就是为什么 0% 相干时猴子仍会「选边」，且正确率≈50%；（2）相干性越高，到达边界越快（反应时越短）且越准；（3）把边界推高，正确率上升但反应时整体拉长——速度让位给准确率。下面进入真正的实验证据。</p>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+
+      <div class="section-head-sub">发现一：感觉皮层提供「证据」，但它不是决策变量</div>
+      <p>在 <span class="term">VTF（振动触觉频率）辨别</span>任务里（猴子比较先后两段振动 f1、f2，频率约 10–50 Hz，f1 常设 20 Hz），编码刺激的信号一路追溯到<strong>初级体感皮层（S1，Primary Somatosensory Cortex）</strong>。多数 S1 神经元的平均发放率随刺激频率单调上升——它编码的是「证据」。但作者列了三条理由说明 <strong>S1 的发放是证据、不是 DV</strong>：行为敏感度更贴合 S1 的「平均发放率」而非其周期性调制；S1 发放的<strong>逐试次涨落</strong>能弱而显著地预测猴子的选择（即「选择概率（choice probability）」）；用电微刺激替换真实振动也能引出几乎相同的行为。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>S1 神经元在 f1 阶段反映 f1、在 f2 阶段反映 f2，<strong>它们各自只编码当下那段刺激，从不做「f2 与 f1 谁大」的比较</strong>。而要做决定，大脑必须把 f1 在工作记忆里存住，等 f2 来了再比——这件「比较」的活儿出现在次级体感皮层（S2，Secondary Somatosensory Cortex）、背外侧前额叶（dlPFC，Dorsolateral Prefrontal Cortex）、内侧/腹侧前运动皮层（MPC/VPC，Medial / Ventral Premotor Cortex）。文中举的例子神经元，整个比较里 f2 与 f1 始终相差 <strong>8 Hz</strong>。这就把「编码证据的区」和「形成 DV 的区」在解剖上分了开。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：顶叶 LIP 的「爬坡」放电，是决策变量的神经画像</div>
+      <p>在 <span class="term">RDM（随机点运动）方向辨别</span>任务里，证据来自<strong>中颞区 MT/V5</strong>（对运动方向敏感），而 DV 的踪迹被追到了<strong>外侧顶内沟区 LIP</strong>——它解剖上正卡在感觉-运动链条的中段，接收 MT 与内侧颞上区（MST，Medial Superior Temporal area）的输入、输出到额叶眼动区（FEF，Frontal Eye Field）和上丘（SC，Superior Colliculus）。在反应时（RT，Reaction Time）版本的任务里，研究者记录了约 <strong>54 个 LIP 神经元</strong>：</p>
+      <ul>
+        <li>当选择落向神经元感受野内目标（Tin）时，发放率<strong>像斜坡一样持续上升</strong>；落向野外目标（Tout）时则徘徊或下降。</li>
+        <li>把放电按「眼动起始」对齐，会看到一个漂亮的<strong>共同阈值</strong>：不管运动强度多少，神经元在<strong>眼动前约 70 ms</strong>都爬到同一个发放水平（图 5d 箭头）——决策过程在「与所选目标关联的神经元达到临界发放率」时终止。</li>
+        <li>DV 在 LIP 里的「在场窗口」是<strong>运动开始后约 220 ms 到眼动前约 70–80 ms</strong>。这个 220 ms 的潜伏期远长于 MT 的方向选择性潜伏期（约 70 ms）和 LIP 对目标出现的反应潜伏期（&lt;60 ms），说明它确实是「累积」而非单纯的感觉响应。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉</span>
+        <p>反应时任务里，从全部 RT 中扣掉「非决策时间（nondecision time）」约 <strong>328 ms</strong>（含视觉与运动潜伏期等不用于决策的环节），剩下的才是真正的决策时长。对简单（高相干）刺激，这 328 ms 往往占了 RT 的大头；对困难刺激，决策时长才唱主角。LIP 这套「爬坡到共同阈值」的模式，精确符合扩散/竞争模型对图 2b、2c 的预测。</p>
+      </div>
+
+      <div class="section-head-sub">发现三：用「打断 + 微刺激」抓住一个正在成形的决策</div>
+      <p>这是本文最有想象力的实验之一（Gold &amp; Shadlen 2000, 2003）。猴子正在看运动、决策尚未完成时，研究者突然关掉刺激，并对 <strong>FEF（额叶眼动区）</strong>施加一记短促电流，引出一个眼跳。关键结果：这个被「凭空引出」的眼跳，其方向会<strong>朝着猴子此刻心里正在成形的决定偏转</strong>，而且——</p>
+      <ul>
+        <li>偏转量随<strong>运动强度</strong>增大而增大（51.2% &gt; 25.6% &gt; 6.4% &gt; 0% 相干，逐级递减）；</li>
+        <li>偏转量随<strong>观看时长</strong>增大而增大（决策攒得越久，偏得越多）。</li>
+      </ul>
+      <p>这等于直接「偷看」到了那个<strong>正在演化中的 DV</strong>，证明运动系统在决策完成之前就已经持续拿到了「决定进行到哪一步」的信息——决策不是一锤定音后才送给运动系统，而是边攒边漏给下游。心理物理上，该任务的<strong>阈值随观看时长按 √t 下降</strong>（log-log 拟合斜率 = <strong>−0.46，95% 置信区间 −0.59 至 −0.33</strong>），正是「每一刻都独立采一份噪声证据再累加」所预言的标志性曲线。</p>
+
+      <div class="section-head-sub">发现四：微刺激 MT vs LIP，分离出「证据」与「决策变量」</div>
+      <p>这是全文方法论的皇冠（图 6；Ditterich et al. 2003、Hanks et al. 2006）。同样是电微刺激，但打在两个区，效果在数学上判然不同：</p>
+      <ul>
+        <li><strong>刺激 MT</strong>（偏好右向运动的神经元）：对选择和反应时都有<strong>较大</strong>影响，效果<strong>等价于「往刺激里加了一点真实的右向运动」</strong>——即给「证据」加了一个偏置，使 DV 的上升速率改变。这是<strong>对证据的加性偏移（additive offset to evidence）</strong>。</li>
+        <li><strong>刺激 LIP</strong>（偏好右选择的神经元）：对选择影响<strong>很小</strong>、对反应时只有<strong>适度</strong>影响，<strong>不等价于加运动</strong>。它像是给 DV 本身加了一个常数偏移，把起点推近（或推远）边界，但不改变 DV 的上升速率。这是<strong>对决策变量的加性偏移（additive offset to the DV）</strong>。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">为什么这对「分离」至关重要</span>
+        <p>「加性改变证据」和「加性改变 DV」会留下<strong>不同的行为指纹</strong>（在「相干性 × 正确率」和「相干性 × 反应时」两条曲线上的位移方式不同），所以可以在行为数据里被区分开。结果干净地落在两边：<strong>MT 携带证据，LIP 携带（或读出）决策变量。</strong>这是把抽象的「证据 ≠ DV」之分，第一次用因果操纵（而非仅相关）钉死在两个具体脑区上。</p>
+      </div>
+
+      <div class="section-head-sub">发现五：连「检测」与「何时启动一个动作」也服从同一机制</div>
+      <p>作者把同一把刀伸向了更多任务，发现机制惊人地通用：</p>
+      <ul>
+        <li><strong>运动检测</strong>（Cook &amp; Maunsell 2002，图 7）：猴子要在一片无净运动的点突然变得相干时按键。MT 与腹侧顶内沟区（VIP，Ventral Intraparietal area）的群体放电像<strong>有泄漏的累加器（leaky accumulator）</strong>一样上升，触达一条判据线就报「Yes」；<strong>漏报（miss）正对应放电没爬到判据线</strong>。</li>
+        <li><strong>振动触觉检测</strong>（de Lafuente &amp; Romo 2005，图 8）：20 Hz 探针半数试次出现、半数不出现，假警报率约 <strong>8%</strong>。S1（n=59）依然只编码刺激强度（证据），而<strong>内侧前运动皮层 MPC（n=50）的放电不仅跟刺激强度、还跟猴子「报没报告」走</strong>——MPC 更像把证据转换成选择的那一步。</li>
+        <li><strong>简单运动潜伏期 / LATER 模型</strong>（图 9）：哪怕是「目标一出现就快速看过去」这种不费感知的决定，反应时也长（平均约 200 ms，范围 90 至 &gt;400 ms）且飘。Carpenter 的 <strong>LATER 模型（Linear Approach to Threshold with Ergodic Rate，线性逼近阈值·速率遍历）</strong>把它解释为：DV 从起点 S₀ 以一个速率 r 线性爬到阈值 S_T，而 <strong>r 是从高斯分布里随机抽的</strong>，于是反应时倒数（1/t）服从高斯分布（在「倒数概率图 reciprobit plot」上近似一条直线）。尤其漂亮的是：当改变先验概率，反应时分布的变化符合「<strong>阈值随 log(P) 移动</strong>」——暗示 DV 编码的是「这个准备好的动作该不该执行」的对数确定度，是一种概率推理的痕迹。</li>
+      </ul>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇综述本身不做新实验，但它系统梳理了一整套「如何在大脑里抓决策」的研究设计。把这些招式列成表，本身就是一份可复用的方法论清单：</p>
+
+      <table>
+        <thead>
+          <tr><th>招式</th><th>解决什么问题</th><th>关键巧思</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>时间尺度分离</td>
+            <td>证据与 DV 在数学上可互相代偿，难直接区分</td>
+            <td>证据随刺激起落、DV 随时间累积——用「放电是否持续爬坡」把二者在神经记录里拆开</td>
+          </tr>
+          <tr>
+            <td>反应时（RT）版任务</td>
+            <td>固定时长任务看不到决策何时终止</td>
+            <td>让猴子「想好了就动眼」，于是 RT 本身成了决策时长的读数；可对齐到眼动看「共同阈值」</td>
+          </tr>
+          <tr>
+            <td>相干性调难度</td>
+            <td>需要连续、可控地改变「证据强度」</td>
+            <td>RDM 里调相干点比例 = 直接调漂移率 μ；可画出阈值随观看时长的 √t 曲线</td>
+          </tr>
+          <tr>
+            <td>打断 + FEF 微刺激</td>
+            <td>想偷看「尚未完成」的决策内部状态</td>
+            <td>中途引出眼跳，其偏转量泄露了正在演化的 DV，且随运动强度/时长递增</td>
+          </tr>
+          <tr>
+            <td>MT vs LIP 微刺激对照</td>
+            <td>区分「改证据」与「改 DV」的因果角色</td>
+            <td>两种偏移在「正确率曲线/反应时曲线」上留下不同指纹，从而把证据与 DV 钉到不同脑区</td>
+          </tr>
+          <tr>
+            <td>选择概率（choice probability）</td>
+            <td>判断某神经元是否真参与了决策</td>
+            <td>看其逐试次发放涨落能否预测猴子的选择（含错误试次）——能预测即与决策有因果或共享噪声</td>
+          </tr>
+          <tr>
+            <td>倒数概率图（reciprobit）</td>
+            <td>把反应时分布拆成「阈值变」还是「速率变」</td>
+            <td>LATER 模型下，改 S₀ 令图「转动（swivel）」、改速率 μ 令图「平移（shift）」，一眼分辨机制</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这篇综述是一次「<strong>统一现场</strong>」：它把分散在心理物理、统计学、电生理、计算建模里的线索收编进同一框架。</p>
+      <ul>
+        <li><strong>对统计决策理论</strong>：直接继承 SDT（Green &amp; Swets 1966）与序贯分析/SPRT（Wald &amp; Wolfowitz 1947）。它没有改写这些数学，而是论证「大脑近似地在执行它们」——并特意点名图灵二战用 SPRT 破 Enigma，强调这套「攒证据到边界」的逻辑早被证明是最优的。</li>
+        <li><strong>对感觉生理学</strong>：站在 MT 运动编码（Britten、Newsome、Movshon 等）和 S1 体感编码（Mountcastle、Romo 等）的肩膀上，把这些「证据源」接进决策框架。</li>
+        <li><strong>对计算模型</strong>：把扩散模型（Ratcliff）、竞争累加器（Usher &amp; McClelland 2001）、LATER（Carpenter）、漏积分器（Smith 1995）等并置，指出它们在「累积噪声证据到边界」这一点上殊途同归——并提出 Wang (2002) 的生物物理回路（靠 NMDA 长时程电导实现累积）作为「LIP 如何算积分」的候选机制。</li>
+        <li><strong>对神经经济学</strong>：把价值决策（Glimcher、Sugrue、Platt 等）也纳进来，主张先验与价值在 SDT/SA 里本就能像证据一样进入 DV 或判据，因此「同一套累积机制可能也用于价值决策」。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这套框架的外溢价值，远超出「猴子看点」这个具体场景：</p>
+      <ul>
+        <li><strong>给人工智能 / 决策算法</strong>：SPRT「攒证据到边界」是「在不确定下、用最少样本做二选一」的最优解。任何要权衡「再多看一会儿（更准）」与「赶紧决定（更快）」的系统——从医疗诊断到自动驾驶的目标确认——都在解同一个边界设定问题。本文给出的「漂移率=证据强度、边界高度=谨慎程度」是一对极清晰的设计旋钮。</li>
+        <li><strong>给认知科学 / 心理学</strong>：把「速度-准确率权衡」「反应时为何又长又飘」从现象升级为机制——它们是同一个累积-到-边界过程在不同参数下的表现。这给了一个可证伪、可拟合到单试次数据的定量模型。</li>
+        <li><strong>给神经科学方法论</strong>：「<strong>证据 ≠ DV</strong>」这把刀可以推广到任何「输入信息 vs 内部累积状态」的区分场景，比如工作记忆、证据整合、信念更新。作者也明说，LIP 这种「持续活动」原本是为工作记忆建的模型，却同样能形成 DV——暗示累积/持续活动是皮层的一种通用算力。</li>
+        <li><strong>给哲学 / 自由意志议题</strong>：决策被还原为「噪声证据 + 边界 + 价值目标」的物理过程，且运动系统在「拍板」前就持续拿到中间状态——这对「决定先于行动、清晰可分的那一刻」这种直觉提出了实证挑战。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>作者非常坦诚，文末专设「未来问题」清单。把他们自己承认的、以及字里行间透出的局限整理如下：</p>
+      <ul>
+        <li><strong>框架太灵活，反而难证伪。</strong>作者亲口说：因为先验、证据、价值、β 只被要求「以某种方式互动」、不约束各自形式，所以很难把大脑里测到的某个量唯一地认定为 DV——这是 SDT 灵活性的代价。「时间尺度分离」是补救，但并非万能。</li>
+        <li><strong>「DV 是真实存在的量，还是一个好用的抽象？」</strong>这是「未来问题」里的原话。LIP 的爬坡到底<strong>是</strong> DV，还是只是<strong>反映</strong>了别处算好的 DV，本文无法定论。</li>
+        <li><strong>大量脑区「冗余」，分工不清。</strong>f1 的记忆痕迹同时出现在 S2、VPC、MPC、dlPFC；DV 样的活动也散见于 LIP、FEF、SC、dlPFC。这些区到底是各司其职、还是信息在回路里连续流动、人人都能读到彼此的计算？作者明说「尚不清楚」。</li>
+        <li><strong>有些区无法判定是「证据」还是「DV」。</strong>典型如 MST（朝向辨别）、VIP、下颞叶 IT（面孔辨别）：响应既像携带瞬时证据、又像携带 DV，靠现有手段分不清。MST 的微刺激甚至常把选择推向<strong>相反</strong>方向（可能因前庭输入混入），更添复杂。</li>
+        <li><strong>判据/边界是怎么设、怎么被「读」的，几乎全黑箱。</strong>谁来设这条阈线？基底节、还是 LIP/FEF/SC 的内在属性？「越过边界后发生什么」也未知。本文只能列候选，无法回答。</li>
+        <li><strong>积分到底在哪算、怎么算，未定。</strong>是 LIP 自己算（靠 NMDA 长电导），还是别处算好了只在 LIP 反映？作者明确说「We do not know how or where this integral is computed」。</li>
+        <li><strong>价值决策的时间进程难操纵。</strong>感觉证据可以精确控时控量，但价值表征的时间过程不好定义、不好操纵，使「同一机制是否真用于价值决策」很难像感知任务那样被严格检验。</li>
+        <li><strong>生态效度存疑。</strong>这些都是被高度过度训练（数周至数月）的二选一任务，与现实中「要不要结婚」这类需要大量审议、且无相似经验可循的决策相去甚远。作者承认，把简单决策的结论外推到复杂认知决策，仍是悬而未决的一大步。</li>
+        <li><strong>只处理两个选项。</strong>多于两选项的决策（需要多重 SPRT 等扩展）如何在大脑实现，「remains to be done」。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下为解读者综合全文证据后的评价，每条都尽量指明依据。</p>
+      <p><strong>它的历史地位被证据充分支撑。</strong>本文的力量不在单个发现，而在「框架 + 多任务收编」：同一套「累积噪声证据到边界」的逻辑，被作者依次套到 VTF/RDM 辨别、运动检测、振动检测、简单眼动潜伏期、乃至价值决策上，且每一处都能对上具体的神经记录与心理物理曲线（√t 阈值、共同阈值放电、reciprobit 直线）。这种「一个机制解释一大片现象」的统一力，是它成为奠基综述的硬理由。</p>
+      <p><strong>最扎实的一块是 MT/LIP 的证据-DV 分离</strong>（发现四）。它不止于相关：微刺激是因果操纵，且「改证据」与「改 DV」在行为曲线上留下可区分的指纹，结果干净落在两边。这让「证据 ≠ DV」从一个概念主张升级为有因果证据的结论——是全文最经得起推敲的部分。</p>
+      <p><strong>但作者对自己框架的局限交代得同样诚实，这反而增加可信度。</strong>他们不回避「DV 究竟是实在还是抽象」「积分在哪算」「判据怎么设」这些根本问题都还没答案，也不掩饰脑区冗余、MST/VIP/IT 难以归类、价值决策难验证等麻烦。一篇会主动把「未解问题」摆到台面上的综述，比一篇只讲胜利的综述更值得信任。</p>
+      <p><strong>需要打折扣的地方有二。</strong>其一，外推风险：所有结论都建立在被过度训练的二选一任务上，作者自己也承认与现实复杂决策差距巨大——「神经决策」目前更像「神经感知-运动权衡」，离「神经审议」尚远。其二，作为 2007 年的综述，它对「DV 的具体生物物理实现」「多选项决策」「价值的神经货币」只能列候选、留白；这些正是其后十余年领域的主战场，说明本文是「提出正确问题」而非「给出最终答案」的作品——这恰是顶级综述应有的样子。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Gold &amp; Shadlen 用「<strong>把噪声证据随时间累积成一个决策变量、攒到边界就拍板</strong>」这一把统计学的刀（信号检测论 + 序贯分析 / SPRT 的漂移扩散），统一解释了感知决策、检测、简单眼动到价值决策的一大片现象——并通过 MT 与 LIP 的微刺激对照，干净地把「<strong>瞬时证据</strong>」（MT 携带）与「<strong>累积中的决策变量</strong>」（LIP 那群爬坡到「眼动前约 70 ms 共同阈值」、潜伏约 220 ms 的神经元携带）在因果上分离开；其代价是框架太灵活、许多根本机制（DV 是实在还是抽象、积分在哪算、判据怎么设）仍坦承未解。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Gold, J. I., &amp; Shadlen, M. N. (2007). The Neural Basis of Decision Making. <em>Annual Review of Neuroscience</em>, 30, 535–574. doi:10.1146/annurev.neuro.29.051605.113038
+    <br><strong>说明：</strong>本页为论文深度解读，所有数字与结论引自原文；交互组件为「带漂移的扩散」模型的定性模拟（非论文原始数据），用于帮助建立直觉。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById('ddmCanvas');
+  if(!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+
+  // ---- 逻辑坐标（用 CSS 像素，canvas 已设 width/height 属性）----
+  var W = canvas.width, H = canvas.height;
+  var padL = 64, padR = 200, padT = 28, padB = 40;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+  var midY = padT + plotH/2;
+
+  // 颜色
+  var RED = '#c0392b', REDsoft = '#fdecea', INK = '#1f2328', MUTED = '#9aa1ab';
+  var UP = '#1f8a4c', DOWN = '#b02a1e';
+
+  // 控件
+  var cohSlider = document.getElementById('cohSlider');
+  var bndSlider = document.getElementById('bndSlider');
+  var cohVal = document.getElementById('cohVal');
+  var bndVal = document.getElementById('bndVal');
+  var statsEl = document.getElementById('ddmStats');
+
+  function coh(){ return parseFloat(cohSlider.value); }
+  function bound(){ return parseFloat(bndSlider.value); }
+
+  // 漂移率：把相干性映射到每步漂移。正方向 = 「向上」为真。
+  function drift(){
+    // 论文：漂移率随相干性单调增。这里取一个平缓映射，使 0% 时≈0、51% 时较强。
+    return coh() * 0.0019; // 每步增量（dt 隐含在内）
+  }
+  var NOISE = 0.045;       // 每步噪声标准差
+  var DT_STEPS_MAX = 1400; // 最长步数（防止 0% 时永不停）
+
+  // 高斯噪声
+  function gauss(){
+    var u=0,v=0;
+    while(u===0) u=Math.random();
+    while(v===0) v=Math.random();
+    return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+  }
+
+  // 把 DV 值（[-bound, +bound]）映射到画布 y
+  function yOf(dv){
+    var b = bound();
+    var frac = dv / b; // -1..1
+    if(frac>1) frac=1; if(frac<-1) frac=-1;
+    return midY - frac*(plotH/2 - 6);
+  }
+  function xOf(step, totalSteps){
+    var frac = step / totalSteps;
+    if(frac>1) frac=1;
+    return padL + frac*plotW;
+  }
+
+  function drawFrame(){
+    ctx.clearRect(0,0,W,H);
+    // 背景
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0,0,W,H);
+
+    var b = bound();
+
+    // 上下边界带
+    ctx.fillStyle = 'rgba(31,138,76,0.06)';
+    ctx.fillRect(padL, padT, plotW, (midY-padT)-(plotH/2-6) + 0);
+    // 边界线（上）
+    ctx.strokeStyle = UP; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(padL, yOf(b)); ctx.lineTo(padL+plotW, yOf(b)); ctx.stroke();
+    // 边界线（下）
+    ctx.strokeStyle = DOWN;
+    ctx.beginPath(); ctx.moveTo(padL, yOf(-b)); ctx.lineTo(padL+plotW, yOf(-b)); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 中线（DV=0 起点）
+    ctx.strokeStyle = '#d7dbe0'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, midY); ctx.lineTo(padL+plotW, midY); ctx.stroke();
+
+    // 轴标签
+    ctx.fillStyle = INK; ctx.font = '13px -apple-system,sans-serif'; ctx.textAlign='left';
+    ctx.fillStyle = UP;   ctx.fillText('上边界 → 选「向上」(H₁)', padL+plotW+10, yOf(b)+4);
+    ctx.fillStyle = DOWN; ctx.fillText('下边界 → 选「向下」(H₂)', padL+plotW+10, yOf(-b)+4);
+    ctx.fillStyle = MUTED; ctx.fillText('起点 DV=0', padL+plotW+10, midY+4);
+
+    // y 轴标题
+    ctx.save();
+    ctx.translate(20, midY); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle = INK; ctx.textAlign='center'; ctx.font='12px -apple-system,sans-serif';
+    ctx.fillText('决策变量 DV（累积证据）', 0, 0);
+    ctx.restore();
+
+    // x 轴标题
+    ctx.fillStyle = INK; ctx.textAlign='center'; ctx.font='12px -apple-system,sans-serif';
+    ctx.fillText('时间 →（每一时刻加入 漂移 + 噪声）', padL+plotW/2, H-10);
+  }
+
+  // 生成一条轨迹（返回 {trace:[{x,y...}], steps, choice}）
+  function simulate(){
+    var dv = 0;
+    var dr = drift();
+    var b = bound();
+    var pts = [dv];
+    var step = 0;
+    var choice = null;
+    while(step < DT_STEPS_MAX){
+      dv += dr + NOISE*gauss();
+      step++;
+      pts.push(dv);
+      if(dv >= b){ choice='up'; break; }
+      if(dv <= -b){ choice='down'; break; }
+    }
+    if(choice===null){ choice = dv>=0 ? 'up' : 'down'; }
+    return {pts:pts, steps:step, choice:choice};
+  }
+
+  var animTimer = null;
+  function stopAnim(){ if(animTimer){ clearInterval(animTimer); animTimer=null; } }
+
+  // 慢放单条轨迹
+  function runSingle(){
+    stopAnim();
+    drawFrame();
+    var sim = simulate();
+    var total = Math.max(sim.steps, 40);
+    var i = 0;
+    var col = sim.choice==='up' ? UP : DOWN;
+    animTimer = setInterval(function(){
+      // 重画底图 + 已走过的折线
+      drawFrame();
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+      for(var k=0;k<=i && k<sim.pts.length;k++){
+        var x = xOf(k, total);
+        var y = yOf(sim.pts[k]);
+        if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      // 当前点
+      if(i<sim.pts.length){
+        var cx=xOf(i,total), cy=yOf(sim.pts[i]);
+        ctx.fillStyle=col; ctx.beginPath(); ctx.arc(cx,cy,4,0,2*Math.PI); ctx.fill();
+      }
+      i += Math.max(1, Math.round(total/120));
+      if(i >= sim.pts.length){
+        clearInterval(animTimer); animTimer=null;
+        var label = sim.choice==='up' ? '选「向上」' : '选「向下」';
+        var correct = (drift()>0 && sim.choice==='up') ? '（正确方向）' :
+                      (drift()===0 ? '（0%相干：纯噪声，对错各半）' :
+                      (sim.choice==='up' ? '（正确方向）' : '（错误）'));
+        statsEl.innerHTML = '本次决策：<strong style="color:'+col+'">'+label+'</strong> '+correct+
+          '，用了约 <strong>'+sim.steps+'</strong> 步（≈反应时）。漂移率 μ ∝ 相干性 '+coh().toFixed(1)+
+          '%，边界 = '+bound().toFixed(2)+'。证据越强→越快越直；边界越高→越慢越准。';
+      }
+    }, 16);
+  }
+
+  // 批量统计（不动画，一次画 N 条淡线 + 给出正确率/平均步数）
+  function runBatch(){
+    stopAnim();
+    drawFrame();
+    var N = 200;
+    var correct=0, sumSteps=0, ups=0;
+    for(var n=0;n<N;n++){
+      var sim = simulate();
+      var col = sim.choice==='up' ? 'rgba(31,138,76,0.16)' : 'rgba(176,42,30,0.16)';
+      var total = Math.max(sim.steps,40);
+      ctx.strokeStyle = col; ctx.lineWidth=1; ctx.beginPath();
+      for(var k=0;k<sim.pts.length;k++){
+        var x=xOf(k,total), y=yOf(sim.pts[k]);
+        if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      sumSteps += sim.steps;
+      if(sim.choice==='up') ups++;
+      // 正确 = 漂移>0 时选 up；漂移=0 时无所谓
+      if(drift()>0){ if(sim.choice==='up') correct++; }
+    }
+    var acc = drift()>0 ? (100*correct/N).toFixed(0)+'%' : '≈50%（0%相干无正确方向）';
+    var meanSteps = Math.round(sumSteps/N);
+    statsEl.innerHTML = '跑了 <strong>'+N+'</strong> 次：正确率 <strong>'+acc+'</strong>，'+
+      '平均决策时长 <strong>'+meanSteps+'</strong> 步，选「向上」占 '+(100*ups/N).toFixed(0)+'%。'+
+      '<br>试试：把<strong>边界调高</strong>→正确率升、步数（反应时）增；把<strong>相干性调高</strong>→正确率升、步数减。'+
+      '这就是论文的「速度-准确率权衡」与「漂移率=证据强度」。';
+  }
+
+  function reset(){ stopAnim(); drawFrame(); statsEl.innerHTML =
+    '调高「证据强度」→ 轨迹更快、更直地冲向正确边界（漂移率 μ 大）；调高「边界高度」→ 要攒更多证据才拍板，更慢但更准。这正是论文反复回到的母题：<strong>速度与准确率，本质是同一条边界的两端。</strong>'; }
+
+  cohSlider.addEventListener('input', function(){ cohVal.textContent = coh().toFixed(1); drawFrame(); });
+  bndSlider.addEventListener('input', function(){ bndVal.textContent = bound().toFixed(2); drawFrame(); });
+  document.getElementById('runBtn').addEventListener('click', runSingle);
+  document.getElementById('batchBtn').addEventListener('click', runBatch);
+  document.getElementById('resetBtn').addEventListener('click', reset);
+
+  // 初始化
+  cohVal.textContent = coh().toFixed(1);
+  bndVal.textContent = bound().toFixed(2);
+  drawFrame();
+})();
+</script>
+
+</body>
+</html>

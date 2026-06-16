@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电压钳的诞生 · Hodgkin, Huxley & Katz 1952 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Voltage Clamp <span>×</span> 把会乱跑的膜电位「钉死」，第一次直接看见离子电流</h1>
+    <div class="meta">
+      <span>📄 Measurement of Current-Voltage Relations in the Membrane of the Giant Axon of <i>Loligo</i></span><br>
+      <span>✍️ A. L. Hodgkin, A. F. Huxley &amp; B. Katz</span><br>
+      <span>🏛️ Marine Biological Association, Plymouth ＋ Physiological Laboratory, University of Cambridge</span><br>
+      <span>📅 The Journal of Physiology · 1952 · 116卷, 424–448 页（HH＝Hodgkin-Huxley，本系列 1952 五连篇之第 1 篇 · 方法学开篇）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-problem">问题：测电流为什么这么难</a></li>
+        <li><a href="#sec-viz">交互：电压钳是怎么工作的</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这篇论文几乎不含任何「新生物学结论」，却是二十世纪生物学最重要的论文之一——因为它造了一把<strong>工具</strong>。在它之前，膜兴奋是一团乱麻：膜电位一旦被推过阈值就「自己跑」，几毫秒内冲到顶又落下，你想测「在某个电位下离子流多大」根本无从下手，因为电位每一瞬都在变。Hodgkin、Huxley 与 Katz 的解法极其简洁：用一套<strong>负反馈电子线路</strong>把膜电位强行「钉」在你指定的任意值上不许动（这就是<strong>电压钳</strong>），那么按他们的核心方程，<strong>你注入的电流就等于膜本身的离子电流</strong>——第一次，离子电流从「推不动的活物」变成「读数」。</p>
+        <p>本文是著名 HH 1952 五连篇的第一篇，专管「方法 + 在正常海水里的电流-电压关系」；随后三篇（1952a/b/c）靠换掉海水里的钠来把电流拆成钠、钾两股，第五篇（1952d）合成出那个让两人拿下 1963 年诺奖、至今写进每本教科书的 Hodgkin-Huxley 方程。读懂这一篇，等于看见整座大厦的地基是怎么打下去的——以及看见一个被反复证明的道理：<strong>在科学里，一把好工具往往比一个好假说更难得、也更长寿。</strong></p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文术语密度高、电学味重，但骨架其实就几个概念。先把它们用「人话」拆开，后面读正文会顺很多。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">膜电位（Membrane Potential，V）</div>
+          <div class="cdesc">细胞膜内外的电压差。本文用一个特别的约定：把<strong>静息电位记为正</strong>，并用 <code>V = E − E_r</code> 表示「相对静息值的偏移」。<strong>V 为正＝向更极化（anodal，阳极方向）偏；V 为负＝去极化</strong>。注意这跟今天教科书的符号正好相反，读图时要时刻提醒自己：本文里「−65 mV」是去极化、是兴奋方向。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">电压钳（Voltage Clamp）</div>
+          <div class="cdesc">本文的主角技术。用电子反馈把膜电位强制锁定在实验者设定的任意值，不让它随兴奋「自己跑」。生活类比：定速巡航——你设 100 km/h，上坡下坡油门自动加减，车速纹丝不动；这里「车速」是膜电位，「自动加减的油门」就是反馈线路注入的电流。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">膜电流的两个分量（Capacity / Ionic Current）</div>
+          <div class="cdesc">总膜电流 I 拆成两块（方程 1）：<strong>电容电流</strong> <code>C_M·∂V/∂t</code>——给膜这个「电容器」充放电，只在电位变化时出现；<strong>离子电流</strong> <code>I_i</code>——真正有离子穿膜流动。电压钳让 <code>∂V/∂t = 0</code>，电容电流瞬间消失，于是 <code>I = I_i</code>，注入电流直接等于离子电流。这就是整把工具的全部数学。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">巨轴突（Giant Axon of <i>Loligo</i>）</div>
+          <div class="cdesc">枪乌贼（<i>Loligo</i>，一种鱿鱼）逃跑用的神经纤维，直径达 400–800 μm（约半毫米），是普通哺乳类神经纤维的上百倍粗。粗到能把两根金属丝直接捅进轴浆里。生活类比：别的神经像头发丝，它像一根吸管——正因为这根「吸管」，电生理学才做得起来。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">空间钳位 / 保护环系统（Space Clamp / Guard System）</div>
+          <div class="cdesc">长轴上的内电极丝让整段膜<strong>同时、同步</strong>被钳到同一电位（空间均匀），这样电流不会沿轴向乱窜。「保护环」（guard ring，Cole 1949、Marmont 1949 的设计）是个分三格的盒子，只让<strong>中央一小段已知面积</strong>的膜电流被测量。类比：用挡板把水池隔出一格，只量这一格的进出水，别处的水流不来捣乱。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">负反馈放大器（Feed-back Amplifier）</div>
+          <div class="cdesc">电压钳的「大脑」。它时刻比较「实测膜电位」与「你设定的目标值」，一旦有偏差就立刻输出一股反方向电流把它拉回。本文这台增益约 400（高频约 1200），最大能甩出约 5 mA 电流，跟随目标值的延迟只有约 1 μsec、误差 1–2%。类比：恒温器——温度一偏就开关空调把它顶回设定点。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">电流-电压关系（I–V Relation / Curve）</div>
+          <div class="cdesc">把「不同钳制电位」对应的「离子电流」画成一条曲线，是本文的核心产物。它直接告诉你膜在每个电位下「想往哪流、流多猛」。本文测到的曲线呈奇特的 <strong>N 形</strong>，中段还有一截「电压越去极化、内向电流反而越大」的<strong>负斜率</strong>区——正是这段负斜率，让动作电位能「自己点着自己」。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">负斜率电导 / 再生性（Negative Slope Conductance · Regenerative）</div>
+          <div class="cdesc">I–V 曲线上 <code>∂I_i/∂V &lt; 0</code> 的一段：去极化越多，内向（让膜继续去极化）的电流越大，形成正反馈。本文测得这段约在 <code>−76 mV &lt; V &lt; −6 mV</code>（本文符号）。类比：滚雪球——稍微一推就自己越滚越大。它是「全或无」动作电位的电学根源。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">串联电阻（Series Resistance，r_s）</div>
+          <div class="cdesc">膜与电极之间那一小段「不该有」的电阻（本文约 7 Ω·cm²，中央通道 r_s 约 52–61 Ω）。它会让大电流流过时「真实膜电位」与「你以为钳住的电位」产生偏差。本文用「补偿反馈」把它扣掉——这是电压钳能做准的一个关键技术细节，也是后世所有膜片钳仍在头疼的老问题。类比：用万用表量电池时表笔和导线本身也有电阻，电流一大读数就偏。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">温度系数 Q₁₀（Temperature Coefficient）</div>
+          <div class="cdesc">温度每升高 10°C，某个速率变快多少倍。本文发现：电流的<strong>大小</strong>几乎不随温度变，但电流随时间<strong>变化的速度</strong> Q₁₀ ≈ 3（实测 2.7–3.5，16°C 升温快约六倍）。这暗示控制门控的是某种有较高活化能的过程，而非简单扩散（扩散的 Q₁₀ 通常约 1.3）。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-problem">问题：测一条电流为什么这么难</div>
+      <p>要理解这把工具有多必要，先得体会问题有多刁钻。神经膜兴奋时，离子电流（I_i）同时是<strong>两个变量的函数</strong>：膜电位 V，以及时间 t。普通实验里你只能控制刺激、然后被动看膜电位「自己演」——一旦去极化越过阈值，膜进入<span class="term">再生性</span>循环，几毫秒内电位飙到顶、又落回，全程 V 一刻不停在变。在这种「V 自己乱跑」的状态下问「电位等于 −50 mV 时离子流多大」，是没有答案的，因为膜从来不会在 −50 mV 停留哪怕一瞬。</p>
+      <p>作者在论文「Theory（理论）」一节把破局点写得干净利落。膜电流的总量是：</p>
+      <blockquote>
+        <p>I = C_M · (∂V/∂t) + I_i &nbsp;&nbsp;&nbsp;&nbsp;……（方程 1）</p>
+        <p>I  ＝ 总膜电流密度</p>
+        <p>C_M ＝ 单位面积膜电容；∂V/∂t ＝ 膜电位变化率</p>
+        <p>I_i ＝ 离子电流密度（我们真正想要的东西）</p>
+      </blockquote>
+      <p>这里藏着整把工具的全部诡计：<strong>只要让 ∂V/∂t = 0</strong>（也就是把电位摁住不让它变），第一项电容电流就整个消失，方程塌缩成 <code>I = I_i</code>。这一刻，你往膜里注入的、能在示波器上读到的那股电流，<strong>就字面意义上等于</strong>膜内离子穿膜流动的电流。问题从「无法测量的活体动力学」一步变成「读个数」。剩下的全部工程——两根内电极、保护环、那台令人生畏的反馈放大器——都只是为了把「∂V/∂t = 0」这一个条件，又快又准又均匀地实现出来。</p>
+      <div class="info-block">
+        <span class="ib-title">一个常被忽略的副产品</span>
+        <p>作者顺手指出：方程 1 反过来用也成立。如果你<strong>不</strong>钳电位、而是给一个短促电击让 I ≈ 0（电流在 200 μsec 后基本归零），那么 <code>I_i = −C_M·(∂V/∂t)</code>（方程 11）。也就是说，只要测到膜电位随时间变化的<strong>斜率</strong>，再乘上膜电容，就能反推离子电流——这是他们在造出全套电压钳之前，先用「短电击 + 测斜率」拿到第一条 I–V 曲线（图 10）的办法。同一个方程，正着用是电压钳，反着用是空间钳下的斜率法。</p>
+      </div>
+
+      <div class="section-head" id="sec-viz">交互：电压钳是怎么「钳住」并测出 I–V 曲线的</div>
+      <p>下面这个组件把本文最核心的三件事连成一个可玩的回路：<strong>(1)</strong> 你设一个目标钳制电位 → <strong>(2)</strong> 反馈线路注入电流把膜「锁」在那里、并把这股注入电流当成离子电流记录成一条时间曲线 → <strong>(3)</strong> 取每个电位下的电流特征值，攒成右边那条 N 形 I–V 曲线。拖动滑块改变钳制电位，留意三件事：去极化（本文符号里更负）时，电流先<strong>向内</strong>猛冲一下、再翻成持久的<strong>向外</strong>；电位很负（约 −110 mV）时内向那一冲会消失反号；而把每个电位的「峰值」描到右图上，就还原出那条带负斜率的曲线。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">电压钳工作台 · 钳住膜电位、读出离子电流、拼出 I–V 曲线</div>
+        <div class="viz-note">模拟数据基于论文报告的定性模式与量级（图 11–13：内向峰约 −1300 μA/cm²、外向稳态数百 μA/cm²、零电流交点约 V=0 与 −12 mV、内向电流约在 −110 mV 反号），仅展示定性规律，非原始数据点。本文符号约定：横轴 V 为「相对静息的偏移」，负＝去极化。</div>
+
+        <div class="viz-controls">
+          <label>钳制电位 V（本文符号，负=去极化）：<strong><span id="vclVal">-65</span> mV</strong></label>
+          <input type="range" id="vclSlider" min="-130" max="65" value="-65" step="1" style="width:260px;">
+        </div>
+        <div class="viz-controls">
+          <button id="vclPlay">▶ 施加钳制脉冲</button>
+          <button class="alt" id="vclPlot">＋ 把此电位描到 I–V 曲线</button>
+          <button class="alt" id="vclClear">清空曲线</button>
+          <label style="margin-left:auto;"><input type="checkbox" id="vclShowCap" checked> 显示电容电流尖峰</label>
+        </div>
+
+        <canvas id="vclCanvas" width="920" height="430"></canvas>
+        <div class="viz-note" id="vclReadout" style="margin-top:12px;"></div>
+      </div>
+
+      <p>玩过一轮你会有几个直觉是纯文字给不了的：第一，<strong>电容电流只是开头那一根又高又快的尖刺</strong>（约 50 μsec 内充完，峰约 4.5 mA/cm²），勾掉它，剩下平缓的部分才是离子电流——这正是为什么钳住电位（消掉 ∂V/∂t）后能直接读离子电流。第二，去极化时离子电流的「先内后外」两相，分别就是后续三篇要拆出来的<strong>钠电流</strong>（早期、内向、转瞬即逝）与<strong>钾电流</strong>（延迟、外向、持久）——本文还不知道它们是钠和钾，只老实记成「内向相」「外向相」。第三，把峰值描成 I–V 曲线后，中段那条<strong>向下凹的负斜率</strong>肉眼可见，它就是动作电位的引擎。</p>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>本文的「发现」分两类：一类是<strong>验证</strong>（证明这套粗暴的双丝电极没把轴突弄坏、它还能正常兴奋），一类是<strong>测量</strong>（在受控电位下离子电流到底长什么样）。逐个看。</p>
+
+      <div class="section-head-sub">发现一：插了两根金属丝的轴突，依然给出正常的「全或无」动作电位</div>
+      <p>在做任何精细测量前，作者必须先排除一个致命怀疑：把两根 20 μm 的银丝捅进轴突、再用强电流灌它，会不会本身就破坏了膜？他们用「短电击一根内电极、另一根记录」来验收：只要还能引出正常动作电位，就放行。结果令人安心——<span class="term">动作电位约 100 mV</span>，有明确<strong>阈值</strong>：去极化超过约 <strong>15 mV</strong>（23°C，图 8）或 12 mV（6°C，图 9）即触发再生性反应、产出约 100 mV 的尖峰；不到 12–15 mV 则只有阈下反应，跟其他可兴奋组织一模一样。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：膜是个怎样的电容器</span>
+        <p>电击的最初阶段是<strong>线性</strong>充电：膜电位的初始位移正比于注入电荷量，由此算出膜电容约 <strong>0.9 μF/cm²</strong>。这个数字会在后文用三种独立方法反复出现、彼此印证（见发现五）。校准用的电流脉冲本身只持续约 8 μsec、峰值在最强时约 50 mA/cm²——短到可以近似看作「瞬间给膜打一笔电荷」，于是初始位移正好读出电容。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：第一条 I–V 曲线——一条带「负斜率」的 N 形曲线（图 10）</div>
+      <p>用上面提到的「短电击 + 斜率法」（<code>I_i = −C_M·∂V/∂t</code>，方程 11），作者从图 8/9 那些电位曲线里，取施加刺激后某个固定瞬间（0.29 msec）的斜率，乘上电容，把<strong>离子电流密度</strong>对<strong>膜电位位移 V</strong> 画了出来。这是人类第一次拿到神经膜的 I–V 曲线，它的形状极有讲究：</p>
+      <ul>
+        <li>曲线<strong>连续</strong>，在 <code>V = 0</code> 和 <code>V = −12 mV</code> 两处穿过零电流轴（两个「静止点」）；</li>
+        <li>在 <code>−110 mV &lt; V &lt; −12 mV</code> 以及 <code>V &gt; 0</code> 区间，离子电流<strong>向内</strong>；在 <code>V &lt; −110 mV</code> 和 <code>−12 mV &lt; V &lt; 0</code> 区间<strong>向外</strong>；</li>
+        <li>关键：<code>∂I_i/∂V</code> 在约 <code>−76 mV &lt; V &lt; −6 mV</code> 为<strong>负</strong>（负斜率电导）。</li>
+      </ul>
+      <p>这套结构精确解释了「全或无」：把膜从静息（V=0）稍微去极化一点点，若不到 −12 mV，离子电流是向外的、会把膜<strong>推回</strong>静息（V=−12 是个不稳定平衡点）；可一旦去极化越过 −12 mV，进入负斜率区，离子电流转为向内、<strong>继续把膜往去极化方向推</strong>，正反馈点火，膜一路滑到 −110 mV——动作电位就此「自己点着」。作者在 Axon 17（C_M=0.74 μF/cm²，6.3°C）上把这条曲线连同它在原点附近放大十倍的内插小图一起呈现，逻辑闭环。</p>
+
+      <div class="section-head-sub">发现三：真正的电压钳记录——「先内后外」的双相离子电流（图 11、12）</div>
+      <p>有了反馈放大器，作者终于能做正宗电压钳：把膜电位<strong>突然</strong>搬到一个新值并按住不动，看离子电流随时间怎么演。两类结果对照鲜明（Axon 41，585 μm，3.8°C）：</p>
+      <ul>
+        <li><strong>向更极化搬（+65 mV）：</strong>离子电流是个约 <strong>30 μA/cm²</strong> 的稳定<strong>内向</strong>电流，随时间几乎不变——平淡无奇。</li>
+        <li><strong>去极化搬（−65 mV）：</strong>戏剧性十足。离子电流<strong>在记录过程中变号</strong>：先是一个向内的相，幅度可达 <strong>−1300 μA/cm²</strong>，随后相当快地翻成一个持久的<strong>向外</strong>相，幅度约 <strong>+600 μA/cm²</strong>。</li>
+      </ul>
+      <p>这个「先内后外」的双相波形，在 20–100 mV 的各种去极化幅度下都能看到（图 12 是一整族曲线），内向相在 20–100 mV 去极化时尤其显眼，而延迟的外向相在所有去极化记录里都存在。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：这股内向电流有多猛</span>
+        <p>作者做了个漂亮的自洽检查：内向离子电流峰值约 600 μA/cm²，膜电容约 0.8 μF/cm²，若没有反馈把它抽走，这股电流会以 <code>I_i / C_M</code> ≈ <strong>750 V/sec</strong> 的速率给膜去极化——而这正好跟动作电位上升相的最大速率<strong>同一量级</strong>（Hodgkin & Katz 1949）。换句话说，他们在钳制条件下「定格」看到的内向电流，强度刚好够驱动一次真实的尖峰上升。工具量到的东西，和自由放电时的现象对上了号。</p>
+      </div>
+
+      <div class="section-head-sub">发现四：短时 vs 稳态——同一条膜，两副面孔（图 13）</div>
+      <p>把每个钳制电位下的离子电流取「某一短时刻」（曲线 A，0.63 msec）和「稳态」（曲线 B，长时间后）两个值，分别对电位作图，得到两条截然不同的 I–V 曲线：</p>
+      <ul>
+        <li><strong>短时曲线 A</strong> 保留了那条壮观的 N 形，去极化端的内向电流深达约 <strong>−3500 μA/cm²</strong>（V=−118 mV 附近）；</li>
+        <li><strong>稳态曲线 B</strong> 平淡得多，在长时间后<strong>永远是外向</strong>电流，<code>∂I_i/∂V</code> 处处为正——膜回到了一个老实的「电阻」。</li>
+      </ul>
+      <p>这一对曲线第一次清楚揭示：神经膜的电流<strong>同时是电位和时间的函数</strong>，「在某电位下电流多大」这个问题，必须再追问「在哪个时刻」。膜电阻也随之天差地别：在 V=0，短时电阻 <code>∂V/∂I_i</code> 约 <strong>2300 Ω·cm²</strong>、稳态约 <strong>650 Ω·cm²</strong>；强去极化（V=−110 mV）时电阻骤降到约 <strong>30–35 Ω·cm²</strong>（膜「打开」让电流汹涌而过），而强极化（V&gt;30 mV）时约 2500 Ω·cm²。这些数值与 Cole &amp; Curtis 1939 用交流阻抗法得到的结果吻合。</p>
+
+      <div class="section-head-sub">发现五：内向电流在约 −110 mV 反号——钠平衡电位的伏笔（图 14）</div>
+      <p>作者放大去极化初相的细节后注意到一个意味深长的现象：那个早期的内向「驼峰」会<strong>在某个电位变号</strong>——在 −130 mV 它还是内向，到 −104 mV 已翻成外向驼峰，而 −117 mV 那条恰好满足「短时 <code>∂I_i/∂t = 0</code>」、完全没有驼峰。也就是说，存在一个特殊电位（约 −110 至 −117 mV），早期电流在此处既不流入也不流出。</p>
+      <p>本文克制地只说：「这个电位<strong>很可能对应钠的平衡电位</strong>，并应随外液钠浓度而变」，然后把求证甩给下一篇（Hodgkin & Huxley 1952a）。这是整个系列的钩子——它在方法学论文里埋下「早期内向电流＝钠」这个判断的第一块证据，但严格的证明（换掉海水里的钠、看这个反号电位跟着移动）留到续篇。作为读者，看到这里能体会到 HH 工作的节奏：先把现象用工具<strong>逼到</strong>非某种解释不可，再用专门实验<strong>钉死</strong>它。</p>
+
+      <div class="section-head-sub">发现六：电流的「幅度」不怕冷，但「快慢」很怕冷（图 15）</div>
+      <p>同一只鱿鱼的两根轴突，一根在 6°C、一根在 22°C 测（动作电位 107 / 103 mV，静息 55 mV）。结果干净利落：离子电流的<strong>最大幅度</strong>几乎不随温度改变（温度系数约 1.3–1.5），但电流随时间<strong>变化的速率</strong>随 16°C 升温快了约<strong>六倍</strong>，折算<span class="term">Q₁₀ ≈ 3</span>（多条记录给出 2.7–3.5，本文统一采用 3 来跨温度比较）。</p>
+      <div class="info-block">
+        <span class="ib-title">为什么 Q₁₀≈3 是个线索</span>
+        <p>简单的离子<strong>扩散</strong>过程，速率的 Q₁₀ 一般只有约 1.3（受温度对黏度/扩散系数的弱影响）。而 Q₁₀≈3 意味着控制电流「开关速度」的，是某种<strong>活化能较高</strong>的过程——更像化学反应或某种构象变化的速率，而非被动扩散。这个数字在三篇之后会变成 HH 方程里 m、n、h 门控速率常数的温度依赖性，是把「门控」当作一个有动力学的物理过程来建模的早期暗示。幅度不变、速率变快，正是「通道开关有快慢、但开到多大由电化学梯度定」这一图像的雏形。</p>
+      </div>
+
+      <div class="section-head-sub">发现七：电容电流——一根 6 μsec 的尖刺，与一条不老实的「尾巴」（图 16）</div>
+      <p>最后作者用高时基、高放大率单独逼视了「电容电流」那一瞬。阳极、阴极方向的记录几乎对称，充电在约 <strong>50 μsec</strong> 内基本完成，峰值约 <strong>4.5 mA/cm²</strong>，衰减到稳态约 0.04 mA/cm²。整条尖刺可用一个双指数公式拟合：</p>
+      <blockquote>
+        <p>I* = 6.8 · [ exp(−0.159 t) − exp(−t) ]　（t 单位 μsec，电流单位 mA/cm²）</p>
+      </blockquote>
+      <p>由 60 μsec 内进入电容的电荷（35 mμcoulomb/cm²，对应 40 mV 变化）再算一次电容，得约 <strong>0.9 μF/cm²</strong>——与前述方法第三次对上。但作者诚实地指出两处「不干净」：充放电的时间常数约 6 μsec，意味着膜电容并非理想电容器，而是带一个相位角约 76° 的「漏」（与 Curtis & Cole 1938 一致）；并且在较长时间（&gt;25 μsec）记录里有一条无法用串联电阻解释的「尾巴」，得归因于膜电容本身不完美（恒定相位角，Curtis & Cole 1938）。他们强调这些关于相位角的陈述「只是初步的」，因为实验本来就不是为测相位角设计的。</p>
+
+      <div class="info-block">
+        <span class="ib-title">三种方法，一个电容（Table 1 的说服力）</span>
+        <p>本文用电压钳法、短电击法、恒定电流法分别测膜电容，汇总于 Table 1：电压钳法阳极/阴极平均约 <strong>0.89 μF/cm²</strong>，短电击法约 0.91，恒定电流法约 1.13，<strong>三法总平均约 0.91 μF/cm²</strong>。三种独立路径收敛到同一个数（且与 Curtis & Cole 1938 的 1.1 μF/cm²、76° 相位角相符），是这把新工具「测得准」的最有力旁证——一把会骗人的工具，不会在三条不同路上给出同一个谎。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文的真正分量在工程。把它的关键设计逐条拆开，每一条都在解决一个具体的「为什么测不准」。</p>
+      <table>
+        <thead>
+          <tr><th>设计</th><th>解决什么问题</th><th>怎么做的 / 关键数字</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>双内电极（电流丝 a + 电压丝 b）</td>
+            <td>注电流的导线本身有电压降，会污染电位读数</td>
+            <td>分工：一根专门注电流、一根专门读电位，互不干扰。两根 20 μm 银丝绕在 70 μm 玻璃毛细管上成螺旋（螺距 0.5 mm），沿轴插入 20–30 mm</td>
+          </tr>
+          <tr>
+            <td>空间钳位（长轴内电极）</td>
+            <td>电流沿轴向乱窜，膜各处电位不均匀</td>
+            <td>长金属丝让整段膜同步钳到同一电位，电流只能径向穿膜，可换算成电流密度</td>
+          </tr>
+          <tr>
+            <td>保护环 / 三格盒（guard system）</td>
+            <td>只想量一小段已知面积的膜电流</td>
+            <td>Perspex 盒用两道隔板分三格（基于 Cole 1949、Marmont 1949），只测中央通道 C（暴露膜约 7 mm）的电流；面积已知 → 算电流密度。凡士林封隔防漏</td>
+          </tr>
+          <tr>
+            <td>负反馈放大器（电压钳核心）</td>
+            <td>膜电位会自己跑，必须实时按住</td>
+            <td>差分直流放大器 + 阴极跟随器输入输出；增益约 400（高频约 1200），最大供流约 5 mA，跟随目标延迟约 1 μsec、误差 1–2%</td>
+          </tr>
+          <tr>
+            <td>补偿反馈（扣除串联电阻 r_s）</td>
+            <td>电极与膜间的小电阻让大电流时真实电位偏离设定值</td>
+            <td>用方程 4–10 引入与 r_s 成比例的补偿；r_s/r_cd 约 0.7，取 p=0.6 设定值可安全使用（7 次后期实验采用）。但过补偿会让系统正反馈、强电流毁膜——故谨慎</td>
+          </tr>
+          <tr>
+            <td>端到端校准（每次实验后）</td>
+            <td>把示波器上的「电压差」换算成绝对电流</td>
+            <td>实验后量外电极 c、d 间电阻 r_cd（海水 20°C 时约 74 Ω），电位差 ÷ r_cd = 电流；电流 ÷ 中央膜面积 = 电流密度</td>
+          </tr>
+          <tr>
+            <td>先验收、再实验</td>
+            <td>怕粗暴电极已破坏轴突</td>
+            <td>每根轴突先用短电击测能否引出 ≥85 mV 动作电位、电位是否沿 20 mm 均匀，不合格直接弃用</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>值得单独点出的是作者对待<strong>误差</strong>的态度。他们没有把电压钳当成一台理想黑箱，而是逐项审计它的不完美：串联电阻引入的误差（用补偿反馈压到 β 项约 2.5%）、放大器约 1 μsec 的延迟、膜电容的非理想相位角、补偿过度的毁膜风险、以及那个会让长时去极化「外向电流缓慢下滑」的<strong>极化效应（polarization effect）</strong>——他们明确把后者判为「在莫里布德（moribund，濒死）轴突上也出现、几乎不随温度变，故生理意义不大」。这种「先怀疑自己的仪器，再相信自己的数据」的工程纪律，是这篇论文经久不衰的另一层原因。</p>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>这把工具不是凭空降世，作者把谱系交代得很清楚：</p>
+      <ul>
+        <li><strong>站在 Cole 与 Marmont 的肩膀上：</strong>用电子反馈控制膜电位、用保护环测定面积电流，这两个核心想法源自 Cole（1949）和 Marmont（1949）。HHK（即本文三位作者 Hodgkin-Huxley-Katz）的贡献是把它们工程化到能稳定产出干净数据、并加上双电极与补偿反馈。作者在 Paris 电生理研讨会（Hodgkin et al. 1949）已报告过初步实验。</li>
+        <li><strong>与 Cole & Curtis 的阻抗工作互证：</strong>Cole & Curtis（1938、1939）用交流阻抗法测得膜电容约 1.1 μF/cm²、相位角 76°、以及兴奋时电导的剧增。本文用完全不同的直流钳制法独立得到相符的电容（约 0.9 μF/cm²）与膜电阻数值——两条技术路线在同一片膜上握手。</li>
+        <li><strong>承接「钠假说」的前期证据：</strong>引言开门见山引用了一批工作（Rothenberg 1950；Keynes & Lewis 1951；Hodgkin & Katz 1949a；Huxley & Stämpfli 1951），它们提示神经冲动伴随钠内流、钾外流，且动作电位幅度由外液钠浓度决定。本文不重复论证钠假说，而是<strong>造工具去直接看</strong>这些离子电流——并在图 14 给出「早期内向电流在约 −110 mV 反号」这一与钠平衡电位吻合的暗示。</li>
+        <li><strong>作为五连篇的地基：</strong>本文（第 1 篇）只管方法与正常海水里的总 I–V 关系；1952a 换钠、把电流拆成钠与钾；1952b 用电导（conductance）描述渗透性；1952c 研究突然改变电位时电导的时间进程；1952d 综合出 Hodgkin-Huxley 方程并算出动作电位的波形与传导速度。每一篇都建立在本文这套钳制+测量装置之上。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>把视野从枪乌贼轴突拉远，这篇论文有几层超出电生理的回响：</p>
+      <ul>
+        <li><strong>「钳住一个变量去看另一个」是普适的实验范式。</strong>当系统里两个量纠缠（这里是电位与时间/电流），强行固定其一、观测其二，是从纠缠中切出因果的通法。今天从光遗传学（钳住活动看行为）到经济学的工具变量，骨子里都是同一招。电压钳是这套思想最优雅的物理实现之一。</li>
+        <li><strong>负反馈把「不稳定」变成「可测」。</strong>膜本身是个带负斜率、会自激的非线性系统；一台负反馈放大器把它「驯服」成可在任意工作点静止的对象。这与控制论同期兴起呼应——用反馈对抗系统自身的发散，让本不可观测的内部特性显形。</li>
+        <li><strong>负斜率电导＝一切「全或无」开关的电学母题。</strong>本文测到的那段 <code>∂I_i/∂V &lt; 0</code>，与电子学里隧道二极管、神经元的阈值点火、乃至各种双稳态系统共享同一数学形状。理解了神经膜的负斜率，就理解了「为什么有些系统只有开和关、没有中间态」。</li>
+        <li><strong>一把好工具的半衰期以「数十年」计。</strong>电压钳直接孕育了 1976 年的膜片钳（patch clamp），后者拿下另一个诺奖、并成为离子通道药理学与现代神经科学的日常工具。本文那个「串联电阻补偿」的烦恼，今天的膜片钳放大器里仍有一个旋钮在处理。工具的生命远长于任何一篇用它得出的具体结论。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>作者本人相当克制坦白，但仍有些边界值得读者自己点明：</p>
+      <ul>
+        <li><strong>本文几乎没「解释」任何东西，只描述。</strong>它给出 I–V 曲线、双相电流、反号电位、温度系数，但<strong>刻意不</strong>断言电流由哪种离子携带、机制为何。「早期内向电流是钠」在这里只是「很可能」的伏笔，其证明完全依赖尚未发表的续篇。读这一篇时要清楚：你看到的是现象学，不是机制。</li>
+        <li><strong>电压钳的「均匀性」是个理想化假设。</strong>整套逻辑依赖膜在中央通道里被均匀钳到同一电位（空间钳位完美）。作者承认轴突需「仔细清洗」、电位须在 20 mm 上足够均匀才放行，但金属丝表面与膜的耦合、轴向是否真的等位，本文并未给出独立的均匀性直接证据——这是后世发现「空间钳位不完美会扭曲快电流」时回头追问的点。</li>
+        <li><strong>串联电阻的位置没搞清。</strong>作者花了大量篇幅讨论 r_s（约 7 Ω·cm²，中央约 61 Ω），但坦言只有约 30% 能归于电流汇聚、约 45% 可能来自结缔组织鞘（connective tissue sheath，5–20 μm 厚），其余来源不明，「需要进一步实验」。这意味着补偿反馈在扣一个自己也没完全理解的量。</li>
+        <li><strong>膜电容的「相位角」结论是软的。</strong>那条 6 μsec 尾巴、76° 相位角、恒定相位角模型，作者反复声明「实验不是为测相位角设计的，不能用于定量分析」。所以「膜不是理想电容器」这个判断，在本文只是定性提示，未坐实。</li>
+        <li><strong>补偿反馈与极化效应是悬着的隐患。</strong>补偿反馈一旦过头就会毁膜，故长时实验里不敢用——这限制了能测的时长。而强去极化时外向电流「缓慢下滑」的极化效应，作者只能在三种猜测（电极内外浓度差异、膜附近离子浓度改变、某种串联结构慢极化）之间存而不论，无法分辨。</li>
+        <li><strong>样本量按现代标准很小、且温度低于体温。</strong>Table 1 的电容数据来自约十余根轴突，I–V 与电压钳的代表性曲线多来自个别轴突（如 Axon 17、41）。实验在 3–22°C 进行（鱿鱼是冷血、深海动物，这无可厚非），但把结论外推到温血动物的 37°C 时，那个 Q₁₀≈3 的速率差异就不容忽视。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p><strong>这是一篇「工具压倒结论」的典范，其历史地位几乎全部来自方法。</strong>评价它不能用「发现了什么新生物学事实」的尺子——按这把尺子它甚至有点单薄（核心新事实大多是「伏笔」，留给续篇证）。真正该问的是：它造的工具有多硬、多通用、多长寿？答案是：极硬、极通用、极长寿。下面每条判断都对应文中证据。</p>
+      <ul>
+        <li><strong>工具的有效性被多重交叉验证，可信。</strong>膜电容由三种独立方法收敛到约 0.91 μF/cm²（Table 1），并与 Cole & Curtis 1938 的独立技术相符；钳制下的内向电流强度（750 V/sec 等效去极化率）与自由放电的尖峰上升率同量级。一把会系统性骗人的工具，不会在这么多独立检查上同时自洽——这是判其可靠的实证基础。</li>
+        <li><strong>对自身误差的审计达到罕见的严苛，可敬。</strong>论文用整整数页量化串联电阻（补偿后 β 项误差约 2.5%）、放大器延迟（约 1 μsec）、相位角不完美、补偿过度风险、极化效应来源，并明确区分「已坐实」与「只是初步/存而不论」。这种纪律让它的数字今天仍可被信任地引用。</li>
+        <li><strong>对结论的克制是优点而非缺点。</strong>把「内向电流＝钠」压成「很可能」并甩给续篇专门证（图 14 → 1952a），体现了「先用工具把现象逼到非某解释不可、再用专门实验钉死」的扎实节奏，而非急于宣称机制。这是它能成为可靠地基的原因。</li>
+        <li><strong>主要局限是诚实标注的、且多属时代约束。</strong>空间钳位均匀性缺独立证据、串联电阻位置不明、相位角结论软、样本偏小、温度偏低——这些作者大多自己点了名（前三项明文承认）。它们限制的是「能测多准多久」，而非动摇核心范式。<span class="term">（以上为解读者综合评价，证据均在文中对应处。）</span></li>
+        <li><strong>放在科学史里，它的回报率高得惊人。</strong>同一套装置直接支撑起后续四篇、催生 Hodgkin-Huxley 方程（1963 诺奖）、并经膜片钳延续到今天的通道科学。以「一篇方法学论文」论，很难找到投入产出比更高的例子。<span class="term">（此为解读者基于其谱系地位的判断。）</span></li>
+      </ul>
+      <p>一句话定性：<strong>它不是一篇「发现」的论文，而是一篇「让发现成为可能」的论文</strong>——并且把这件事做得如此干净、如此自我审计，以至于它造的工具比它本身更不朽。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Hodgkin、Huxley 与 Katz（1952）造出了<strong>电压钳</strong>：用负反馈把枪乌贼巨轴突的膜电位强行钉在任意值（令 ∂V/∂t=0，于是注入电流＝离子电流），第一次直接测出神经膜的<strong>电流-电压关系</strong>——一条带负斜率区（约 −76 至 −6 mV）、在 V=0 与 −12 mV 两次过零的 <strong>N 形曲线</strong>，以及去极化时「先内向（峰约 −1300 μA/cm²）后持久外向（约 +600 μA/cm²）」的双相离子电流，其内向相在约 −110 mV 反号（钠平衡电位的伏笔）；膜电容由三法收敛至约 <strong>0.91 μF/cm²</strong>，电流幅度不随温度变而其变化速率 <strong>Q₁₀≈3</strong>。本文不解释机制，只用一把经多重交叉验证、并被作者严苛自审的新工具把现象逼到台前——它是 HH 1952 五连篇与日后 Hodgkin-Huxley 方程的方法学地基，也是「好工具比好假说更长寿」的最佳注脚。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Hodgkin, A. L., Huxley, A. F., &amp; Katz, B. (1952). Measurement of current-voltage relations in the membrane of the giant axon of <i>Loligo</i>. <i>The Journal of Physiology</i>, 116(4), 424–448.
+    <br><strong>说明：</strong>本页为基于原文的中文深度解读，所有数据均引自论文；交互组件为基于论文报告效应量与定性模式的示意模拟（非原始数据点），仅供建立直觉。本文采用原文符号约定（静息电位为正、V 为相对静息的偏移、负值＝去极化），与当代教科书符号相反，读图时请留意。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+  var canvas = document.getElementById('vclCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // ---------- 高分屏适配 ----------
+  var dpr = window.devicePixelRatio || 1;
+  if(dpr > 1){
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.scale(dpr, dpr);
+  }
+
+  var slider   = document.getElementById('vclSlider');
+  var valSpan  = document.getElementById('vclVal');
+  var playBtn  = document.getElementById('vclPlay');
+  var plotBtn  = document.getElementById('vclPlot');
+  var clearBtn = document.getElementById('vclClear');
+  var showCap  = document.getElementById('vclShowCap');
+  var readout  = document.getElementById('vclReadout');
+
+  // 颜色
+  var RED='#c0392b', INK='#1f2328', INKS='#3a4048', MUT='#9aa1ab',
+      LINE='#e6e8eb', INWARD='#2d6cdf', OUTWARD='#c0392b', CAP='#d98a00';
+
+  // 布局：左 = 电流时间曲线；右 = I-V 曲线
+  var padL = 56, gap = 40;
+  var leftW = 470, rightW = W - padL - leftW - gap - 18;
+  var L = { x: padL, y: 40, w: leftW, h: 250 };          // 时间曲线区
+  var R = { x: padL + leftW + gap, y: 40, w: rightW, h: 320 }; // I-V 区
+
+  var Vrest = -130, Vmax = 65; // 钳制电位范围（本文符号）
+
+  // ---------- 离子电流模型（定性，基于论文量级） ----------
+  // 本文符号：V<0 去极化。Na 平衡电位约 V=-110（内向电流在此反号）。
+  // 返回某钳制电位 V、时间 t(ms) 下的离子电流密度 (uA/cm^2)，内向为负显示。
+  var Vna = -110;   // 早期内向电流反号点（图14：约-110~-117）
+  function ionicCurrent(V, t){
+    // 去极化驱动 = 越负越强
+    var depol = Math.max(0, -V); // mV of depolarization (本文符号)
+    // ---- 早期内向相（钠样）：快速激活后失活 ----
+    // 幅度随去极化增大，但被 (V - Vna) 的电化学驱动力调制 → 在 Vna 处为 0、更负处反向
+    var actNa = depol/ (depol + 18);           // 激活 sigmoid (0..1)
+    var drive = (V - Vna);                       // >0 (V>Vna) → 内向；<0 → 外向（反号）
+    var gNaPeak = 1500 * actNa;                  // 峰电导样幅度
+    var mt = (t<=0)?0: (Math.pow(t/0.45,2) * Math.exp(-t/0.55)); // 先升后失活的时间包络
+    // 归一化时间包络峰到~1
+    var INa = - gNaPeak * (drive/110) * mt * 1.9; // 内向为负
+    // ---- 延迟外向相（钾样）：缓慢激活、持续 ----
+    var actK = depol/(depol + 35);
+    var gKmax = 720 * actK;
+    var nt = 1 - Math.exp(-t/2.6);               // 缓慢上升
+    var IK = + gKmax * nt;                        // 外向为正
+    // 极化方向(V>0)：小幅稳定内向电流（图11 +65mV: ~ -30 uA/cm^2 内向）
+    var Ihyper = 0;
+    if(V > 0){ Ihyper = -30 * (V/65) * (1 - Math.exp(-t/0.6)); IK = 0; INa *= 0.15; }
+    return INa + IK + Ihyper;
+  }
+
+  // 电容电流尖峰（仅 t 很小时）：双指数，峰约 4.5 mA/cm^2 = 4500 uA/cm^2
+  function capCurrent(V, t){
+    if(t<0) return 0;
+    var sign = (V<0)? -1 : 1; // 去极化:先内向充电尖峰? 论文阴阳对称, 这里用方向区分
+    var tu = t*1000; // ms->us 量级用于尖峰(约6us)
+    var amp = 4500 * (Math.abs(V)/65);
+    return sign * amp * (Math.exp(-tu/6.0) - Math.exp(-tu/1.0))/0.72;
+  }
+
+  // 取该电位下「短时特征值」用于 I-V 曲线：取内向峰或外向峰中绝对值较大者（图13 曲线A）
+  function ivPoint(V){
+    var peakIn = 0, peakOut = 0;
+    for(var t=0.02; t<=8; t+=0.04){
+      var I = ionicCurrent(V, t);
+      if(I < peakIn) peakIn = I;
+      if(I > peakOut) peakOut = I;
+    }
+    // 曲线 A：短时优先体现早期内向相；若内向更显著取内向峰
+    return (Math.abs(peakIn) >= peakOut*0.9) ? peakIn : peakOut;
+  }
+
+  // ---------- 绘图工具 ----------
+  function line(x1,y1,x2,y2,color,w){
+    ctx.strokeStyle=color; ctx.lineWidth=w||1; ctx.beginPath();
+    ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  }
+  function text(s,x,y,color,font,align){
+    ctx.fillStyle=color||INK; ctx.font=font||'12px -apple-system,sans-serif';
+    ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic'; ctx.fillText(s,x,y);
+  }
+
+  // 时间曲线坐标映射
+  function tx(t){ return L.x + (t/8)*L.w; }                 // t: 0..8 ms
+  function ty(I){                                            // I: uA/cm^2, 范围约 -1600..+800
+    var Imin=-1600, Imax=800;
+    var fr = (I - Imin)/(Imax - Imin);
+    return L.y + L.h - fr*L.h;
+  }
+  // I-V 坐标映射
+  function ivx(V){ return R.x + ((V - Vrest)/(Vmax - Vrest))*R.w; }
+  function ivy(I){ var Imin=-1600, Imax=800; var fr=(I-Imin)/(Imax-Imin); return R.y + R.h - fr*R.h; }
+
+  var plotted = [];     // 已描到 I-V 的点 {V, I}
+  var animT = null;     // 当前动画时间（null=不在播放，显示完整曲线）
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    var V = parseInt(slider.value,10);
+
+    // ===== 左：电流-时间曲线 =====
+    text('① 钳制脉冲下的膜电流（时间进程）', L.x, L.y-18, INK, 'bold 13px -apple-system,sans-serif');
+    // 背景框
+    ctx.fillStyle='#fff'; ctx.fillRect(L.x,L.y,L.w,L.h);
+    ctx.strokeStyle=LINE; ctx.lineWidth=1; ctx.strokeRect(L.x,L.y,L.w,L.h);
+    // 零电流线
+    var y0 = ty(0);
+    line(L.x, y0, L.x+L.w, y0, '#cfd4da', 1.5);
+    text('0', L.x-6, y0+4, MUT, '11px sans-serif', 'right');
+    // 轴标
+    text('内向 ↓', L.x+4, ty(-1450), INWARD, '11px sans-serif');
+    text('外向 ↑', L.x+4, ty(720), OUTWARD, '11px sans-serif');
+    text('时间 (ms)', L.x+L.w-60, L.y+L.h+22, MUT, '11px sans-serif');
+    text('μA/cm²', L.x-44, L.y+10, MUT, '11px sans-serif');
+    // 时间刻度
+    for(var tk=0; tk<=8; tk+=2){
+      var xx=tx(tk); line(xx, L.y+L.h, xx, L.y+L.h+4, MUT,1);
+      text(tk, xx, L.y+L.h+18, MUT, '10px sans-serif','center');
+    }
+
+    var tEnd = (animT===null)? 8 : animT;
+
+    // 电容电流尖峰（独立画，红/橙）
+    if(showCap.checked){
+      ctx.strokeStyle=CAP; ctx.lineWidth=1.6; ctx.beginPath();
+      var firstC=true;
+      for(var t=0; t<=Math.min(tEnd,0.6); t+=0.004){
+        var Ic = capCurrent(V,t);
+        // 限幅到画面内
+        var Iclip = Math.max(-1580, Math.min(780, Ic));
+        var X=tx(t), Y=ty(Iclip);
+        if(firstC){ctx.moveTo(X,Y);firstC=false;} else ctx.lineTo(X,Y);
+      }
+      ctx.stroke();
+    }
+
+    // 离子电流曲线
+    ctx.lineWidth=2.4; ctx.beginPath();
+    var first=true; var lastI=0;
+    for(var t2=0.01; t2<=tEnd; t2+=0.02){
+      var I=ionicCurrent(V,t2); lastI=I;
+      var Ic2=Math.max(-1590, Math.min(790, I));
+      var X2=tx(t2), Y2=ty(Ic2);
+      if(first){ctx.moveTo(X2,Y2);first=false;} else ctx.lineTo(X2,Y2);
+    }
+    // 用整体颜色（依末段方向）描，但分段着色更准：这里用渐变近似——直接红
+    ctx.strokeStyle = RED; ctx.stroke();
+
+    // 在曲线上标注内向/外向相（仅完整显示时）
+    if(animT===null && V < -15){
+      // 内向峰
+      var pkIn=0,tIn=0; for(var ta=0.02;ta<=3;ta+=0.02){var Ia=ionicCurrent(V,ta); if(Ia<pkIn){pkIn=Ia;tIn=ta;}}
+      if(pkIn<-30){
+        var px=tx(tIn), py=ty(Math.max(-1590,pkIn));
+        ctx.fillStyle=INWARD; ctx.beginPath(); ctx.arc(px,py,3.5,0,7); ctx.fill();
+        text('内向相', px+6, py+4, INWARD, 'bold 11px sans-serif');
+      }
+      var pkOut=0,tOut=0; for(var tb=2;tb<=8;tb+=0.04){var Ib=ionicCurrent(V,tb); if(Ib>pkOut){pkOut=Ib;tOut=tb;}}
+      if(pkOut>30){
+        var qx=tx(tOut), qy=ty(Math.min(790,pkOut));
+        ctx.fillStyle=OUTWARD; ctx.beginPath(); ctx.arc(qx,qy,3.5,0,7); ctx.fill();
+        text('外向相', qx-52, qy-6, OUTWARD, 'bold 11px sans-serif');
+      }
+    }
+
+    // ===== 右：I-V 曲线 =====
+    text('② 由各电位峰值拼出的 I–V 曲线（短时, 曲线 A）', R.x, R.y-18, INK, 'bold 13px -apple-system,sans-serif');
+    ctx.fillStyle='#fff'; ctx.fillRect(R.x,R.y,R.w,R.h);
+    ctx.strokeStyle=LINE; ctx.lineWidth=1; ctx.strokeRect(R.x,R.y,R.w,R.h);
+    // 轴：V=0 竖线 与 I=0 横线
+    var x0iv = ivx(0), y0iv = ivy(0);
+    line(R.x, y0iv, R.x+R.w, y0iv, '#cfd4da', 1.5);
+    line(x0iv, R.y, x0iv, R.y+R.h, '#cfd4da', 1.5);
+    text('V=0', x0iv+3, R.y+12, MUT, '10px sans-serif');
+    text('I_i=0', R.x+4, y0iv-4, MUT, '10px sans-serif');
+    text('V (mV, 负=去极化)', R.x+R.w-120, R.y+R.h+22, MUT, '11px sans-serif');
+    // V 刻度
+    [-110,-60,-12,0,40].forEach(function(vk){
+      var xx=ivx(vk); line(xx,R.y+R.h,xx,R.y+R.h+4,MUT,1);
+      text(vk, xx, R.y+R.h+18, MUT, '10px sans-serif','center');
+    });
+    // 标注关键电位
+    var xm12=ivx(-12); line(xm12,R.y,xm12,R.y+R.h,'#f0c9c4',1);
+    var xm110=ivx(-110); line(xm110,R.y,xm110,R.y+R.h,'#cfe0f5',1);
+
+    // 理论 I-V 参考曲线（灰，全程）
+    ctx.strokeStyle='#c9ced4'; ctx.lineWidth=1.4; ctx.setLineDash([4,3]); ctx.beginPath();
+    var fr0=true;
+    for(var vv=Vrest; vv<=Vmax; vv+=1){
+      var Iv=ivPoint(vv); var Yv=ivy(Math.max(-1590,Math.min(790,Iv)));
+      var Xv=ivx(vv);
+      if(fr0){ctx.moveTo(Xv,Yv);fr0=false;} else ctx.lineTo(Xv,Yv);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // 已描的点
+    plotted.forEach(function(p){
+      var Xv=ivx(p.V), Yv=ivy(Math.max(-1590,Math.min(790,p.I)));
+      ctx.fillStyle = (p.I<0)? INWARD : OUTWARD;
+      ctx.beginPath(); ctx.arc(Xv,Yv,4,0,7); ctx.fill();
+    });
+    // 连线已描点
+    if(plotted.length>1){
+      var sorted = plotted.slice().sort(function(a,b){return a.V-b.V;});
+      ctx.strokeStyle=RED; ctx.lineWidth=1.8; ctx.beginPath();
+      sorted.forEach(function(p,i){
+        var Xv=ivx(p.V), Yv=ivy(Math.max(-1590,Math.min(790,p.I)));
+        if(i===0)ctx.moveTo(Xv,Yv); else ctx.lineTo(Xv,Yv);
+      });
+      ctx.stroke();
+    }
+    // 当前电位高亮（竖虚线）
+    var xcur=ivx(V); ctx.strokeStyle=RED; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    line(xcur, R.y, xcur, R.y+R.h, RED, 1); ctx.setLineDash([]);
+    var IvCur=ivPoint(V);
+    var Ycur=ivy(Math.max(-1590,Math.min(790,IvCur)));
+    ctx.fillStyle=RED; ctx.beginPath(); ctx.arc(xcur,Ycur,4.5,0,7); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+
+    // 图例
+    var lgY = R.y+R.h+34;
+    ctx.fillStyle=INWARD; ctx.fillRect(R.x, lgY-8, 10,10);
+    text('内向电流', R.x+14, lgY, INKS, '11px sans-serif');
+    ctx.fillStyle=OUTWARD; ctx.fillRect(R.x+86, lgY-8, 10,10);
+    text('外向电流', R.x+100, lgY, INKS, '11px sans-serif');
+    text('虚线=理论曲线', R.x+176, lgY, MUT, '11px sans-serif');
+  }
+
+  // 读数文字
+  function updateReadout(){
+    var V=parseInt(slider.value,10);
+    var IvCur=ivPoint(V);
+    var dir = IvCur<0? '内向' : '外向';
+    var phase;
+    if(V>0) phase='向更极化（anodal）钳制 → 小幅稳定内向电流（≈ '+Math.round(IvCur)+' μA/cm²），随时间几乎不变（对应图 11 的 +65 mV 记录）。';
+    else if(V> -12) phase='轻度去极化（未过 −12 mV 不稳定点）→ 离子电流为外向，会把膜推回静息。';
+    else if(V> Vna) phase='去极化进入再生区 → 早期强内向相（峰约 '+Math.round(IvCur)+' μA/cm²，钠样）随后翻为延迟外向相（钾样）。这正是动作电位的引擎。';
+    else phase='去极化超过钠平衡电位（约 −110 mV）→ 早期内向相消失甚至反号为外向（对应图 14：内向驼峰在 ≈−110 mV 变号，钠平衡电位伏笔）。';
+    readout.innerHTML = '<strong>当前钳制电位 V = '+V+' mV</strong>（'+(V<0?'去极化':(V>0?'更极化':'静息'))+'）。短时离子电流特征值 ≈ <strong style="color:'+(IvCur<0?INWARD:OUTWARD)+'">'+Math.round(IvCur)+' μA/cm²（'+dir+'）</strong>。'+phase;
+  }
+
+  // ---------- 动画播放 ----------
+  var raf=null;
+  function play(){
+    if(raf) cancelAnimationFrame(raf);
+    animT = 0;
+    var start=null;
+    function step(ts){
+      if(start===null) start=ts;
+      var elapsed=(ts-start)/1000; // s
+      animT = Math.min(8, elapsed*4.5); // 4.5x 实时, 总约1.8s 跑完8ms
+      draw();
+      if(animT<8){ raf=requestAnimationFrame(step); }
+      else { animT=null; draw(); }
+    }
+    raf=requestAnimationFrame(step);
+  }
+
+  // ---------- 事件 ----------
+  slider.addEventListener('input', function(){
+    valSpan.textContent = slider.value;
+    if(animT===null){ draw(); }
+    updateReadout();
+  });
+  playBtn.addEventListener('click', play);
+  plotBtn.addEventListener('click', function(){
+    var V=parseInt(slider.value,10);
+    // 避免重复同一电位
+    plotted = plotted.filter(function(p){return Math.abs(p.V-V)>2;});
+    plotted.push({V:V, I:ivPoint(V)});
+    draw();
+  });
+  clearBtn.addEventListener('click', function(){ plotted=[]; draw(); });
+  showCap.addEventListener('change', draw);
+
+  // 预置几个点让曲线初见即有形
+  [-118,-91,-65,-39,-10,20,65].forEach(function(v){ plotted.push({V:v, I:ivPoint(v)}); });
+
+  draw();
+  updateReadout();
+})();
+</script>
+</body>
+</html>

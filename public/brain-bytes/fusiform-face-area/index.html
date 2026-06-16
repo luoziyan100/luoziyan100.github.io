@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFA · 梭状回面孔区深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Fusiform Face Area <span>×</span> 大脑里真有一块"专门看脸"的硬件</h1>
+    <div class="meta">
+      <span>📄 The Fusiform Face Area: A Module in Human Extrastriate Cortex Specialized for Face Perception</span><br>
+      <span>✍️ Nancy Kanwisher、Josh McDermott、Marvin M. Chun</span><br>
+      <span>🏛️ 哈佛大学心理系 · 麻省总医院 NMR 中心 · 耶鲁大学心理系</span><br>
+      <span>📅 The Journal of Neuroscience（《神经科学杂志》）· 1997 · 17(11):4302–4311</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-question">它到底想回答什么</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-viz">交互：感受"面孔特异性"</a></li>
+        <li><a href="#sec-controls">关键控制分析</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是认知神经科学被引用上万次的"立碑"论文之一。它要解决一个看似简单、其实极难的问题：<strong>人脑里到底有没有一块专门处理"脸"的硬件？</strong>在 1997 年之前，大量研究发现某些脑区"看脸时更活跃"，但谁都没法证明那不是别的原因——也许只是脸更吸引注意、也许脸的纹理更复杂、也许那块区域只是擅长"区分同类里的个体"。</p>
+        <p>Kanwisher 团队的过人之处，不在于又发现了一个"看脸更亮"的脑区，而在于他们设计了一套<strong>"逐个击破"的实验逻辑</strong>：先在每个被试自己的脑子里把这块区域单独圈出来（而不是把所有人的脑平均成一团糊），再用一连串精心配对的对照刺激，一个一个地把"其实是注意力""其实是低级特征""其实是物体识别"这些替代解释打掉。最后剩下的，只能是"它就是为脸服务的"。这套<strong>"个体功能定位 + 多重独立检验"</strong>的范式，此后成了整个领域研究功能特异脑区的标准动作。读懂它，等于读懂了一种做科学的方法。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>下面这些术语在正文里反复出现，先用"人话"把它们讲清楚。看不懂正文时可以随时翻回来。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">梭状回面孔区（FFA，Fusiform Face Area）</div>
+          <div class="cdesc">本文的主角。大脑底面、靠近后脑的一小块皮层（在"梭状回"上），看脸时明显更活跃。可以想成大脑里的一台"刷脸闸机"——其他东西从它面前过都没反应，唯独脸一来它就亮灯。本文给它起的代号是"area FF"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">功能磁共振成像（fMRI，functional Magnetic Resonance Imaging）</div>
+          <div class="cdesc">一种不开颅、不打针就能看到"大脑哪块在干活"的扫描技术。原理是：神经元活跃→局部要更多血→血里含氧量变化→磁信号变化。相当于给大脑装了一台"用电量热力图"，哪个房间灯亮了一目了然。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">血氧水平依赖信号（BOLD，Blood-Oxygen-Level-Dependent）</div>
+          <div class="cdesc">fMRI 实际测到的那个"信号"。它不直接测神经放电，而是测血液含氧量的间接变化。本文里反复出现的"信号变化百分比（% signal change）"就是它——某条件比基线高出几个百分点，数值越大代表那块脑区干得越卖力。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">感兴趣区（ROI，Region of Interest）</div>
+          <div class="cdesc">研究者事先在脑图上圈定的"重点观察区"。本文的关键招数是：先用一组刺激（脸 vs 物体）把每个被试自己的 FFA 圈出来当 ROI，之后所有新检验都只盯着这块"自家圈定"的区域看，避免了"换了刺激又满脑子乱找一个亮点"的统计陷阱。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">功能特异性 / 选择性（Selectivity）</div>
+          <div class="cdesc">本文的灵魂词。"更活跃"不等于"专门负责"。选择性是指：这块区域<strong>只</strong>对某一类东西（脸）强烈反应，对别的（房子、手、物体）都冷淡。本文用"选择性比值"（脸的信号 ÷ 对照物的信号）来量化它，比值越高、越说明它"挑食"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">模块（Module）</div>
+          <div class="cdesc">借自认知科学家 Fodor 的概念：大脑里一个专门处理某类信息、相对独立自治的"功能单元"。标题里"a Module"是个大胆的主张——它暗示脸不是被通用的"看东西系统"顺手处理的，而是有专属车间。本文为这个主张提供了影像学证据。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">下属层级分类（Subordinate-level classification）</div>
+          <div class="cdesc">认知里"分得多细"的层级。"这是只鸟"是基本层级；"这是只知更鸟"才是下属层级——要在同一大类里区分具体个体。一个重要的替代解释是：FFA 也许不专管脸，只是擅长这种"同类里抠细节"的活儿。本文用"脸 vs 手"等对照专门反驳了它。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">倒立两色脸（Intact vs scrambled two-tone faces）</div>
+          <div class="cdesc">一种巧妙的对照刺激。把一张黑白两色的脸照片切成小块再打乱重拼——亮度、对比度、黑白块总量都不变，唯独"不再是一张脸"。如果 FFA 对完整脸反应更强、对打乱版冷淡，就说明它认的是"脸"这个整体，而不是脸里的某种低级视觉特征。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">1-back 匹配任务（1-back / consecutive matching task）</div>
+          <div class="cdesc">一种控制"注意力"的任务设计：屏幕连续闪图，要求被试发现"这张和上一张一样"时按键。它强迫被试对每张图都集中注意。本文用它来反驳"FFA 只是因为脸更吸引注意才亮"——因为对手任务里手反而更难（更费注意），FFA 却仍然偏爱脸。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">双重分离（Double dissociation）</div>
+          <div class="cdesc">证明两套系统各管各的"黄金证据"。本文里：脸>物体的区域亮在梭状回，物体>脸的区域却亮在另一片（海马旁回附近）。两个方向各有专属地盘、互不重叠，比单看一边强得多——它排除了"只是脸总体被加工得更多"的笼统解释。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">梭状回 / 颞下皮层（Fusiform gyrus / inferotemporal cortex）</div>
+          <div class="cdesc">FFA 所在的解剖位置。梭状回是大脑腹侧（底面）颞叶的一条脑回，属于"腹侧视觉通路"（管"这是什么东西"）的高级站点。本文还顺带提到：人类的 FFA 可能对应猕猴颞下皮层里那些"面孔细胞"扎堆的区域。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">颞中回 / 颞上沟（MT / STS，Middle Temporal gyrus / Superior Temporal Sulcus）</div>
+          <div class="cdesc">本文的"配角脑区"。15 人里有 7 人在这片区域也出现了脸>物体的反应，但不像 FFA 那样人人都有、稳定一致。作者推测它可能和 FFA 分工不同：FFA 管"这是谁"（身份），STS 一带管"表情、视线方向"这类动态社交信息。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-question">它到底想回答什么</div>
+      <p>要理解这篇论文的分量，得先知道它面对的"麻烦"。1997 年时，证据其实已经堆得不少了：</p>
+      <ul>
+        <li><strong>神经心理学</strong>：有些脑损伤病人会得"面孔失认症（prosopagnosia）"——认不出熟人的脸，却还认得房子、汽车，损伤常在右侧枕颞区。</li>
+        <li><strong>猴子电生理</strong>：在猕猴颞下皮层和颞上沟，记录到一些"面孔细胞"，只对脸放电、对别的东西不理。</li>
+        <li><strong>早期人类影像</strong>：多个正电子发射断层成像（PET，Positron Emission Tomography，另一种看脑区代谢活动的扫描技术）和 fMRI 研究报告梭状回一带"看脸比看物体更活跃"。</li>
+      </ul>
+      <p>问题在于——<strong>"看脸更活跃"有至少四种平淡的解释，谁都没排除掉</strong>。作者在引言里把它们一条条列了出来（这是本文逻辑的骨架）：</p>
+      <ol>
+        <li><strong>低级特征</strong>：脸和对照物（比如随便一堆物件）在亮度、纹理、空间频率上本就不同，差异也许出在"看图的物理属性"上，而非"脸"本身。</li>
+        <li><strong>视觉注意</strong>：脸天生更抓眼球，也许那块区域只是"被更多注意力调动了"，换成同样吸引注意的别的东西也会亮。</li>
+        <li><strong>下属层级识别</strong>：识别"这是谁的脸"要在同类里抠个体差异，也许那块区域专管这种"精细区分"，脸只是恰好需要它。</li>
+        <li><strong>识别任何动物 / 人形</strong>：也许它对所有"有生命的"或"人体的"东西都反应，脸只是其中之一。</li>
+      </ol>
+      <div class="info-block">
+        <span class="ib-title">本文的核心命题</span>
+        <p>作者把目标说得很克制也很精确：不是再证一遍"脸让某区更亮"，而是要证明梭状回这块区域是 <strong>selectively（选择性地）</strong> 参与面孔知觉的——把上面四种替代解释逐一用对照实验排除掉，看最后是否还站得住"它就是为脸服务的"。这是一个"做减法"的论证：不断削掉别的可能，剩下的就是答案。</p>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>全文分三个部分（Part I/II/III），层层递进。Part I 负责"找到并圈定"FFA，Part II 和 Part III 负责"在这块圈定区上做一连串排除性检验"。</p>
+
+      <div class="section-head-sub">发现一：FFA 真实存在，而且高度可复现</div>
+      <p>Part I 在 20 名健康被试中筛查（部分因头动过大被剔除，最终分析 15 人），寻找腹侧视觉通路里"看脸 &gt; 看物体"显著的区域。结果非常干净：<strong>在 15 人中的 12 人</strong>，都在右侧（或邻近）梭状回找到了这样一块区域，统计阈值卡在严格的 <code>p &lt; 10⁻⁴</code>。这块区域平均约 <strong>1 cm³</strong> 大小，Talairach 坐标平均约 <strong>(40, −55, −10)</strong>，与前人多项研究报告的位置几乎重合。</p>
+      <div class="info-block">
+        <span class="ib-title">可复现性的硬证据</span>
+        <p>最打动人的一点：被试 S1 在长达 <strong>6 个月</strong>、四次不同扫描里重复"脸 vs 物体"对比，每次激活的位置都高度一致。这说明 FFA 不是某次扫描的偶然噪点，而是一个稳定的个体解剖-功能标志。同时还出现了一个漂亮的<strong>双重分离</strong>：脸&gt;物体亮在梭状回，物体&gt;脸却亮在更内侧的另一片（海马旁回一带）——两个方向各占地盘，互不重叠。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：它不是被低级特征或物体加工骗出来的（Part II）</div>
+      <p>作者拿 Part I 圈好的 FFA 当 ROI，在 5 名被试上跑了三组新对照。结果（信号变化百分比与"选择性比值"）：</p>
+      <ul>
+        <li><strong>完整脸 vs 物体</strong>：1.9% vs 0.7%，比值 <strong>2.8</strong>。</li>
+        <li><strong>完整脸 vs 打乱脸</strong>（亮度等低级属性相同）：1.9% vs 0.6%，比值 <strong>3.2</strong>——证明它认的是"脸"而非脸里的低级特征。</li>
+        <li><strong>正面脸 vs 房子</strong>（房子也是复杂物体，需逐栋区分）：1.6% vs 0.2%，比值高达 <strong>6.6</strong>——证明它不是泛泛地处理"复杂物体"。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">统计强度</span>
+        <p>跨 5 名被试的三因素方差分析（ANOVA，Analysis of Variance，一种检验多组均值差异的统计方法）显示，脸 vs 对照刺激的主效应 <strong>F(1,4) = 27.1，p &lt; 0.01</strong>；且"刺激条件 × 检验类型"无交互（F &lt; 1），意味着脸的优势在三组对照里一致存在。逐组单独看也都显著：脸 vs 物体 <code>p &lt; 0.001</code>、完整 vs 打乱脸 <code>p &lt; 0.05</code>、脸 vs 房子 <code>p &lt; 0.01</code>。其中"完整 vs 打乱""脸 vs 房子"这两个对照是<strong>事先就预设好要做的</strong>（confirmatory），因此无需为多重比较校正——这点作者交代得很清楚。</p>
+      </div>
+
+      <div class="section-head-sub">发现三：它不是注意力、不是"识别人体"、不是"精细区分"（Part III）</div>
+      <p>这是最关键的一击。作者换了一套刺激和任务，在 5 名被试上检验最难排除的几个解释：</p>
+      <ul>
+        <li><strong>3/4 侧脸（戴帽藏发）vs 人手</strong>，被动观看：2.7% vs 0.7%，比值 <strong>4.0</strong>。手也是人体部位、也是需要精细区分的物体，但 FFA 照样偏爱脸。而且用"藏起头发和外部轮廓的侧脸"还顺带证明：FFA 认的是脸的<strong>内部特征</strong>，不是靠发型轮廓"认头"。</li>
+        <li><strong>同样的脸 vs 手，但改成 1-back 匹配任务</strong>（强制集中注意）：3.2% vs 0.7%，比值 <strong>4.5</strong>。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">为什么 1-back 这一招特别狠</span>
+        <p>关键在于：实验室后续在 12 人上测得，<strong>手的匹配任务比脸更难</strong>（手 86% 正确 vs 脸 92% 正确，被试也都反映手更难）。也就是说，如果 FFA 只是"被注意力点亮"，那更费注意的手任务本该让它更亮才对——可结果恰恰相反，FFA 依旧死忠于脸。这就把"注意力解释"反向钉死了。Part III 的跨被试 ANOVA：<strong>F(1,4) = 35.2，p &lt; 0.005</strong>；逐组也都显著（脸 vs 手被动 <code>p &lt; 0.02</code>、脸 vs 手 1-back <code>p &lt; 0.005</code>）。</p>
+      </div>
+
+      <p>把三部分串起来：同一块右侧梭状回区域，对<strong>完整脸 &gt; 打乱脸、脸 &gt; 房子、脸 &gt; 手、脸 &gt; 物体</strong>全部成立，选择性比值从 2.8 一路到 6.6；横跨"被动看"和"主动匹配"两种任务；横跨正面、两色、3/4 侧面三种脸的物理形态。四种替代解释——低级特征、注意力、下属层级分类、识别人体——被一一排除。剩下的结论只有一个：<strong>这块区域是专门为面孔知觉服务的</strong>。</p>
+
+      <!-- ============ 交互可视化 ============ -->
+      <div class="section-head" id="sec-viz">交互：亲手感受"面孔特异性"</div>
+      <p>论文的灵魂是那张"脸条远高于其他条"的柱状图。下面这个交互组件让你扮演一次 FFA：切换不同的对照实验，看看在每种刺激下 FFA 的 BOLD 信号有多强、"选择性比值"是多少。你会直观地发现——无论对照换成物体、房子、打乱脸还是手，<strong>红色的"脸"条总是高高在上</strong>。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">FFA 信号选择性模拟器</div>
+        <div class="viz-note">模拟数据基于论文 Table 2 报告的信号变化百分比与选择性比值，展示定性模式（非逐被试原始数据）。柱高 = 相对基线的 BOLD 信号变化%。</div>
+        <div class="viz-controls" id="vizControls">
+          <button data-cond="objects">脸 vs 物体（Part I）</button>
+          <button data-cond="scrambled" class="alt">脸 vs 打乱脸（Part II）</button>
+          <button data-cond="house" class="alt">脸 vs 房子（Part II）</button>
+          <button data-cond="hands" class="alt">脸 vs 手·被动（Part III）</button>
+          <button data-cond="hands1back" class="alt">脸 vs 手·1-back（Part III）</button>
+        </div>
+        <div class="viz-controls">
+          <label><input type="checkbox" id="showRatio" checked> 显示选择性比值</label>
+        </div>
+        <canvas id="ffaCanvas" width="720" height="380"></canvas>
+        <div id="vizCaption" style="font-size:0.9rem;color:#3a4048;margin-top:12px;line-height:1.6;"></div>
+      </div>
+
+      <div class="section-head" id="sec-controls">关键控制分析</div>
+      <p>这篇论文的全部说服力，几乎都压在"对照刺激选得有多巧"上。每一个对照都是为了精准打掉某一个特定的替代解释。把它们摆在一起，能看清作者的整盘棋：</p>
+      <table>
+        <thead>
+          <tr><th>对照实验</th><th>想排除的替代解释</th><th>设计巧思</th><th>结果（比值）</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>完整脸 vs 打乱脸</td>
+            <td>FFA 只是对脸的"低级视觉特征"（亮度/对比度/黑白块）有反应</td>
+            <td>打乱版保留全部低级属性，只破坏"是张脸"这一整体结构</td>
+            <td>3.2</td>
+          </tr>
+          <tr>
+            <td>脸 vs 房子</td>
+            <td>FFA 泛泛处理任何"复杂物体 / 需逐个区分的物体"</td>
+            <td>房子同样复杂、同样要区分具体哪一栋，是单一物体类的代表</td>
+            <td>6.6</td>
+          </tr>
+          <tr>
+            <td>脸 vs 手（被动）</td>
+            <td>FFA 处理任何"动物/人体部位"，或任何"下属层级精细区分"</td>
+            <td>手是人体部位、也需精细区分；藏发侧脸还证明认的是内部特征</td>
+            <td>4.0</td>
+          </tr>
+          <tr>
+            <td>脸 vs 手（1-back 匹配）</td>
+            <td>FFA 只是被"脸更吸引注意"点亮</td>
+            <td>强制集中注意，且手任务实测<strong>更难</strong>（注意力消耗更大）</td>
+            <td>4.5</td>
+          </tr>
+          <tr>
+            <td>脸 &gt; 物体 与 物体 &gt; 脸（双重分离）</td>
+            <td>只是脸总体被"加工得更多"的笼统倾向</td>
+            <td>两个相反对比落在不重叠的脑区，各有专属地盘</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><span class="term">解读者观点</span>：这张表本身就是这篇论文最该被反复学习的地方。它示范了如何把一个含糊的大问题（"FFA 是干嘛的"）拆成一串可证伪的小问题，每个小问题都用一个"只差关键变量、其余都控住"的对照来回答。这比单纯堆砌"看脸更亮"的数据强了一个量级——后者只能算"发现现象"，前者才是"建立因果性质"。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>除了对照设计，本文在统计方法上还藏着两个常被忽略、但极其要紧的处理。它们正是这篇论文经久耐读的原因。</p>
+      <table>
+        <thead>
+          <tr><th>方法招数</th><th>它解决了什么老大难问题</th><th>具体怎么做的</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>个体内功能定位<br>（functional ROI）</td>
+            <td>传统做法把所有人的脑配准到标准空间再平均——可每个人 FFA 位置略有差异，一平均就糊成一团、信号被稀释</td>
+            <td>先用"脸 vs 物体"在<strong>每个被试自己的脑</strong>里把 FFA 圈出来，后续检验只盯这块"自家"区域。等于先给每个人量身定位，再逐人测量</td>
+          </tr>
+          <tr>
+            <td>独立数据定 ROI、<br>另一批数据做检验</td>
+            <td>统计上的"双重浸渍"（double dipping）：用同一批数据既找峰值又下结论，会人为夸大效应</td>
+            <td>Part I 的数据只用来<strong>定位</strong> ROI；Part II/III 用<strong>全新</strong>的扫描数据在这块固定 ROI 上检验。定位和检验严格分家</td>
+          </tr>
+          <tr>
+            <td>多重比较的诚实处理</td>
+            <td>全脑逐体素找"最亮点"会有海量假阳性，必须校正；但预设的检验又不该被过度惩罚</td>
+            <td>全脑搜峰时用 Tal-EZ 程序对多重比较校正；而"完整 vs 打乱""脸 vs 房子"因<strong>事先指定</strong>、且只在已定 ROI 内做单次比较，明确说明无需再校正</td>
+          </tr>
+          <tr>
+            <td>选择性比值作为<br>统一度量</td>
+            <td>不同检验的绝对信号大小没法直接比，需要一把通用的"挑食程度"尺子</td>
+            <td>用"脸的信号变化% ÷ 对照的信号变化%"得到比值（2.8 到 6.6），并和 Tootell 等人测 MT 区运动选择性（2.2–16.1）横向对照</td>
+          </tr>
+          <tr>
+            <td>任务难度反向控制</td>
+            <td>"注意力解释"最难排——脸天生抢注意</td>
+            <td>故意挑一个<strong>比脸更难</strong>的手匹配任务（手 86% vs 脸 92% 正确）；FFA 仍偏爱更容易的脸，反向证明它不靠注意力驱动</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">为什么这套范式影响深远</span>
+        <p>"个体功能定位 + 独立数据交叉验证 + 选择性比值"这三件套，后来几乎成了认知神经科学定义"功能特异脑区"的行业标准。十几年后学界对"双重浸渍/循环分析"问题的大讨论（Kriegeskorte 等），本文早就用工程师式的纪律提前规避了。这是它在方法论上"超前"的地方。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>本文不是凭空冒出来的，它站在三条证据线的交汇点上，并对每一条都有所推进：</p>
+      <ul>
+        <li><strong>承接神经心理学</strong>：面孔失认症病人提示右枕颞区与认脸有关，但病灶解剖定位粗糙、个体差异大。本文用 fMRI 在健康脑上给出了精确、可复现的功能定位，且发现右侧优势——与"右后部损伤更易致面孔失认"的临床观察吻合。</li>
+        <li><strong>呼应猴子电生理</strong>：Gross、Desimone、Perrett 等在猕猴颞下皮层和颞上沟记录到"面孔细胞"。本文推测人类 FFA 可能是猴子颞下面孔区的同源物，而人类 STS 一带的面孔反应则对应猴子 STS——为跨物种比较搭了桥。</li>
+        <li><strong>超越早期人类影像</strong>：Sergent、Haxby、Puce、Clark 等早先都报告过梭状回的脸&gt;物体激活。本文的 Talairach 坐标（约 40, −55, −10）与他们几乎重合，<strong>但关键区别在于</strong>：前人多数只做了两三个条件的对比，无法排除替代解释；本文靠"同一 ROI 上跑多重检验"才真正把"selectively"这个词坐实。</li>
+      </ul>
+      <p>换句话说，本文的贡献不是"第一个看到 FFA"，而是<strong>第一个用足够严密的逻辑证明 FFA 是"专用"而非"恰好更活跃"</strong>。它把一个"现象"升级成了"被严格刻画的功能模块"。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>对认知科学的"模块论"之争</strong>：标题里的"Module"直接呼应 Fodor 的心智模块理论。本文为"大脑存在领域特异（domain-specific）的专用加工单元"提供了迄今最硬的影像证据，也把一个核心争论摆上了台面——这种专用车间是<strong>天生写死的</strong>，还是<strong>大量经验训练出来的</strong>？作者诚实地把这个问题留给未来（后来 Gauthier 的"专家假说"正是冲着这里来的）。</li>
+        <li><strong>对人工智能 / 计算机视觉</strong>：本文等于用生物学证明了一件事——通用的"看东西系统"未必是处理脸的最优解，脸可能值得一套<strong>专门的、不同性质的</strong>计算。这与后来深度学习里"人脸识别要专门的网络结构/损失函数"的工程直觉不谋而合。它提醒我们：对某些特殊、高频、社交关键的类别，"专用模块"可能比"大一统模型"更高效。</li>
+        <li><strong>对实验方法学</strong>：本文堪称"如何排除替代解释"的教科书案例。任何想宣称"X 脑区专管 Y 功能"的研究，都该先问自己：我有没有把"其实是注意力/难度/低级特征/泛化类别"这些平淡解释一个个对照掉？这套思维方式远超神经科学，对任何因果推断研究都适用。</li>
+        <li><strong>对社会认知</strong>：FFA 与 STS 的可能分工（"这是谁" vs "什么表情/看哪"），预示了大脑对脸的加工本身就是多通道、为社交而生的——为后续"面孔的核心系统/扩展系统"模型埋下了伏笔。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这是一篇极扎实的论文，但扎实不等于无懈可击。除了作者自己承认的局限，还有些边界值得读者自己掂量（以下区分"作者明说的"和"<span class="term">解读者补充的</span>"）。</p>
+
+      <p><strong>作者自己承认的：</strong></p>
+      <ul>
+        <li><strong>3 个被试没找到 FFA，无法解释</strong>。作者明确指出，"找不到"在影像研究里很难解读：可能是统计功效不足、磁敏感伪影，或别的技术原因，<strong>不能</strong>当作"这些人没有 FFA"的证据。</li>
+        <li><strong>关于利手/偏侧化的结论样本太小</strong>。右利手里一半双侧、一半仅右侧，两名左利手一个仅左侧、一个双侧——作者坦言样本不足以下"利手如何影响偏侧化"的可靠结论。</li>
+        <li><strong>MT/STS 区的选择性没测充分</strong>。7 人有这片激活，但 Part III 里只有 2 人（S10、S11）的该区域被纳入"脸 vs 手"检验，作者明说这个结果"需未来研究重复才能算可靠"。</li>
+        <li><strong>解剖归属仍有模糊</strong>。虽然定位到"枕颞交界"，但作者承认有些情况下无法排除激活其实落在邻近的侧副沟或枕颞沟里，而非梭状回本体。</li>
+      </ul>
+
+      <p><strong><span class="term">解读者补充的边界</span>：</strong></p>
+      <ul>
+        <li><strong>核心结论的 Part II/III 只有 5 名被试</strong>。FFA"存在且可复现"是 12/15，很硬；但"排除四种替代解释"的关键检验只跑了 5 人（且部分人重叠参与）。统计上方差分析在 n=5 时功效有限，结论方向虽一致，外推时仍需谨慎——这一点论文正文没有特别强调。</li>
+        <li><strong>"selectively（选择性）"是相对而非绝对</strong>。比值再高（6.6）也意味着对照条件下 FFA 并非完全零反应。本文证明的是"对脸<strong>强烈</strong>偏好"，而非"<strong>只</strong>对脸有任何反应"。把它读成"FFA 绝对只管脸、对别的一概不理"是过度解读。</li>
+        <li><strong>"专用 vs 训练"这个根本问题，本文无力回答</strong>。FFA 的存在完全可能是大量"看脸经验"塑造的结果，而非先天写死。论文把这个问题诚实地标为开放——而它恰恰是后续二十年最激烈的战场（Gauthier 的"视觉专家"假说就主张：训练成某类物体的专家后，FFA 也会被该类物体激活）。本文的数据无法在两种假说间裁决。</li>
+        <li><strong>fMRI 的根本局限</strong>：BOLD 是血流的间接代理，空间分辨率到不了单个神经元。"这块区域偏爱脸"无法直接等同于"这里的每个神经元都是面孔细胞"——里头很可能也混着对别的东西反应的细胞，只是面孔细胞占比高而已。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <div class="info-block">
+        <span class="ib-title">这篇论文立得住吗？——立得住，而且立得很稳</span>
+        <p>核心主张（FFA 选择性地参与面孔知觉）得到了层层递进、互相印证的证据支持：高可复现的定位（12/15、6 个月重测一致）、一连串精心配对的对照（比值 2.8–6.6）、对每种替代解释的针对性排除、以及方法论上提前规避循环分析的纪律。它的论证形状是干净的"逐个击破式淘汰赛"，结论与证据严丝合缝。</p>
+      </div>
+      <p><strong>它最强的地方</strong>：不是发现，而是<strong>论证</strong>。把"看脸更亮"这种众人皆见的现象，提升成了"经得起逐条反驳的功能特异性主张"。这种从现象到性质的跨越，正是它成为奠基性文献的原因。</p>
+      <p><strong>它最该被谨慎看待的地方</strong>：关键排除性检验的样本量（n=5）偏小；"selectively"是相对偏好而非绝对专一；以及它<strong>无法</strong>回答"FFA 是天生还是练出来的"——后者不是本文的缺陷，而是它诚实划定的边界，恰恰催生了之后二十年的研究。</p>
+      <p><span class="term">解读者总评</span>：如果只能用这篇论文教一件事，那应该是——<strong>"更活跃"和"专门负责"之间，隔着一整套排除替代解释的实验设计</strong>。Kanwisher 团队把这套设计做到了当时的极致，这才是它值得反复重读的真正价值。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Kanwisher 团队用 fMRI 在 15 人中的 12 人脑里、右侧梭状回稳定找到一块约 1 cm³ 的区域（FFA），再靠"个体功能定位 + 多重独立对照检验"逐一排除注意力、低级特征、物体识别、人体识别等替代解释（脸对各类对照的选择性比值 2.8–6.6，关键 ANOVA F(1,4)=27.1/35.2、p&lt;0.01/0.005），从而证明它是人脑里一块<strong>专门为面孔知觉服务的功能模块</strong>——这既是"刷脸硬件"存在的硬证据，更是一堂"如何严密排除替代解释"的方法论范本。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Kanwisher, N., McDermott, J., &amp; Chun, M. M. (1997). The Fusiform Face Area: A Module in Human Extrastriate Cortex Specialized for Face Perception. <em>The Journal of Neuroscience, 17</em>(11), 4302–4311.
+    <br><br>
+    <strong>说明：</strong>本文为中文深度解读，所有数字与结论均取自原论文（含 Table 1、Table 2、正文 Part I–III 与 Discussion）。文中标注「解读者观点 / 补充」处为解读者评述，非论文原文主张。交互组件为基于论文报告效应量的定性模拟，非逐被试原始数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  "use strict";
+
+  // 数据：取自论文 Table 2A/2B 报告的信号变化% 与选择性比值
+  // face = 脸条信号%, ctrl = 对照条信号%, ratio = 选择性比值
+  var DATA = {
+    objects:    {label:"物体 (Objects)",      face:1.9, ctrl:0.7, ratio:2.8, part:"Part I",  note:"脸明显强于一般物体；这是用来圈定 FFA 的最初对比。"},
+    scrambled:  {label:"打乱脸 (Scrambled)",   face:1.9, ctrl:0.6, ratio:3.2, part:"Part II", note:"打乱脸保留了全部低级视觉属性，FFA 仍偏爱完整脸——它认的是「脸」而非低级特征。"},
+    house:      {label:"房子 (Houses)",        face:1.6, ctrl:0.2, ratio:6.6, part:"Part II", note:"对房子近乎冷淡，比值高达 6.6——FFA 不是泛泛处理「复杂物体」。"},
+    hands:      {label:"人手 (Hands)·被动",    face:2.7, ctrl:0.7, ratio:4.0, part:"Part III",note:"手也是人体部位、也需精细区分，FFA 照样偏爱脸——排除「识别人体 / 下属层级分类」。"},
+    hands1back: {label:"人手 (Hands)·1-back",  face:3.2, ctrl:0.7, ratio:4.5, part:"Part III",note:"手任务实测更难（手86% vs 脸92%正确），更费注意力，FFA 却仍偏爱脸——反向排除「注意力」解释。"}
+  };
+
+  var canvas = document.getElementById("ffaCanvas");
+  var ctx = canvas.getContext("2d");
+  var captionEl = document.getElementById("vizCaption");
+  var showRatioEl = document.getElementById("showRatio");
+  var buttons = document.querySelectorAll("#vizControls button");
+
+  var RED = "#c0392b";
+  var GREY = "#9aa1ab";
+  var INK = "#1f2328";
+  var INKSOFT = "#3a4048";
+
+  var current = "objects";
+  // 动画：每根柱子的当前显示高度（用于补间）
+  var animFace = 0, animCtrl = 0;
+  var targetFace = 0, targetCtrl = 0;
+  var rafId = null;
+
+  // Y 轴最大值：固定为 3.6（覆盖最大的 3.2 face + 余量），让不同条件可横向比较
+  var Y_MAX = 3.6;
+
+  function setActiveButton(cond){
+    buttons.forEach(function(b){
+      if(b.getAttribute("data-cond") === cond){
+        b.classList.remove("alt");
+      } else {
+        b.classList.add("alt");
+      }
+    });
+  }
+
+  function draw(){
+    var W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    // 绘图区边距
+    var padL = 64, padR = 24, padT = 30, padB = 64;
+    var plotW = W - padL - padR;
+    var plotH = H - padT - padB;
+    var baseY = padT + plotH; // 基线 y
+
+    var d = DATA[current];
+
+    // ---- Y 轴刻度与网格 ----
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.font = "12px -apple-system,sans-serif";
+    var ticks = [0, 0.9, 1.8, 2.7, 3.6];
+    for(var i=0;i<ticks.length;i++){
+      var ty = baseY - (ticks[i]/Y_MAX)*plotH;
+      ctx.strokeStyle = "#eef0f2";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padL, ty);
+      ctx.lineTo(padL+plotW, ty);
+      ctx.stroke();
+      ctx.fillStyle = GREY;
+      ctx.fillText(ticks[i].toFixed(1)+"%", padL-8, ty);
+    }
+
+    // Y 轴标题
+    ctx.save();
+    ctx.translate(16, padT + plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = "center";
+    ctx.fillStyle = INKSOFT;
+    ctx.font = "12px -apple-system,sans-serif";
+    ctx.fillText("FFA 信号变化 % (BOLD, 相对基线)", 0, 0);
+    ctx.restore();
+
+    // ---- 两根柱子 ----
+    var barW = 110;
+    var gap = 120;
+    var totalBars = barW*2 + gap;
+    var startX = padL + (plotW - totalBars)/2;
+
+    var faceX = startX;
+    var ctrlX = startX + barW + gap;
+
+    // 柱子绘制函数
+    function bar(x, val, color, topLabel, bottomLabel){
+      var h = (val/Y_MAX)*plotH;
+      var y = baseY - h;
+      // 柱体
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, barW, h);
+      // 顶部数值
+      ctx.fillStyle = INK;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.font = "bold 16px -apple-system,sans-serif";
+      ctx.fillText(topLabel, x+barW/2, y-6);
+      // 底部标签
+      ctx.fillStyle = INKSOFT;
+      ctx.textBaseline = "top";
+      ctx.font = "13px -apple-system,sans-serif";
+      ctx.fillText(bottomLabel, x+barW/2, baseY+10);
+    }
+
+    bar(faceX, animFace, RED, animFace.toFixed(1)+"%", "脸 (Faces)");
+    bar(ctrlX, animCtrl, GREY, animCtrl.toFixed(1)+"%", d.label);
+
+    // 基线
+    ctx.strokeStyle = "#c9ced4";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padL, baseY);
+    ctx.lineTo(padL+plotW, baseY);
+    ctx.stroke();
+
+    // ---- 选择性比值标注 ----
+    if(showRatioEl.checked){
+      var hFace = (animFace/Y_MAX)*plotH;
+      var topY = baseY - Math.max(hFace, (animCtrl/Y_MAX)*plotH) - 34;
+      if(topY < padT+8) topY = padT+8;
+      var midX = (faceX + ctrlX + barW)/2;
+      // 连接括号
+      ctx.strokeStyle = RED;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(faceX+barW/2, topY+10);
+      ctx.lineTo(faceX+barW/2, topY);
+      ctx.lineTo(ctrlX+barW/2, topY);
+      ctx.lineTo(ctrlX+barW/2, topY+10);
+      ctx.stroke();
+      // 比值文字
+      ctx.fillStyle = RED;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.font = "bold 15px -apple-system,sans-serif";
+      ctx.fillText("选择性比值 = "+d.ratio.toFixed(1)+" ×", midX, topY-4);
+    }
+
+    // ---- 标题（当前对比） ----
+    ctx.fillStyle = RED;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.font = "bold 14px -apple-system,sans-serif";
+    ctx.fillText("【"+d.part+"】脸 vs "+d.label, padL, 6);
+  }
+
+  function animate(){
+    var ease = 0.18;
+    animFace += (targetFace - animFace)*ease;
+    animCtrl += (targetCtrl - animCtrl)*ease;
+    draw();
+    if(Math.abs(targetFace-animFace) > 0.005 || Math.abs(targetCtrl-animCtrl) > 0.005){
+      rafId = requestAnimationFrame(animate);
+    } else {
+      animFace = targetFace; animCtrl = targetCtrl;
+      draw();
+      rafId = null;
+    }
+  }
+
+  function select(cond){
+    current = cond;
+    var d = DATA[cond];
+    targetFace = d.face;
+    targetCtrl = d.ctrl;
+    setActiveButton(cond);
+    captionEl.innerHTML = "<strong style='color:#c0392b;'>"+d.part+" · 脸 vs "+d.label+"：</strong>"
+      + d.note
+      + " 脸信号 <strong>"+d.face.toFixed(1)+"%</strong>，对照 <strong>"+d.ctrl.toFixed(1)+"%</strong>，"
+      + "选择性比值 <strong>"+d.ratio.toFixed(1)+"×</strong>。";
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(animate);
+  }
+
+  buttons.forEach(function(b){
+    b.addEventListener("click", function(){
+      select(b.getAttribute("data-cond"));
+    });
+  });
+  showRatioEl.addEventListener("change", draw);
+
+  // 初始
+  select("objects");
+})();
+</script>
+</body>
+</html>

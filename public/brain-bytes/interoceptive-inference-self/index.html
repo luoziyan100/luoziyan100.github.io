@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内感受推断、情绪与具身自我 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Interoceptive Inference <span>×</span> 情绪与自我，是大脑对身体内部状态的一场"预测"</h1>
+    <div class="meta">
+      <span>📄 Interoceptive inference, emotion, and the embodied self</span><br>
+      <span>✍️ Anil K. Seth（安尼尔·赛斯）</span><br>
+      <span>🏛️ Sackler Centre for Consciousness Science & School of Engineering and Informatics, University of Sussex（萨塞克斯大学萨克勒意识科学中心）</span><br>
+      <span>📅 Trends in Cognitive Sciences（《认知科学趋势》）· 2013 年 11 月 · 第 17 卷第 11 期 · 565–573 页 · Opinion 综述</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-core">核心论证：情绪是一种推断</a></li>
+        <li><a href="#sec-viz">交互演示：内感受预测回路</a></li>
+        <li><a href="#sec-steps">论证逐步拆解</a></li>
+        <li><a href="#sec-evidence">支持证据：从假心跳到虚拟手</a></li>
+        <li><a href="#sec-method">关键实验的精妙之处</a></li>
+        <li><a href="#sec-relation">在思想史与同行中的位置</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>过去二十年，"大脑是一台预测机器"成了认知科学的主旋律——但它几乎只被用来解释<strong>朝外</strong>的感知（看见、听见）和动作。Seth 这篇 2013 年的开创性综述做了一件简单却影响深远的事：把这套<strong>预测处理</strong>框架掉转一百八十度，对准<strong>朝内</strong>的身体——心跳、内脏、血压、激素。他提出一个核心断言：<strong>你的情绪，本质上是大脑对"我身体内部正在发生什么"的一次推断</strong>，而不是对身体信号的被动读取。</p>
+        <p>这个观点把一个多世纪以来争论不休的情绪理论（James–Lange、Schachter–Singer 的"评价论"）一举塞进了贝叶斯大脑的统一数学框架里，并且预言：连"这具身体是我的"这种最基本的自我感，也是同一台预测机器算出来的结果。本文不是报告新实验，而是<strong>搭建一个能把情绪、身体所有权、乃至焦虑/人格解体等精神病理统统装下的解释脚手架</strong>——它后来直接催生了"具身预测自我""内感受推断"整条研究路线。值得深读，因为它是一篇<strong>理论的"地图"，而非一块"砖头"</strong>：读懂它，等于拿到了理解一大批后续工作的钥匙。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇文章术语密度极高，且全是"嵌套"的——内感受推断建立在预测编码之上，预测编码又建立在贝叶斯大脑之上。先把这 9 块积木摆清楚，后面的论证会顺得多。</p>
+
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">预测编码（PC，Predictive Coding）</div>
+          <div class="cdesc">大脑不被动接收信号，而是<strong>自上而下不断"猜"</strong>下一刻的感觉，再拿真实输入去比对。打个比方：不是"先看清再理解"，而是"先脑补一个世界，再用眼睛纠错"。只有"猜错的部分"（预测误差）才往上传，省带宽、也更快。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">贝叶斯大脑（Bayesian Brain）</div>
+          <div class="cdesc">大脑像一个理性的赌徒，把"先验信念"（prior，我本以为会怎样）和"新证据"（likelihood，我刚观察到什么）按各自可靠性加权，算出最可能的解释。先验越强、证据越弱，你就越倾向于相信自己原来的猜测。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">生成模型（Generative Model）</div>
+          <div class="cdesc">大脑内部那张"世界运作说明书"——它编码"什么隐藏原因会产生什么感觉数据"。比如"如果我紧张（隐藏原因），心跳就会变快（数据）"。有了它，大脑能反过来从心跳推断原因，甚至在没有输入时凭空"想象"。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">主动推断（Active Inference）</div>
+          <div class="cdesc">消除预测误差有两条路：要么<strong>改猜测</strong>去迁就世界（感知），要么<strong>改世界</strong>去迁就猜测（行动）。后者就是主动推断。例：我预测手该摸到杯子→还没摸到（有误差）→不是修正预测，而是真把手伸过去。对身体则是：预测心跳该慢下来→自主神经系统真去把它调慢。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">内感受（Interoception）</div>
+          <div class="cdesc">对身体<strong>内部</strong>生理状态的感知——心跳、呼吸、内脏胀缩、体温、口渴。区别于看/听这类"朝外"的外感受（exteroception）和感知四肢位置的本体感觉（proprioception）。它是"我有没有事"的内在仪表盘。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">内感受推断（本文核心命题）</div>
+          <div class="cdesc">本文的招牌主张：把预测编码用到内感受上——<strong>情绪（主观感受状态）= 大脑对"内感受信号背后原因"的主动推断结果</strong>。你感到"害怕"，是大脑给一堆心跳加速、出汗的内部数据，配上了"有威胁"这个最优解释。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">前脑岛皮层（AIC，Anterior Insular Cortex）</div>
+          <div class="cdesc">被本文押注为内感受推断的"比较器"中枢——既<strong>发出</strong>对身体状态的自上而下预测，又<strong>登记</strong>自下而上传来的预测误差。它紧邻前扣带回皮层（ACC，Anterior Cingulate Cortex），是情绪意识浮现的关键脑区。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">身体所有权 / 具身自我（EBO，Experience of Body Ownership）</div>
+          <div class="cdesc">"这只手、这具身体是<strong>我的</strong>"这种几乎不被察觉的基本自我感。本文主张它不是天生固定的，而是大脑对内感受+外感受信号做多模态预测整合、算出来的"最可能属于我的东西"。橡胶手错觉就是把它骗出 bug 的经典手段。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">精度加权（Precision-Weighting）</div>
+          <div class="cdesc">大脑给每条预测误差贴一个"可信度"标签（精度 = 方差的倒数）。可信度高的误差才有资格修改信念或触发行动；可信度被调低的误差则被"无视"。注意力，本质上就是在动态调节这些精度。这是整套理论里最关键、也最隐蔽的旋钮。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-core">核心论证：情绪是一种推断，不是一种读数</div>
+
+      <p>传统直觉是这样的：身体先有变化（心跳快了），大脑读到这个变化，于是产生情绪（害怕）。信息单向地"从身体往上流"。这就是经典的<strong>前馈式（feed-forward）证据累积</strong>观——和"先看清像素、再认出物体"的旧式知觉理论一模一样。</p>
+
+      <p>Seth 的颠覆在于：他认为这个箭头方向<strong>主要是反的</strong>。情绪内容不是被身体信号"自下而上"决定的，而是被大脑<strong>自上而下的预测</strong>所指定。用他的原话，情绪是"对身体生理状况可能原因的<term>主动推断（active inference）</term>"。心跳加速本身不等于害怕；只有当大脑的生成模型把这堆内感受数据<strong>最优地解释为</strong>"我正处于威胁中"时，"害怕"这个感受才被算出来。</p>
+
+      <div class="info-block">
+        <span class="ib-title">一个关键的"翻转"</span>
+        <p>旧理论：身体信号 → （读取）→ 情绪。&nbsp;&nbsp;Seth：情绪预测 → （比对身体信号）→ 修正。前者把感受当作<strong>仪表读数</strong>，后者把感受当作<strong>最优假设</strong>。两者的实验后果完全不同：如果情绪是推断，那么<strong>给大脑喂假的身体反馈，就应该能改变甚至凭空制造情绪</strong>——而这正是后文一连串证据要验证的。</p>
+      </div>
+
+      <p>这套机制如何落地？借助预测编码里一个早已为<strong>运动控制</strong>所熟知的技巧。在运动版本里，大脑发出"手该到达某位置"的本体感觉预测，这个预测与真实位置之间的误差，直接驱动脊髓反射把手移过去——这就是主动推断。Seth 说：<strong>内感受是同一个故事的内脏版</strong>。大脑发出"心率/血压该是多少"的内感受预测，预测误差被"转写"成参考点，去驱动调节生理稳态的<strong>自主神经反射</strong>（autonomic reflexes）。情绪与生理调节，因此是同一枚硬币的两面。</p>
+
+      <p>而这一切能不能成立，悬于一个精巧的细节——<strong>精度</strong>。下降的预测只有在对应的误差信号被"暂时调低精度"（即降低对它的注意）时，才能去触发反射、改变身体，而不是被身体的现状反过来推翻。换句话说，<strong>要让"想让心跳慢下来"这个预测真去改变心跳，大脑必须先暂时"不那么相信"当前心跳快的事实</strong>。Seth 由此推出一个反直觉结论：<term>自适应的内感受推断，依赖于对内感受预测误差的选择性"忽视"</term>。</p>
+
+      <div class="section-head" id="sec-viz">交互演示：内感受预测回路</div>
+      <p>这套"预测—误差—更新/行动"的循环，纯靠文字想象容易打结。下面的小组件把它跑起来：把前脑岛想成一个不断猜测身体内部状态的中枢，看预测误差如何驱动情绪感受与自我感的更新。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">内感受推断回路：大脑如何"算出"一个情绪</div>
+        <div class="viz-note">交互模型，定性演示论文 Figure 1–2 描述的预测编码回路机制，非真实生理数据。蓝箭头=自上而下预测，红箭头=自下而上预测误差。</div>
+
+        <canvas id="vizCanvas" width="760" height="360"></canvas>
+
+        <div class="viz-controls">
+          <label>真实身体状态（"实际"心率唤起度）：
+            <input type="range" id="bodyState" min="0" max="100" value="30" style="width:160px;vertical-align:middle;">
+            <span id="bodyVal">30</span>
+          </label>
+        </div>
+        <div class="viz-controls">
+          <label>内感受预测误差的精度（大脑有多"相信"身体信号）：
+            <input type="range" id="precision" min="0" max="100" value="70" style="width:160px;vertical-align:middle;">
+            <span id="precVal">70%</span>
+          </label>
+        </div>
+        <div class="viz-controls">
+          <button id="btnStep">▶ 推进一步（让大脑比对并更新）</button>
+          <button class="alt" id="btnReset">↺ 重置先验</button>
+          <button class="alt" id="btnFalse">注入"假反馈"（如假心跳声）</button>
+        </div>
+        <div id="vizReadout" style="font-size:0.9rem;color:#3a4048;line-height:1.7;margin-top:6px;"></div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">玩法提示</span>
+        <p>把<strong>真实身体状态</strong>和大脑的预测拉开差距，点"推进一步"看预测误差（红）如何把大脑的"猜测"和它给出的<strong>情绪标签</strong>往真实方向拽。再把<strong>精度</strong>拉低，会看到大脑开始"无视"身体、固执己见（对应病理上的内感受推断失调）。点"假反馈"则模拟假心跳实验：身体没真变，但大脑收到一条它选择相信的伪误差，照样能算出新情绪——这正是 Seth 理论最可证伪的预言。</p>
+      </div>
+
+      <div class="section-head" id="sec-steps">论证逐步拆解</div>
+      <p>这是一篇 Opinion，没有 p 值堆砌，但它的论证链条本身是结构化的。把它拆成可编号的前提与推论，更容易看清它在哪儿强、在哪儿是"提议"而非"证明"。</p>
+
+      <table>
+        <thead>
+          <tr><th style="width:8%;">步骤</th><th style="width:32%;">主张 / 前提</th><th>它凭什么 / 留了什么空白</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>P1</td>
+            <td>知觉是自上而下的预测过程（预测编码 PC），不是自下而上的证据累积。</td>
+            <td>借自 Helmholtz、Friston 的<strong>自由能原理（FEP，Free Energy Principle）</strong>等成熟框架，外感受领域已有大量支持证据。本文把它当公认前提引入。</td>
+          </tr>
+          <tr>
+            <td>P2</td>
+            <td>对生物体最相关的"外部世界"其实是它<strong>自己的身体</strong>；自我表征最终扎根于身体表征。</td>
+            <td>引 Damasio "物质的我（material me）"、Apps & Tsakiris "自由能自我"。这是把镜头转向内部的<strong>合法性论证</strong>。</td>
+          </tr>
+          <tr>
+            <td>P3</td>
+            <td>因此 PC 可推广到内感受：情绪 = 对内感受输入原因的主动推断（核心命题）。</td>
+            <td>这是本文的<strong>原创综合</strong>。它把 James–Lange 与 Schachter–Singer 评价论"翻译"成 PC 语言，但承认<strong>尚无对内感受推断的直接确证</strong>（"not yet any direct confirmatory evidence"）。</td>
+          </tr>
+          <tr>
+            <td>P4</td>
+            <td>前脑岛皮层（AIC）是这套推断的神经"比较器"。</td>
+            <td>靠汇聚证据（间接）：AIC 在疼痛预期、痒、赌博任务中既编码<strong>预测</strong>又编码<strong>预测误差</strong>；结构上富含适合远程通信的<strong>冯·艾克诺莫神经元（VENs，Von Economo Neurons）</strong>。作者明说是 "indirect support"。</td>
+          </tr>
+          <tr>
+            <td>P5</td>
+            <td>同一机制延伸到身体所有权（EBO）：自我感来自精度加权的多模态预测整合。</td>
+            <td>由橡胶手错觉（RHI，Rubber Hand Illusion）及其内感受变体支撑——见下文 Suzuki 等的实验，这是全文<strong>实证最硬</strong>的一环。</td>
+          </tr>
+          <tr>
+            <td>P6</td>
+            <td>内感受推断的失调，可统一解释焦虑、精神病、人格解体等病理。</td>
+            <td>提供了<strong>可观的解释力</strong>（如人格解体 = 内感受预测过于"不精确"），但这是<strong>框架的应许</strong>，多为重新诠释既有现象，作为待检验的研究纲领。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>整条链的逻辑骨架是：<strong>P1（知觉是推断）+ P2（身体是最相关的世界）⟹ P3（情绪是内感受推断）</strong>，再由 P3 派生出对脑区（P4）、自我（P5）、病理（P6）的预言。强度从 P1 到 P6 递减：前两步是借来的共识，第三步是大胆综合，后三步是<strong>有不同成色证据支撑的预言</strong>——这正是一篇好 Opinion 该有的样子。</p>
+
+      <div class="section-head" id="sec-evidence">支持证据：从假心跳到虚拟手</div>
+      <p>Seth 坦承内感受推断<strong>没有直接确证</strong>，但汇集了一批"定性吻合"的旁证。挑几条最有分量的：</p>
+
+      <div class="section-head-sub">证据一：前脑岛同时编码预测与误差</div>
+      <p>多项功能性磁共振成像（fMRI，Functional Magnetic Resonance Imaging）研究显示，AIC 会对疼痛和带情绪色彩的触摸产生<strong>预期</strong>反应与<strong>预测误差</strong>反应；在赌博任务中，AIC 同时编码"预期风险"与"风险预测误差"。在新经济学的<strong>最后通牒博弈（ultimatum game）</strong>里，Xiang 等发现被试用贝叶斯规则更新预期感受，且<strong>感受预测误差（以方差度量）与 AIC 激活成参数化相关</strong>——一个比较器该有的双重身份，AIC 都对上了。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：看别人挠痒，你的脑岛也在"推断"</span>
+        <p>Holle 等让被试看别人抓挠的影片，结果 <strong>AIC 激活程度与被试自报的"痒感"强度相关</strong>。你并没被挠，脑岛却被点亮——这恰好是"预测/镜像"引擎在内感受层面运转的证据：大脑在<strong>推断</strong>一个并不真实存在于自己身体上的内感受状态。</p>
+      </div>
+
+      <div class="section-head-sub">证据二：喂假的身体反馈，能改写情绪</div>
+      <p>如果情绪是推断，那么<strong>篡改输入就该篡改情绪</strong>。早在 1966 年，Valins 就发现<strong>假的心率反馈</strong>能增强被试对情绪刺激的主观评分。Gray 等用 fMRI 证实：假心跳反馈不仅提高右侧 AIC 反应，而且<strong>假反馈期间增强的 AIC 活动，与"原本不具威胁的刺激被赋予更高情绪显著性"相关</strong>。身体没真变，但大脑相信它变了，情绪就跟着变——这正是 P3 最干净的可证伪预言被证伪未遂。</p>
+
+      <div class="section-head-sub">证据三（最硬）：用心跳点亮虚拟手——内感受版橡胶手错觉</div>
+      <p>这是全文实证分量最重的一块，来自 Suzuki 等 2013 年的研究（本文 Figure 3）。他们把增强现实（AR，Augmented Reality）和生理监测结合，做了一个升级版橡胶手错觉：被试戴头显看到一只虚拟手，这只虚拟手的<strong>颜色随被试自己的心跳同步（或异步）地一明一暗</strong>。</p>
+      <p>结果：<strong>心跳—视觉同步反馈，显著增强了对虚拟手的所有权感</strong>——主观问卷与客观的"本体感觉漂移（proprioceptive drift，被试对真手位置的错误估计）"双双证实。在"心脏静止（cardiac still，无手指动作）"条件下，同步组的本体感觉漂移差显著大于异步组（<strong>P&lt;0.05</strong>，此处 P 即显著性概率值、即 p 值，越小越说明结果不太可能是偶然）；触觉对照条件复现了经典橡胶手错觉的效应，量级更大（<strong>P&lt;0.01</strong>）。所有权主观评分呈现同样模式，而对照问句无此效应（不显著）。</p>
+
+      <div class="info-block">
+        <span class="ib-title">为什么"心跳点亮手"如此重要</span>
+        <p>它直接证明：<strong>一条纯内感受的信号（心跳），只要与一条外感受信号（看到的颜色变化）在时间上相关，就能改写"这是我的手"这一最基本的自我判断</strong>。这把内感受、外感受、自我所有权三者，串进了同一个"最小化精度加权预测误差"的回路里——正是 P5 想要的实证。Suzuki 还发现：当虚拟手能实时跟随手指动作（强外感受—本体感觉一致性）时，这种强信号会<strong>盖过</strong>心跳带来的影响，漂亮地展示了不同模态<strong>按可靠性（精度）竞争</strong>的贝叶斯式线索整合。</p>
+      </div>
+
+      <div class="section-head-sub">证据四：个体差异连起"会读心跳"与"易被骗"</div>
+      <p>个体的<strong>内感受敏感度（IS，Interoceptive Sensitivity）</strong>——通常用<strong>心跳计数任务</strong>来量化——把零散现象串了起来。Tsakiris 等报告：<strong>内感受敏感度越低的人，越容易中招橡胶手错觉</strong>，自我—他人边界也越容易被多模态刺激撼动，可能反映了对内感受预测误差较低的精度加权。此外，诱发橡胶手错觉会导致真手<strong>温度下降、组胺反应升高</strong>；反过来给真手降温又会增加错觉易感性——这些自主神经层面的连带反应，恰与"自上而下的自我相关预测正在为反射设定参考点"相符。</p>
+
+      <div class="section-head" id="sec-method">关键实验的精妙之处</div>
+      <p>本文虽是综述，但它引用证据的<strong>挑选与组织</strong>本身很见功力——每条证据都精准卡在论证链的某一环，且尽量做到"操纵一个变量、看一个后果"。把核心实证逻辑列成表：</p>
+
+      <table>
+        <thead>
+          <tr><th style="width:22%;">实验范式</th><th style="width:26%;">操纵了什么</th><th style="width:26%;">关键结果</th><th>论证了链条哪一环</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>假心率/心跳反馈<br>（Valins; Gray 等）</td>
+            <td>给被试听伪造的心跳声（身体并未真变）</td>
+            <td>主观情绪评分↑；右 AIC 反应↑，且与情绪显著性归因相关</td>
+            <td>P3：情绪是对内感受输入的推断，可被伪输入改写</td>
+          </tr>
+          <tr>
+            <td>内感受版橡胶手错觉<br>（Suzuki 等 2013，Fig. 3）</td>
+            <td>虚拟手颜色随心跳同步 vs 异步闪烁；另设触觉、有/无手指动作条件</td>
+            <td>同步＞异步：本体感觉漂移与所有权显著增强（心脏静止 P&lt;0.05；触觉 P&lt;0.01）</td>
+            <td>P5：自我所有权由内+外感受预测整合算出</td>
+          </tr>
+          <tr>
+            <td>手指实时跟随条件<br>（同上，第三条件）</td>
+            <td>让虚拟手实时复现手指动作，制造强本体感觉一致性</td>
+            <td>强外感受信号"盖过"心跳的内感受影响</td>
+            <td>精度加权：模态按可靠性竞争（贝叶斯线索整合）</td>
+          </tr>
+          <tr>
+            <td>心跳计数任务<br>（个体差异，Tsakiris 等）</td>
+            <td>测量个体内感受敏感度（IS），与错觉易感性相关</td>
+            <td>IS 越低 → 越易被橡胶手错觉骗、自我边界越易移</td>
+            <td>精度加权 + 个体差异：弱内感受=低精度=易被外部信号改写自我</td>
+          </tr>
+          <tr>
+            <td>赌博 / 最后通牒博弈<br>（fMRI，Xiang 等）</td>
+            <td>给经济结果，看 AIC 是否编码预期与误差</td>
+            <td>AIC 同时编码预期风险与（以方差度量的）风险/感受预测误差</td>
+            <td>P4：AIC 兼具"发预测+登记误差"的比较器双重身份</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-block">
+        <span class="ib-title">设计的共同巧思：制造"输入与现实的解离"</span>
+        <p>这几个最有说服力的实验有一个共同手法——<strong>让大脑收到的信号与身体的真实状态故意脱钩</strong>（假心跳、与心跳同步但其实是虚拟手的颜色）。只有当"感受可以与生理事实分离、却仍被大脑当真"时，"感受是推断而非读数"这一主张才能被实证撬动。这也是为什么 Seth 反复强调：<strong>还需要更多直接在内感受语境下（而非借用外感受范式）设计的实验</strong>来真正检验该模型。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">在思想史与同行中的位置</div>
+
+      <p><strong>向上接情绪理论百年公案。</strong>情绪的内感受观可追溯到 1894 年的 William James 与 Lange："情绪源于对身体变化的知觉"。它后来演化成<strong>评价论（appraisal theories）</strong>——认知与信念会影响主观感受。1962 年 Schachter & Singer 的经典实验（给被试注射肾上腺素，同样的生理唤起在不同情境下被解释为愤怒或欣快）催生了<strong>"两因素"理论</strong>：情绪 = 生理变化 + 对唤起的认知评价。Seth 的贡献是把这条百年线索<strong>形式化进 PC 的数学框架</strong>：评价论说的"认知评价"，其实就是生成模型的<strong>先验</strong>；"生理变化"就是<strong>内感受证据</strong>；情绪就是两者按精度加权后的<strong>后验</strong>。一句话：<term>内感受推断 = 评价论 + 贝叶斯大脑</term>。</p>
+
+      <p><strong>横向与三位同行的微妙分歧。</strong>本文把自己摆在 Damasio、Craig、Critchley 等当代自我/情绪框架之间——它们都把自我感扎根于生理状况表征，也都强调 AIC。但 Seth 指出一个<strong>关键差异</strong>：那些框架大多把情绪视为<strong>连续、动态、但本质上自下而上</strong>的内感受表征层级；而<strong>没有一个像他这样，把情绪状态等同于对内感受信号原因的自上而下推断</strong>。Critchley 的"基于误差学习的感受与不确定性"模型最接近，但它用的是"变化检测/显著性"语言，而非预测编码的机器。这个分歧不是措辞之争——它决定了实验该往哪个方向设计（找前馈的强度梯度，还是找自上而下的预测信号）。</p>
+
+      <p><strong>向下接精神病理学。</strong>框架的解释野心在 Box 3 展开：精神分裂的"比较器模型"二十年来认为妄想源于难以区分自/外因导致的感觉输入；本文把它细化为<strong>对先验/证据相对精度的异常编码</strong>。焦虑与精神病被关联到"预测与实际内感受状态的失配"。最优雅的是对<strong>人格解体障碍（DPD，Depersonalization Disorder）</strong>的诠释：那种"如在梦中、不真实"的疏离感，被解释为内感受预测过于<strong>不精确</strong>（imprecise，而非不准确 inaccurate）——而像 Cotard 综合征（患者坚信自己已死）这种全面妄想，则可能是大脑在<strong>试图为持续的内感受预测误差编造高层解释</strong>。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+
+      <ul>
+        <li><strong>给人工智能 / 具身智能：</strong>"自我"也许不必预装，而能从"最小化身体相关预测误差"中<strong>涌现</strong>。一个有内感受（电量、温度、负载）并对其做主动推断的智能体，原则上可以长出"身体所有权"和"情绪状态"的雏形。这给情感计算与具身智能提供了一条<strong>原理性的</strong>（而非贴标签式的）路径。</li>
+        <li><strong>给临床精神病学：</strong>把焦虑、人格解体、甚至自闭症的社交情绪困难，统一理解为<strong>内感受推断/精度调节的失调</strong>，意味着干预靶点可能是"重新校准对内感受信号的信任度"——这与近年内感受训练、心跳觉察干预的兴起遥相呼应。</li>
+        <li><strong>给情绪科学方法论：</strong>它把"情绪能否被伪反馈制造/改变"从哲学思辨变成<strong>可量化的实验问题</strong>（看预测误差的精度参数）。Box 4 列出的待答问题（内感受系统里是否有可分离的"表征单元 vs 误差单元"？多巴胺/催产素是否调节内感受预测误差的精度？）直接成了后续十年的研究路线图。</li>
+        <li><strong>给意识研究：</strong>Seth 把内感受推断与"意识在场感（presence，世界与自我'真实'的那种感觉）"挂钩。若连"我真实地在这里"都是一种推断，则<strong>主观体验的稳定性本身成了可被实验扰动的变量</strong>。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>Seth 本人相当诚实地标注了局限（这是好综述的标志），但有几处值得读者再追问一层：</p>
+
+      <ul>
+        <li><strong>核心命题缺直接证据，作者自己承认。</strong>文中明写"目前还没有对内感受推断的直接确证性证据"。几乎所有"支持"都是<strong>定性吻合</strong>或借自<strong>外感受</strong>范式（如橡胶手主要操纵的是视觉—触觉，而非纯内感受）。EBO 那部分的实验最硬，但恰恰是<strong>最不"内感受"</strong>的一环——这是一个微妙的张力：实证最强处，离核心命题最远。</li>
+        <li><strong>"表征单元 vs 误差单元"在内感受系统里尚未被找到。</strong>预测编码的整个架构依赖于皮层里有解剖上可分的"预测神经元"和"误差神经元"。这在视觉皮层都仍有争议，在内感受/脑岛更是几乎空白（Box 4 自己把它列为头号待解问题）。<strong>没有这个解剖学落地，"AIC 是比较器"在很大程度上仍是功能性比喻</strong>。</li>
+        <li><strong>解释力过强可能是双刃剑。</strong>同一个"精度失调"框架，能同时解释焦虑（精度过高？）、人格解体（精度过低）、精神病（先验过强）——解释范围越宽，<strong>可证伪性的风险越高</strong>：如果任何病理都能被某种"精度异常"事后套上，理论就逼近不可反驳。Seth 给出了方向性的差异化预言（如 DPD=不精确 vs 不准确），但要落到可判定的实验，仍是后话。</li>
+        <li><strong>"忽视内感受误差才能行动"这一关键假设缺乏独立检验。</strong>整套自主反射机制悬于"暂时调低内感受预测误差精度"这个环节，但该假设本身（相对精度的瞬时调制如何实现、由谁实现）在文中只是援引运动控制类比，<strong>并无内感受层面的直接神经证据</strong>。</li>
+        <li><strong>意识/感受质（qualia）的硬问题被绕过而非解决。</strong>说"情绪是被推断出来的整合表征内容"，解释了情绪的<strong>结构与动力学</strong>，但为何这些表征<strong>感觉起来是某个样子</strong>（为什么害怕"像害怕"），本文如同绝大多数计算框架一样，<strong>未触及</strong>。它是关于情绪的<strong>"什么/如何"</strong>的强理论，不是关于<strong>"为何有体验"</strong>的理论。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下为解读者综合评价，每条都尽量锚定到文中证据或作者自陈。</p>
+
+      <p><strong>这是一篇"框架级"而非"发现级"的高影响力论文，定位准确。</strong>它的价值不在于报告了什么新数据（它没有），而在于提供了一个<strong>统一的解释脚手架</strong>，把情绪理论、身体所有权、精神病理三块原本各说各话的领域，焊接到贝叶斯大脑的同一根轴上（见 P1–P6 的论证链）。作为 Opinion，这恰是它该做的事，且做得清晰、自洽、富有生成力——后续"内感受推断""具身预测自我"整条研究线证明了它的脚手架作用。</p>
+
+      <p><strong>论证的诚实度高于同类理论文章。</strong>作者反复、明确地标注"尚无直接证据""indirect support""需要更多直接在内感受语境下的实验"，并在 Box 4 列出可证伪的待答问题。这与一些把思辨包装成定论的理论综述形成对比，应予加分。</p>
+
+      <p><strong>但读者须清醒：核心命题（P3）目前是"最优雅的提议"，不是"已确立的事实"。</strong>实证最硬的部分（EBO/橡胶手，P5）恰恰最依赖外感受操纵，离"情绪=内感受推断"这一招牌主张存在可观距离；而支撑整个机制的解剖学前提（可分离的预测/误差单元）在内感受系统中尚属空白。<strong>它的说服力主要来自"框架的融贯与解释广度"，而非"关键预言的直接验证"</strong>——这是它的真实成色。</p>
+
+      <p><strong>解释力的"过强"是需要警惕的结构性风险，而非已发生的错误。</strong>同一精度旋钮能反向解释焦虑与人格解体，说明框架灵活；但灵活到一定程度就逼近不可证伪。Seth 用"不精确 vs 不准确"等差异化预言来对冲这个风险，方向是对的，<strong>但这些预言尚未被判定性实验兑现</strong>——这一条是"解读者观点"，提示而非定论。</p>
+
+      <p><strong>综合：高价值、高影响、诚实标注局限的奠基性 Opinion；最佳读法是把它当"理解后续十年内感受研究的地图与议程"，而不是当"已被证明的情绪机制"。</strong>它成功地把一个旧哲学直觉（James）升级成了一个<strong>可被实验追问</strong>的计算纲领——单这一点，就值回深读。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Seth 把"大脑是预测机器"这套框架从朝外的感知掉转向朝内的身体，提出<strong>情绪与"这具身体是我的"这种自我感，都是大脑对内感受信号原因的主动推断</strong>——前脑岛皮层（AIC）当比较器、精度加权当旋钮；其最硬的实证是 Suzuki 等的"心跳同步能增强对虚拟手的所有权"（本体感觉漂移与所有权显著增强，心脏静止条件 P&lt;0.05、触觉条件 P&lt;0.01），而核心命题本身作者坦承<strong>尚无直接证据</strong>，是一张高价值的研究地图，而非一块已证明的砖。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Seth, A. K. (2013). Interoceptive inference, emotion, and the embodied self. <em>Trends in Cognitive Sciences, 17</em>(11), 565–573. doi:10.1016/j.tics.2013.09.007<br>
+    <strong>说明：</strong>本文为解读稿，正文中的"判断"与"边界和未解问题"含解读者评述，已就地标注；交互组件为定性演示，非真实生理数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('vizCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 状态
+  var bodyState = 30;     // 真实身体唤起度 0-100
+  var precision = 0.70;   // 内感受误差精度 0-1
+  var prior = 30;         // 大脑当前的预测/后验（先验起点）
+  var lastError = 0;      // 上一次预测误差
+  var falseInjected = false;
+  var falseTarget = 0;
+
+  var bodySlider = document.getElementById('bodyState');
+  var precSlider = document.getElementById('precision');
+  var bodyVal = document.getElementById('bodyVal');
+  var precVal = document.getElementById('precVal');
+  var readout = document.getElementById('vizReadout');
+
+  // 情绪标签：把唤起度映射到一个直觉化的"情绪猜测"
+  function emotionLabel(v){
+    if(v < 18) return '平静 / 放松';
+    if(v < 38) return '微弱唤起（专注）';
+    if(v < 58) return '中等唤起（警觉 / 紧张）';
+    if(v < 78) return '强唤起（焦虑 / 兴奋）';
+    return '极高唤起（恐惧 / 狂喜）';
+  }
+  function selfLabel(err, prec){
+    var conf = (1 - Math.min(1, Math.abs(err)/60)) * prec;
+    if(conf > 0.6) return '稳固（"这就是我的身体状态"）';
+    if(conf > 0.3) return '一般（自我感可被撼动）';
+    return '脆弱（自我边界易被外部信号改写）';
+  }
+
+  function lerpColor(t){ // 蓝->红 渐变, t 0..1
+    var r = Math.round(40 + t*(192-40));
+    var g = Math.round(110 + t*(57-110));
+    var b = Math.round(190 + t*(43-190));
+    return 'rgb('+r+','+g+','+b+')';
+  }
+
+  function bar(x, y, w, h, val, label, color){
+    // 背景槽
+    ctx.fillStyle = '#eef0f2';
+    roundRect(x, y, w, h, 6); ctx.fill();
+    // 填充
+    var fillH = h * (val/100);
+    ctx.fillStyle = color;
+    roundRect(x, y + (h-fillH), w, fillH, 6); ctx.fill();
+    // 边框
+    ctx.strokeStyle = '#d4d7db'; ctx.lineWidth = 1;
+    roundRect(x, y, w, h, 6); ctx.stroke();
+    // 标签
+    ctx.fillStyle = '#3a4048';
+    ctx.font = '600 13px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x + w/2, y + h + 20);
+    ctx.fillStyle = '#1f2328';
+    ctx.font = '700 14px -apple-system,sans-serif';
+    ctx.fillText(Math.round(val), x + w/2, y + h + 38);
+  }
+
+  function roundRect(x,y,w,h,r){
+    if(w<2*r) r=w/2; if(h<2*r) r=h/2;
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  function arrow(x1,y1,x2,y2,color,label,width){
+    ctx.strokeStyle = color; ctx.fillStyle = color;
+    ctx.lineWidth = width||3;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    var ang = Math.atan2(y2-y1, x2-x1);
+    var ah = 9;
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2 - ah*Math.cos(ang - Math.PI/7), y2 - ah*Math.sin(ang - Math.PI/7));
+    ctx.lineTo(x2 - ah*Math.cos(ang + Math.PI/7), y2 - ah*Math.sin(ang + Math.PI/7));
+    ctx.closePath(); ctx.fill();
+    if(label){
+      ctx.font = '600 12px -apple-system,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, (x1+x2)/2, (y1+y2)/2 - 8);
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // 标题
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '600 12px -apple-system,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('身体（内脏 / 心跳）', 40, 28);
+    ctx.textAlign = 'center';
+    ctx.fillText('前脑岛皮层 AIC（比较器）', W/2, 28);
+    ctx.textAlign = 'right';
+    ctx.fillText('情绪感受 + 自我感', W-40, 28);
+
+    // 三根柱：真实身体 / 大脑预测 / 误差
+    var effInput = falseInjected ? falseTarget : bodyState;
+    bar(60, 60, 60, 220, effInput, falseInjected?'假信号':'真实身体', '#4a7ec0');
+    bar(W/2 - 30, 60, 60, 220, prior, '大脑预测', lerpColor(prior/100));
+
+    // 误差柱（绝对值）
+    var errMag = Math.min(100, Math.abs(lastError));
+    bar(W-120, 60, 60, 220, errMag, '预测误差×精度', '#c0392b');
+
+    // 箭头：预测下行（蓝），误差上行（红）
+    arrow(W/2 - 40, 130, 130, 130, '#4a7ec0', '自上而下：预测', 3);
+    arrow(130, 200, W/2 - 40, 200, '#c0392b', '自下而上：误差', 2 + 3*precision);
+
+    // 误差驱动更新 -> 输出（右侧）
+    arrow(W/2 + 40, 165, W-130, 165, '#c0392b', '驱动更新 / 行动', 2 + 2*(errMag/100));
+
+    // 文字读出区
+    ctx.fillStyle = '#1f2328';
+    ctx.font = '700 14px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('大脑当前情绪假设：' + emotionLabel(prior), W/2, 320);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '600 12px -apple-system,sans-serif';
+    ctx.fillText('自我感稳固度：' + selfLabel(lastError, precision), W/2, 342);
+  }
+
+  function step(){
+    var input = falseInjected ? falseTarget : bodyState;
+    // 预测误差 = 输入 - 预测
+    var rawErr = input - prior;
+    // 精度加权：精度越高，误差越"被采信"，更新越大
+    lastError = rawErr * precision;
+    // 更新后验（学习率随精度）
+    prior = prior + lastError * 0.55;
+    prior = Math.max(0, Math.min(100, prior));
+    // 假信号注入是一次性的：用过即衰减回真实
+    if(falseInjected){
+      falseTarget = falseTarget + (bodyState - falseTarget) * 0.4;
+      if(Math.abs(falseTarget - bodyState) < 1.5){ falseInjected = false; }
+    }
+    updateReadout(rawErr);
+    draw();
+  }
+
+  function updateReadout(rawErr){
+    var weighted = rawErr * precision;
+    var html = '<strong>本步计算：</strong>预测误差 = 输入(' + Math.round(falseInjected?falseTarget:bodyState) +
+      ') − 预测(' + Math.round(prior - weighted*0.55) + ') = <span style="color:#c0392b;font-weight:700;">' + Math.round(rawErr) + '</span>';
+    html += '；按精度 ' + Math.round(precision*100) + '% 加权后 = <span style="color:#c0392b;font-weight:700;">' + Math.round(weighted) + '</span>';
+    html += '。大脑据此把情绪假设更新为「<strong>' + emotionLabel(prior) + '</strong>」。';
+    if(precision < 0.35){
+      html += '<br><span style="color:#b02a1e;">⚠ 精度很低：大脑几乎无视身体信号、固守先验——对应内感受推断失调（如人格解体的"不真实感"）。</span>';
+    } else if(Math.abs(rawErr) < 3){
+      html += '<br><span style="color:#3a7d44;">✓ 预测已逼近输入，误差趋零——稳态达成，无需进一步更新或行动。</span>';
+    }
+    readout.innerHTML = html;
+  }
+
+  // 事件
+  bodySlider.addEventListener('input', function(){
+    bodyState = parseInt(this.value,10);
+    bodyVal.textContent = bodyState;
+    draw();
+  });
+  precSlider.addEventListener('input', function(){
+    precision = parseInt(this.value,10)/100;
+    precVal.textContent = Math.round(precision*100) + '%';
+    draw();
+  });
+  document.getElementById('btnStep').addEventListener('click', step);
+  document.getElementById('btnReset').addEventListener('click', function(){
+    prior = 30; lastError = 0; falseInjected = false; falseTarget = 0;
+    readout.innerHTML = '<span style="color:#6b7280;">已重置大脑先验到基线（30）。拖动上方滑块制造预测与现实的落差，再点"推进一步"。</span>';
+    draw();
+  });
+  document.getElementById('btnFalse').addEventListener('click', function(){
+    // 注入一个与真实身体相反方向的强假信号
+    falseInjected = true;
+    falseTarget = bodyState > 50 ? Math.max(5, bodyState - 50) : Math.min(95, bodyState + 50);
+    readout.innerHTML = '<span style="color:#b02a1e;">已注入假反馈（例：让你"听到"一阵并不属实的急促心跳）。身体没真变，但大脑收到一条它选择相信的伪误差——点"推进一步"看情绪被改写。</span>';
+    draw();
+  });
+
+  // 初始
+  readout.innerHTML = '<span style="color:#6b7280;">拖动滑块设定"真实身体状态"与"误差精度"，点"推进一步"观察预测误差如何把大脑的情绪猜测往真实方向更新。</span>';
+  draw();
+})();
+</script>
+</body>
+</html>

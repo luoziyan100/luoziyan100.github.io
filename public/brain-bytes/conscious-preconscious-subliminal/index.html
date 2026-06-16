@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>意识、前意识与阈下加工：一个可检验的分类 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Conscious · Preconscious · Subliminal <span>×</span> 三态意识：把「看不见」拆成两种完全不同的看不见</h1>
+    <div class="meta">
+      <span>📄 Conscious, preconscious, and subliminal processing: a testable taxonomy</span><br>
+      <span>✍️ Stanislas Dehaene, Jean-Pierre Changeux, Lionel Naccache, Jérôme Sackur, Claire Sergent</span><br>
+      <span>🏛️ 法国国家健康与医学研究院—原子能委员会认知神经影像组（INSERM-CEA，Orsay）·法兰西公学院（Collège de France）·巴斯德研究所国家科学研究中心受体与认知组（CNRS，Centre National de la Recherche Scientifique）</span><br>
+      <span>📅 Trends in Cognitive Sciences（认知科学趋势）· 2006</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-core">核心主张：两根坐标轴</a></li>
+        <li><a href="#sec-vigilance">前提：警觉度这个总开关</a></li>
+        <li><a href="#sec-three">三态各自的神经签名</a></li>
+        <li><a href="#sec-viz">交互：拖动刺激点，看它落进哪一态</a></li>
+        <li><a href="#sec-resolve">用三态解开影像学的矛盾</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>2000 年代的意识神经影像学陷入一团乱麻：有人说意识住在<strong>早期视觉皮层</strong>（枕叶），有人说住在<strong>丘脑</strong>，还有人说住在<strong>前额叶—顶叶</strong>的高级联合皮层——同样设计「看见 vs 没看见」的实验，结论却互相打架。这篇 Opinion 文章给出的不是又一个新数据，而是一把<strong>能让这些矛盾结果各归其位的尺子</strong>：把「非意识加工」从一个笼统的黑箱，劈成两类机制完全不同的东西——<span class="term">阈下（subliminal）</span>是「信号太弱、根本没点着」，<span class="term">前意识（preconscious）</span>是「信号够强、点得着，但注意力被别处占用、暂时没去点」。</p>
+        <p>它的价值在于<strong>把哲学概念变成可证伪的实验预言</strong>：每一态都对应一组可测量的脑活动签名（激活强度、传播范围、持续时间、是否可报告），并直接告诉你哪种实验对比会量到什么。对今天做意识研究、脑机接口、麻醉深度监测、乃至想理解大语言模型「内部表征 vs 可输出表征」区别的人，这套二维框架仍是绕不开的地图。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇文章术语密度高，且很多词在日常语境里被混用（「注意」≠「意识」是它反复强调的一点）。先把九个核心概念用人话讲清楚，后面读正文会顺很多。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">全局神经工作空间（GNW，Global Neuronal Workspace）</div>
+          <div class="cdesc">本文的理论底座。设想大脑里有一群「广播员」神经元，主要密集分布在<strong>顶叶、前额叶、扣带回</strong>，靠长程轴突彼此连通。一条信息只有被这群广播员接管、向全脑同步广播，才算「进入意识」。类比：公司里各部门（视觉、听觉、记忆）各干各的，只有当某件事被拉进<strong>全员会议</strong>当众宣布，全公司才都「知道」了。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">点燃 / 全局点火（ignition）</div>
+          <div class="cdesc">工作空间被接管的那一刻，叫「点火」。它是个<strong>全有或全无</strong>的突变：信号超过某个阈值就像火柴划着，瞬间烧成一大片自我维持的活动；差一点点就直接熄灭，没有中间态。这正是「看见 / 没看见」往往是一刀切而非渐变的物理原因。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">阈下加工（subliminal processing）</div>
+          <div class="cdesc">「sub-limen」字面意思是「在门槛之下」。指<strong>自下而上的激活太弱</strong>，不足以点燃全局工作空间。哪怕你刻意去注意它，它最多激活到语义层（大脑偷偷算出了词义）、留下短命的启动效应，但绝不会产生持久的前额—顶叶活动，<strong>你报告不出来</strong>。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">前意识加工（preconscious，又称 P-conscious / 潜在可意识）</div>
+          <div class="cdesc">本文最关键的新增类别。信号<strong>本身够强、完全有资格进入意识</strong>，但此刻注意力被别的任务占满，没腾出手来「点火」，于是信息被暂存在感觉缓冲区几百毫秒。类比：一封已送达、字迹清晰的信躺在你桌上，只因你正忙着打电话而没拆——信不是看不清，是没去看。Freud 当年用 preconscious 指「现在没意识到、但稍一注意就能想起来」的内容，本文借用了这个词。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">自下而上的刺激强度（bottom-up stimulus strength）</div>
+          <div class="cdesc">坐标轴之一。指刺激本身从感官往上推的物理能量：对比度高不高、是否被掩蔽（masking）盖住、呈现时间够不够长。强能量、突然出现或带强情绪的刺激，能<strong>自动</strong>拉低点火阈值。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">自上而下的注意（top-down attention）</div>
+          <div class="cdesc">坐标轴之二。指大脑根据当前任务，主动把加工资源<strong>朝向</strong>某个刺激的放大作用。本文一再强调：注意和意识是两码事——注意是「放大器的旋钮」，意识是「广播是否接通」。注意能调制（modulate）阈下加工，但注意本身不等于看见。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">掩蔽（masking）</div>
+          <div class="cdesc">实验里让刺激「看不见」的常用手段：在目标前后紧贴着闪另一个图形，把目标的可见性压下去。掩蔽强度可调，于是能精确控制一个刺激落在阈下还是阈上。本文指出，「掩蔽法」操纵的是<strong>自下而上强度</strong>这根轴。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">警觉度（vigilance）</div>
+          <div class="cdesc">意识的「总电源」。指清醒程度的连续谱：清醒—睡眠—昏迷—麻醉。它不是意识内容本身，而是让丘脑—皮层系统进入「可接收态」的<strong>使能条件（enabling condition）</strong>。睡着或麻醉时，再强的刺激也点不着火。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">Hopf 分岔（Hopf bifurcation）</div>
+          <div class="cdesc">借自动力系统理论的术语（以数学家 Eberhard Hopf 命名）。描述系统随某参数连续变化，到某临界点时<strong>行为发生质变</strong>——本文里指：随神经调质释放增加，自发放电先是平缓上升，越过临界点后突然冒出高频（伽马频段）的同步振荡。这是「警觉度连续变、但点火是突变」的数学根据。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-core">核心主张：两根坐标轴，四个格子</div>
+      <p>整篇文章可以浓缩成<strong>一张 2×2 的表</strong>（原文 Figure 1）。作者主张：一个视觉刺激最终是阈下、前意识还是意识，由两个<strong>相互独立</strong>的因素共同决定——</p>
+      <ul>
+        <li><strong>纵轴 = 自下而上的刺激强度</strong>：弱/被打断 ↔ 足够强；</li>
+        <li><strong>横轴 = 自上而下的注意</strong>：缺席 ↔ 在场。</li>
+      </ul>
+      <p>关键洞见是：<strong>「看不见」有两种成因，对应表里两个不同的格子</strong>。一种是信号太弱（强度轴不达标）→ 阈下；另一种是信号够强但注意没到位（注意轴缺席）→ 前意识。过去的研究把这两种「看不见」混为一谈，正是矛盾的总根源。</p>
+
+      <table>
+        <thead>
+          <tr><th>　</th><th>注意缺席</th><th>注意在场</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>强度弱 / 被打断</td>
+            <td><strong>阈下（未被注意）</strong><br>激活极弱，早期皮层就快速衰减，几乎无启动，不可报告</td>
+            <td><strong>阈下（被注意）</strong><br>有强前馈激活但随层级递减，可达语义层，启动短命，<strong>无</strong>持久额—顶活动，仍不可报告</td>
+          </tr>
+          <tr>
+            <td>强度足够强</td>
+            <td><strong>前意识</strong><br>激活强而持久，但<strong>被困在感觉—运动处理器内</strong>，只有局部同步，注意一被占用就报告不出来</td>
+            <td><strong>意识</strong><br>注意定向 → 放大 → 激活侵入前额—顶叶网络，长程环路与<strong>全局同步</strong>，活动持久、可随意维持、<strong>可报告</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-block">
+        <span class="ib-title">一个反直觉的细节：被注意 ≠ 一定看见</span>
+        <p>注意「阈下（被注意）」这个格子：哪怕你<strong>努力盯着</strong>一个被强掩蔽的词，只要它的自下而上强度不够，它依然进不了意识——但你的注意并非白费，它能让这个看不见的词<strong>加工得更深</strong>（直达语义、启动效应更明显）。这就推翻了「阈下加工一定是自动、与注意无关」的老观念：注意能<strong>调制</strong>阈下加工，却<strong>无法替代</strong>缺失的刺激强度。本文 Box 1 列了一串实验证据支持这点（如 Naccache 等发现阈下启动需要被注意到 prime-target 对才出现）。</p>
+      </div>
+
+      <div class="section-head" id="sec-vigilance">前提：警觉度这个总开关</div>
+      <p>在谈三态之前，作者先剥离掉一个容易混淆的维度。日常语言里「意识」至少有两个意思：<strong>不及物的</strong>（"病人恢复了意识"，即清醒）和<strong>及物的</strong>（"意识到了颜色"，即觉察到某内容）。本文把前者改称<span class="term">警觉度（vigilance）</span>，专门留给后者「意识到某内容」（即「可意识报告」）。</p>
+      <p>警觉度是<strong>一个连续变量</strong>，但它是意识的使能前提：处在合适的警觉态（清醒而非睡着）是意识加工的必要条件。从睡眠/麻醉/植物状态苏醒，伴随脑血流（CBF，regional cerebral blood flow）逐级上升——先是脑干和丘脑，再到皮层，其中<strong>前额—扣带回</strong>的激活与功能连接增幅尤其大。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：连续变量，突变开关</span>
+        <p>工作空间模型的仿真显示，随上行脑干核团（如胆碱能）释放的神经调质增加，自发放电<strong>连续</strong>升高；但越过临界点后，会突然冒出<strong>伽马频段（gamma band，20–80 赫兹，Hz=Hertz）</strong>的高频同步振荡——这正是 Hopf 分岔。寓意：警觉度像调光旋钮（连续），点火却像电灯开关（突变）。提高警觉度＝把整个丘脑—皮层网络<strong>推近</strong>放电阈值，从而降低外界感觉输入点火所需的门槛。</p>
+      </div>
+
+      <div class="section-head" id="sec-three">三态各自的神经签名</div>
+      <p>这是全文的肉。每一态不只是一个标签，而是一组<strong>可测量、可证伪</strong>的脑活动特征。下面逐个拆。</p>
+
+      <div class="section-head-sub">① 阈下：火柴划了，但没烧起来</div>
+      <p>定义：自下而上的激活<strong>不足以</strong>触发全局网络的大规模混响态。原因是丘脑—皮层网络存在一个<strong>非线性的自放大阈值</strong>——超过最小激活就迅速膨胀到全面点火，差一点就直接熄灭。阈下加工属于「差一点就熄灭」的那种。</p>
+      <p>但「弱」不等于「浅」。本文强调阈下信息能传得相当远：在<span class="term">注意瞬脱（attentional blink）</span>范式里，作者团队观察到，刺激呈现后<strong>约 180 毫秒（ms=milliseconds）内</strong>，一个<strong>看不见的词</strong>诱发的枕颞事件相关电位（ERP，Event-Related Potential），与一个<strong>看得见的词</strong>诱发的电位<strong>大到几乎无法区分</strong>；可在「看不见」的那些试次里，被试的可见性评分却<strong>停在最低值</strong>（跟根本没呈现词时一样）。一句话：剧烈的枕颞激活，可以与<strong>完全报告不出来</strong>并存。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：180 ms 的「假性看见」</span>
+        <p>0–180 ms 内，可见词和不可见词的脑信号几乎重叠——说明<strong>早期感觉激活并不是意识的充分条件</strong>。这直接反驳了 Zeki 的「微意识（micro-consciousness）」假说（认为某专区如颜色区 V4（第四视觉区）、运动区 MT/V5（中颞区）获得足够激活就产生该属性的意识）。本文的回应：V1（初级视觉皮层，primary visual cortex）/V4 这类早期区被激活了，被试照样否认看见。</p>
+      </div>
+
+      <div class="section-head-sub">② 前意识：信够强，只是没人去拆</div>
+      <p>定义：一个神经过程<strong>本来携带了足够进入意识的激活量</strong>，却因缺乏自上而下的放大（例如中央工作空间被别的任务暂时占用），被<strong>暂存</strong>在非意识缓冲区里。它是<strong>潜在可达的（potentially accessible）</strong>——如果此刻被注意，本可迅速获得意识报告——但此刻并未被意识访问。</p>
+      <p>神经层面，前意识被设想为<strong>中程连接内的共振环路</strong>，把刺激表征在感觉缓冲区里维持几百毫秒。它最终可能在中央工作空间被腾空后获得访问（如<span class="term">心理不应期（PRP，Psychological Refractory Period）</span>范式：一个任务被搁置、另一任务进行时）；也可能在被注意定向之前就被擦除而<strong>永远不进入意识</strong>（如注意瞬脱里靠掩蔽抹掉它）。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：700 ms 也能视而不见</span>
+        <p>最有冲击力的证据来自<strong>非注意盲（inattentional blindness）</strong>：一个呈现长达 <strong>700 毫秒</strong>、就落在<strong>中央凹（fovea，视力最敏锐处）</strong>的刺激，只要注意被别的任务牵走，照样可能<strong>完全看不到</strong>。注意瞬脱里，一个本来「相当可见」的轻度掩蔽刺激，注意一被分走就变得不可见。这些都说明：<strong>没有注意，意识知觉无法发生</strong>——哪怕刺激又大又久。</p>
+      </div>
+
+      <div class="section-head-sub">③ 意识：广播接通，全场都知道</div>
+      <p>定义：强度足够 <strong>且</strong> 被注意。自上而下的注意定向过来 → 放大感觉—运动活动 → 激活<strong>侵入前额—顶叶系统</strong>，形成长程环路与<strong>全局同步</strong>。此时活动有三个标志：<strong>持久</strong>（可在工作记忆里随意维持）、<strong>全局</strong>（信息可被评估、言语报告、规划、长时记忆等多个系统共享）、<strong>可报告</strong>。</p>
+      <p>影像学上，意识访问反复出现两个签名：<strong>前部（前额—顶叶）激活的突然涌现</strong>，以及它与后部刺激特异区之间<strong>功能连接的增强</strong>。在 fMRI（功能性磁共振成像，functional Magnetic Resonance Imaging）里，正是这套额—顶差异系统性地把「掩蔽 vs 未掩蔽的词/图」「变化盲中察觉 vs 未察觉的变化」「忽视症病人消除 vs 看见的刺激」「注意瞬脱里漏掉 vs 报告的刺激」区分开来。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：晚 200–300 ms 的那道分水岭</span>
+        <p>前意识与意识之间的转变是<strong>陡峭的</strong>（符合自放大非线性系统的动力学），并且<strong>发生得晚</strong>：把「看见 vs 漏看」区分开来的脑活动差异，出现在刺激后<strong>约 200–300 毫秒</strong>，并伴随额—前额激活与后部活动的晚期放大。早期（前 ~180 ms）两者几乎一样，差异专在晚期、专在高级联合皮层冒出来——这就是意识访问的时间指纹（如 P300，一个约 300 ms 的晚期电位成分；与之相对，P100 是约 100 ms 的早期成分）。</p>
+      </div>
+
+      <div class="section-head" id="sec-viz">交互：拖动刺激点，看它落进哪一态</div>
+      <p>下面这个二维平面就是 Figure 1 的活化版。<strong>横轴是自上而下的注意，纵轴是自下而上的刺激强度</strong>。拖动那颗刺激点，看它落在四个区域的哪一个——同时观察右侧「全局工作空间」是否被点燃。亲手体会一下：为什么「往右移（加注意）」和「往上移（加强度）」是两件<strong>不能互相替代</strong>的事，以及为什么只有冲进右上角才会「点火」。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">意识三态判定器 · 拖动刺激点</div>
+        <div class="viz-note">交互演示，定性重现原文 Figure 1 的二维分类与全局点火阈值；非真实数据。可用鼠标/手指拖动红点，或用下方滑块。</div>
+        <div class="viz-controls">
+          <label>自下而上强度 <input type="range" id="sStrength" min="0" max="100" value="30" style="vertical-align:middle;width:150px;"></label>
+          <label>自上而下注意 <input type="range" id="sAtt" min="0" max="100" value="25" style="vertical-align:middle;width:150px;"></label>
+          <button class="alt" id="btnSub">放到「阈下」</button>
+          <button class="alt" id="btnPre">放到「前意识」</button>
+          <button class="alt" id="btnCon">放到「意识」</button>
+        </div>
+        <canvas id="cnv" width="860" height="430"></canvas>
+        <div id="readout" style="margin-top:14px;font-size:0.95rem;line-height:1.7;"></div>
+      </div>
+
+      <div class="section-head" id="sec-resolve">用三态解开影像学的矛盾</div>
+      <p>框架立起来后，作者用它去「调解」那些打架的影像学结果（原文 Figure 2）。核心做法：给三种典型刺激态命名——<strong>T1=意识（高强度＋注意）、T2=前意识（高强度、无注意）、T3=阈下（弱强度）</strong>——然后指出：每个实验测的其实是<strong>这三者之间不同的两两对比</strong>，难怪结论不同。</p>
+      <table>
+        <thead>
+          <tr><th>实验对比的是</th><th>本质上是哪两态相减</th><th>会量到什么</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>被注意时，掩蔽 vs 未掩蔽</td>
+            <td>T3（阈下）↔ T1（意识）</td>
+            <td>既有<strong>早期</strong>枕颞差异，又有<strong>晚期、分布式的额—顶</strong>差异（跨度最大）</td>
+          </tr>
+          <tr>
+            <td>呈现在知觉阈值上的刺激</td>
+            <td>T3（阈下）↔ T1（意识）</td>
+            <td>早（如 P100）与晚（如 P300）成分都出现；可解释为何阈值附近知觉会<strong>波动</strong>（同一刺激时见时不见）</td>
+          </tr>
+          <tr>
+            <td>不被注意时，掩蔽 vs 未掩蔽</td>
+            <td>T3（阈下）↔ T2（前意识）</td>
+            <td><strong>只</strong>见早期枕颞激活，无额—顶差异——这正是<strong>前意识</strong>的签名</td>
+          </tr>
+          <tr>
+            <td>用分散注意让刺激不可见（注意瞬脱等）</td>
+            <td>T2（前意识）↔ T1（意识）</td>
+            <td>差异出现得<strong>晚（刺激后 200–300 ms）</strong>，涉及额—前额激活与后部活动的晚期放大</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>于是那场「意识在枕叶 vs 在额顶」的争论被化解了：<strong>测 T3↔T2 的人只看到枕叶，测 T3↔T1 或 T2↔T1 的人看到额顶</strong>——他们都对，只是各自量的是分类表里不同的边。这就是这套框架最漂亮的「收网」一击。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这是一篇理论文章，它的「方法」是<strong>概念建模 + 对既有数据的重新归类 + 计算仿真</strong>。几处设计值得拆给同行看：</p>
+      <table>
+        <thead>
+          <tr><th>手法</th><th>怎么做的</th><th>为什么聪明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>剥离警觉度</td>
+            <td>先把「不及物意识（清醒）」摘出来叫 vigilance，只让「及物意识（觉察内容）」留在台面</td>
+            <td>把一个长期被混用的词拆成两层，避免「昏迷 vs 清醒」的差异污染「看见 vs 没看见」的分析</td>
+          </tr>
+          <tr>
+            <td>二维化而非一维化</td>
+            <td>用「强度 × 注意」两根独立轴取代单一的「可见性」连续谱</td>
+            <td>正是这第二根「注意轴」才挤出了「前意识」这个新格子，让两种「看不见」分开</td>
+          </tr>
+          <tr>
+            <td>主观可见性逐试次测量</td>
+            <td>强调意识必须用<strong>主观报告、逐试次（trial-by-trial）</strong>评定，且最好用连续可见性量表，而非「另起一个被注意的区块默认就看见了」</td>
+            <td>堵住了「在 A 区块证明能看见、就假设 B 区块（注意被分走）也看见」的逻辑漏洞</td>
+          </tr>
+          <tr>
+            <td>对接计算仿真</td>
+            <td>把分类锚定在丘脑—皮层网络模型上，用仿真给出「非线性阈值」「Hopf 分岔」「点火」等可量化预言</td>
+            <td>让纯概念分类获得动力学根据，并预言阈值会随警觉度和<strong>刺激前自发活动</strong>而变（已被近阈刺激实验在人和猴身上证实）</td>
+          </tr>
+          <tr>
+            <td>给出可证伪清单</td>
+            <td>明确说本分类「可检验」，并用 Figure 2 把每种对比该量到什么写死</td>
+            <td>把哲学主张转成实验预言，谁都能去证伪——这是它区别于一般意识思辨的关键</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>本文不是孤立提出，而是在几条主线之间<strong>定位并调和</strong>：</p>
+      <ul>
+        <li><strong>承袭全局工作空间理论</strong>：直接建立在 Baars 的认知工作空间理论、以及 Dehaene & Changeux 自己的神经工作空间模型与仿真之上，是该谱系的一次精细化。</li>
+        <li><strong>纳入而非否定 Lamme</strong>：Lamme 主张知觉是「递归交互逐步累积」——先在视觉系统内局部，再全局扩散到额—顶。本文说「前意识→意识」的区分与此<strong>一致</strong>，相当于给 Lamme 的两阶段贴上了三态标签。</li>
+        <li><strong>纳入而非否定 Zeki</strong>：Zeki 的「异步分布式构建后再绑定成宏观意识」也被认为相容；唯一的分歧点是 Zeki/Block 把「现象意识/微意识」赋予本文所谓的<strong>前意识</strong>态。</li>
+        <li><strong>正面回应 Tse 等的反驳</strong>：Tse 等主张应当用「把注意引开」的设计，并称那样只在枕叶见到可见性相关。本文反驳：<strong>非注意不是恰当的控制</strong>，因为没有注意，意识本就无法发生——你引开注意量到的是「前意识 vs 意识」，自然只剩枕叶早期成分。</li>
+        <li><strong>直面 Block 的现象意识难题</strong>：Block 借 Sperling 的<strong>图标记忆（iconic memory）</strong>范式主张「报告标准低估了意识内容」——闪一排字母，你觉得「全看见了」，却只能报告事后被提示的那一行。本文把这种「觉得全看见」<strong>归为前意识</strong>，并用变化盲反驳「全看见」其实是一种「看见的错觉」。</li>
+      </ul>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>麻醉与意识障碍监测</strong>：把警觉度（总电源）与内容意识（广播是否接通）分开，提示监测「病人是否有意识」时，应分别看「网络是否处于可点火态」与「是否真有全局点火事件」，而非只看脑电整体活跃度。</li>
+        <li><strong>脑机接口与「内隐认知」利用</strong>：阈下/前意识信息虽不可报告，却真实地被加工到语义层、可产生启动。这为「读取尚未进入意识的脑内表征」（如预判、未报告的决策倾向）提供了理论位置。</li>
+        <li><strong>人工智能的类比镜子</strong>：本文「信息被显式编码 vs 被广播到全局工作空间」的区分，与当下讨论大模型「内部激活里算出了某信息 vs 该信息进入可输出/可被其他模块调用的通道」惊人相似。Box 2 列的三类「永久不可意识」知识——<strong>藏在突触权重的潜在连接、分布在大量神经元而未浓缩的放电、与工作空间功能性断连的系统</strong>——几乎可逐条对应到「权重里隐含但不可调取 / 分布式表征 / 被剪枝隔离的子网络」。</li>
+        <li><strong>给意识科学定方法学纪律</strong>：它把「该用什么对比、会量到什么」写成清单，等于给整个领域立了一张<strong>实验设计检查表</strong>，减少各说各话。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>作者相当坦诚，但仍有些张力值得读者自己拎清：</p>
+      <ul>
+        <li><strong>前意识到底有没有「现象体验」？（作者自己点名的硬伤）</strong> 刺激后几百毫秒、脑活动很强，被试却否认看见任何东西——这时<strong>究竟有没有一闪而过、只是没法报告的主观体验</strong>？本文承认这是「当前阶段一个科学上可处理、但尚未解决」的问题，并把 Block 的现象意识直觉<strong>解释成一种错觉</strong>（"觉得全看见"源于「我随时能调头去看任意角落」）。但「解释成错觉」本身是一个<strong>立场选择</strong>，并未被实验判决——这是全文最大的悬而未决处。</li>
+        <li><strong>「不可报告就不算意识」是预设而非结论</strong>：全文采用 Weiskrantz 式标准——可报告性是判定意识与否的<strong>首要标准</strong>。这在方法上干净，但<strong>把问题给定义掉了</strong>：凡是报告不出来的，一律不算意识。若 Block 对，则本文会把一部分真实的意识体验误判为「前意识」。作者也承认「是否存在不可报告的意识，可能按定义就不可检验」。</li>
+        <li><strong>「陡峭转变」「全有或全无」更多来自仿真而非铁证</strong>：点火的突变性、前意识→意识的陡峭边界，核心支撑是计算模型的动力学预言，行为/影像证据是一致性证据，而非对「突变」本身的直接测量。模型若换设定，边界的陡峭程度也可能变。</li>
+        <li><strong>非人类与电生理验证尚待补全</strong>：本文承认分类的完整性未定（Box 2 仅「假说性」地补了三类永久不可意识知识），并把「能否在清醒猴上用注意瞬脱/心理不应期范式做电生理验证」「TMS（经颅磁刺激，Transcranial Magnetic Stimulation）能否扰动额—顶环路证因果」等列为<strong>待答问题</strong>（Box 3）。也就是说，2006 年时这套漂亮分类的<strong>因果链条还主要是相关证据</strong>。</li>
+        <li><strong>「注意 vs 强度」二分会不会过于干净？</strong> 文章自己也指出二者关系复杂：强能量、突然出现、强情绪刺激能<strong>自动</strong>触发自下而上的注意（如经由额叶眼动区或杏仁核通路）。当两根「独立」轴在源头就纠缠，「纯强度不足」与「纯注意缺席」在真实实验里是否总能干净分离，留有余地。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下为解读者评价，每条都对应正文证据。</p>
+      <p><strong>它最大的贡献是「拆词」而非「发现」。</strong> 这篇文章没有报告任何新实验，价值在于把笼统的「非意识」劈成机制迥异的阈下与前意识两类（文中明确这是核心新增类别），并用一张 2×2 表把「强度」「注意」两根轴正交开。判断依据：全文的解释力——化解枕叶 vs 额顶之争（§用三态解开矛盾）——完全来自这次概念切分，而非新数据。</p>
+      <p><strong>它的可证伪性是真诚的，但 2006 年时证据链以相关为主。</strong> 它给出了 Figure 2 那张「哪种对比量到什么」的预言清单，这是硬币的正面；背面是，支撑「点火是突变」「转变陡峭」的主力是计算仿真，而非对突变的直接测量，TMS 因果验证仍被列为待办（§边界）。所以它当时更像一张<strong>设计精良、等待检验的蓝图</strong>，而非已被钉死的结论。</p>
+      <p><strong>把现象意识「解释成错觉」是它最聪明也最脆弱的一招。</strong> 用变化盲反驳「全看见」直觉、把 Block 的现象意识归入前意识（§与已有研究的关系），逻辑自洽且省事；但作者自己承认这是「当前科学可处理却未解决」的问题（§边界）。一旦「不可报告的意识」被证实存在，本框架就会把真意识误标为前意识。这一步是立场，不是判决。</p>
+      <p><strong>跨时代的稳健性来自它的「地图」属性。</strong> 即便细节（如点火确切阈值、前意识缓冲的确切机制）可被后续修订，它提供的<strong>坐标系</strong>——两轴四态、广播即意识——至今仍是意识科学和相邻领域（脑机接口、AI 表征可达性）反复借用的参照框架（§跨领域启示）。一篇 Opinion 能立住一套坐标系，本身就是高价值。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Dehaene 等（2006）在全局神经工作空间理论上立起一张<strong>「自下而上刺激强度 × 自上而下注意」的二维分类表</strong>，把「看不见」拆成两种本质不同的状态——<strong>阈下</strong>（信号太弱、点不着全局点火，但 ~180 ms 内枕颞激活可与可见刺激几乎无异）与<strong>前意识</strong>（信号够强、潜在可达，却因注意被占而未广播，连 700 ms、落在中央凹的刺激都可能视而不见）——唯有强度足够<strong>且</strong>被注意，激活才在 ~200–300 ms 后陡峭地<strong>点燃</strong>前额—顶叶网络成为<strong>意识</strong>；这把尺子一举化解了「意识住枕叶还是住额顶」的影像学矛盾（不同实验只是测了三态间不同的两两对比），代价是它把「不可报告」预设为「非意识」，从而留下「前意识究竟有没有现象体验」这一未决之问。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Dehaene, S., Changeux, J.-P., Naccache, L., Sackur, J., &amp; Sergent, C. (2006). Conscious, preconscious, and subliminal processing: a testable taxonomy. <em>Trends in Cognitive Sciences</em>, 10(5), 204–211. doi:10.1016/j.tics.2006.03.007<br>
+    本页为基于原文的中文深度解读；交互组件为定性示意（重现 Figure 1 的二维分类与点火阈值），非论文原始数据。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var cnv = document.getElementById('cnv');
+  var ctx = cnv.getContext('2d');
+  var W = cnv.width, H = cnv.height;
+  // 绘图内边距：给坐标轴标签留空间
+  var padL = 96, padR = 24, padT = 56, padB = 56;
+  var plotW = W - padL - padR, plotH = H - padT - padB;
+
+  // 状态：strength 与 attention 都是 0..100
+  var st = 30, at = 25;
+  // 阈值：强度足够 = >=55；注意在场 = >=50（与四象限对应）
+  var STR_TH = 55, ATT_TH = 50;
+  // 点火（意识）所需：强度且注意都过线，并越过一条略带交互作用的点火曲线
+  // 强注意可略微降低点火所需强度，呼应"注意可自动拉低阈值"
+  function ignitionStrengthNeeded(a){
+    // a 越大，所需强度越低，但有下限
+    return Math.max(48, STR_TH + 12 - (a/100)*14);
+  }
+
+  function xOf(a){ return padL + (a/100)*plotW; }
+  function yOf(s){ return padT + plotH - (s/100)*plotH; } // 强度向上为正
+
+  function classify(){
+    var strongEnough = st >= STR_TH;
+    var attended = at >= ATT_TH;
+    if(strongEnough && attended && st >= ignitionStrengthNeeded(at)){
+      return 'conscious';
+    }
+    if(strongEnough){ // 强但（注意不足或差一点点没点着）
+      return attended ? 'conscious_edge' : 'preconscious';
+    }
+    return attended ? 'sub_att' : 'sub_un';
+  }
+
+  var META = {
+    conscious:{label:'意识（Conscious）', col:'#c0392b',
+      desc:'强度足够 且 被注意 → 激活侵入前额—顶叶网络，长程环路 + 全局同步，活动持久、可随意维持、<b>可报告</b>。工作空间已被点燃。'},
+    conscious_edge:{label:'意识（临界·刚点着）', col:'#d65f50',
+      desc:'已满足"强度够+被注意"，处在点火曲线上缘——只要再多一点点强度/注意就稳定点燃。意识访问是全有或全无的突变，这里正卡在门槛上。'},
+    preconscious:{label:'前意识（Preconscious）', col:'#e08a1e',
+      desc:'信号够强、<b>潜在可达</b>，但注意缺席 → 激活被困在感觉—运动处理器内，仅局部同步，未向全脑广播。报告不出来，但只要注意调过来本可迅速进入意识。'},
+    sub_att:{label:'阈下（被注意）', col:'#5a8f3c',
+      desc:'强度不足，点不着全局点火。但你的注意没白费：可把它加工到<b>语义层</b>、产生短命启动——只是<b>无</b>持久额—顶活动，<b>不可报告</b>。'},
+    sub_un:{label:'阈下（未被注意）', col:'#3f7d3f',
+      desc:'强度不足且无注意 → 激活极弱，早期皮层就快速衰减，几乎无启动、不可报告。最"安静"的非意识态。'}
+  };
+
+  // 四象限底色
+  var Q = {
+    sub_un:'#eef5ea', sub_att:'#eaf2e4',
+    preconscious:'#fdf2e0', conscious:'#fdecea'
+  };
+
+  function drawQuadrants(){
+    var xMid = xOf(ATT_TH), yMid = yOf(STR_TH);
+    // 左下：阈下未注意
+    ctx.fillStyle = Q.sub_un;
+    ctx.fillRect(padL, yMid, xMid-padL, padT+plotH-yMid);
+    // 右下：阈下被注意
+    ctx.fillStyle = Q.sub_att;
+    ctx.fillRect(xMid, yMid, padL+plotW-xMid, padT+plotH-yMid);
+    // 左上：前意识
+    ctx.fillStyle = Q.preconscious;
+    ctx.fillRect(padL, padT, xMid-padL, yMid-padT);
+    // 右上：意识
+    ctx.fillStyle = Q.conscious;
+    ctx.fillRect(xMid, padT, padL+plotW-xMid, yMid-padT);
+
+    // 象限标签
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font='600 14px -apple-system,"PingFang SC",sans-serif';
+    ctx.fillStyle='rgba(63,125,63,0.85)';
+    ctx.fillText('阈下（未注意）', (padL+xMid)/2, (yMid+padT+plotH)/2);
+    ctx.fillStyle='rgba(90,143,60,0.9)';
+    ctx.fillText('阈下（被注意）', (xMid+padL+plotW)/2, (yMid+padT+plotH)/2);
+    ctx.fillStyle='rgba(224,138,30,0.95)';
+    ctx.fillText('前意识', (padL+xMid)/2, (padT+yMid)/2);
+    ctx.fillStyle='rgba(192,57,43,0.95)';
+    ctx.fillText('意识（点火区）', (xMid+padL+plotW)/2, (padT+yMid)/2);
+  }
+
+  function drawIgnitionCurve(){
+    // 点火曲线：在意识象限内，y = ignitionStrengthNeeded(a)
+    ctx.save();
+    ctx.setLineDash([6,5]);
+    ctx.strokeStyle='rgba(192,57,43,0.55)';
+    ctx.lineWidth=1.5;
+    ctx.beginPath();
+    var started=false;
+    for(var a=ATT_TH; a<=100; a+=1){
+      var s = ignitionStrengthNeeded(a);
+      var px = xOf(a), py = yOf(s);
+      if(!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawAxes(){
+    ctx.strokeStyle='#9aa1ab'; ctx.lineWidth=1.5;
+    // 外框
+    ctx.strokeRect(padL, padT, plotW, plotH);
+    // 分界线（阈值）
+    ctx.save();
+    ctx.setLineDash([3,4]); ctx.strokeStyle='#c9ccd1'; ctx.lineWidth=1;
+    var xMid=xOf(ATT_TH), yMid=yOf(STR_TH);
+    ctx.beginPath(); ctx.moveTo(xMid,padT); ctx.lineTo(xMid,padT+plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(padL,yMid); ctx.lineTo(padL+plotW,yMid); ctx.stroke();
+    ctx.restore();
+
+    // 轴标题
+    ctx.fillStyle='#3a4048';
+    ctx.font='700 14px -apple-system,"PingFang SC",sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.fillText('自上而下的注意  →', padL+plotW/2, H-18);
+    // 纵轴标题（旋转）
+    ctx.save();
+    ctx.translate(26, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center';
+    ctx.fillText('自下而上的刺激强度  →', 0, 0);
+    ctx.restore();
+
+    // 端点小标
+    ctx.font='12px -apple-system,"PingFang SC",sans-serif';
+    ctx.fillStyle='#6b7280';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText('缺席', padL+4, H-38);
+    ctx.textAlign='right';
+    ctx.fillText('在场', padL+plotW-4, H-38);
+    ctx.save();
+    ctx.translate(46, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='right'; ctx.fillText('强', plotH/2-6, 0);
+    ctx.textAlign='left'; ctx.fillText('弱/被打断', -plotH/2+6, 0);
+    ctx.restore();
+  }
+
+  function drawWorkspace(state){
+    // 右上角画一个迷你"全局工作空间"网络，点火时变红+连线亮
+    var ox = padL+plotW-150, oy = padT+14, ww=140, hh=92;
+    var lit = (state==='conscious'||state==='conscious_edge');
+    var nodes = [
+      [0.18,0.30],[0.5,0.12],[0.82,0.30],
+      [0.30,0.62],[0.70,0.62],[0.5,0.86]
+    ].map(function(p){ return [ox+p[0]*ww, oy+p[1]*hh]; });
+    // 连线
+    ctx.strokeStyle = lit ? 'rgba(192,57,43,0.85)' : 'rgba(154,161,171,0.35)';
+    ctx.lineWidth = lit ? 1.6 : 1;
+    var edges=[[0,1],[1,2],[0,3],[2,4],[3,4],[3,5],[4,5],[1,4],[1,3]];
+    edges.forEach(function(e){
+      ctx.beginPath();
+      ctx.moveTo(nodes[e[0]][0],nodes[e[0]][1]);
+      ctx.lineTo(nodes[e[1]][0],nodes[e[1]][1]);
+      ctx.stroke();
+    });
+    nodes.forEach(function(n){
+      ctx.beginPath();
+      ctx.arc(n[0],n[1], lit?5.5:4, 0, Math.PI*2);
+      ctx.fillStyle = lit ? '#c0392b' : '#c2c7cd';
+      ctx.fill();
+    });
+    ctx.font='600 11px -apple-system,"PingFang SC",sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillStyle = lit ? '#c0392b' : '#9aa1ab';
+    ctx.fillText(lit?'工作空间已点火':'工作空间静默', ox+ww/2, oy+hh+4);
+  }
+
+  function drawDot(){
+    var px=xOf(at), py=yOf(st);
+    var state=classify();
+    var col=META[state].col;
+    // 外晕
+    ctx.beginPath();
+    ctx.arc(px,py,16,0,Math.PI*2);
+    ctx.fillStyle = col+'33';
+    ctx.fill();
+    // 主点
+    ctx.beginPath();
+    ctx.arc(px,py,9,0,Math.PI*2);
+    ctx.fillStyle=col; ctx.fill();
+    ctx.lineWidth=2; ctx.strokeStyle='#fff'; ctx.stroke();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    drawQuadrants();
+    drawIgnitionCurve();
+    drawAxes();
+    var state=classify();
+    drawWorkspace(state);
+    drawDot();
+    // readout
+    var m=META[state];
+    var ro=document.getElementById('readout');
+    ro.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:'+m.col+';margin-right:8px;vertical-align:middle;"></span>'
+      + '<b style="color:'+m.col+'">判定：'+m.label+'</b>　'
+      + '<span style="color:#6b7280;">（强度 '+Math.round(st)+' / 注意 '+Math.round(at)+'）</span><br>'
+      + '<span style="color:#3a4048;">'+m.desc+'</span>';
+  }
+
+  // 交互：滑块
+  var sS=document.getElementById('sStrength'), sA=document.getElementById('sAtt');
+  sS.addEventListener('input',function(){ st=+sS.value; draw(); });
+  sA.addEventListener('input',function(){ at=+sA.value; draw(); });
+
+  function syncSliders(){ sS.value=Math.round(st); sA.value=Math.round(at); }
+
+  // 交互：拖动
+  var dragging=false;
+  function clientToVal(e){
+    var r=cnv.getBoundingClientRect();
+    var scaleX=cnv.width/r.width, scaleY=cnv.height/r.height;
+    var x=(e.clientX-r.left)*scaleX, y=(e.clientY-r.top)*scaleY;
+    var a=((x-padL)/plotW)*100;
+    var s=((padT+plotH-y)/plotH)*100;
+    at=Math.max(0,Math.min(100,a));
+    st=Math.max(0,Math.min(100,s));
+  }
+  function startDrag(e){ dragging=true; var t=e.touches?e.touches[0]:e; clientToVal(t); syncSliders(); draw(); e.preventDefault(); }
+  function moveDrag(e){ if(!dragging)return; var t=e.touches?e.touches[0]:e; clientToVal(t); syncSliders(); draw(); e.preventDefault(); }
+  function endDrag(){ dragging=false; }
+  cnv.addEventListener('mousedown',startDrag);
+  window.addEventListener('mousemove',moveDrag);
+  window.addEventListener('mouseup',endDrag);
+  cnv.addEventListener('touchstart',startDrag,{passive:false});
+  cnv.addEventListener('touchmove',moveDrag,{passive:false});
+  window.addEventListener('touchend',endDrag);
+
+  // 预设按钮
+  document.getElementById('btnSub').addEventListener('click',function(){ st=28; at=70; syncSliders(); draw(); });
+  document.getElementById('btnPre').addEventListener('click',function(){ st=80; at=22; syncSliders(); draw(); });
+  document.getElementById('btnCon').addEventListener('click',function(){ st=85; at=80; syncSliders(); draw(); });
+
+  draw();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baddeley 2003 工作记忆：回顾与展望 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Working Memory <span>×</span> 大脑里那块"草稿纸"是怎么搭起来的</h1>
+    <div class="meta">
+      <span>📄 Working Memory: Looking Back and Looking Forward</span><br>
+      <span>✍️ Alan Baddeley</span><br>
+      <span>🏛️ Department of Psychology, University of York, UK</span><br>
+      <span>📅 Nature Reviews Neuroscience · 2003 年 10 月 · 4 卷 · 829–839 页</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-model">交互：点开工作记忆模型</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-loop">① 语音回路：内心的复读机</a></li>
+        <li><a href="#sec-sketch">② 视空间画板：脑中的素描本</a></li>
+        <li><a href="#sec-central">③ 中央执行系统：失踪的指挥</a></li>
+        <li><a href="#sec-buffer">④ 情景缓冲区：第四块拼图</a></li>
+        <li><a href="#sec-anatomy">把模型贴回大脑</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是认知科学里被引用最多的理论之一的"作者本人三十年后回头看"。1974 年 Baddeley 和 Hitch 提出<strong>多成分工作记忆模型</strong>（multi-component model）时，它只是把当时流行的"单一短时记忆（STM，Short-Term Memory）库"拆成了几个分工的零件；三十年后，这个模型不但没被推翻，反而长成了认知心理学的标准框架，还多长出了一个全新部件。本文的价值不在于报告某个新实验，而在于它示范了一种<strong>好理论该怎么活下去</strong>：从一个"故意留得很松"的草图开始，靠一连串可证伪的行为实验（语音相似效应、词长效应、双重分离）不断把它逼得越来越具体，遇到解释不了的病人就承认缺口、补一个部件。读它，你会同时拿到两样东西——一份关于"人脑如何临时存放和操弄信息"的清晰地图，以及一个关于"理论如何在与数据的拉锯中成熟"的范本。</p>
+      </div>
+
+      <p>你现在正在用工作记忆读这句话：前半句的几个词还"挂"在某处，你才能拼出整句的意思；读到句号时它们就该淡去，好腾地方给下一句。这块容量小得可怜、几秒就会褪色、却又支撑着你几乎所有思考的"心理草稿纸"，就是 Baddeley 一辈子研究的对象。这篇综述就是他把这块草稿纸<strong>拆开给你看里面有哪些零件、每个零件干什么、凭什么相信它们真的分开存在</strong>。</p>
+
+      <!-- ============ 概念工具箱 ============ -->
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>下面这些卡片是读懂全文的"零件清单"。建议先扫一遍，正文里再遇到时就不会卡壳。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">工作记忆（WM，Working Memory）</div>
+          <div class="cdesc">一个容量有限、专门负责<strong>临时存放并操弄</strong>信息以支撑思考的系统。注意"操弄"二字：它不只像录音机那样存，还能在存的同时加工（边记电话号码边心算）。这个词由 Miller、Galanter 与 Pribram（1960）发明，Baddeley 与 Hitch（1974）借来强调他们的模型和旧的"单一短时记忆"不同。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">中央执行系统（CE，Central Executive）</div>
+          <div class="cdesc">整个系统的"调度中心/指挥"，负责把注意力<strong>聚焦、分配、切换</strong>，并把工作记忆和长时记忆（LTM，Long-Term Memory，靠神经元结构性生长长期保存的"永久硬盘"，Hebb 1949 将它与靠临时电活动维持的短时记忆区分开）接通。Baddeley 坦言它是模型里"最重要却最不被理解"的部件——早期几乎就是个万能占位符。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">语音回路（PL，Phonological Loop）</div>
+          <div class="cdesc">专管"声音/语言"的小仓库。由两件套组成：一个会自动褪色的<strong>语音存储</strong>，和一个像"内心默念"的<strong>发声复述</strong>过程，靠不停默念把快褪色的内容刷新。可类比：一块会自动擦除的留言板 + 一个不停照着念以防擦掉的人。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">视空间画板（VSSP，Visuospatial Sketchpad）</div>
+          <div class="cdesc">语音回路的"视觉版"，专管图像与空间位置，容量也小（约 3–4 个物体）。可类比脑中的一块小素描本：能临时画下"什么东西、在哪个位置"，但画不下太多、也很快糊掉。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">情景缓冲区（EB，Episodic Buffer）</div>
+          <div class="cdesc">2000 年补进来的第四个部件：一个容量有限的"<strong>整合工作台</strong>"，把来自不同仓库（声音的、视觉的）和长时记忆的碎片<strong>绑成一个完整片段</strong>，并且和"意识觉知"挂钩。可类比把分轨录音混成一首歌的混音台。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">语音相似效应（Phonological Similarity Effect）</div>
+          <div class="cdesc">读音相近的一串字母（B、G、T、P、C）比读音差异大的（W、X、K、R、Y）更难按顺序记住。这是语音回路存在的"标志性指纹"：说明这块仓库是按<strong>声音</strong>而非含义来编码的。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">词长效应（Word-Length Effect）</div>
+          <div class="cdesc">要记的词越长（音节越多），能记住的个数越少——因为长词默念一遍更费时间，复述跟不上褪色速度。它是<strong>"复述靠实时默念"</strong>这一假设的直接证据：人能记住的，大约就是你两秒内能默念完的量。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">双重分离（Double Dissociation）</div>
+          <div class="cdesc">认知科学判断"两件事是不是两套独立系统"的黄金证据：A 损伤只伤功能 1 不伤功能 2，B 损伤反过来。两个方向都成立，才能排除"只是难度不同"。本文用它论证视觉与空间是两套子系统、语音存储与发声复述是两套机制。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">监督注意系统（SAS，Supervisory Activating System）</div>
+          <div class="cdesc">Norman 与 Shallice 给中央执行系统提的具体方案：日常行为多由"习惯/图式"自动跑（开车走熟路），当套路不够用时，由这个会"耗注意力的监督者"出手干预。前额叶受损病人会"该插手时插手不了"（走神去了办公室而非超市）。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">非词复述（Non-Word Repetition）</div>
+          <div class="cdesc">让人听一个不存在的"假词"（如 blonterstaping）并立刻复述，被认为纯靠语音回路。儿童在这项上的表现能很好地预测其<strong>词汇习得</strong>能力——这是"语音回路是为学语言而进化"这一主张的关键证据。</div>
+        </div>
+
+      </div>
+
+      <!-- ============ 交互组件 ============ -->
+      <div class="section-head" id="sec-model">交互：点开工作记忆模型</div>
+      <p>把多成分模型一次性塞进文字里很难有直觉。下面这张图就是 Baddeley 模型的"零件爆炸图"（对应论文 Figure 1 与 Figure 5）。<strong>点任意一个部件</strong>，右侧会显示它的功能、容量、核心证据和对应实验任务。深紫色块代表新增的"晶体化"长时知识层，浅色块是流动的工作记忆部件——这正是 2000 年修订后的样子。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">可点选的工作记忆模型结构图</div>
+        <div class="viz-note">交互式示意图，结构与命名依据论文 Figure 1 / Figure 5；容量与效应数字取自论文正文报告。点击部件查看详情。</div>
+        <canvas id="wmCanvas" width="680" height="380" role="img" aria-label="工作记忆多成分模型结构图，可点选各部件"></canvas>
+        <div class="viz-controls">
+          <button id="btnReset" class="alt" type="button">回到总览</button>
+          <span id="wmHint" style="font-size:0.85rem;color:var(--muted);">提示：点蓝色/紫色方块查看该部件</span>
+        </div>
+        <div id="wmDetail" style="border:1px solid var(--line);border-radius:6px;padding:14px 18px;background:var(--code-bg);min-height:120px;font-size:0.95rem;line-height:1.7;">
+          点击上方任意部件，这里会显示它的<strong>功能 / 容量 / 关键证据 / 对应任务</strong>。
+        </div>
+      </div>
+
+      <!-- ============ 核心发现 ============ -->
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>这篇综述没有"一个"核心发现，它的内容就是逐一巡视四个部件、交代每个部件三十年来积累了哪些证据、又遇到了哪些麻烦。下面按部件拆开。</p>
+
+      <!-- 语音回路 -->
+      <div class="section-head-sub" id="sec-loop">① 语音回路：内心的复读机</div>
+      <p>语音回路是整个模型里证据最扎实、也最受研究者偏爱的部件——Baddeley 自己说，这并不是因为它最重要，而是因为它<strong>最好做实验</strong>（tractable）。它由两件套构成：一个只能保住几秒的<span class="term">语音存储</span>（phonological store），和一个类似"内心默念"的<span class="term">发声复述</span>（articulatory rehearsal）过程，后者靠不停取出并重念来刷新前者，防止内容褪色。</p>
+
+      <p>支撑这套结构的，主要是两个极其稳健的行为效应：</p>
+      <p><strong>语音相似效应。</strong>读音相近的字母串（B、G、T、P、C）比读音迥异的（W、X、K、R、Y）更难按顺序复述。这说明这块仓库是按<strong>声音</strong>编码的——含义相似与否反而几乎不影响（对无关联词而言）。一个关键边界：当错误率超过约 50%，这个效应会消失，提示被试此时已"放弃"语音回路、改用语义或视觉编码等别的策略。</p>
+      <p><strong>词长效应。</strong>要记的词从 1 个音节加到 5 个音节，能记住的个数随之下降。解释很直白：长词默念一遍更慢，复述追不上褪色，于是"还没念到第一个词，它就已经掉了"。一个决定性的旁证是：当用"无关发声压制"（让被试不停念一个无关的音）<strong>堵住默念通道</strong>时，词长效应就消失了——证明这个效应确实出在"实时默念"环节。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：人能记住的，约等于你两秒能念完的量</span>
+        <p>词长效应的经典含义是：<strong>立即记忆广度 ≈ 你在约 2 秒内能默念完的项目数</strong>。所以记一串单音节短词能记五六个，换成五音节长词可能只剩三个。记忆容量与其说是"几个槽位"，不如说是"一段会褪色的时间窗 × 你的默念语速"。</p>
+      </div>
+
+      <p>语音回路还要解决一个棘手问题：<strong>顺序怎么存？</strong>"苹果、香蕉、橘子"和"橘子、苹果、香蕉"是同样的词、不同的顺序。本文把解释分成两大阵营：<span class="term">串接模型</span>（chaining，每一项当作下一项的线索，像链条）与<span class="term">情境模型</span>（contextual，每一项挂在一个独立的"位置/时间"线索上）。前者解释不了"相似项与不相似项交错排列时，不相似项的错误率照样高"这一现象；后者（如 Burgess 与 Hitch 的模型、Page 与 Norris 的首位模型、Henson 的"首尾"模型）更受青睐。其中最典型的错误模式是<strong>相邻两项对调</strong>（present 1,2,3,4,5,6；recall 1,2,3,5,4,6），各模型都能较好地复现。</p>
+
+      <p>最有野心的一笔是关于<strong>语音回路的功能</strong>：Baddeley 主张它进化出来是<strong>为了学语言</strong>。证据有三层——(1) 一位"纯语音回路缺陷"病人，其他方面正常，却学不会一门新语言的词汇；(2) 凡是干扰语音回路的因素（发声压制、语音相似、词长）都会拖累外语生词的学习，却不影响学"两个已知母语词的配对"（后者靠语义）；(3) 儿童的非词复述能力能很好地预测其母语词汇习得，有特定语言障碍的孩子（非言语智力正常）在非词复述上表现很差。结论：传统上拿数字、字母来测语音回路其实有点"用错了地方"，它真正的本职是帮你掌握<strong>陌生的音节序列（新词）</strong>。</p>
+
+      <!-- 视空间画板 -->
+      <div class="section-head-sub" id="sec-sketch">② 视空间画板：脑中的素描本</div>
+      <p>视觉版的临时仓库，容量同样小——通常只能稳住约 <strong>3–4 个物体</strong>。它存在的一个日常证据是<span class="term">变化盲视</span>（change blindness）：场景里的物体变色、移动甚至消失，人却常常没察觉，因为真实视觉世界本身持续可见，大脑懒得为它维护详细的内部副本。</p>
+
+      <p>本部件最漂亮的实证是<strong>"视觉"与"空间"是两套子系统</strong>这一双重分离。用两个任务来测：<span class="term">科西方块敲击任务</span>（Corsi block tapping，主试敲一串方块、被试照敲，测空间广度）与<span class="term">图案广度任务</span>（pattern span，记一个随机填一半格子的矩阵，测视觉广度）。Della Sala 等人发现：对正常人，<strong>空间任务主要被空间干扰拖垮、视觉任务主要被视觉干扰拖垮</strong>，两条曲线交叉。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：交叉的两条曲线（论文 Figure 3c）</span>
+        <p>在空间记忆任务上，受<strong>视觉干扰</strong>时正确率约 <strong>84%</strong>，受<strong>空间干扰</strong>时跌到约 <strong>65%</strong>；在视觉记忆任务上则正好反过来（视觉干扰约 65%、空间干扰约 81%）。"谁干扰谁、谁不干扰谁"在两个方向上都成立——这正是双重分离，单靠"难度不同"无法解释。</p>
+      </div>
+
+      <p>另一条独立证据来自 Brooks（1968）的矩阵任务（论文 Figure 4）：让被试一边记一串句子、一边在脑中沿矩阵走路径。当句子是<strong>空间性</strong>的（"在右边格子放 2"）时，平均能记 8 句；换成<strong>非空间</strong>的胡话句（"在好的格子放 2"）只能记 6 句——说明空间句确实借用了视空间画板。更关键的是 Figure 4b：当被试同时要做一个<strong>视觉追踪</strong>任务时，空间句的错误率从约 3 飙到约 <strong>9–10</strong>，而非空间句几乎不受影响——视觉追踪精准地堵死了视空间画板，却放过了语音编码的句子。</p>
+
+      <p>Baddeley 也借 Logie 的工作，把画板进一步<strong>切分</strong>成两半：一个偏静态存储的<span class="term">视觉缓存</span>（visual cache），和一个偏动态复述、被称为<span class="term">内部抄写员</span>（inner scribe）的过程——这与语音回路"存储 + 复述"的两件套结构正好平行。但他诚实地承认：相比语音回路，视空间工作记忆是个"活跃但整合得很差"的研究领域。</p>
+
+      <!-- 中央执行 -->
+      <div class="section-head-sub" id="sec-central">③ 中央执行系统：失踪的指挥</div>
+      <p>这是模型里<strong>最重要却最不被理解</strong>的部件。在 1974 年的原版里，它几乎就是个"啥都往里塞的通用资源池"——所有解释不清的复杂控制都归它管。本文记录了把它从"占位符"变成"可研究对象"的努力。</p>
+
+      <p>第一步是借用 Norman 与 Shallice 的<span class="term">监督注意系统</span>（SAS）模型：把控制分成两层——下层由"习惯/图式"自动驱动（开车走熟路），上层是一个会消耗注意力的监督者，只在套路失效时介入。证据来自前额叶受损病人："该走超市却走去了办公室"这类行动失误，正是上层监督失灵、被熟悉套路"劫持"的表现。</p>
+
+      <p>第二步是把这个"指挥"<strong>拆成几种可分别测量的能力</strong>：聚焦注意、分配注意、切换注意。Baddeley 团队专门攻"分配注意"：让被试同时做听觉数字广度和视动追踪两件事（并先把各自难度校准到同一水平）。一个有意思的结果是——<strong>阿尔茨海默病（AD，Alzheimer's Disease）患者在"同时做两件事"上明显受损</strong>，相比之下他们做<strong>单</strong>项任务时未必比正常老人差；而正常老人的"双任务"能力也未必比年轻人差。这暗示"分配注意"是一种相对独立、且会在 AD 中特异受损的能力。</p>
+
+      <p>另一个常用的执行功能探针是 <span class="term">N-back 任务</span>：连续呈现一串项目，要求被试在"当前项与 N 个之前的项相同"时按键。N 越大越难（N=0 只需认一个固定目标，N=2 要一直在脑中维护并更新最近两项）。脑成像显示其负荷越高，背外侧前额叶（脑区按 Brodmann 分区编号，BA，Brodmann Area，即按皮层细胞构筑给大脑编的"门牌号"；此处为 BA 9/46）、下额叶（BA 6/44）与顶叶（BA 7/44）的激活越强。</p>
+
+      <div class="info-block">
+        <span class="ib-title">最诚实的一段：指挥会不会只是个"小矮人"？</span>
+        <p>Baddeley 直面了对中央执行系统最尖锐的批评——它会不会只是个<strong>同源小人</strong>（homunculus，脑中替你做所有决定的"小矮人"），等于什么都没解释？他的回应很有方法论味道：把小矮人当成<strong>"问题的定义"而非"答案"</strong>是有用的科研策略——先把要归给它的各项能力（聚焦/分配/切换）一一列出并各自研究，再逐步把它<strong>拆解掉</strong>。换句话说，承认无知，然后系统地蚕食这片无知。</p>
+      </div>
+
+      <!-- 情景缓冲区 -->
+      <div class="section-head-sub" id="sec-buffer">④ 情景缓冲区：第四块拼图</div>
+      <p>这是本文相对"新"的部分，也是模型从三件套变四件套的关键。原来的三成分模型撞上了几堵墙：(1) 没有机制让语音和视空间两个子系统<strong>互相交流、整合</strong>；(2) 没法解释工作记忆与<strong>意识觉知</strong>的关系；(3) 最致命的一击来自一位<strong>重度遗忘症却高智商</strong>的病人——他的长时记忆严重受损，立即记忆却能复述出约 25 个意念单元的散文段落，<strong>远超语音回路或画板的容量上限</strong>。</p>
+
+      <div class="info-block">
+        <span class="ib-title">数字直觉：散文为何比词表好记这么多？</span>
+        <p>同样是"立即复述"，约 15 个词的<strong>句子（有意义、相互连贯）</strong>能整段记住，而<strong>无关联的孤立词</strong>只能记 5–6 个。这道巨大的落差说明：一定有一个能借助长时知识把碎片<strong>"绑成一个整体片段"</strong>的临时工作台在起作用——这正是提出情景缓冲区的直接动因。</p>
+      </div>
+
+      <p>于是 Baddeley 提出第四个部件——<span class="term">情景缓冲区</span>：一个容量有限的存储，由中央执行系统控制，专门把来自各子系统和长时记忆的信息<strong>绑成一个多维度的、统一的"片段"（episode）</strong>，并且可被意识觉知提取。它被设想成工作记忆充当"<strong>全局工作空间</strong>"（global workspace，Baars 的理论，Dehaene 与 Naccache 提供了神经心理学支持）的关键载体——意识觉知就是访问这个被整合好的片段的过程。它与"把长时记忆里的旧痕迹直接激活"的旧提法不同，强调的是工作记忆<strong>操弄并创造新表征</strong>的能力，而非简单地点亮旧记忆。</p>
+
+      <!-- 解剖定位 -->
+      <div class="section-head-sub" id="sec-anatomy">把模型贴回大脑</div>
+      <p>本文最后把这套行为学上分出来的部件<strong>尝试性地映射到脑区</strong>（论文 Figure 6，作者反复强调这只是"暂定"的、不是精确的功能解剖）：</p>
+      <ul>
+        <li><strong>语音回路</strong>最清楚：损伤研究指向左侧颞顶区，脑成像把<strong>存储</strong>定位到 BA 40（顶下小叶），把<strong>复述</strong>定位到布洛卡区（Broca's area，BA 6/44）。这套 BA 门牌系统是脑成像通用的参照，由解剖学家 Korbinian Brodmann（1868–1918）制定。</li>
+        <li><strong>视空间画板</strong>主要在<strong>右半球</strong>：右顶下皮层（BA 40）、右前运动皮层（BA 6）、右下额皮层（BA 47），以及与视觉表象相关的枕叶纹外区（BA 19）。</li>
+        <li><strong>中央执行系统</strong>大致对应<strong>背外侧前额叶皮层</strong>（DLPFC，Dorsolateral Prefrontal Cortex），但很可能动用的是一个功能上协同的脑网络，而非单一区域。</li>
+      </ul>
+      <p>一个反复出现的方法论警告：执行功能的脑定位之所以难，部分是因为"加一个并发任务"既改变了认知负荷，也改变了被试采用的<strong>策略</strong>，两者纠缠，使得不同研究结论打架。Baddeley 呼吁未来研究务必把"策略"这个变量控制住。</p>
+
+      <!-- ============ 方法论精妙之处 ============ -->
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇综述本身不报告新实验，但它<strong>系统呈现了这一研究纲领赖以成立的方法武器库</strong>。理解这些范式，就理解了"凭什么能把一个看不见的心理系统拆成零件"。</p>
+      <table>
+        <thead>
+          <tr><th>方法/范式</th><th>怎么做</th><th>能证明什么</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>双重分离</td>
+            <td>找两类病人（或两种干扰）：A 只损功能 1、B 只损功能 2，两个方向都成立</td>
+            <td>判定两功能是<strong>独立系统</strong>而非同一系统的难易差异——本文用它立起"视觉 vs 空间""存储 vs 复述"两道墙</td>
+          </tr>
+          <tr>
+            <td>双任务法</td>
+            <td>让被试同时做主任务和一个针对性干扰任务（如视动追踪 / 无关发声压制）</td>
+            <td>若干扰精准拖垮某子系统、放过另一子系统，则证明它们占用<strong>不同资源</strong>；也是测"分配注意"的核心手段</td>
+          </tr>
+          <tr>
+            <td>发声压制</td>
+            <td>让被试不停默念一个无关的音，堵住"内心默念"通道</td>
+            <td>词长效应、词长效应在视觉呈现下的表现等会随之消失，<strong>定位</strong>某效应是否出在复述环节</td>
+          </tr>
+          <tr>
+            <td>错误模式分析</td>
+            <td>不只看对错，还细看错在哪（如相邻两项对调、漏项被同位置项替换）</td>
+            <td>用错误的<strong>结构</strong>来区分竞争模型（串接 vs 情境；各种序列模型谁更像）</td>
+          </tr>
+          <tr>
+            <td>神经心理学单病例</td>
+            <td>深入研究一个关键病人（纯语音缺陷者、高智商遗忘症者）</td>
+            <td>一个"反例"病人就能<strong>逼出模型的缺口</strong>——情景缓冲区正是被这样一位病人逼出来的</td>
+          </tr>
+          <tr>
+            <td>脑成像 × 负荷调节</td>
+            <td>用 N-back 等任务系统改变负荷，看哪些脑区激活随负荷上升</td>
+            <td>把行为学部件<strong>映射到脑区</strong>（BA 9/46、6/44、7/44 随负荷增强），但需警惕策略混淆</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>这套打法的精髓在于<strong>会聚证据</strong>：没有任何单一实验能证明"语音回路存在"，但当行为效应（相似效应、词长效应）、神经心理（颞顶损伤病人）、脑成像（BA 40 / 布洛卡区）三路证据指向同一个构造时，这个本来看不见的部件就变得可信了。</p>
+
+      <!-- ============ 与已有研究的关系 ============ -->
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p><strong>承上：从"单一短时库"到"多成分"。</strong>本模型直接挑战的是 1960 年代盛行的"模态模型"——信息从感觉登记器流入一个<strong>单一的</strong>短时存储（STS，Short-Term Storage），再喂给长时记忆。这个旧模型遇到两个麻烦：一是关于学习的假设有问题，二是神经心理证据——如果 STS 是单一的工作记忆，那么 STS 受损的病人理应在日常学习生活中严重失能；可现实里这类病人除了"立即记忆广度变小"外几乎一切如常。Baddeley 与 Hitch（1974）的回应很聪明：让正常被试一边做推理/学习、一边用"额外任务"<strong>占满</strong>其短时记忆，结果发现只是轻微受损、远非灾难——于是提出"工作记忆是多成分的"，那个被占满的只是其中一个零件。</p>
+
+      <p><strong>平行的对手：以个体差异为基础的取向。</strong>本文 Box 1 专门讨论了另一条独立发展的路线（Daneman 与 Carpenter 1980 的工作记忆广度任务等）：它用<strong>相关法</strong>研究工作记忆，发现"工作记忆广度"与阅读理解（相关约 0.5–0.6）、逻辑/拼写习得乃至一般智力都高度相关。因子分析与潜变量分析得到的结构——分开的语音存储、视空间存储、加上一个主导的执行系统——<strong>与本文的实验/神经心理模型高度吻合</strong>。Baddeley 把"把心理测量学的统计利器用到这套实验扎实的模型上"看作一条值得走的康庄大道。</p>
+
+      <p><strong>与意识理论接轨。</strong>情景缓冲区把模型接到了 Baars 的<strong>全局工作空间</strong>理论上，让"工作记忆"和"意识觉知"产生了正式的理论接口——这是本文相对早期版本最具前瞻性的一步延伸。</p>
+
+      <!-- ============ 跨领域启示 ============ -->
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>语言学习与教育：</strong>"语音回路为学语言而生"这一主张有直接的实践含义——儿童的非词复述能力可作为词汇习得（含二语学习）潜力的早期指标；有特定语言障碍的孩子往往伴随非词复述困难。这把一个抽象的记忆部件和"为什么有的孩子学词特别吃力"连了起来。</li>
+        <li><strong>人工智能与认知架构：</strong>多成分模型是一份关于"智能体需要哪些临时存储 + 一个注意力调度器"的工程蓝图。今天讨论人工智能（AI，Artificial Intelligence）系统的"上下文窗口""注意力机制""把多模态信息绑成统一表征"时，会发现 Baddeley 在 1974–2003 年间为生物智能描出的部件分工惊人地有现代回声。</li>
+        <li><strong>临床诊断：</strong>"分配注意"在阿尔茨海默病中特异受损，提示双任务范式可能比单任务更早、更灵敏地暴露早期认知衰退；前额叶损伤导致的"该插手时插手不了"为理解执行功能障碍提供了行为标记。</li>
+        <li><strong>自我控制研究：</strong>本文把中央执行系统/监督注意系统与 Baumeister 等人的"自我控制像会疲劳的肌肉"研究相连——若控制依赖一个容量有限、会疲劳衰退的系统，就能解释为什么意志力会"用光"。</li>
+        <li><strong>动机与情绪的缺口（作者自指的启示）：</strong>Baddeley 引 Damasio、Hume、Lewin 指出：这个模型有"信息"却没有等价于<strong>动机/唤醒/情绪</strong>的概念——而真实的行动归根结底是被情绪赋予价值、被目标牵引的。这为"冷认知"模型如何接上"热"的动机系统，留下了一道公开邀请。</li>
+      </ul>
+
+      <!-- ============ 边界和未解问题 ============ -->
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>本文是一篇罕见地<strong>对自己模型很诚实</strong>的综述，作者主动点出了多处缺口；下面在此基础上再补几条解读者的观察。</p>
+      <ul>
+        <li><strong>中央执行系统仍是半个黑箱（作者承认）。</strong>把它拆成聚焦/分配/切换是进展，但这套清单是否完备、各能力如何协同、它与意识的确切关系，都未定论。"同源小人"的幽灵只是被推迟、尚未被真正驱散。</li>
+        <li><strong>情景缓冲区当时证据最薄。</strong>它在 2000 年提出，本文（2003）对它的支撑主要还是"逻辑必要性 + 个别病例"，缺乏像语音回路那样成体系的行为效应与脑成像证据——它更像一个<strong>设计良好的占位符</strong>，等待后续实证填充。<span style="font-size:0.9rem;color:var(--muted);">（解读者观点）</span></li>
+        <li><strong>没有动机/情绪/唤醒维度（作者承认）。</strong>模型刻画的是"信息如何被存与算"，却没有 Freud 式"心理能量"或"唤醒"的对应物——在解释真实的、被欲望和情绪驱动的行为时，这是结构性的不完整。</li>
+        <li><strong>视空间侧整合度低（作者承认）。</strong>相比语音回路，视空间工作记忆的子结构（视觉 vs 空间 vs 客体 vs 动觉）划分方案众多、尚未收敛，作者称其"活跃但整合很差"。</li>
+        <li><strong>脑定位被"策略"污染（作者反复警告）。</strong>双任务/并发任务既改负荷又改策略，使执行功能的神经定位结论彼此打架；在策略被严格控制前，这些定位都应打折看待。</li>
+        <li><strong>这是一篇"自家综述"，立场不中立。</strong>全文是作者对自己提出并捍卫了三十年的模型的回顾，对竞争框架（如 Nairne 的批评、Jones 等人否认"独立存储"的观点）虽有提及与回应，但叙事重心明显偏向多成分模型。读者宜把它当作"该领域最有力的一种声音"，而非领域共识的中立裁决。<span style="font-size:0.9rem;color:var(--muted);">（解读者观点）</span></li>
+      </ul>
+
+      <!-- ============ 判断 ============ -->
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>这是一篇<strong>方法论上堪称典范、立场上需要读者自行校正</strong>的综述。它的力量来自三点，都能在文中找到支撑：</p>
+      <p><strong>第一，它示范了"会聚证据"如何让看不见的东西变得可信。</strong>语音回路的存在，不靠任何单一实验，而靠行为效应（语音相似、词长，且都有"消失条件"作为内在检验）、神经心理（颞顶损伤病人）、脑成像（BA 40 / 布洛卡区）三路独立证据的会合。这种"多重独立路径指向同一构造"的论证结构，是认知科学最可靠的推断方式，本文几乎每个部件都按此搭建。</p>
+      <p><strong>第二，它对"反例"的态度是健康的。</strong>面对那位"高智商却重度遗忘、立即复述能记 25 个意念单元"的病人，作者没有回避，而是承认三件套模型在此失效、并据此<strong>增补</strong>了情景缓冲区。一个理论愿意因一个病例而长出新部件，是它仍然可证伪、仍然活着的标志。</p>
+      <p><strong>第三，它清醒地标出了自己的无知。</strong>中央执行系统是"最重要却最不被理解"、情景缓冲区证据尚薄、动机/情绪维度整体缺失、脑定位受策略污染——这些都是作者主动说出口的。这种诚实反而增强了其余论断的可信度。</p>
+      <p>需要扣分或保留的地方同样清楚：作为<strong>自家综述</strong>，它的叙事天然偏向多成分模型，对竞争框架的处理是"提及并回应"而非"平等并陈"；而它最前瞻的两笔——情景缓冲区与"工作记忆即全局工作空间"——在 2003 年时更多是<strong>有说服力的理论提议</strong>，实证含量明显低于语音回路那一节。<strong>总体判断：作为理解"人脑如何临时存放与操弄信息"的入门地图，本文几乎无可替代；但读者应把它读成"一位大师对自己最好作品的回顾与辩护"，而非该领域的中立终判。</strong></p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>工作记忆不是一个"短时仓库"，而是一套有分工的系统——一个调度注意力的<strong>中央执行系统</strong>，加上管声音的<strong>语音回路</strong>（人能记住的约等于两秒能默念完的量；为学语言而进化）、管图像与空间的<strong>视空间画板</strong>（视觉与空间双重分离）、以及 2000 年补上的、把碎片绑成完整片段并接通意识的<strong>情景缓冲区</strong>；这篇 2003 年的回顾，既是这张大脑"草稿纸"分区图的权威导览，也是一个理论如何在三十年的实验拉锯中、靠承认缺口而不断长大的活教材。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Baddeley, A. (2003). Working memory: looking back and looking forward. <em>Nature Reviews Neuroscience</em>, 4(10), 829–839. doi:10.1038/nrn1201<br>
+    <span style="color:var(--muted-light);">本页为基于原文的中文深度解读；交互结构图依据论文 Figure 1 / Figure 5 重绘，容量与效应数字引自正文报告，仅作教学示意。</span>
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('wmCanvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var detail = document.getElementById('wmDetail');
+  var hint = document.getElementById('wmHint');
+  var dpr = window.devicePixelRatio || 1;
+
+  // 逻辑坐标系 680 x 380
+  var W = 680, H = 380;
+
+  // 部件数据：id, 标签, 矩形(x,y,w,h), 颜色, 详情HTML
+  var nodes = [
+    {
+      id:'ce', label:'中央执行系统', sub:'Central Executive',
+      x:255, y:30, w:170, h:60, fill:'#cfe3f2', stroke:'#2a6fa3',
+      html:'<strong>中央执行系统（Central Executive）</strong><br>'+
+        '<b>功能：</b>整个系统的"指挥/调度中心"——聚焦、分配、切换注意力，并把工作记忆与长时记忆接通。<br>'+
+        '<b>容量：</b>本身不被设想为"存储"，而是有限的<strong>注意力资源</strong>；模型里"最重要却最不被理解"的部件。<br>'+
+        '<b>关键证据：</b>借 Norman 与 Shallice 的监督注意系统（SAS）解释"习惯 vs 监督"两层控制；阿尔茨海默病患者在"同时做两件事"（分配注意）上特异受损。<br>'+
+        '<b>对应任务：</b>双任务范式（听觉数字广度 + 视动追踪）、N-back 任务（负荷越高，BA 9/46、6/44、7/44 激活越强）。'
+    },
+    {
+      id:'pl', label:'语音回路', sub:'Phonological Loop',
+      x:470, y:130, w:175, h:62, fill:'#d8eccf', stroke:'#4f8a3a',
+      html:'<strong>语音回路（Phonological Loop）</strong><br>'+
+        '<b>功能：</b>临时存放声音/语言信息。两件套——会褪色的<strong>语音存储</strong> + 像内心默念的<strong>发声复述</strong>（靠不停默念刷新内容）。<br>'+
+        '<b>容量：</b>约等于你 2 秒内能默念完的项目数；短词能记五六个，五音节长词可能只剩三个。<br>'+
+        '<b>关键证据：</b>语音相似效应（B/G/T/P/C 比 W/X/K/R/Y 更难记）、词长效应（词越长记得越少；发声压制后该效应消失）。<br>'+
+        '<b>对应任务：</b>立即序列回忆、非词复述（预测词汇/二语习得）。本职功能：进化来帮助<strong>学习新词</strong>。'
+    },
+    {
+      id:'vssp', label:'视空间画板', sub:'Visuospatial Sketchpad',
+      x:35, y:130, w:175, h:62, fill:'#d8eccf', stroke:'#4f8a3a',
+      html:'<strong>视空间画板（Visuospatial Sketchpad）</strong><br>'+
+        '<b>功能：</b>临时存放图像与空间位置（"什么"与"在哪"）；可进一步切分为静态的<strong>视觉缓存</strong> + 动态的<strong>内部抄写员</strong>。<br>'+
+        '<b>容量：</b>约 3–4 个物体；变化盲视即其容量有限的日常证据。<br>'+
+        '<b>关键证据：</b>视觉 vs 空间的双重分离（Della Sala 等）——空间任务约 84%（视觉干扰）↘65%（空间干扰），视觉任务反之。<br>'+
+        '<b>对应任务：</b>科西方块敲击（空间广度）、图案广度（视觉广度）、Brooks 矩阵任务（空间句 8 句 vs 胡话句 6 句）。'
+    },
+    {
+      id:'eb', label:'情景缓冲区', sub:'Episodic Buffer',
+      x:255, y:130, w:170, h:62, fill:'#d8eccf', stroke:'#4f8a3a',
+      html:'<strong>情景缓冲区（Episodic Buffer）·2000 年新增</strong><br>'+
+        '<b>功能：</b>有限容量的"整合工作台"，由中央执行系统控制，把各子系统与长时记忆的碎片<strong>绑成统一的多维片段</strong>，并接通意识觉知（全局工作空间）。<br>'+
+        '<b>容量：</b>有限，但能借长时知识"打包"——这正是它能突破其他部件容量上限的原因。<br>'+
+        '<b>关键证据：</b>一位高智商重度遗忘症病人，立即复述能记约 25 个意念单元的散文（约 15 词的句子整段可记，而无关联孤立词只能记 5–6 个）。<br>'+
+        '<b>对应任务：</b>有意义连贯句 vs 无关词表的立即回忆落差；接 Baars 全局工作空间理论。'
+    },
+    {
+      id:'vs', label:'视觉语义', sub:'Visual Semantics',
+      x:35, y:255, w:175, h:55, fill:'#b9a7d6', stroke:'#5a3f8c', crystal:true,
+      html:'<strong>视觉语义（Visual Semantics）·长时知识层</strong><br>'+
+        '<b>性质：</b>深紫色块代表"晶体化"的长时记忆——关于物体外观与视觉世界的固化知识。<br>'+
+        '<b>作用：</b>为视空间画板提供"旧知识"支援（如借已知物体形状帮助记一个视觉图案）。<br>'+
+        '<b>在图中的位置：</b>位于流动的工作记忆部件之下，通过双向箭头与视空间画板交换信息。'
+    },
+    {
+      id:'eltm', label:'情景长时记忆', sub:'Episodic LTM',
+      x:255, y:255, w:170, h:55, fill:'#b9a7d6', stroke:'#5a3f8c', crystal:true,
+      html:'<strong>情景长时记忆（Episodic LTM，Episodic Long-Term Memory）·长时知识层</strong><br>'+
+        '<b>性质：</b>晶体化的、关于"亲历事件"的永久记忆库。<br>'+
+        '<b>作用：</b>情景缓冲区正是与它对接的"临时窗口"——把长时记忆里的内容调出、整合、操弄成新的工作片段，而非只是简单激活旧痕迹。<br>'+
+        '<b>在图中的位置：</b>正对情景缓冲区，是其内容的长期来源与去处。'
+    },
+    {
+      id:'lang', label:'语言', sub:'Language',
+      x:470, y:255, w:175, h:55, fill:'#b9a7d6', stroke:'#5a3f8c', crystal:true,
+      html:'<strong>语言（Language）·长时知识层</strong><br>'+
+        '<b>性质：</b>晶体化的语言知识（词汇、音系规则等）。<br>'+
+        '<b>作用：</b>与语音回路对接——已有语言习惯会影响复述/输出（语言相关），但语音<strong>存储</strong>本身相对独立于语言知识；非词复述好坏预测新词学习。<br>'+
+        '<b>在图中的位置：</b>正对语音回路，是其"为学语言而进化"这一功能定位的知识背景。'
+    }
+  ];
+
+  // 连接线（仅总览时画）：上层CE分别连三个子系统；三个子系统分别连其下方晶体块
+  var links = [
+    ['ce','vssp'],['ce','eb'],['ce','pl'],
+    ['vssp','vs'],['eb','eltm'],['pl','lang']
+  ];
+
+  function nodeById(id){ for(var i=0;i<nodes.length;i++){ if(nodes[i].id===id) return nodes[i]; } return null; }
+
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  function cx(n){ return n.x + n.w/2; }
+  function cy(n){ return n.y + n.h/2; }
+
+  var selected = null;
+
+  function draw(){
+    ctx.save();
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,W,H);
+
+    // 连接线
+    ctx.lineWidth = 1.6;
+    for(var i=0;i<links.length;i++){
+      var a = nodeById(links[i][0]); var b = nodeById(links[i][1]);
+      var dim = selected && selected!==a.id && selected!==b.id;
+      ctx.strokeStyle = dim ? '#e3e3e6' : '#9aa1ab';
+      ctx.beginPath();
+      ctx.moveTo(cx(a), a.y + a.h);
+      ctx.lineTo(cx(b), b.y);
+      ctx.stroke();
+      // 简单双向箭头标记（小三角）
+      if(!dim){
+        drawArrowHead(cx(b), b.y, 0);   // 指向下方节点顶
+        drawArrowHead(cx(a), a.y + a.h, Math.PI); // 指向上方节点底
+      }
+    }
+
+    // 节点
+    for(var j=0;j<nodes.length;j++){
+      var n = nodes[j];
+      var isSel = selected===n.id;
+      var dim2 = selected && !isSel;
+      ctx.globalAlpha = dim2 ? 0.45 : 1;
+      roundRect(n.x, n.y, n.w, n.h, 9);
+      ctx.fillStyle = n.fill;
+      ctx.fill();
+      ctx.lineWidth = isSel ? 3.2 : 1.6;
+      ctx.strokeStyle = isSel ? '#c0392b' : n.stroke;
+      ctx.stroke();
+
+      // 文字
+      ctx.globalAlpha = dim2 ? 0.55 : 1;
+      ctx.fillStyle = n.crystal ? '#2b2140' : '#1f2328';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '700 15px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText(n.label, cx(n), cy(n) - 8);
+      ctx.fillStyle = n.crystal ? '#5a4f78' : '#5a6470';
+      ctx.font = '400 10px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText(n.sub, cx(n), cy(n) + 11);
+      ctx.globalAlpha = 1;
+    }
+
+    // 图例
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    // 流动系统图例
+    roundRect(36, 345, 16, 14, 3); ctx.fillStyle = '#d8eccf'; ctx.fill(); ctx.lineWidth=1; ctx.strokeStyle='#4f8a3a'; ctx.stroke();
+    ctx.fillStyle = '#5a6470'; ctx.font='400 11px -apple-system,"PingFang SC",sans-serif';
+    ctx.fillText('流动系统（工作记忆部件）', 58, 352);
+    // 晶体系统图例
+    roundRect(290, 345, 16, 14, 3); ctx.fillStyle = '#b9a7d6'; ctx.fill(); ctx.strokeStyle='#5a3f8c'; ctx.stroke();
+    ctx.fillStyle = '#5a6470';
+    ctx.fillText('晶体系统（长时知识）', 312, 352);
+    // 执行图例
+    roundRect(500, 345, 16, 14, 3); ctx.fillStyle = '#cfe3f2'; ctx.fill(); ctx.strokeStyle='#2a6fa3'; ctx.stroke();
+    ctx.fillStyle = '#5a6470';
+    ctx.fillText('注意控制', 522, 352);
+
+    ctx.restore();
+  }
+
+  function drawArrowHead(x, y, rot){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.fillStyle = '#9aa1ab';
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(-4,-7);
+    ctx.lineTo(4,-7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function hitTest(mx,my){
+    for(var i=0;i<nodes.length;i++){
+      var n = nodes[i];
+      if(mx>=n.x && mx<=n.x+n.w && my>=n.y && my<=n.y+n.h) return n;
+    }
+    return null;
+  }
+
+  function getPos(e){
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = W / rect.width;
+    var scaleY = H / rect.height;
+    var clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    var clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+    return { x:(clientX-rect.left)*scaleX, y:(clientY-rect.top)*scaleY };
+  }
+
+  function selectNode(n){
+    selected = n.id;
+    detail.innerHTML = n.html;
+    hint.textContent = '已选中：' + n.label + '（点"回到总览"取消高亮）';
+    draw();
+  }
+
+  canvas.addEventListener('click', function(e){
+    var p = getPos(e);
+    var n = hitTest(p.x, p.y);
+    if(n){ selectNode(n); }
+  });
+
+  canvas.addEventListener('mousemove', function(e){
+    var p = getPos(e);
+    var n = hitTest(p.x, p.y);
+    canvas.style.cursor = n ? 'pointer' : 'default';
+  });
+
+  document.getElementById('btnReset').addEventListener('click', function(){
+    selected = null;
+    detail.innerHTML = '点击上方任意部件，这里会显示它的<strong>功能 / 容量 / 关键证据 / 对应任务</strong>。';
+    hint.textContent = '提示：点蓝色/紫色方块查看该部件';
+    draw();
+  });
+
+  // 高分屏适配
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+
+  draw();
+})();
+</script>
+</body>
+</html>

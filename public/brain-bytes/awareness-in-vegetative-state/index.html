@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>检测植物状态中的意识 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 交互组件辅助元素 ---------- */
+  .viz-legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    font-size:0.8rem;
+    color:var(--ink-soft);
+    margin-top:12px;
+    justify-content:center;
+  }
+  .viz-legend .lg{display:flex;align-items:center;gap:6px;}
+  .viz-legend .sw{width:13px;height:13px;border-radius:3px;display:inline-block;}
+  .viz-readout{
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    background:var(--code-bg);
+    border-radius:6px;
+    padding:10px 14px;
+    margin-top:14px;
+    min-height:1.5em;
+    line-height:1.65;
+  }
+  .viz-readout strong{color:var(--red);}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Tennis in the Mind <span>×</span> 用一场"想象的网球"，敲开植物人沉默的意识之门</h1>
+    <div class="meta">
+      <span>📄 Detecting Awareness in the Vegetative State（检测植物状态中的意识）</span><br>
+      <span>✍️ Adrian M. Owen、Martin R. Coleman、Melanie Boly、Matthew H. Davis、Steven Laureys、John D. Pickard</span><br>
+      <span>🏛️ 英国医学研究理事会认知与脑科学研究所（剑桥）· 学术神经外科部 / 沃尔夫森脑成像中心（剑桥 Addenbrooke 医院）· 回旋加速器研究中心与神经病学系（比利时列日大学）</span><br>
+      <span>📅 Science（《科学》）· 2006 年 9 月 8 日 · 第 313 卷第 5792 期 · 第 1402 页（Brevia 短报告）</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-problem">核心难题：诊断的死结</a></li>
+        <li><a href="#sec-f1">核心发现一：她听得懂话</a></li>
+        <li><a href="#sec-f2">核心发现二：她能"想象"</a></li>
+        <li><a href="#sec-viz">交互：并排点亮她的大脑</a></li>
+        <li><a href="#sec-f3">核心发现三：意图即意识</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>这是一篇只有<strong>一页纸</strong>、连一张数据表都没有的《科学》短报告（Brevia），却被公认为意识神经科学近三十年最重要的论文之一。它做的事极其简单、又极其震撼：一位被全套国际标准诊断为<strong>植物状态（vegetative state，俗称"植物人"）</strong>的 23 岁女患者，躺在功能性磁共振成像（fMRI，Functional Magnetic Resonance Imaging）扫描仪里，听到指令"请想象打网球"，她大脑的辅助运动区准时亮起；听到"请想象在家里各个房间走一圈"，她大脑负责空间导航的区域准时亮起。这两种激活模式，<strong>与 12 名健康人做同样想象时的大脑反应无法区分</strong>。</p>
+        <p>它值得读，是因为它一举把一个看似纯哲学的问题——"一个不会动、不会说话的人，里面还有没有'人'？"——变成了一个可以用脑成像<strong>正面回答</strong>的科学问题。在此之前，植物状态的诊断只能靠观察病人有没有对外界刺激做出"有目的的行为"；可如果一个人有意识却完全瘫痪、无法用任何动作回应呢？本文证明：<strong>意识可以绕开身体，直接从大脑活动里被读出来。</strong>这不仅改写了一类疾病的诊断逻辑，还为"脑机交流"埋下了第一颗种子。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的术语门槛主要在两类词上：一类是临床上几个极易混淆的"意识障碍"诊断标签，另一类是几个被当作"探针"用的脑区缩写。先把它们用人话讲清楚，正文就顺了。</p>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cname">植物状态（vegetative state，植物人）</div>
+          <div class="cdesc">一种意识障碍：患者从昏迷中"醒来"了——有睡眠-觉醒周期、会睁眼、保留呼吸心跳等基本生理功能，<strong>看上去清醒，却对外界毫无有意义的反应</strong>。诊断的核心标准就是：观察不到任何"有目的的行为"。本文的炸点正在于：标准说"没反应"，不等于"没意识"。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">意识的两个维度：觉醒 vs 觉知</div>
+          <div class="cdesc">现代意识科学把意识拆成两根轴。<strong>觉醒（wakefulness/arousal）</strong>＝睁不睁眼、清不清醒，由脑干控制；<strong>觉知（awareness）</strong>＝有没有对自己和环境的主观体验，靠大脑皮层。植物人的特征是"觉醒在、觉知缺"。本文要测的，恰恰是那根最难测的"觉知"轴。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">功能性磁共振成像（fMRI，Functional Magnetic Resonance Imaging）</div>
+          <div class="cdesc">一种无创脑成像技术。脑区一旦活跃，局部耗氧、血流随之改变，fMRI 通过测这种<strong>血氧信号</strong>的变化，间接画出"此刻哪块脑区在干活"。它不读思想内容，但能精确定位"活动发生在哪里"——这正是本文把它当"读心探针"的基础。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">辅助运动区（SMA，Supplementary Motor Area）</div>
+          <div class="cdesc">额叶内侧、运动皮层前方的一块区域，负责<strong>运动的计划与想象</strong>。关键性质：你光是在脑子里"想象"做某个动作（比如挥拍）、并不真动，它也会亮。本文用"想象打网球"当任务，正是把 SMA 当成一个"意图开关"——只有真的在主动想象，它才会响。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">海马旁回 / 海马旁回位置区（PPA，Parahippocampal Place Area）</div>
+          <div class="cdesc">位于颞叶内侧、紧贴海马的脑回，对<strong>场景、地点、空间环境</strong>特别敏感——想象一栋房子的布局、在屋里穿行时它会亮。本文用"想象在家中走动"当任务，PPA 就是这条空间导航任务的招牌"指示灯"。（论文正文写作 parahippocampal gyrus，海马旁回。）</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">后顶叶皮层（PPC，Posterior Parietal Cortex）</div>
+          <div class="cdesc">顶叶后部，负责<strong>空间表征与导航</strong>——在脑中构建"我在哪、各处怎么走"的地图时会激活。它和 PPA、外侧前运动皮层（PMC，Lateral Premotor Cortex）一起，构成"想象空间漫游"这条任务的脑区三件套。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">外侧前运动皮层（PMC，Lateral Premotor Cortex）</div>
+          <div class="cdesc">运动皮层前方的外侧部分，参与<strong>动作的规划与空间引导的运动</strong>。在"想象在房子里走路"任务里，规划"往哪迈步"涉及它，因此它也被点亮。注意别和 SMA 混：SMA 偏内侧、管"网球"任务，PMC 偏外侧、属"导航"任务。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">心理想象任务（mental imagery task）</div>
+          <div class="cdesc">本文方法的灵魂。它不要求患者做任何动作，只要求她<strong>在脑中持续想象一件事</strong>。妙处在于：想象不同的事，会稳定点亮不同的脑区；而要按指令、在特定时段持续想象，<strong>必须是有意识地主动配合</strong>——这就把"内在的意识"翻译成了"外在可测的脑信号"。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">语义加工（semantic processing）</div>
+          <div class="cdesc">大脑理解语言"意思"的过程，而非仅仅听到声音。本文第一个实验测它：放有歧义词的句子时，左侧额下区会额外激活，这是语义加工、即"在真正理解话语"的标志，而不只是被声音被动驱动。</div>
+        </div>
+        <div class="concept-card">
+          <div class="cname">假阴性（false negative）</div>
+          <div class="cdesc">"明明有、却没测到"的错误。本文反复强调的逻辑天平：脑成像里假阴性很常见，所以<strong>没看到激活，不能当作"没意识"的证据</strong>；但反过来，看到了稳健、可重复、与任务严丝合缝的激活，就是强证据。本文走的正是这条"只认阳性"的稳健路线。</div>
+        </div>
+      </div>
+
+      <div class="section-head" id="sec-problem">核心难题：一个诊断上的"死结"</div>
+      <p>要懂这篇论文的分量，得先懂它撬动的那个困局。作者开篇就把话挑明：<strong>植物状态是现代医学里最难理解、伦理上最棘手的状况之一。</strong>问题的死结在于诊断逻辑本身——</p>
+      <p>按国际指南，判定一个人是不是植物状态，<strong>关键依据是"观察不到对外界刺激产生可重复的、有目的的行为"</strong>。逻辑上这等于说：我们是通过"病人能不能用行为回应"来反推"病人有没有意识"。这个推理平时没问题，可它藏着一个致命假设——<strong>假设"有意识"一定能转化成"看得见的动作"</strong>。</p>
+      <p>但如果有一个人，意识清醒，却因为脑损伤而完全无法控制任何肌肉，连眨眼、动一根手指都做不到呢？对这样的人，"观察行为"这把尺子会给出一个灾难性的误判：把一个清醒的灵魂，判为一具没有觉知的躯壳。作者指出，已有研究提示，在被诊断为植物状态的患者中，<strong>有一小部分人可能保留着"未被察觉的认知能力孤岛"</strong>（原文用 islands of preserved brain function，"保留功能的孤岛"这一意象）。于是他们提出假设：<strong>能不能用脑成像，直接探测那些"逃过了床边检查"的意识？</strong></p>
+      <div class="info-block">
+        <span class="ib-title">这个死结为什么非解不可</span>
+        <p>因为误判的代价是不可逆的。一个被错判为植物状态的人，可能在毫无止痛、无人交流的情况下被照护数年甚至数十年，而他全程清醒。把"诊断"从"观察身体"升级为"直接读脑"，不是学术上的精致，而是关乎一个人是否被当作"人"来对待。</p>
+      </div>
+
+      <div class="section-head" id="sec-f1">核心发现一：她听得懂话，不只是"听见声音"</div>
+      <p>研究对象是一名 23 岁女性，2005 年 7 月因一场车祸导致<strong>严重创伤性脑损伤</strong>。5 个月后，她仍然对外界无反应，但保留睡眠-觉醒周期。一支多学科临床团队按国际指南评估后判定：<strong>她符合植物状态的全部诊断标准。</strong>这是关键前提——她不是"疑似"，而是按当时最严标准"铁板钉钉"的植物人。</p>
+      <p>作者先做了一个相对温和的实验：给她播放口语句子，并与<strong>声学特征匹配的噪声序列</strong>对照（这样能把"理解语言"和"单纯听到声响"区分开）。结果：</p>
+      <ul>
+        <li><strong>言语特异性激活</strong>出现在<strong>双侧颞中回和颞上回（middle and superior temporal gyri）</strong>，这与健康志愿者听同样刺激时的反应一致——说明她的大脑在对"语言"而非"噪声"做出专门反应。</li>
+        <li>更进一步，当句子里含有<strong>歧义词</strong>（如英文 "creak / creek"、"beam" 等同音或多义词，需要结合语境才能确定意思）时，她的<strong>左侧额下区（left inferior frontal region）</strong>出现额外激活——这与正常人一致，反映的是<strong>语义加工</strong>（理解话语含义）的运转。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：为什么"歧义词激活"是个聪明的设计</span>
+        <p>普通句子，你不"用心听"也可能被声音被动驱动出一些激活。但<strong>歧义词必须靠大脑主动调用语境去"消歧"</strong>，左额下区的额外激活几乎只在"真的在理解意思"时才出现。它把"被动听到"和"主动理解"拉开了距离——这是在为后面更强的主张热身。</p>
+      </div>
+      <p>不过作者非常克制，亲手给这个结果"降温"：<strong>对语言意义产生恰当的神经反应，虽有提示性，却不是"一个人有意识"的确凿证据。</strong>因为语言加工的很多方面——内隐学习、启动效应，乃至麻醉和睡眠状态下的某些语言加工——<strong>都可能在没有意识觉知的情况下发生</strong>。要证明"觉知"，需要一个更硬的实验。这份自我设限，正是本文严谨之处。</p>
+
+      <div class="section-head" id="sec-f2">核心发现二：她能听懂指令，并"按要求想象"</div>
+      <p>为了拿到"觉知"的确证，作者做了第二个、也是真正一锤定音的 fMRI 实验。他们给患者下达<strong>口头指令</strong>，要求她在扫描中的特定时段执行两项<strong>心理想象任务</strong>：</p>
+      <ul>
+        <li><strong>任务 A（想象打网球）</strong>：想象自己正在打一场网球。</li>
+        <li><strong>任务 B（想象空间导航）</strong>：想象自己<strong>从前门进入，逐一走遍家里所有房间</strong>。</li>
+      </ul>
+      <p>结果干净得惊人——</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉：两个任务，两套不同的"指示灯"</span>
+        <p><strong>想象打网球时</strong>，激活出现在<strong>辅助运动区（SMA）</strong>（图中标注层面 X = -2 mm；这里的 X 是<strong>立体定位空间</strong>里的左右轴坐标，单位毫米、以距正中线的距离计——X=-2 即非常接近大脑正中线）。<strong>想象在家中走动时</strong>，激活转移到完全不同的一组脑区：<strong>海马旁回（PPA）、后顶叶皮层（PPC）、外侧前运动皮层（PMC）</strong>（图中标注层面 X = -24 mm，即偏离中线 24 毫米的外侧）。两套任务点亮两套区域，互不串台——这正是"她在按指令、分别执行两种不同想象"的指纹。</p>
+      </div>
+      <p>而最致命的一击是对照：作者让 <strong>12 名健康志愿者</strong>做完全相同的两项想象任务。患者的神经反应——无论是网球任务里的 SMA，还是导航任务里的 PPA/PPC/PMC——<strong>与健康对照组无法区分（indistinguishable）</strong>。所有激活均在 <strong>P &lt; 0.05、且经多重比较校正</strong>的严格阈值下成立（多重比较校正：脑成像有成千上万个体素同时检验，必须把这种"撞大运撞出假阳性"的概率压下去，校正后还显著才算数）。</p>
+      <p>换句话说：把患者的脑图和健康人的脑图并排放，<strong>你分不出哪张来自"植物人"。</strong>她不仅听懂了"打网球""逛房子"这两条指令，还在被要求的时段内持续、稳定地执行了它们。</p>
+
+      <div class="section-head" id="sec-viz">交互：并排点亮她的大脑</div>
+      <p>下面这个组件把论文那张唯一的插图"活化"了：选择一个想象任务，看看患者（上排）和健康对照（下排）各自点亮了哪些脑区。论文的核心论证，全在"两排几乎一模一样"这件事里——你可以亲手切换任务、亲眼比对。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">想象任务 → 脑区激活：患者 vs 健康对照</div>
+        <div class="viz-note">脑区位置与激活模式为示意性重绘，定性还原 Owen 等 (2006) 图 1 报告的激活区域（任务 A：SMA，层面 X=-2；任务 B：PPA/PPC/PMC，层面 X=-24）。非真实解剖坐标，仅用于直觉。</div>
+        <div class="viz-controls">
+          <button id="btnTennis" onclick="setTask('tennis')">🎾 想象打网球</button>
+          <button id="btnNav" class="alt" onclick="setTask('nav')">🏠 想象空间导航</button>
+        </div>
+        <canvas id="brainCanvas" width="660" height="420"></canvas>
+        <div class="viz-legend">
+          <span class="lg"><span class="sw" style="background:#c0392b;"></span>本任务激活的脑区（亮起）</span>
+          <span class="lg"><span class="sw" style="background:#dfe3e8;"></span>未激活脑区（灰）</span>
+          <span class="lg"><span class="sw" style="background:#f6c9c4;border:1px solid #c0392b;"></span>大脑轮廓（矢状面侧视）</span>
+        </div>
+        <div class="viz-readout" id="brainReadout"></div>
+      </div>
+
+      <div class="section-head" id="sec-f3">核心发现三："决定配合"本身，就是意识的证据</div>
+      <p>本文真正的哲学杀招，藏在对结果的解释里。作者的推理链条是这样的：</p>
+      <ul>
+        <li><strong>第一步：</strong>这些激活不是反射，也不是被声音被动诱发的——它们是<strong>任务依赖（task-dependent）</strong>的：指令是"网球"就亮 SMA，指令是"逛房子"就亮 PPA/PPC/PMC，并且只在被要求的时段持续。</li>
+        <li><strong>第二步：</strong>要做到这一点，患者必须先<strong>听懂口头指令</strong>，再<strong>下决心去执行</strong>这个特定的想象动作，并把它<strong>维持</strong>一段时间。</li>
+        <li><strong>第三步（关键）：</strong>当她被要求想象某个特定动作时，她"决定去配合"这件事本身，就代表了<strong>一次清晰的意图行为（act of intention）</strong>。</li>
+      </ul>
+      <p>作者由此得出结论，原文掷地有声：<strong>这毫无疑问地确证（confirmed beyond any doubt）她有意识地觉知到了自己和周遭环境。</strong>注意这里的逻辑优雅之处——它<strong>不依赖任何身体动作</strong>。患者全程一动不动，但"想象"这个纯内在的、需要主动维持的心理行为，扮演了"动作"的角色，成了她意识的"代言人"。</p>
+      <div class="info-block">
+        <span class="ib-title">这一步为什么无法被"自动加工"反驳</span>
+        <p>核心发现一里，作者承认语言理解可能是无意识的自动加工。但"<strong>在被指定的时段、按被指定的指令、持续想象一件特定的事</strong>"无法被自动化解释——没有哪种无意识反射会"恰好"在听到"网球"二字后维持挥拍想象、在听到"房子"后切换成空间漫游。这个任务的设计，把"无意识自动加工"这条退路堵死了。这正是它比实验一强得多的原因。</p>
+      </div>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文的"技术含量"不在仪器，而在<strong>实验设计的逻辑构造</strong>——它用最朴素的手段，回避了所有可能的反驳。下面把它的几处精巧拆开看：</p>
+      <table>
+        <thead>
+          <tr><th>设计手法</th><th>它解决了什么质疑</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>双任务、双脑区对照</td>
+            <td>若只测一个任务、一块脑区，可能被说成"碰巧的非特异激活"。用"网球→SMA"与"导航→PPA/PPC/PMC"两套互不重叠的脑区，证明激活随指令内容精确切换，几乎不可能是偶然或伪迹。</td>
+          </tr>
+          <tr>
+            <td>选"想象"而非"动作"当探针</td>
+            <td>患者完全无法运动，任何要求动作的范式都注定失败。心理想象不需要肌肉，却同样需要主动、持续的意志参与，把"瘫痪"这个障碍彻底绕开。</td>
+          </tr>
+          <tr>
+            <td>用 SMA / PPA 这类"已知会被想象点亮"的区域</td>
+            <td>这些脑区在健康人想象同类任务时的激活规律，前人已反复验证。借成熟的"想象-脑区"对应关系当标尺，结果才有可解释性，而非凭空发现。</td>
+          </tr>
+          <tr>
+            <td>12 名健康志愿者并排对照</td>
+            <td>回答"她的激活到底算不算'正常的意识反应'"。把患者脑图和健康人脑图放在一起、做到"无法区分"，比任何单独的统计阈值都更有说服力。</td>
+          </tr>
+          <tr>
+            <td>P &lt; 0.05 多重比较校正</td>
+            <td>脑成像有成千上万体素同时检验，不校正极易撞出假阳性。施加经校正的严格阈值，堵住"激活是统计噪声"的质疑。</td>
+          </tr>
+          <tr>
+            <td>歧义词句子实验（实验一）</td>
+            <td>为"她在真正理解语言"提供独立旁证：歧义词需调用语境消歧，左额下区的额外激活几乎只在主动语义加工时出现，难以用被动听觉解释。</td>
+          </tr>
+          <tr>
+            <td>作者主动承认"假阴性"逻辑</td>
+            <td>预先声明"没激活≠没意识"，把自己的论证限定在"只用阳性结果说话"的稳健区，避免被反过来用阴性数据攻击。</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">一个常被忽略的细节：n = 1 为什么够</span>
+        <p>这是一份<strong>单病例报告</strong>（患者 n=1，对照 n=12）。单病例在群体研究里通常说服力有限，但在这里恰恰相反——本文要证的不是"植物人普遍有意识"（那确实需要大样本），而是<strong>"至少存在一个被严格诊断为植物状态、却确实有意识的人"这一存在性命题</strong>。要推翻"植物状态=无意识"的等式，<strong>一个反例就足够了</strong>。这就是为什么一例患者能登上《科学》。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+      <p>本文不是凭空降临，而是踩在两条研究脉络的交汇点上：</p>
+      <ul>
+        <li><strong>承接"保留功能孤岛"的线索。</strong>作者引用的前期工作（如 Schiff 等 2002 在《脑》上的研究）已提示，部分植物状态患者保留着局部脑功能。本文把这条线索从"局部代谢/激活的残留"，推进到"完整、可指令调控的高级认知"——质的飞跃。</li>
+        <li><strong>把意识科学的"主动范式"引入临床。</strong>此前用脑成像研究意识，多在健康人或被动刺激范式里进行。本文首次在重症患者身上，用<strong>需要主动配合的认知任务</strong>当探针，开创了后来所谓"主动范式（active paradigm）"床旁意识检测的整条路线。</li>
+        <li><strong>厘清与"闭锁综合征"的关系。</strong>文末作者点明：这套残余认知能力，可被用于一群<strong>非交流性患者</strong>——包括被诊断为植物状态、最低意识状态（minimally conscious），乃至<strong>闭锁（locked-in）</strong>的人。它把几类长期被混为一谈、却本质不同的意识障碍，纳入了同一套"用脑活动来甄别"的框架。</li>
+      </ul>
+      <p>顺带一提，本研究的两个核心实验分别由剑桥（认知与脑科学研究所、Wolfson 脑成像中心）与列日（Laureys 的回旋加速器研究中心）两支顶尖团队合作完成，这也是为什么作者署名横跨英国与比利时——它是两大意识研究重镇的联手。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <p>这篇一页纸的报告，外溢出的影响远超神经病学一科：</p>
+      <ul>
+        <li><strong>对脑机接口（BCI，Brain–Computer Interface）：</strong>作者在文末明确点出，这套"靠调节自身脑活动来传达思想"的能力，<strong>可被用来与那些无法言语、无法运动的患者交流</strong>。"想象网球＝是、想象走路＝否"——这其实就是一个最原始的、绕开身体的"脑回答问题"通道。后续工作正是顺着这条路，真的让一些患者用想象任务回答了是非题。</li>
+        <li><strong>对意识哲学：</strong>它给"行为主义式"的意识判据当头一棒。"能否观察到行为"长期被默认等同于"有无心智"，本文用一个具体的人证明：<strong>意识可以完全脱离可观察行为而存在</strong>。这迫使我们把"心智"和"身体输出"在概念上彻底分开。</li>
+        <li><strong>对医学伦理与法律：</strong>关于重症患者撤除维生治疗、疼痛管理、知情决策的所有讨论，都因这篇论文而必须重设前提——我们再也不能想当然地假设"没反应的人＝没有内在体验的人"。</li>
+        <li><strong>对临床诊断范式：</strong>它示范了如何把一个"靠经验观察"的软诊断，升级为"靠客观脑信号"的硬诊断，为整个意识障碍领域提供了可复制的方法论模板。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>本文虽强，但它有意识地把自己框得很小；下面这些边界，有些作者自己点了，有些是解读者要替它说清的：</p>
+      <ul>
+        <li><strong>这是 n=1 的存在性证明，不是流行病学结论。</strong>它证明了"有这样的人存在"，但<strong>完全没有回答</strong>"被诊断为植物状态的人里，有多大比例其实有意识"。把单个戏剧性病例外推成"植物人多半有意识"，是对本文的严重误读。</li>
+        <li><strong>"没激活"依然什么都不能证明。</strong>这是作者亲口强调的逻辑：假阴性在脑成像里很常见，对另一个换了人做却没出现激活的患者，<strong>不能因此判他"无意识"</strong>。这把双刃剑使本方法只能"确诊有意识"，无法"排除有意识"。</li>
+        <li><strong>"意图行为=有意识觉知"是个推断，不是直接测量。</strong>本文测到的是<strong>脑激活</strong>；从"脑激活符合任务"到"她主观上有觉知体验"，中间隔着一步哲学推理。这步推理很有说服力，但严格说，fMRI 测不到"主观体验"本身——它测的是体验的<strong>神经相关物</strong>。这是整个意识科学共同的"硬问题"边界，本文也不例外。</li>
+        <li><strong>对患者意识水平的细颗粒度未知。</strong>她能听懂指令、维持想象，说明有相当高级的认知。但她的体验是连续的还是片段的？有多丰富？有无痛苦？一页纸的报告无从回答，也未追踪她后续的临床转归。</li>
+        <li><strong>方法门槛极高，难以床旁普及。</strong>它依赖高场强 fMRI、复杂分析与专家解读，<strong>无法直接搬到普通病房</strong>当常规筛查。把它变成可推广的临床工具，是这篇论文留给后续十余年研究的主要任务。</li>
+        <li><strong>诊断本身的不确定性。</strong>一个无法回避的追问：如果她其实从一开始就被<strong>误诊</strong>了——只是临床检查不够敏感、漏掉了她本可表现的细微行为——那本文证明的就成了"误诊存在"，而非"有意识的真植物人存在"。作者的立场是：无论如何，结论都指向"现行床边标准不足以排除意识"，因而临床实践必须改。但"她到底是被误诊的、还是真·有意识的植物人"，这个边界本文无法彻底锁死。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>（以下为解读者评价，每条都对应文中证据。）</p>
+      <p><strong>这是一篇"四两拨千斤"的范本，论证强度远超其篇幅。</strong>它的力量不来自数据量（数据极少、连表格都没有），而来自<strong>实验设计把所有退路都堵死</strong>的逻辑构造：双任务双脑区互证（排除偶然/伪迹）、想象当探针（绕开瘫痪）、12 人对照做到"无法区分"（锚定"正常意识反应"）、严格的多重比较校正（排除统计噪声）、外加作者主动声明的"只用阳性说话"原则（封住假阴性攻击）。每一处设计都精确对应一个潜在质疑——这是方法论上的教科书级别操作（依据见"方法论精妙之处"一节）。</p>
+      <p><strong>它对自身边界的诚实，反而加固了可信度。</strong>作者主动承认"语言反应不是意识的确凿证据""假阴性很常见、没激活不能当无意识的证据"——这种自我设限不是示弱，而是把论证收缩进最稳的区域：只用最硬的那个结果（任务依赖的想象激活）下最强的那个结论（确证有意识），其余一概留白（依据见实验一的降温段与"边界"一节）。</p>
+      <p><strong>它的核心命题选得极准——是"存在性命题"，所以 n=1 足够。</strong>本文的目标不是"植物人普遍有意识"，而是"至少存在一个被严格诊断为植物状态、却确有意识的人"。要推翻"植物状态=无意识"的等式，一个反例即可。把巨大的概念冲击建立在最小但最坚实的事实地基上，这是它能以单病例登上《科学》的根本原因（依据见"方法论·n=1"一节）。</p>
+      <p><strong>需要克制的，是对结论的外推冲动。</strong>本文证明了"可能性的存在"，但媒体与后续讨论中常被滑读成"很多植物人其实清醒着"——这超出了它的证据范围。它打开的是一扇门，门后有多少人，要靠后来的大样本研究去数（依据见"边界"前两条）。综合判断：<strong>这是少数真正"改变了一个领域看世界方式"的论文，方法严谨、命题精准、影响深远；它的局限不是缺陷，而是被作者清楚标注的射程边界。</strong></p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>一位被全套国际标准判为"植物人"的 23 岁女患者，在 fMRI 中按指令分别想象"打网球"（点亮辅助运动区 SMA，X=-2）和"在家中走动"（点亮海马旁回 PPA、后顶叶 PPC、外侧前运动皮层 PMC，X=-24），其脑激活模式与 12 名健康对照<strong>无法区分</strong>（P&lt;0.05，多重比较校正）——这一个反例就足以击碎"植物状态=无意识"的等式，证明<strong>意识可以脱离身体、被脑成像直接读出</strong>，并为绕开躯体的脑机交流埋下了第一颗种子。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Owen, A. M., Coleman, M. R., Boly, M., Davis, M. H., Laureys, S., &amp; Pickard, J. D. (2006). Detecting Awareness in the Vegetative State. <em>Science</em>, 313(5792), 1402. 数字对象唯一标识符（DOI，Digital Object Identifier）：10.1126/science.1130197。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('brainCanvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var task = 'tennis';
+
+  // 两个任务各自激活的脑区（位置为矢状面侧视示意，非真实坐标）
+  // x,y 为脑轮廓局部归一化坐标(0~1)，r 为半径
+  var REGIONS = {
+    tennis: [
+      { key:'SMA', name:'辅助运动区 (SMA)', x:0.46, y:0.22, r:15 }
+    ],
+    nav: [
+      { key:'PMC', name:'外侧前运动皮层 (PMC)', x:0.40, y:0.27, r:13 },
+      { key:'PPC', name:'后顶叶皮层 (PPC)',   x:0.62, y:0.27, r:14 },
+      { key:'PPA', name:'海马旁回 (PPA)',      x:0.55, y:0.66, r:13 }
+    ]
+  };
+
+  var TASK_INFO = {
+    tennis: {
+      label:'🎾 想象打网球',
+      slice:'扫描层面 X = -2 mm（贴近大脑正中线）',
+      desc:'激活集中在<strong>辅助运动区（SMA）</strong>——运动想象的核心区。患者与 12 名健康对照在此区的反应<strong>无法区分</strong>。'
+    },
+    nav: {
+      label:'🏠 想象空间导航（在家中走动）',
+      slice:'扫描层面 X = -24 mm（偏离中线的外侧）',
+      desc:'激活转移到一组完全不同的区域：<strong>海马旁回（PPA）、后顶叶（PPC）、外侧前运动皮层（PMC）</strong>——空间导航想象的招牌网络。患者与对照同样<strong>无法区分</strong>。'
+    }
+  };
+
+  // 画一个朝左的矢状面大脑侧视轮廓，返回其包围盒以便定位脑区
+  function drawBrain(cx, cy, w, h, title, ctx){
+    // 标题
+    ctx.fillStyle = '#3a4048';
+    ctx.font = 'bold 14px -apple-system,"PingFang SC",sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(title, cx, cy - 6);
+
+    var x0 = cx, y0 = cy, bw = w, bh = h;
+
+    // 大脑外形（朝左的卵形，左下挖出脑干/小脑缺口）
+    ctx.beginPath();
+    ctx.moveTo(x0 + bw*0.05, y0 + bh*0.55);
+    ctx.bezierCurveTo(x0 + bw*0.02, y0 + bh*0.18, x0 + bw*0.30, y0 - bh*0.02, x0 + bw*0.55, y0 + bh*0.02);
+    ctx.bezierCurveTo(x0 + bw*0.82, y0 + bh*0.05, x0 + bw*1.00, y0 + bh*0.30, x0 + bw*0.97, y0 + bh*0.52);
+    ctx.bezierCurveTo(x0 + bw*0.95, y0 + bh*0.74, x0 + bw*0.78, y0 + bh*0.90, x0 + bw*0.55, y0 + bh*0.92);
+    ctx.bezierCurveTo(x0 + bw*0.45, y0 + bh*0.93, x0 + bw*0.40, y0 + bh*0.86, x0 + bw*0.36, y0 + bh*0.80);
+    ctx.bezierCurveTo(x0 + bw*0.30, y0 + bh*0.86, x0 + bw*0.20, y0 + bh*0.78, x0 + bw*0.05, y0 + bh*0.55);
+    ctx.closePath();
+    ctx.fillStyle = '#fbf2f1';
+    ctx.fill();
+    ctx.strokeStyle = '#e3a9a2';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 几条示意脑沟
+    ctx.strokeStyle = '#ecd4d0';
+    ctx.lineWidth = 1.2;
+    var sulci = [[0.40,0.10,0.50,0.55],[0.62,0.12,0.55,0.52],[0.25,0.45,0.55,0.55]];
+    for(var i=0;i<sulci.length;i++){
+      var s = sulci[i];
+      ctx.beginPath();
+      ctx.moveTo(x0 + bw*s[0], y0 + bh*s[1]);
+      ctx.quadraticCurveTo(x0 + bw*(s[0]+0.04), y0 + bh*(s[1]+0.18), x0 + bw*s[2], y0 + bh*s[3]);
+      ctx.stroke();
+    }
+
+    return { x0:x0, y0:y0, bw:bw, bh:bh };
+  }
+
+  // 在大脑包围盒内画激活点
+  function drawRegions(box, regionList, lit, ctx){
+    for(var i=0;i<regionList.length;i++){
+      var rg = regionList[i];
+      var px = box.x0 + box.bw * rg.x;
+      var py = box.y0 + box.bh * rg.y;
+
+      if(lit){
+        // 发光晕
+        var grad = ctx.createRadialGradient(px, py, 1, px, py, rg.r*1.9);
+        grad.addColorStop(0, 'rgba(231,76,60,0.95)');
+        grad.addColorStop(0.5, 'rgba(231,76,60,0.55)');
+        grad.addColorStop(1, 'rgba(231,76,60,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(px, py, rg.r*1.9, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = '#c0392b';
+        ctx.beginPath();
+        ctx.arc(px, py, rg.r*0.55, 0, Math.PI*2);
+        ctx.fill();
+
+        // 标签
+        ctx.fillStyle = '#8c2018';
+        ctx.font = 'bold 11px -apple-system,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(rg.key, px, py - rg.r - 4);
+      } else {
+        ctx.fillStyle = '#dfe3e8';
+        ctx.beginPath();
+        ctx.arc(px, py, rg.r*0.5, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    var regionList = REGIONS[task];
+
+    // 上排：患者
+    var boxP = drawBrain(40, 40, 270, 230, '患者（被诊断为植物状态）', ctx);
+    drawRegions(boxP, regionList, true, ctx);
+
+    // 下排：健康对照
+    var boxC = drawBrain(40, 200, 270, 230, '健康对照（12 人，典型模式）', ctx);
+    drawRegions(boxC, regionList, true, ctx);
+
+    // 右侧：另一任务的"灰区"对照，提示该任务下这些区不亮
+    var otherKey = (task==='tennis') ? 'nav' : 'tennis';
+    var otherList = REGIONS[otherKey];
+    var boxO = drawBrain(380, 120, 250, 215, '同一大脑·切换到另一任务时', ctx);
+    // 当前任务区亮、另一任务区灰，演示"任务切换、脑区切换"
+    drawRegions(boxO, regionList, true, ctx);
+    drawRegions(boxO, otherList, false, ctx);
+
+    // 中间分隔提示
+    ctx.strokeStyle = '#e6e8eb';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    ctx.moveTo(350, 30);
+    ctx.lineTo(350, H-20);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '11px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('左：两排几乎一模一样 → 分不出谁是"植物人"', 175, H-6);
+    ctx.fillText('右：灰点=另一任务才亮的区', 505, H-6);
+  }
+
+  window.setTask = function(t){
+    task = t;
+    document.getElementById('btnTennis').className = (t==='tennis') ? '' : 'alt';
+    document.getElementById('btnNav').className = (t==='nav') ? '' : 'alt';
+    var info = TASK_INFO[t];
+    document.getElementById('brainReadout').innerHTML =
+      '<strong>' + info.label + '</strong> — ' + info.slice + '。' + info.desc;
+    draw();
+  };
+
+  // 初始
+  setTask('tennis');
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient KF：选择性听觉言语短时记忆损害 — 深度解读</title>
+<style>
+  /* ============================================================
+     Paper-Read 深度解读模板 — MindScope Deep / Luna 风格
+     红色主题 #c0392b · 自包含 · 双栏 sticky 目录
+     所有论文复用此 CSS；只替换 .main-content 内的内容
+     ============================================================ */
+
+  :root{
+    --red:#c0392b;
+    --red-soft:#fdecea;
+    --red-line:#f3c9c4;
+    --ink:#1f2328;
+    --ink-soft:#3a4048;
+    --muted:#6b7280;
+    --muted-light:#9aa1ab;
+    --line:#e6e8eb;
+    --bg:#f7f7f8;
+    --card:#ffffff;
+    --code-bg:#f6f8fa;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16.5px;
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px 80px;
+  }
+
+  /* ---------- 标题区 ---------- */
+  .header-area{
+    padding:56px 0 28px;
+    border-bottom:3px solid var(--red);
+    margin-bottom:8px;
+  }
+  .header-area h1{
+    font-size:2.05rem;
+    line-height:1.3;
+    margin:0 0 18px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .header-area h1 span{
+    color:var(--red);
+    font-weight:800;
+    margin:0 6px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:0.93rem;
+    line-height:1.9;
+  }
+  .meta span{display:inline-block;}
+
+  /* ---------- 双栏布局 ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:start;
+    margin-top:32px;
+  }
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    font-size:0.9rem;
+    max-height:calc(100vh - 48px);
+    overflow-y:auto;
+  }
+  .toc h3{
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-light);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .toc ul{list-style:none;margin:0;padding:0;}
+  .toc li{margin:0;}
+  .toc a{
+    display:block;
+    padding:6px 12px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    border-left:2px solid var(--line);
+    transition:all .15s ease;
+    line-height:1.45;
+  }
+  .toc a:hover{
+    color:var(--red);
+    border-left-color:var(--red);
+    background:var(--red-soft);
+  }
+
+  /* ---------- 正文 ---------- */
+  .main-content{min-width:0;}
+  .main-content p{margin:0 0 1.1em;}
+  .main-content > p:first-child{margin-top:0;}
+
+  .section-head{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:2.6em 0 1em;
+    padding-bottom:0.4em;
+    border-bottom:2px solid var(--red);
+    scroll-margin-top:24px;
+    letter-spacing:-0.01em;
+  }
+  .section-head:first-child{margin-top:0.4em;}
+
+  .section-head-sub{
+    font-size:1.16rem;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:2em 0 0.8em;
+    padding-bottom:0.3em;
+    border-bottom:1px solid var(--line);
+    scroll-margin-top:24px;
+  }
+
+  /* ---------- 重点框 rec ---------- */
+  .rec{
+    border:2px solid var(--red);
+    border-radius:8px;
+    background:linear-gradient(180deg,var(--red-soft) 0%,#fff 55%);
+    padding:22px 26px;
+    margin:1.6em 0;
+  }
+  .rec h3,.rec h4{
+    margin:0 0 0.5em;
+    color:var(--red);
+    font-size:1.08rem;
+    font-weight:800;
+  }
+  .rec p:last-child{margin-bottom:0;}
+
+  /* ---------- info-block ---------- */
+  .info-block{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 6px 6px 0;
+    padding:14px 20px;
+    margin:1.4em 0;
+    font-size:0.97rem;
+  }
+  .info-block strong{color:var(--red);}
+  .info-block p:last-child{margin-bottom:0;}
+  .info-block .ib-title{
+    font-weight:700;
+    color:var(--red);
+    display:block;
+    margin-bottom:0.3em;
+  }
+
+  /* ---------- 概念工具箱 ---------- */
+  .concept-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin:1.6em 0;
+  }
+  .concept-card{
+    border:1px solid var(--line);
+    border-top:3px solid var(--red);
+    border-radius:8px;
+    background:var(--card);
+    padding:16px 18px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .concept-card .cname{
+    font-weight:800;
+    color:var(--ink);
+    font-size:1.0rem;
+    margin-bottom:0.45em;
+    line-height:1.4;
+  }
+  .concept-card .cdesc{
+    font-size:0.93rem;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin:0;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:1.5em 0;
+    font-size:0.93rem;
+    background:var(--card);
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  thead th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    text-align:left;
+    padding:11px 14px;
+    font-size:0.9rem;
+  }
+  tbody td{
+    padding:11px 14px;
+    border-top:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafafa;}
+  tbody td:first-child{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 引用/公式 ---------- */
+  blockquote{
+    margin:1.4em 0;
+    padding:14px 20px;
+    background:var(--code-bg);
+    border-left:4px solid var(--muted-light);
+    border-radius:0 6px 6px 0;
+    color:var(--ink-soft);
+    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    font-size:0.92rem;
+    line-height:1.7;
+    overflow-x:auto;
+  }
+  blockquote p{margin:0.3em 0;}
+
+  code{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--code-bg);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:0.88em;
+    color:#b02a1e;
+  }
+
+  /* ---------- 行内术语 ---------- */
+  .term{
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ---------- 列表 ---------- */
+  .main-content ul,.main-content ol{
+    margin:1em 0;
+    padding-left:1.4em;
+  }
+  .main-content li{margin:0.4em 0;}
+  .main-content strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- 分隔符 ---------- */
+  .sep{
+    text-align:center;
+    color:var(--red-line);
+    letter-spacing:0.6em;
+    margin:2.4em 0;
+    font-size:1.1rem;
+    user-select:none;
+  }
+  .sep::before{content:"· · ·";}
+
+  /* ---------- 交互组件外框 ---------- */
+  .viz-box{
+    border:2px solid var(--red);
+    border-radius:6px;
+    background:#fff;
+    padding:24px;
+    margin:1.8em 0;
+  }
+  .viz-box .viz-title{
+    font-weight:800;
+    color:var(--red);
+    margin-bottom:4px;
+    font-size:1.02rem;
+  }
+  .viz-box .viz-note{
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-bottom:16px;
+  }
+  .viz-box .viz-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin:14px 0;
+  }
+  .viz-box button{
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:5px;
+    padding:7px 16px;
+    font-size:0.9rem;
+    cursor:pointer;
+    font-family:inherit;
+    transition:opacity .15s;
+  }
+  .viz-box button:hover{opacity:0.85;}
+  .viz-box button.alt{
+    background:#fff;
+    color:var(--red);
+    border:1.5px solid var(--red);
+  }
+  .viz-box input[type=range]{accent-color:var(--red);}
+  .viz-box label{font-size:0.88rem;color:var(--ink-soft);}
+  .viz-box canvas{max-width:100%;display:block;margin:0 auto;}
+
+  /* ---------- 配图 ---------- */
+  figure{margin:2em 0;text-align:center;}
+  figure img{max-width:100%;border-radius:6px;border:1px solid var(--line);}
+  figcaption{color:var(--muted);font-size:0.88rem;margin-top:0.6em;}
+
+  /* ---------- 页脚 ---------- */
+  .footer{
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:0.86rem;
+    line-height:1.7;
+  }
+  .footer strong{color:var(--ink-soft);}
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;gap:0;}
+    .toc{
+      position:static;
+      max-height:none;
+      margin-bottom:32px;
+      padding:16px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:8px;
+    }
+    .concept-grid{grid-template-columns:1fr;}
+    .header-area h1{font-size:1.6rem;}
+    .page{padding:0 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<!--bb-nav-->
+<div style="margin-bottom:28px;font-size:13px;">
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+</div>
+<div class="page">
+
+  <!-- ============ 1. 标题区（全宽） ============ -->
+  <div class="header-area">
+    <h1>Patient KF <span>×</span> 一个记不住三个数字、却学得会十个单词的人</h1>
+    <div class="meta">
+      <span>📄 The Selective Impairment of Auditory Verbal Short-Term Memory</span><br>
+      <span>✍️ Elizabeth K. Warrington &amp; Tim Shallice</span><br>
+      <span>🏛️ The National Hospital, Queen Square, London（伦敦皇后广场国立医院）</span><br>
+      <span>📅 Brain · 1969 · 92, 885–896</span>
+    </div>
+  </div>
+
+  <!-- ============ 2. 双栏：sticky 目录 + 正文 ============ -->
+  <div class="layout">
+
+    <nav class="toc">
+      <h3>目录</h3>
+      <ul>
+        <li><a href="#sec-why">为什么值得深读</a></li>
+        <li><a href="#sec-toolbox">概念工具箱</a></li>
+        <li><a href="#sec-patient">病人 KF：一组反常的损伤</a></li>
+        <li><a href="#sec-findings">核心发现</a></li>
+        <li><a href="#sec-method">方法论精妙之处</a></li>
+        <li><a href="#sec-dissoc">双重分离：KF 与 H.M. 的镜像</a></li>
+        <li><a href="#sec-relation">与已有研究的关系</a></li>
+        <li><a href="#sec-implications">跨领域启示</a></li>
+        <li><a href="#sec-limits">边界和未解问题</a></li>
+        <li><a href="#sec-judgment">判断</a></li>
+        <li><a href="#sec-summary">一句话总结</a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+
+      <div class="rec" id="sec-why">
+        <h3>为什么值得深读</h3>
+        <p>1960 年代末，记忆研究有一个近乎共识的模型：信息先进<strong>短时记忆</strong>这间"前厅"，反复演练后才被搬进<strong>长时记忆</strong>的"仓库"。短时记忆是通往长时记忆的唯一闸门。这个图景优雅、直观，也几乎人人接受。</p>
+        <p>然后 Warrington 和 Shallice 报告了一个病人 <strong>KF</strong>：他的数字广度只有 <strong>2</strong>（可靠只有 1），重复"7-3-9"这种三个数字的串都做不到——前厅几乎塌了。按那个模型，他应该什么也学不进仓库。可他偏偏能像正常人一样学会 10 个单词的清单，两个月后还记得 7 个。<strong>前厅塌了，仓库照常进货。</strong></p>
+        <p>这一个反例，配上失忆症病人 H.M.（前厅好、仓库坏）的镜像，构成了认知神经科学最经典的一次<strong>双重分离</strong>。它没有把旧模型修补一下，而是直接掀翻了"短时是长时入口"这块基石，逼出了"短时与长时是并联、各自独立"的新架构。读这篇 12 页的病例报告，是看一个理论如何被<strong>单个病人</strong>击穿。</p>
+      </div>
+
+      <div class="section-head" id="sec-toolbox">概念工具箱</div>
+      <p>这篇论文的力量全在几个概念的精确对照里。先把工具备齐，后面的论证会清晰很多。</p>
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <div class="cname">短时记忆（STM，Short-Term Memory）</div>
+          <div class="cdesc">容量很小（约 7 项）、保持时间很短（几秒到十几秒）、不复习就丢的临时存储。像电脑的内存条，或你查到电话号码、走到电话机前那几秒钟脑子里的那串数字。本文主角 KF 坏的就是它。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">长时记忆（LTM，Long-Term Memory）</div>
+          <div class="cdesc">容量近乎无限、能保持数小时到一生的持久存储。像硬盘。需要"学习"才能写入。KF 的它完好无损——这正是全文最反常的地方。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">数字广度（Digit Span）</div>
+          <div class="cdesc">心理学测短时记忆的经典尺子：念一串数字，让你立刻按序复述，能正确复述的最长串长度就是广度。正常人约 7±2。KF 只有 2——这是全篇所有故事的起点。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">重复缺陷（Repetition Defect）</div>
+          <div class="cdesc">听到一串词/数/字母后无法照样复述出来。KF 单个项目能复述，两个就开始出错，三个几乎崩溃。本文的核心任务，就是查清这个"复述不出来"到底卡在哪一环。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">双重分离（Double Dissociation）</div>
+          <div class="cdesc">神经心理学判定"两个功能是不是各管各"的黄金标准：找到 A 坏 B 好的病人，再找到 B 坏 A 好的病人。两块拼起来，才能排除"其实是同一个系统被不同程度损伤"。KF（STM 坏 LTM 好）+ H.M.（STM 好 LTM 坏）就是教科书级的一对。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">Atkinson–Shiffrin 模型（多重存储 / 串行模型）</div>
+          <div class="cdesc">1968 年提出的主流记忆架构：感觉登记 → 短时存储 → 长时存储，<strong>串行</strong>排队。关键假设是短时存储是长时存储的唯一入口，信息必须在短时里"演练"够久才转入长时。KF 是它的硬反例。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">传导性失语（Conduction Aphasia）</div>
+          <div class="cdesc">一类经典失语：听得懂、说得出，唯独"复述"严重受损，常伴拼写困难。教科书说病灶在连接听觉区与运动语言区的弓状束。KF 的表现很像它——本文要论证 KF 其实是它的一种"特别纯"的形式，且根子在记忆而非语言通路。</div>
+        </div>
+
+        <div class="concept-card">
+          <div class="cname">情态特异性（Modality-Specific）</div>
+          <div class="cdesc">缺陷只针对某一种输入通道。KF 的短时记忆缺陷是<strong>听觉特异</strong>的：同样的数字，<strong>听</strong>到记不住，<strong>看</strong>到却能记住更多。说明存在一个独立的"听觉言语短时存储"，坏的只是它。</div>
+        </div>
+
+      </div>
+
+      <div class="section-head" id="sec-patient">病人 KF：一组反常的损伤</div>
+      <p>KF 是个 28 岁的男人。11 年前（17 岁）一场摩托车事故造成<strong>左侧顶枕骨折</strong>，做了左顶叶硬膜下血肿清除，昏迷数周，最初严重失语，之后几年语言逐渐恢复。19 岁起癫痫发作，25 岁入院检查。气脑造影显示<strong>左侧脑室三角区与枕角明显扩大</strong>，左颞角也有些扩张——损伤最重处在<strong>左后顶枕区</strong>。</p>
+      <p>神经心理评估给出一组很不寻常的画像：</p>
+      <ul>
+        <li><strong>智力基本在线：</strong>韦氏成人智力量表（WAIS，Wechsler Adult Intelligence Scale）操作智商 113，言语智商 79（低主要是因为语言功能拖累），瑞文推理矩阵 40/60（接近同龄第 50 百分位）。</li>
+        <li><strong>语言"大体能用"：</strong>听理解保留良好，能执行单条指令；说话有点磕巴、找词慢，但很少错语、从不造词；只有非常轻的命名障碍。</li>
+        <li><strong>但有两处塌方：</strong>口头与书写拼写都很差（6 岁水平），朗读慢；而最刺眼的是——<strong>几乎完全无法复述听到的言语</strong>。</li>
+        <li><strong>日常记忆是好的：</strong>对近期和往事的记忆充足，临场记 Binet 图形也准确。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">一句话抓住这个病人</span>
+        <p>智力正常、听得懂、记得住生活、能学新东西——可你念三个数字给他，他复述不出来。Warrington 和 Shallice 的全部工作，就是把这个"复述不出来"逐层解剖，证明它不是耳朵的错、不是嘴的错，而是<strong>一个专门的短时记忆存储坏了</strong>。</p>
+      </div>
+
+      <div class="section-head" id="sec-findings">核心发现</div>
+      <p>这篇论文的论证像一场"排除赛"：先把 KF 的缺陷量化，再一个一个排除掉所有"无聊的"解释（听不清、说不出），最后只剩下一个唯一幸存的解释——短时记忆本身坏了。我们按这个逻辑顺序看。</p>
+
+      <div class="section-head-sub">发现一：短时存储几乎塌了——记不住第二个项目</div>
+      <p>给 KF 念长度递增的数字/字母/单词串，让他复述。结果<strong>随串长急剧崩溃</strong>：单个项目几乎全对，到三四个就几乎全错。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉（Table I，串复述正确数 / 20 串）</span>
+        <p><strong>数字</strong>：1 项 20/20 → 2 项 12/20 → 3 项 6/20 → 4 项 <strong>1/20</strong>。<br>
+        <strong>字母</strong>：1 项 19/20 → 2 项 7/20 → 3 项 2/20 → 4 项 <strong>0/20</strong>。<br>
+        <strong>单词</strong>：1 项 20/20 → 2 项 13/20 → 3 项 4/20 → 4 项 1/20。<br>
+        换句话说：<strong>能可靠复述的只有 1 个项目</strong>，两个就开始大面积出错。正常人这条曲线要到 7 个左右才开始下滑——KF 的"前厅"小到几乎只剩门口。字母比数字更难（项目类型也有影响）。</p>
+      </div>
+
+      <div class="section-head-sub">发现二：不是耳朵的错——他听得清清楚楚</div>
+      <p>最容易想到的"无聊解释"是：他根本没听清，输入端就错了。作者用三个不需要记忆、只考"当场听清"的任务把这条路堵死：</p>
+      <ul>
+        <li><strong>连续广度（Continuous span）：</strong>念一长串远超其广度的数字，让他在结束时尽量倒着报出末尾几项。他对每个刚念过的项目<strong>报得完全准确</strong>——说明长串里的每一项当场都被正确知觉了，前面的项目并不会"堵住"后面的登记。</li>
+        <li><strong>逐项辨认（Table IV）：</strong>让他在一长串里每听到指定的关键项就敲一下。数字关键项 20/20、无关项 59/60；字母关键项 19/20、无关项 60/60——以接近 1 项/秒的速度<strong>当场辨认</strong>，几乎零错。</li>
+        <li><strong>词类辨认（Table V）：</strong>每听到属于某类别（国家/颜色/动物）的词就敲一下。国家 9/10、颜色 9/10、动物 10/10——他不仅听清了词，还<strong>当场理解了词义</strong>。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">这一步堵死了什么</span>
+        <p>如果是"听知觉损坏 → 登记出错"，上面这些当场任务也该崩。但它们都接近满分。<strong>结论：听知觉与登记是完好的，缺陷出现在"听清之后"的某一环。</strong></p>
+      </div>
+
+      <div class="section-head-sub">发现三：不是嘴的错——不让他说话，照样记不住</div>
+      <p>第二个"无聊解释"：KF 有点表达性语言障碍，会不会是"嘴"快速发不出连串音、所以复述不出来（构音/发音问题）？作者用两个巧妙设计把这条也堵死——都不需要连续说话：</p>
+      <ul>
+        <li><strong>指认复现（Recognition by pointing，Table VI）：</strong>念完数字串后，给他一张 1–9 随机排列的卡，让他<strong>用手指</strong>把刚才的串按序点出来。如果是嘴的问题，免去口头反应该大幅改善。结果并没有：3 项 0/20 串、4 项 0/20 串，<strong>和口头复述一样差</strong>。</li>
+        <li><strong>部分报告（Part-reporting，Table VII）：</strong>给两个项目，事后才告诉他报第几个。这样每次只需说一个项目。结果总正确 8/20，<strong>并不比整串报告更好</strong>——说明瓶颈不在"连续吐字"。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">这一步堵死了什么</span>
+        <p>把口头反应负荷降到最低（用手指、只报一个），成绩纹丝不动。<strong>结论：构音/发音不是病因。</strong>到这里，"听不清"和"说不出"两条退路都被关上了。</p>
+      </div>
+
+      <div class="section-head-sub">发现四：反常信号——越慢念，他记得越好</div>
+      <p>这是全文最精彩、也最有理论分量的一个观察。作者用三种速度念两个项目：半秒一个、一秒一个、两秒一个。</p>
+      <div class="info-block">
+        <span class="ib-title">数字直觉（Table II，2 个数字，项目正确数 / 60）</span>
+        <p>半秒/项 30/60 → 一秒/项 45/60 → <strong>两秒/项 59/60</strong>。<br>
+        2 个单词：26/60 → 38/60 → <strong>51/60</strong>。节奏越慢，成绩越好，几乎全对。</p>
+      </div>
+      <p>为什么这反常？因为对<strong>正常的短时存储</strong>来说，放慢呈现速度并<strong>不</strong>改善即时回忆（Glanzer &amp; Cunitz 1966 的经典发现）——慢下来只对从<strong>长时存储</strong>提取有帮助。KF 偏偏在放慢时显著改善，这强烈暗示：他在用一条"非短时"的途径（更接近长时记忆的方式，靠加固记忆痕迹）来勉强完成任务。同方向的另一证据是"强化"：把每个项目先单独重复几遍再要求复述整串（Table VIII），成绩也明显改善（数字 3 项 17/20 串）。两条线索都指向同一句话——<strong>KF 坏的是短时通道，长时通道是通的，他被迫绕道。</strong></p>
+
+      <div class="section-head-sub">发现五：决定性反转——长时学习完好无损</div>
+      <p>如果"短时是长时的唯一入口"成立，那么短时塌了的 KF 应该<strong>学不进任何新东西</strong>。可事实正好相反：</p>
+      <ul>
+        <li><strong>配对联想学习（韦氏记忆量表）：</strong>KF 得分 <strong>14.5</strong>，而 20–29 岁正常人均值 15.72（标准差 2.81）——不到一个标准差之下，<strong>在正常范围内</strong>。给第四次尝试时他能回忆全部 10 对；6 小时后重测仍记得 9/10。</li>
+        <li><strong>残缺词/图学习（Warrington &amp; Weiskrantz 1968，Table IX）：</strong>学到标准（连续两次无错）所需的错误数和尝试数，KF 都<strong>落在 40 人正常对照组范围内</strong>。</li>
+        <li><strong>十词学习：</strong>反复念一张 10 个高频词的清单直到全部记住，KF 需要 <strong>7 次</strong>（20 名正常对照平均 9 次，其中 4 人 20 次仍没学会）。<strong>两个月后</strong>，他不经重学就能回忆出 <strong>7/10</strong>。</li>
+      </ul>
+      <div class="info-block">
+        <span class="ib-title">这就是炸点</span>
+        <p>一个数字广度只有 2、连"7-3-9"都复述不出的人，学 10 个单词比一般人还快，两个月后记得 7 个。<strong>长时记忆的写入和保持完全正常。</strong>这直接证伪了"信息必须先在短时存储里演练、再转入长时存储"——KF 的短时存储几乎不工作，长时存储却照常进货。</p>
+      </div>
+
+      <div class="section-head-sub">补充发现：缺陷是"听觉特异"的——看得见就好很多</div>
+      <p>同样的数字和字母，改成<strong>视觉</strong>呈现（Table X）或<strong>速示</strong>（tachistoscopic，250 毫秒闪现，Table XI），KF 的即时回忆<strong>明显优于</strong>听觉呈现：视觉数字 3 项 10/20 串、字母 3 项 11/20 串，都高过听觉条件。说明坏掉的不是"短时记忆"这个笼统的东西，而是一个专门处理<strong>听觉言语</strong>材料的短时存储；视觉言语信息可以走另一条独立的存储通道。这一点为"存在多个、情态分化的短时存储"埋下伏笔。</p>
+
+      <div class="section-head" id="sec-method">方法论精妙之处</div>
+      <p>这篇论文几乎没有统计检验（那个年代单病例研究的常态），它的说服力<strong>全靠实验设计</strong>——用一连串相互独立的任务，把每一个"无聊解释"逐一钉死，让"短时记忆损坏"成为唯一的幸存者。这是<strong>排除法（method of exclusion）</strong>的范本。下表是这条"排除链"：</p>
+      <table>
+        <thead>
+          <tr><th>要排除的替代解释</th><th>关键任务（表）</th><th>结果</th><th>结论</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>听不清 / 登记出错</td><td>连续广度、逐项辨认（IV）、词类辨认（V）</td><td>当场辨认接近满分（19–20/20）</td><td>知觉与登记完好，排除</td></tr>
+          <tr><td>说不出 / 构音障碍</td><td>指认复现（VI）、部分报告（VII）</td><td>免口头反应、只报一项，成绩不改善</td><td>发音不是病因，排除</td></tr>
+          <tr><td>"短时存储其实没坏"</td><td>放慢速度（II）、逐项强化（VIII）</td><td>越慢/越强化越好——这是长时通道的特征</td><td>短时确实坏、被迫绕道，印证</td></tr>
+          <tr><td>"长时也跟着坏了"</td><td>配对联想、残缺词图（IX）、十词学习</td><td>学习与保持全部落在正常范围</td><td>长时完好，构成分离</td></tr>
+          <tr><td>"是泛化的短时缺陷"</td><td>视觉（X）、速示呈现（XI）</td><td>看见的比听见的记得多</td><td>缺陷是听觉特异的，精确定位</td></tr>
+        </tbody>
+      </table>
+      <div class="info-block">
+        <span class="ib-title">为什么这套设计今天还值得学</span>
+        <p>它示范了单病例研究的正确打法：<strong>不是只描述一个奇怪的病人，而是预先想清楚"如果我的解释错了、会是哪几种平庸的可能"，然后为每一种各设计一个能证伪它的任务。</strong>当所有平庸解释都被实验数据关上门，剩下的那个反直觉解释才站得住。这正是后来"认知神经心理学"作为一门学科的方法论内核。</p>
+      </div>
+
+      <div class="section-head" id="sec-dissoc">双重分离：KF 与 H.M. 的镜像</div>
+      <p>KF 一个人还不足以掀翻旧模型——也许只是"短时和长时都坏了，只是长时坏得轻"。真正的杀招，是把 KF 和 1957 年报告的失忆症病人 <strong>H.M.</strong> 放在一起。H.M. 为治癫痫切除了双侧内侧颞叶（含海马），结果是<strong>数字广度正常、却学不进任何新的长时记忆</strong>（严重顺行性遗忘）。两人正好相反：</p>
+      <p>下面这个交互图把这层"镜像"画出来。把两位病人放在<strong>短时记忆（数字广度）</strong>和<strong>长时学习</strong>两个维度上对照——你会看到一个完美的 X 形交叉，这就是<strong>双重分离</strong>的几何形状。</p>
+
+      <div class="viz-box">
+        <div class="viz-title">交互演示：KF × H.M. 的双重分离</div>
+        <div class="viz-note">模拟数据基于两篇论文报告的定性模式（KF：Warrington &amp; Shallice 1969；H.M.：Scoville &amp; Milner 1957、Milner 等后续）。柱状为两个维度的相对保留程度，仅展示"谁高谁低"的模式，非精确分数。</div>
+        <div class="viz-controls">
+          <button id="btn-kf">只看 KF</button>
+          <button id="btn-hm" class="alt">只看 H.M.</button>
+          <button id="btn-both" class="alt">并排对比</button>
+          <button id="btn-cross" class="alt">显示交叉线</button>
+        </div>
+        <canvas id="dissocCanvas" width="760" height="420"></canvas>
+        <div class="viz-note" id="dissocCaption" style="margin-top:10px;margin-bottom:0;"></div>
+      </div>
+
+      <div class="info-block">
+        <span class="ib-title">为什么必须是"两个人"</span>
+        <p>只有 KF：你可以辩称"也许短时坏会拖累长时，只是这个病人长时损伤恰好很轻"。只有 H.M.：你可以辩称"也许长时坏会拖累短时"。<strong>但两个相反方向的病人一起出现，就堵死了"两者是同一系统"的所有退路</strong>——短时与长时必须是两个能被各自单独打坏的系统。这就是双重分离的逻辑威力，也是本文（连同 Shallice &amp; Warrington 1970 的后续）在记忆理论史上的位置。</p>
+      </div>
+
+      <div class="section-head" id="sec-relation">与已有研究的关系</div>
+
+      <div class="section-head-sub">对 Atkinson–Shiffrin 串行模型的正面冲击</div>
+      <p>当时主流的多重存储模型把短时存储设为长时存储的<strong>唯一上游闸门</strong>：感觉登记 → 短时 → （演练）→ 长时。这个架构能漂亮地解释很多现象，但它有一个强预测——<strong>短时存储坏了，长时记忆就建不起来</strong>。KF 正是这个预测的硬反例：短时几乎为零，长时学习正常。作者据此主张：短时与长时更像<strong>并联</strong>而非<strong>串行</strong>，信息可以不经过（受损的）听觉言语短时存储而进入长时记忆。论文末尾点明，更完整的理论论证见 <strong>Shallice &amp; Warrington (1970)</strong>，并提出一个更尖锐的判断：这个短时存储缺陷更像是<strong>储存（storage）</strong>问题而非<strong>提取（retrieval）</strong>问题。</p>
+
+      <div class="section-head-sub">与失忆症（amnesia）研究的对接</div>
+      <p>作者明确把 KF 放进失忆症研究的对照位置。Drachman &amp; Arbit（1966）等已证明某些局灶脑损伤病人长时记忆严重受损、而短时记忆与智力正常。KF 是它的"反面零件"。一正一反，<strong>双重分离</strong>才完整。文中虽未点名 H.M.，但引用的正是这一脉络——即 1957 年 Scoville &amp; Milner 报告、由 Brenda Milner 持续追踪的内侧颞叶失忆症范式。</p>
+
+      <div class="section-head-sub">与传导性失语的关系：是同病还是"特别纯"的一种？</div>
+      <p>KF 的临床画像（听懂、能说、唯独复述坏、伴拼写差）几乎就是经典<strong>传导性失语</strong>的定义。但作者指出一个张力：Geschwind 认为传导性失语病灶在<strong>弓状束</strong>（一条连接后颞与额叶的纤维束），是"断连"导致的复述障碍；而 KF 的损伤在<strong>左后顶枕区</strong>，且本文证据指向缺陷是<strong>记忆储存</strong>而非通路中断。作者谨慎地说：KF 可能是传导性失语的一种<strong>特别纯粹</strong>的形式，但也不能排除它是<strong>解剖上不同</strong>的综合征。这处张力，正是后来"短时记忆性失语 / phonological STM 障碍"独立成型的起点。</p>
+
+      <div class="section-head" id="sec-implications">跨领域启示</div>
+      <ul>
+        <li><strong>对认知科学：</strong>KF 直接催生了"短时存储不是长时记忆的入口"这一转向，为后来 Baddeley &amp; Hitch（1974）的<strong>工作记忆</strong>模型铺路——其中"语音回路（phonological loop）"几乎就是为解释 KF 这类病人而设。值得一提，致谢里就有 Alan Baddeley 的名字。</li>
+        <li><strong>对方法论：</strong>本文是<strong>认知神经心理学</strong>用"单病例 + 双重分离 + 排除法"反推正常心智结构这套范式的奠基样本之一。"一个精心解剖的病人胜过一打模糊的相关"，从这里开始成为共识。</li>
+        <li><strong>对人工智能 / 记忆系统：</strong>KF 提供了一个生物学证据——<strong>工作缓冲（working buffer）与长期存储可以解耦</strong>。一个智能体即使"上下文窗口"极小，只要有独立的长期写入通道，依然能持续学习。这对"记忆必须先进短期缓存再固化"的朴素架构假设是个提醒。</li>
+        <li><strong>对教育 / 学习：</strong>"放慢就变好""逐项强化就变好"提示：当某条快速通道受限时，<strong>降低节奏、增加重复</strong>能把负荷转移到更稳健的通道上——这对工作记忆受限的学习者是可操作的代偿策略。</li>
+      </ul>
+
+      <div class="section-head" id="sec-limits">边界和未解问题</div>
+      <p>这篇论文是范本，但它的边界同样值得说清楚——有些是作者自己承认的，有些是作者没明说、需读者补上的：</p>
+      <ul>
+        <li><strong>n＝1，且病灶不干净。</strong>结论建立在<strong>单个</strong>病人身上。KF 的损伤是闭合性脑外伤加血肿清除，弥散、范围大、还伴癫痫，不是教科书式的局灶切除。"短时记忆损坏"这个心理学结论很扎实，但"它定位在左后顶枕区"只能算<strong>提示</strong>而非定论——作者自己也只敢说"与已有传导性失语的解剖相符，但不一致也不能排除"。</li>
+        <li><strong>"储存 vs 提取"在本文里没被真正区分。</strong>作者主张这是储存缺陷，但本文的任务设计区分不了它到底是"存不进短时缓冲"还是"存进了但提不出来"。这个判断主要靠后续的 Shallice &amp; Warrington（1970），本文只是预告。</li>
+        <li><strong>匹配任务的解释留有缺口（作者自己承认）。</strong>KF 在"判断两串相同/不同"上比口头回忆好，作者坦言：没有一套处理"猜测校正"的精细理论，无法严格区分这究竟是知觉优势还是记忆优势；而且匹配任务里其实仍含一点记忆负荷。这是论证链上作者主动标出的一处薄弱环。</li>
+        <li><strong>言语智商偏低（79）这个混杂因素没有被完全清算。</strong>KF 的语言系统本身有损伤（拼写 6 岁水平、轻度命名障碍）。作者用"听理解保留、词类辨认接近满分"来论证语言理解不是病因，但"复述缺陷与残余语言障碍之间到底有多干净的边界"，本文没有给出彻底的量化切割。</li>
+        <li><strong>"听觉特异"的机制只描述未解释。</strong>论文确证了"看得见比听得见记得多"，但对"为什么存在一个独立的听觉言语短时存储、它在脑中如何实现"只能存而不论——这要等几十年的工作记忆与神经影像研究才逐步填上。</li>
+      </ul>
+
+      <div class="section-head" id="sec-judgment">判断</div>
+      <p>以下是解读者的独立评价，每条都尽量落到文中证据上。</p>
+      <p><strong>这是一篇"以小博大"的典范。</strong>它用一个病人、十一张表、几乎没有统计检验，撬动了当时记忆研究最核心的一条假设。判断的依据是：长时学习落在正常范围（配对联想 14.5 vs 均值 15.72；十词学习 7 次 vs 平均 9 次；两个月后 7/10），而短时广度只有 2——这组对照本身就构成对"串行入口"假设的直接反驳，不依赖任何精巧统计。</p>
+      <p><strong>它的方法论比它的结论更值得学。</strong>全文真正的硬功夫不在"发现 KF 很奇怪"，而在<strong>把每一种平庸解释逐一关门</strong>：用连续广度和逐项辨认（19–20/20）关掉"听不清"，用指认复现和部分报告（成绩不改善）关掉"说不出"，用放慢与强化（越慢越好）反过来印证"短时确实坏"。这条排除链每一环都对应一个独立任务，逻辑闭合得很漂亮——这正是它配得上"奠基"二字的原因。</p>
+      <p><strong>它对自己的边界相当诚实。</strong>作者没有把话说满：明确承认匹配任务的解释有缺口、承认 KF 可能与传导性失语"解剖上不同"、把"储存 vs 提取"和更完整的理论都谦逊地推给了 Shallice &amp; Warrington（1970）。这种克制让它的核心主张反而更可信。</p>
+      <p><strong>但要诚实地说：单病人 + 弥散病灶，决定了它的天花板。</strong>它能<strong>稳稳地</strong>证明"短时与长时是可分离的两个系统"（这点是结论性的），却<strong>不能</strong>稳稳地证明"这个系统就坐落在左后顶枕"（这点是提示性的）。把这两层分开看，才不会高估或低估这篇论文。综合判断：作为<strong>理论转折点</strong>它是结论性的、影响深远；作为<strong>解剖定位</strong>它是开放的、留给了后人。</p>
+
+      <div class="rec" id="sec-summary">
+        <h3>一句话总结</h3>
+        <p>Warrington 和 Shallice 报告的病人 KF——数字广度只有 <strong>2</strong>、三个数字都复述不出，长时学习却完全正常（十词学习 7 次达标、两个月后记得 7/10）——用排除法钉死了"听不清/说不出"等所有平庸解释，证明他坏的是一个<strong>专管听觉言语的短时记忆存储</strong>；与失忆症 H.M.（短时好、长时坏）构成<strong>双重分离</strong>，一举掀翻"短时记忆是长时记忆唯一入口"的串行模型，把记忆从一条流水线，改写成两个能各自单独损坏的并联系统。</p>
+      </div>
+
+    </div><!-- /.main-content -->
+
+  </div><!-- /.layout -->
+
+  <div class="footer">
+    <strong>论文引用：</strong>Warrington, E. K., &amp; Shallice, T. (1969). The selective impairment of auditory verbal short-term memory. <em>Brain</em>, 92(4), 885–896.<br>
+    本文为面向中文读者的深度解读；正文中标注为"解读者观点"之外的判断均依据论文报告的数据与作者讨论。交互组件中 H.M. 的数据用于定性对照，来源为 Scoville &amp; Milner (1957) 及 Milner 等后续追踪。
+  </div>
+
+</div><!-- /.page -->
+
+<script>
+(function(){
+  var canvas = document.getElementById('dissocCanvas');
+  if(!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  // 相对保留程度（0-1），仅表达定性模式：KF 短时低/长时高；H.M. 短时高/长时低
+  var data = {
+    kf: { name:'KF（Warrington & Shallice 1969）', color:'#c0392b', stm:0.14, ltm:0.92 },
+    hm: { name:'H.M.（Scoville & Milner 1957）', color:'#2c6fbb', stm:0.95, ltm:0.10 }
+  };
+
+  var mode = 'both';     // 'kf' | 'hm' | 'both'
+  var showCross = false; // 交叉线
+
+  var caption = document.getElementById('dissocCaption');
+
+  // 绘图区
+  var padL = 70, padR = 30, padT = 40, padB = 70;
+  var plotW = W - padL - padR;
+  var plotH = H - padT - padB;
+  // 两个维度的 x 中心
+  var xSTM = padL + plotW*0.28;
+  var xLTM = padL + plotW*0.72;
+
+  function yOf(v){ return padT + plotH*(1-v); }
+
+  function drawAxes(){
+    ctx.strokeStyle = '#d7dade';
+    ctx.lineWidth = 1;
+    // y 轴
+    ctx.beginPath();
+    ctx.moveTo(padL, padT-6);
+    ctx.lineTo(padL, padT+plotH);
+    ctx.lineTo(padL+plotW, padT+plotH);
+    ctx.stroke();
+    // y 轴刻度文字
+    ctx.fillStyle = '#9aa1ab';
+    ctx.font = '12px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('完好', padL-10, yOf(0.95)+4);
+    ctx.fillText('严重受损', padL-10, yOf(0.06)+4);
+    // y 轴标题
+    ctx.save();
+    ctx.translate(20, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center';
+    ctx.fillStyle='#6b7280';
+    ctx.font='13px -apple-system,Segoe UI,sans-serif';
+    ctx.fillText('功能保留程度', 0, 0);
+    ctx.restore();
+    // x 轴两类标签
+    ctx.textAlign='center';
+    ctx.fillStyle='#3a4048';
+    ctx.font='bold 14px -apple-system,Segoe UI,sans-serif';
+    ctx.fillText('短时记忆', xSTM, padT+plotH+28);
+    ctx.fillText('（数字广度）', xSTM, padT+plotH+46);
+    ctx.fillText('长时学习', xLTM, padT+plotH+28);
+    ctx.fillText('（新内容能否记住）', xLTM, padT+plotH+46);
+  }
+
+  function drawBar(xc, v, color, alpha, w){
+    var bw = w || 70;
+    var y = yOf(v);
+    var base = padT+plotH;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.fillRect(xc-bw/2, y, bw, base-y);
+    // 顶部标值
+    ctx.globalAlpha = Math.min(1, alpha+0.2);
+    ctx.fillStyle = color;
+    ctx.font = 'bold 13px -apple-system,Segoe UI,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(Math.round(v*100)+'%', xc, y-8);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawPersonLine(p, dim){
+    // dim: 1 完整不透明; 用于连接同一人两个维度的折线（显示交叉）
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([6,5]);
+    ctx.beginPath();
+    ctx.moveTo(xSTM, yOf(p.stm));
+    ctx.lineTo(xLTM, yOf(p.ltm));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // 端点圆
+    [['stm',xSTM],['ltm',xLTM]].forEach(function(d){
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.arc(d[1], yOf(p[d[0]]), 5, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function legend(items){
+    var lx = padL+plotW-4, ly = padT+6;
+    ctx.textAlign='right';
+    ctx.font='12px -apple-system,Segoe UI,sans-serif';
+    items.forEach(function(it,i){
+      var yy = ly + i*20;
+      ctx.fillStyle = it.color;
+      ctx.fillRect(lx-150, yy-9, 14, 12);
+      ctx.fillStyle = '#3a4048';
+      ctx.fillText(it.name.split('（')[0], lx, yy+1);
+    });
+  }
+
+  function render(){
+    ctx.clearRect(0,0,W,H);
+    drawAxes();
+
+    var k = data.kf, h = data.hm;
+
+    if(mode==='kf'){
+      drawBar(xSTM, k.stm, k.color, 0.85);
+      drawBar(xLTM, k.ltm, k.color, 0.85);
+      if(showCross) drawPersonLine(k);
+      legend([k]);
+      caption.innerHTML = '<strong style="color:#c0392b">KF</strong>：短时记忆几乎塌掉（广度仅 2），长时学习却落在正常范围（十词学习 7 次达标、2 个月后记得 7/10）。一根从低到高的斜线。';
+    } else if(mode==='hm'){
+      drawBar(xSTM, h.stm, h.color, 0.85);
+      drawBar(xLTM, h.ltm, h.color, 0.85);
+      if(showCross) drawPersonLine(h);
+      legend([h]);
+      caption.innerHTML = '<strong style="color:#2c6fbb">H.M.</strong>：数字广度正常，却几乎学不进任何新的长时记忆（严重顺行性遗忘）。一根从高到低的斜线——和 KF 正好相反。';
+    } else {
+      // both: 并排两组柱
+      drawBar(xSTM-22, k.stm, k.color, 0.8, 40);
+      drawBar(xSTM+22, h.stm, h.color, 0.8, 40);
+      drawBar(xLTM-22, k.ltm, k.color, 0.8, 40);
+      drawBar(xLTM+22, h.ltm, h.color, 0.8, 40);
+      if(showCross){ drawPersonLine(k); drawPersonLine(h); }
+      legend([k,h]);
+      caption.innerHTML = '两人对照：KF（红）短时低、长时高；H.M.（蓝）短时高、长时低。'+(showCross?'两根斜线交叉成 X——这就是<strong>双重分离</strong>的几何形状：短时与长时必须是两个能被各自单独打坏的系统。':'点"显示交叉线"看两人折线如何交叉成 X。');
+    }
+  }
+
+  function setMode(m){
+    mode = m;
+    // 按钮高亮
+    [['btn-kf','kf'],['btn-hm','hm'],['btn-both','both']].forEach(function(b){
+      var el = document.getElementById(b[0]);
+      if(!el) return;
+      if(b[1]===mode){ el.className=''; } else { el.className='alt'; }
+    });
+    render();
+  }
+
+  document.getElementById('btn-kf').addEventListener('click', function(){ setMode('kf'); });
+  document.getElementById('btn-hm').addEventListener('click', function(){ setMode('hm'); });
+  document.getElementById('btn-both').addEventListener('click', function(){ setMode('both'); });
+  document.getElementById('btn-cross').addEventListener('click', function(){
+    showCross = !showCross;
+    var el = document.getElementById('btn-cross');
+    el.className = showCross ? '' : 'alt';
+    render();
+  });
+
+  // 初始
+  setMode('both');
+  showCross = true;
+  document.getElementById('btn-cross').className = '';
+  render();
+})();
+</script>
+
+</body>
+</html>
