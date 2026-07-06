@@ -10,7 +10,10 @@ import { useParams, Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
 import 'highlight.js/styles/github-dark.css'
+import 'katex/dist/katex.min.css'
 import './blog-post.css'
 
 const AUTHOR_FIX = { 'Athropic': 'Anthropic' }
@@ -94,7 +97,7 @@ export function BlogPostPage() {
         </svg>
 
         <article className="blp-article">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+          <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeHighlight, rehypeKatex]}>
             {post.content}
           </ReactMarkdown>
         </article>

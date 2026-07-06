@@ -75,6 +75,9 @@
 .blp-article th{ text-align:left; font-weight:700; border-bottom:2px solid var(--olive); padding:8px 12px; }
 .blp-article td{ padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
 
+/* 数学公式（KaTeX）— block 居中留白、长公式可横向滚，字号配衬线正文 */
+.blp-article .katex-display{ margin:1.6em 0; overflow-x:auto; overflow-y:hidden; padding:6px 2px; }
+.blp-article .katex{ font-size:1.05em; }
 .blp-article img{ max-width:100%; border-radius:8px; margin:1.6em 0; }
 .blp-article hr{ border:none; border-top:1px solid var(--line); margin:2.4em 0; }
 

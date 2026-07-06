@@ -20,46 +20,46 @@ Transformer架构中的注意力机制是"自注意力"(Self-Attention)的一种
 
 Transformer中的自注意力机制可以表述为对查询向量(Query)、键向量(Key)和值向量(Value)的操作。给定输入序列X，我们首先通过三个不同的变换矩阵W^Q, W^K, W^V计算查询、键和值：
 
-```
+$$
 Q = XW^Q
-```
+$$
 
-```
+$$
 K = XW^K
-```
+$$
 
-```
+$$
 V = XW^V
-```
+$$
 
 接下来，通过查询和键的点积计算注意力分数，表示序列中每对词之间的关系强度：
 
-```
+$$
 \text{注意力分数} = \frac{QK^T}{\sqrt{d_k}}
-```
+$$
 
 其中d_k是键向量的维度，用于缩放以防止点积结果过大导致softmax梯度消失。
 
 然后，对注意力分数应用softmax函数，得到注意力权重：
 
-```
+$$
 \text{注意力权重} = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
-```
+$$
 
 最后，将注意力权重与值相乘，得到自注意力的输出：
 
-```
+$$
 \text{输出} = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) \times V
-```
+$$
 
 ## 3. 多头注意力机制
 
 为了增强模型的表达能力，Transformer使用了多头注意力(Multi-Head Attention)机制。多头注意力并行运行多个自注意力"头"，每个头使用不同的投影矩阵W^Q, W^K, W^V，允许模型同时关注不同的表示子空间：
 
-```
+$$
 \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, ..., \text{head}_h)W^O \\
 \text{where } \text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
-```
+$$
 
 每个注意力头可以学习关注不同的模式。例如，一些头可能关注语法关系，而其他头可能关注语义相似性或共指关系。这种多角度观察机制显著增强了模型的建模能力。
 
@@ -75,9 +75,9 @@ V = XW^V
 
 Performer和Linear Transformer等模型使用核方法近似标准注意力，将复杂度降至O(n)。例如，Performer使用随机特征图将注意力计算重写为：
 
-```
+$$
 \text{Attention}(Q, K, V) \approx \phi(Q)(\phi(K)^T V) / (\phi(Q)\phi(K)^T \mathbf{1})
-```
+$$
 
 其中φ是随机特征映射，允许我们通过改变乘法顺序将计算复杂度从O(n²)降至O(n)。
 
