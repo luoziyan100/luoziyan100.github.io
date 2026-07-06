@@ -1,22 +1,40 @@
 /**
- * [INPUT]: 依赖 react-router-dom 的 useParams，从 index.json 加载文章，shadcn/ui 组件，framer-motion 动效
- * [OUTPUT]: 对外提供 BlogPostPage 页面组件（Apple 级页面过渡）
- * [POS]: pages/ 的博客详情页，使用设计系统组件渲染 Markdown + Spring 动画
+ * [INPUT]: react-router-dom useParams/Link，从 /posts/index.json 取文章，ReactMarkdown 渲染，引入 blog-post.css
+ * [OUTPUT]: BlogPostPage 页面组件（博客文章详情，「数字花园」独立视觉）
+ * [POS]: pages/ 的博客详情页，与 blog-list 数字花园统一（暖纸/衬线/苔绿，脱离主站 shadcn/Amethyst）；正文自定义 Markdown 排版，修段间距与标题层级
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
-import { Calendar, User, ArrowLeft } from 'lucide-react'
-import { Header } from '@/components/layouts/Header'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { pageTransition, fadeInUp } from '@/lib/motion'
 import 'highlight.js/styles/github-dark.css'
+import './blog-post.css'
+
+const AUTHOR_FIX = { 'Athropic': 'Anthropic' }
+function fixAuthor(a) {
+  const x = (a || '').trim()
+  if (!x || x.toLowerCase() === 'anonymous') return ''
+  return AUTHOR_FIX[x] || x
+}
+const readingTime = (c) => Math.max(1, Math.round((c || '').length / 380))
+function fmtDate(d) {
+  const x = new Date(d)
+  if (isNaN(x)) return ''
+  return `${x.getFullYear()}.${String(x.getMonth() + 1).padStart(2, '0')}.${String(x.getDate()).padStart(2, '0')}`
+}
+
+function Nav() {
+  return (
+    <nav className="blp-nav">
+      <Link to="/">首页</Link>
+      <Link to="/blog" className="here">博客</Link>
+      <Link to="/brain-bytes">Brain &amp; Bytes</Link>
+    </nav>
+  )
+}
 
 export function BlogPostPage() {
   const { '*': slug } = useParams()
@@ -26,130 +44,61 @@ export function BlogPostPage() {
 
   useEffect(() => {
     const decodedSlug = decodeURIComponent(slug)
-
     fetch('/posts/index.json')
       .then(res => res.json())
       .then(posts => {
         const found = posts.find(p => p.slug === decodedSlug)
-        if (found) {
-          setPost(found)
-        } else {
-          setError('文章未找到')
-        }
+        if (found) setPost(found)
+        else setError('文章未找到')
         setLoading(false)
       })
-      .catch(err => {
-        console.error('Failed to load posts:', err)
-        setError(err.message)
-        setLoading(false)
-      })
+      .catch(err => { console.error('Failed to load posts:', err); setError(err.message); setLoading(false) })
   }, [slug])
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-lg">加载中...</div>
-        </main>
-      </div>
-    )
+    return <div className="blp-root"><div className="blp-wrap"><Nav /><p style={{ color: '#77746a' }}>正在翻开这篇…</p></div></div>
   }
-
   if (!post || error) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold">文章未找到</h1>
-            <p className="text-muted-foreground">请检查文章链接是否正确</p>
-            <Button asChild>
-              <Link to="/blog">返回博客列表</Link>
-            </Button>
-          </div>
-        </main>
-      </div>
+      <div className="blp-root"><div className="blp-wrap"><Nav />
+        <div className="blp-notfound">
+          <h1>没找到这篇</h1>
+          <p>链接可能不对，或这篇还没写完。</p>
+          <Link to="/blog">← 回到博客</Link>
+        </div>
+      </div></div>
     )
   }
 
+  const author = fixAuthor(post.author)
+  const cat = (post.tags && post.tags[0]) || '随笔'
+
   return (
-    <motion.div
-      variants={pageTransition}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="min-h-screen flex flex-col"
-    >
-      <Header />
-      <main className="flex-1">
-        <article className="container max-w-4xl py-12">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          >
-            <Button variant="ghost" asChild className="mb-8">
-              <Link to="/blog">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                返回列表
-              </Link>
-            </Button>
-          </motion.div>
+    <div className="blp-root">
+      <div className="blp-wrap">
+        <Nav />
+        <div className="blp-back"><Link to="/blog">← 返回列表</Link></div>
 
-          <motion.header
-            variants={fadeInUp}
-            initial="hidden"
-            animate="visible"
-            className="space-y-4 mb-12"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-              {post.title}
-            </h1>
+        <div className="blp-head-meta">
+          <span className="blp-cat">{cat}</span>
+          <span className="blp-dot"></span>
+          <span>{fmtDate(post.date)}</span>
+          <span className="blp-dot"></span>
+          <span>{readingTime(post.content)} 分钟</span>
+        </div>
+        <h1 className="blp-title">{post.title}</h1>
+        {author && <div className="blp-by">— {author}</div>}
 
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                {new Date(post.date).toLocaleDateString('zh-CN', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </div>
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                {post.author}
-              </div>
-            </div>
+        <svg className="blp-rule" viewBox="0 0 400 14" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2 8 Q 100 2, 200 7 T 398 6" fill="none" stroke="#6E7B4F" stroke-width="1.6" stroke-linecap="round" opacity="0.55" />
+        </svg>
 
-            <Separator />
-          </motion.header>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 35, delay: 0.1 }}
-            className="prose prose-neutral dark:prose-invert max-w-none
-              prose-headings:scroll-mt-20
-              prose-p:text-muted-foreground
-              prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-              prose-strong:text-foreground
-              prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-              prose-pre:bg-muted prose-pre:border
-              prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
-              prose-li:text-muted-foreground
-              prose-hr:border-border
-              prose-img:rounded-lg prose-img:shadow-md"
-          >
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeHighlight]}
-            >
-              {post.content}
-            </ReactMarkdown>
-          </motion.div>
+        <article className="blp-article">
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+            {post.content}
+          </ReactMarkdown>
         </article>
-      </main>
-    </motion.div>
+      </div>
+    </div>
   )
 }
