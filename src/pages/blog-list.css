@@ -1,0 +1,54 @@
+/*
+ * [INPUT]: 被 BlogListPage.jsx 引入
+ * [OUTPUT]: 博客列表页「数字花园」专属样式（全部 scoped 于 .bl-root）：暖纸底 + 衬线 + 苔绿 + 手绘分隔 + 单栏笔记流
+ * [POS]: pages/ 的博客列表局部样式，经用户选定采用独立视觉（脱离主站 shadcn/Amethyst 设计系统，与 Brain & Bytes 同属专栏豁免）
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+
+.bl-root{
+  --bg:#F0EBE1; --ink:#24262C; --sub:#77746a; --olive:#6E7B4F; --line:#ddd6c8;
+  background:var(--bg); color:var(--ink); min-height:100vh; line-height:1.7;
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Songti SC","STSong",serif;
+}
+.bl-wrap{ max-width:720px; margin:0 auto; padding:40px 28px 110px; }
+
+/* 顶部站内导航（数字花园风，代替主站 shadcn Header） */
+.bl-nav{ display:flex; gap:22px; font-family:-apple-system,"PingFang SC",system-ui,sans-serif; font-size:13px; margin-bottom:46px; }
+.bl-nav a{ color:var(--sub); text-decoration:none; transition:color .15s ease; }
+.bl-nav a:hover{ color:var(--olive); }
+.bl-nav a.here{ color:var(--ink); font-weight:600; }
+
+/* 品牌头 */
+.bl-hello{ font-size:13px; color:var(--sub); font-family:-apple-system,"PingFang SC",system-ui,sans-serif; margin-bottom:18px; }
+.bl-hello b{ color:var(--olive); font-weight:600; }
+.bl-mast h1{ font-size:42px; line-height:1.1; letter-spacing:-.01em; margin:0 0 16px; font-weight:600; }
+.bl-intro{ font-size:17px; line-height:1.75; color:#43454b; margin:0; max-width:60ch; }
+.bl-rule{ margin:38px 0 4px; height:14px; display:block; width:min(360px,70%); }
+.bl-count{ font-family:-apple-system,"PingFang SC",system-ui,sans-serif; font-size:12px; color:var(--sub); margin:2px 0 0; letter-spacing:.04em; }
+
+/* 笔记流 */
+.bl-list{ display:flex; flex-direction:column; margin-top:8px; }
+.bl-note{ text-decoration:none; color:inherit; display:block; padding:30px 0; border-bottom:1px solid var(--line); }
+.bl-top{ font-family:-apple-system,"PingFang SC",system-ui,sans-serif; font-size:12px; color:var(--sub); display:flex; gap:12px; align-items:center; margin-bottom:11px; }
+.bl-cat{ color:var(--olive); font-weight:600; letter-spacing:.02em; }
+.bl-dot{ width:4px; height:4px; border-radius:50%; background:var(--line); flex:0 0 auto; }
+.bl-rt{ font-variant-numeric:tabular-nums; }
+/* 标题：hover 荧光笔下划线 */
+.bl-note h2{
+  font-size:25px; line-height:1.28; margin:0 0 9px; font-weight:600; letter-spacing:-.005em;
+  display:inline; box-decoration-break:clone; -webkit-box-decoration-break:clone;
+  background:linear-gradient(transparent 60%, color-mix(in srgb,var(--olive) 24%,transparent) 0) no-repeat;
+  background-size:0% 100%; transition:background-size .35s cubic-bezier(.2,.7,.3,1);
+}
+.bl-note:hover h2{ background-size:100% 100%; }
+.bl-note p{ font-size:16.5px; line-height:1.68; color:#4d4f55; margin:9px 0 0; max-width:62ch;
+  display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.bl-by{ font-family:-apple-system,"PingFang SC",system-ui,sans-serif; font-size:12.5px; color:var(--sub); margin-top:13px; }
+
+@media (max-width:600px){
+  .bl-wrap{ padding:32px 20px 72px; }
+  .bl-mast h1{ font-size:33px; }
+  .bl-intro{ font-size:16px; }
+  .bl-note h2{ font-size:22px; }
+}
+@media (prefers-reduced-motion:reduce){ .bl-note h2{ transition:none; } }
