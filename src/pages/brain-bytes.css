@@ -1,6 +1,6 @@
 /*
  * [INPUT]: 被 BrainBytesPage.jsx 引入
- * [OUTPUT]: Brain & Bytes 站中站的「红色学术风」专属样式（全部 scoped 于 .bb-root）
+ * [OUTPUT]: Brain & Bytes 站中站的「红色学术风」专属样式（全部 scoped 于 .bb-root）：品牌头 + 时间线视图 + 主题视图 + 共享卡片
  * [POS]: pages/ 的品牌局部样式，刻意脱离主站 shadcn 设计系统（站中站独立视觉，经用户授权的豁免）
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -9,6 +9,7 @@
   --bb-accent: #c0392b;
   --bb-ink: #1a1a1a;
   --bb-sub: #888;
+  --bb-line: #ececec;
   font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
   background: #fafafa;
   color: var(--bb-ink);
@@ -17,112 +18,105 @@
 }
 
 .bb-container {
-  max-width: 760px;
+  max-width: 860px;
   margin: 0 auto;
   padding: 48px 24px 64px;
 }
 
 /* 顶部小导航：回主站 */
-.bb-topnav {
-  display: flex;
-  gap: 18px;
-  font-size: 13px;
-  margin-bottom: 40px;
-}
-.bb-topnav a {
-  color: var(--bb-sub);
-  text-decoration: none;
-}
+.bb-topnav { display: flex; gap: 18px; font-size: 13px; margin-bottom: 40px; }
+.bb-topnav a { color: var(--bb-sub); text-decoration: none; }
 .bb-topnav a:hover { color: var(--bb-accent); }
 
 /* 品牌头 */
-.bb-brand {
-  border-bottom: 3px solid var(--bb-accent);
-  padding-bottom: 24px;
-  margin-bottom: 8px;
-}
-.bb-brand h1 {
-  font-size: 34px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
+.bb-brand { border-bottom: 3px solid var(--bb-accent); padding-bottom: 24px; margin-bottom: 8px; }
+.bb-brand h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; }
 .bb-brand h1 span { color: var(--bb-accent); }
-.bb-brand .bb-cn {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--bb-ink);
-  margin-top: 4px;
-}
-.bb-brand .bb-tag {
-  font-size: 13px;
-  color: var(--bb-sub);
-  margin-top: 10px;
-}
+.bb-brand .bb-cn { font-size: 16px; font-weight: 700; color: var(--bb-ink); margin-top: 4px; }
+.bb-brand .bb-tag { font-size: 13px; color: var(--bb-sub); margin-top: 10px; }
 
-.bb-count {
-  font-size: 12px;
-  color: var(--bb-sub);
-  letter-spacing: 0.5px;
-  margin: 28px 0 16px;
-  text-transform: uppercase;
+/* 概览行 + 视图切换 */
+.bb-meta-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin: 26px 0 22px;
 }
+.bb-count { font-size: 12px; color: var(--bb-sub); letter-spacing: 0.5px; text-transform: uppercase; }
+.bb-viewswitch { display: flex; gap: 2px; background: #efe9e7; border-radius: 9px; padding: 3px; }
+.bb-viewswitch button {
+  border: none; background: transparent; font-family: inherit; font-size: 13px;
+  padding: 6px 18px; border-radius: 7px; cursor: pointer; color: var(--bb-sub);
+  transition: background .18s ease, color .18s ease;
+}
+.bb-viewswitch button.active { background: #fff; color: var(--bb-accent); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.bb-viewswitch button:hover:not(.active) { color: var(--bb-ink); }
+.bb-viewswitch button:focus-visible { outline: 2px solid var(--bb-accent); outline-offset: 2px; }
 
-/* 文章卡片 */
-.bb-list { display: flex; flex-direction: column; gap: 20px; }
+/* ============ 共享卡片 ============ */
 .bb-card {
-  display: block;
-  background: #fff;
-  border: 1px solid #eee;
-  border-left: 3px solid var(--bb-accent);
-  border-radius: 4px;
-  padding: 20px 22px;
-  text-decoration: none;
-  color: inherit;
+  display: block; background: #fff; border: 1px solid var(--bb-line);
+  border-left: 3px solid var(--bb-accent); border-radius: 4px;
+  padding: 15px 20px; text-decoration: none; color: inherit;
+  overflow-wrap: break-word; /* 长英文论文名/来源在窄屏内断行，防横向溢出 */
   transition: box-shadow .18s ease, transform .18s ease;
 }
-.bb-card:hover {
-  box-shadow: 0 6px 20px rgba(192, 57, 43, 0.08);
-  transform: translateY(-1px);
+.bb-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-1px); }
+.bb-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.bb-year { font-size: 12px; font-weight: 700; color: var(--bb-sub); letter-spacing: .5px; font-variant-numeric: tabular-nums; }
+.bb-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+.bb-concept { font-size: 17px; font-weight: 800; line-height: 1.4; color: var(--bb-ink); }
+.bb-gist { font-size: 13px; color: #444; margin-top: 5px; line-height: 1.6; }
+.bb-paper { font-size: 12px; font-style: italic; color: #777; margin-top: 8px; line-height: 1.5; }
+.bb-foot { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; color: var(--bb-sub); margin-top: 10px; padding-top: 10px; border-top: 1px solid #f2f2f2; }
+.bb-authors { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.bb-source { color: var(--bb-accent); }
+
+/* ============ 时间线视图 ============ */
+.bb-timeline { position: relative; }
+/* 贯穿的年代轴 */
+.bb-timeline::before {
+  content: ''; position: absolute; left: 35px; top: 6px; bottom: 6px;
+  width: 2px; border-radius: 2px;
+  background: linear-gradient(to bottom, var(--bb-accent) 0%, #dd9c93 100%);
 }
-.bb-card .bb-title {
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.4;
-  color: var(--bb-ink);
+.bb-rail { flex: 0 0 72px; position: relative; }
+
+.bb-tl-item { display: flex; margin-bottom: 16px; }
+.bb-tl-card { flex: 1 1 auto; min-width: 0; } /* min-width:0 → 长论文名不撑破布局 */
+/* 每篇挂在轴上的节点（主题色描边） */
+.bb-node {
+  position: absolute; left: 29px; top: 20px; width: 14px; height: 14px;
+  border-radius: 50%; background: #fafafa; border: 3px solid var(--bb-accent); box-sizing: border-box;
 }
-.bb-card .bb-paper {
-  font-size: 13px;
-  font-style: italic;
-  color: #555;
-  margin-top: 8px;
+
+/* 年代分段标记 */
+.bb-decade { display: flex; align-items: center; margin: 32px 0 14px; }
+.bb-decade .bb-rail { display: flex; align-items: center; }
+.bb-decade-dot {
+  position: absolute; left: 26px; top: 50%; transform: translateY(-50%);
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bb-accent); border: 3px solid #fafafa; box-sizing: border-box;
 }
-.bb-card .bb-authors {
-  font-size: 12px;
-  color: var(--bb-sub);
-  margin-top: 6px;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.bb-card .bb-foot {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  font-size: 12px;
-  color: var(--bb-sub);
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
-}
-.bb-card .bb-source { color: var(--bb-accent); font-weight: 600; }
+.bb-decade-label { font-size: 20px; font-weight: 800; color: var(--bb-accent); letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+
+/* ============ 主题视图 ============ */
+.bb-topics { display: flex; flex-direction: column; gap: 36px; }
+.bb-topic-head { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; margin-bottom: 16px; border-bottom: 2px solid var(--bb-accent); }
+.bb-topic-band { width: 18px; height: 18px; border-radius: 5px; flex: 0 0 auto; }
+.bb-topic-name { font-size: 17px; font-weight: 800; color: var(--bb-ink); }
+.bb-topic-count { margin-left: auto; font-size: 13px; color: var(--bb-sub); font-variant-numeric: tabular-nums; }
+.bb-topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.bb-topic-grid .bb-card { min-width: 0; }
 
 /* 页脚 */
-.bb-footer {
-  margin-top: 56px;
-  padding-top: 20px;
-  border-top: 3px solid var(--bb-accent);
-  font-size: 12px;
-  color: #999;
-  text-align: center;
+.bb-footer { margin-top: 56px; padding-top: 20px; border-top: 3px solid var(--bb-accent); font-size: 12px; color: #999; text-align: center; }
+
+/* ============ 响应式 ============ */
+@media (max-width: 640px) {
+  .bb-container { padding: 32px 16px 48px; }
+  .bb-brand h1 { font-size: 28px; }
+  .bb-rail { flex: 0 0 50px; }
+  .bb-timeline::before { left: 24px; }
+  .bb-node { left: 18px; }
+  .bb-decade-dot { left: 15px; }
+  .bb-topic-grid { grid-template-columns: 1fr; }
 }

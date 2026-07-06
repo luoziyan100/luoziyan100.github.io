@@ -153,8 +153,8 @@ import { Card } from '@/components/ui/card'
 - **定位**：独立品牌「Brain & Bytes / 知觉档案」，住在同一仓库/域名下的站中站，红色学术风（脱离 shadcn 设计系统的授权豁免）
 - **内容**：自包含 HTML 文章，放 `public/brain-bytes/<slug>/index.html`（保留各自内联排版）
 - **新增流程**：丢一篇 HTML 进 `public/brain-bytes/<slug>/index.html` → `npm run build`（或 `npm run bytes:index`）→ 自动抽取元数据 + 注入返回栏（幂等）+ 重建索引，列表页自动出现
-- **索引生成**：`scripts/generate-bytes-index.js` → `public/brain-bytes/index.json`（标题/论文/作者/机构/来源）
-- **列表页**：`src/pages/BrainBytesPage.jsx` 用原生 `<a>` 整页跳转到静态文章（不可用 React Link）
+- **索引生成**：`scripts/generate-bytes-index.js` → `public/brain-bytes/index.json`（标题/论文/作者/机构/来源 + year 年份 + topic 主题）；主题分类维护在 scripts/brain-bytes-curation.js 策展表
+- **列表页**：`src/pages/BrainBytesPage.jsx` 用原生 `<a>` 整页跳转到静态文章（不可用 React Link）；提供「时间线 / 主题」双视图（时间线按 year 年代轴串起脉络，主题按 topic 分 7 个色码分区）
 
 ### 3. 路由设计
 - `/` - Landing Page（首页落地页，组合 Hero/Features/HowItWorks/Testimonials/FAQ/FinalCTA 六个 Section）

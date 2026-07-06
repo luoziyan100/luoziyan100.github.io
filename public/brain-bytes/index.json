@@ -6,6 +6,8 @@
     "authors": "Thomas Nagel（托马斯·内格尔）",
     "institutions": "Princeton University（普林斯顿大学）",
     "source": "The Philosophical Review（《哲学评论》），83 卷 4 期，1974 年 10 月，pp. 435–450",
+    "year": 1974,
+    "topic": "consciousness",
     "path": "/brain-bytes/what-is-it-like-to-be-a-bat/",
     "date": "2026-06-16T06:24:07.950Z"
   },
@@ -16,6 +18,8 @@
     "authors": "Alan Baddeley",
     "institutions": "Department of Psychology, University of York, UK",
     "source": "Nature Reviews Neuroscience · 2003 年 10 月 · 4 卷 · 829–839 页",
+    "year": 2003,
+    "topic": "memory",
     "path": "/brain-bytes/working-memory-model/",
     "date": "2026-06-16T06:24:07.950Z"
   },
@@ -26,6 +30,8 @@
     "authors": "Chun Siong Soon, Marcel Brass, Hans-Jochen Heinze, John-Dylan Haynes",
     "institutions": "马克斯·普朗克人类认知与脑科学研究所（莱比锡）· 柏林夏里特医学院伯恩斯坦计算神经科学中心 · 根特大学 · 马格德堡大学神经科",
     "source": "Nature Neuroscience（《自然·神经科学》）· 2008",
+    "year": 2008,
+    "topic": "decision",
     "path": "/brain-bytes/unconscious-determinants-of-decisions/",
     "date": "2026-06-16T06:24:07.949Z"
   },
@@ -36,6 +42,8 @@
     "authors": "A. L. Hodgkin, A. F. Huxley &amp; B. Katz",
     "institutions": "Marine Biological Association, Plymouth ＋ Physiological Laboratory, University of Cambridge",
     "source": "The Journal of Physiology · 1952 · 116卷, 424–448 页（HH＝Hodgkin-Huxley，本系列 1952 五连篇之第 1 篇 · 方法学开篇）",
+    "year": 1952,
+    "topic": "electrophysiology",
     "path": "/brain-bytes/voltage-clamp-squid-axon/",
     "date": "2026-06-16T06:24:07.949Z"
   },
@@ -46,6 +54,8 @@
     "authors": "Elizabeth K. Warrington &amp; Tim Shallice",
     "institutions": "The National Hospital, Queen Square, London（伦敦皇后广场国立医院）",
     "source": "Brain · 1969 · 92, 885–896",
+    "year": 1969,
+    "topic": "memory",
     "path": "/brain-bytes/short-term-memory-dissociation/",
     "date": "2026-06-16T06:24:07.948Z"
   },
@@ -56,6 +66,8 @@
     "authors": "A. L. Hodgkin &amp; A. F. Huxley",
     "institutions": "Marine Biological Association（普利茅斯海洋生物实验室）· University of Cambridge 生理学实验室",
     "source": "The Journal of Physiology · 116卷 · 497–506页 · 1952年",
+    "year": 1952,
+    "topic": "electrophysiology",
     "path": "/brain-bytes/sodium-conductance-inactivation/",
     "date": "2026-06-16T06:24:07.948Z"
   },
@@ -66,6 +78,8 @@
     "authors": "A. L. Hodgkin &amp; A. F. Huxley",
     "institutions": "Laboratory of the Marine Biological Association, Plymouth；剑桥大学生理学实验室（Physiological Laboratory, University of Cambridge）",
     "source": "The Journal of Physiology, 116(4), 449–472 · 1952（投稿 1951-10-24）·「钠钾电流分离」即四联篇之第二篇",
+    "year": 1952,
+    "topic": "electrophysiology",
     "path": "/brain-bytes/sodium-potassium-currents/",
     "date": "2026-06-16T06:24:07.948Z"
   },
@@ -76,6 +90,8 @@
     "authors": "Eleanor A. Maguire, David G. Gadian, Ingrid S. Johnsrude, Catriona D. Good, John Ashburner, Richard S. J. Frackowiak, Christopher D. Frith",
     "institutions": "Wellcome 认知神经病学系 · 神经病学研究所，伦敦大学学院（UCL）／儿童健康研究所放射与物理部，UCL",
     "source": "PNAS（美国国家科学院院刊）· 2000 年（97 卷 8 期 4398–4403）· 由 Brenda Milner 代为投稿",
+    "year": 2000,
+    "topic": "memory",
     "path": "/brain-bytes/taxi-driver-hippocampus/",
     "date": "2026-06-16T06:24:07.948Z"
   },
@@ -86,6 +102,8 @@
     "authors": "Rajesh P. N. Rao &amp; Dana H. Ballard",
     "institutions": "Salk Institute（索尔克研究所）· University of Rochester（罗切斯特大学计算机系）",
     "source": "Nature Neuroscience（《自然·神经科学》）· 1999 年 1 月 · 卷 2 第 1 期 · pp. 79–87",
+    "year": 1999,
+    "topic": "prediction",
     "path": "/brain-bytes/predictive-coding-visual-cortex/",
     "date": "2026-06-16T06:24:07.947Z"
   },
@@ -96,6 +114,8 @@
     "authors": "Andy Clark（安迪·克拉克）",
     "institutions": "School of Philosophy, Psychology, and Language Sciences, University of Edinburgh（爱丁堡大学）",
     "source": "Behavioral and Brain Sciences（BBS，行为与脑科学）· 2013, 36(3): 181–253（靶子文章 + 25 篇同行评论 + 作者回应）",
+    "year": 2013,
+    "topic": "prediction",
     "path": "/brain-bytes/predictive-processing-clark/",
     "date": "2026-06-16T06:24:07.947Z"
   },
@@ -106,6 +126,8 @@
     "authors": "Earl K. Miller、Jonathan D. Cohen",
     "institutions": "麻省理工学院 RIKEN-MIT 神经科学研究中心与脑与认知科学系 · 普林斯顿大学脑·心智·行为研究中心与心理系",
     "source": "Annual Review of Neuroscience（《神经科学年度评论》）· 2001 · 24:167–202",
+    "year": 2001,
+    "topic": "decision",
     "path": "/brain-bytes/prefrontal-cognitive-control/",
     "date": "2026-06-16T06:24:07.947Z"
   },
@@ -116,6 +138,8 @@
     "authors": "Nikolaus Kriegeskorte, Marieke Mur, Peter Bandettini",
     "institutions": "美国国立精神卫生研究所（NIMH，National Institute of Mental Health）/ 美国国立卫生研究院（NIH）· 马斯特里赫特大学（Maastricht University，荷兰）",
     "source": "Frontiers in Systems Neuroscience · 2008（第 2 卷，第 4 篇）",
+    "year": 2008,
+    "topic": "computation",
     "path": "/brain-bytes/representational-similarity-analysis/",
     "date": "2026-06-16T06:24:07.947Z"
   },
@@ -126,6 +150,8 @@
     "authors": "Rafael Yuste（拉斐尔·尤斯特）",
     "institutions": "哥伦比亚大学 神经技术中心 & Kavli 脑科学研究所（Columbia University, New York）",
     "source": "Nature Reviews Neuroscience · 16卷 487–497页 · 2015年（Timeline / Perspective 综述，附两封读者通讯）",
+    "year": 2015,
+    "topic": "computation",
     "path": "/brain-bytes/neuron-doctrine-to-networks/",
     "date": "2026-06-16T06:24:07.946Z"
   },
@@ -136,6 +162,8 @@
     "authors": "Eve Marder &amp; Jean-Marc Goaillard",
     "institutions": "Volen Center 与生物系，布兰戴斯大学（Brandeis University）",
     "source": "Nature Reviews Neuroscience · 2006 年第 7 卷 · 第 563–574 页 · doi:10.1038/nrn1949",
+    "year": 2006,
+    "topic": "computation",
     "path": "/brain-bytes/neuronal-degeneracy-homeostasis/",
     "date": "2026-06-16T06:24:07.946Z"
   },
@@ -146,6 +174,8 @@
     "authors": "Francisco J. Varela",
     "institutions": "LENA（认知神经科学实验室，Laboratoire des Neurosciences Cognitives），隶属法国国家科研中心（CNRS，Centre National de la Recherche Scientifique）URA 654 研究单元，巴黎 Salpêtrière 医院",
     "source": "Journal of Consciousness Studies · 1996, 3(4), pp. 330–349",
+    "year": 1996,
+    "topic": "consciousness",
     "path": "/brain-bytes/neurophenomenology/",
     "date": "2026-06-16T06:24:07.946Z"
   },
@@ -156,6 +186,8 @@
     "authors": "Patrick Haggard（帕特里克·哈格德）",
     "institutions": "伦敦大学学院认知神经科学研究所（Institute of Cognitive Neuroscience, University College London）",
     "source": "Nature Reviews Neuroscience（《自然·神经科学评论》）· 2008 年 12 月 · 第 9 卷 · 934–946 页 · DOI:10.1038/nrn2497",
+    "year": 2008,
+    "topic": "decision",
     "path": "/brain-bytes/neuroscience-of-volition/",
     "date": "2026-06-16T06:24:07.946Z"
   },
@@ -166,6 +198,8 @@
     "authors": "William Beecher Scoville &amp; Brenda Milner",
     "institutions": "哈特福德医院神经外科；麦吉尔大学神经病学与神经外科系 / 蒙特利尔神经病学研究所（加拿大）",
     "source": "Journal of Neurology, Neurosurgery &amp; Psychiatry · 1957, 20, 11",
+    "year": 1957,
+    "topic": "memory",
     "path": "/brain-bytes/patient-hm-hippocampus/",
     "date": "2026-06-16T06:24:07.946Z"
   },
@@ -176,6 +210,8 @@
     "authors": "Larry R. Squire, Craig E.L. Stark, Robert E. Clark",
     "institutions": "圣地亚哥退伍军人事务医疗系统 / 加州大学圣地亚哥分校 / 约翰·霍普金斯大学",
     "source": "Annual Review of Neuroscience · 2004 · 27:279–306",
+    "year": 2004,
+    "topic": "memory",
     "path": "/brain-bytes/medial-temporal-memory-system/",
     "date": "2026-06-16T06:24:07.945Z"
   },
@@ -186,6 +222,8 @@
     "authors": "A. L. Hodgkin &amp; A. F. Huxley",
     "institutions": "普利茅斯海洋生物协会实验室（Marine Biological Association, Plymouth）· 剑桥大学生理学实验室（University of Cambridge）",
     "source": "The Journal of Physiology（《生理学杂志》）116: 473–496 · 1952 年（1951 年 10 月 24 日收稿）",
+    "year": 1952,
+    "topic": "electrophysiology",
     "path": "/brain-bytes/membrane-conductance-components/",
     "date": "2026-06-16T06:24:07.945Z"
   },
@@ -196,6 +234,8 @@
     "authors": "Apostolos P. Georgopoulos, Andrew B. Schwartz, Ronald E. Kettner",
     "institutions": "Philip Bard Laboratories of Neurophysiology, Johns Hopkins University School of Medicine（约翰·霍普金斯大学医学院）",
     "source": "Science, Vol. 233, pp. 1416–1419 · 1986",
+    "year": 1986,
+    "topic": "computation",
     "path": "/brain-bytes/motor-population-vector/",
     "date": "2026-06-16T06:24:07.945Z"
   },
@@ -206,6 +246,8 @@
     "authors": "Joshua I. Gold &amp; Michael N. Shadlen",
     "institutions": "宾夕法尼亚大学神经科学系 · 华盛顿大学 / 霍华德·休斯医学研究所（HHMI）",
     "source": "Annual Review of Neuroscience · 2007, 30:535–574",
+    "year": 2007,
+    "topic": "decision",
     "path": "/brain-bytes/neural-basis-of-decision/",
     "date": "2026-06-16T06:24:07.945Z"
   },
@@ -216,6 +258,8 @@
     "authors": "Frank Jackson（弗兰克·杰克逊）",
     "institutions": "Monash University（蒙纳士大学，澳大利亚）",
     "source": "The Philosophical Quarterly（《哲学季刊》）, Vol. 32, No. 127 · 1982 · pp. 127–136",
+    "year": 1982,
+    "topic": "consciousness",
     "path": "/brain-bytes/marys-room-knowledge-argument/",
     "date": "2026-06-16T06:24:07.944Z"
   },
@@ -226,6 +270,8 @@
     "authors": "Warren S. McCulloch（沃伦·麦卡洛克）&amp; Walter Pitts（沃尔特·皮茨）",
     "institutions": "University of Illinois 医学院 · University of Chicago 伊利诺伊神经精神病研究所精神病学系",
     "source": "Bulletin of Mathematical Biophysics（《数理生物物理学通报》）卷 5, 115–133 · 1943 年",
+    "year": 1943,
+    "topic": "computation",
     "path": "/brain-bytes/mcculloch-pitts-neuron/",
     "date": "2026-06-16T06:24:07.944Z"
   },
@@ -236,6 +282,8 @@
     "authors": "Antoine Bechara, Antonio R. Damasio, Hanna Damasio, Steven W. Anderson",
     "institutions": "美国爱荷华大学医学院 神经科 · 行为神经病学与认知神经科学部",
     "source": "Cognition, 50 (1994) 7–15",
+    "year": 1994,
+    "topic": "decision",
     "path": "/brain-bytes/iowa-gambling-task/",
     "date": "2026-06-16T06:24:07.943Z"
   },
@@ -246,6 +294,8 @@
     "authors": "Eugene M. Izhikevich",
     "institutions": "The Neurosciences Institute, San Diego, CA（圣地亚哥神经科学研究所）",
     "source": "IEEE Transactions on Neural Networks · Vol. 14, No. 6 · 2003 · pp. 1569–1572",
+    "year": 2003,
+    "topic": "computation",
     "path": "/brain-bytes/izhikevich-spiking-neuron/",
     "date": "2026-06-16T06:24:07.943Z"
   },
@@ -256,6 +306,8 @@
     "authors": "György Buzsáki",
     "institutions": "分子与行为神经科学中心，罗格斯大学（Rutgers, The State University of New Jersey）",
     "source": "Nature Neuroscience · 第 7 卷第 5 期 · 446–451 页 · 2004 年 5 月（线上 4 月 27 日）",
+    "year": 2004,
+    "topic": "computation",
     "path": "/brain-bytes/large-scale-neuronal-recording/",
     "date": "2026-06-16T06:24:07.943Z"
   },
@@ -266,6 +318,8 @@
     "authors": "Benjamin Libet, Curtis A. Gleason, Elwood W. Wright, Dennis K. Pearl",
     "institutions": "美国加州大学旧金山分校（UCSF）生理系、Mount Zion 医院神经科学系、加州大学伯克利分校（UC Berkeley）统计系",
     "source": "《Brain》（脑）期刊 · 1983 年 · 第 106 卷 · 623–642 页",
+    "year": 1983,
+    "topic": "decision",
     "path": "/brain-bytes/libet-readiness-potential/",
     "date": "2026-06-16T06:24:07.943Z"
   },
@@ -276,6 +330,8 @@
     "authors": "T. V. P. Bliss & T. Lømo",
     "institutions": "National Institute for Medical Research, Mill Hill, London ＆ Institute of Neurophysiology, University of Oslo",
     "source": "The Journal of Physiology · 1973 · 232: 331–356",
+    "year": 1973,
+    "topic": "memory",
     "path": "/brain-bytes/long-term-potentiation/",
     "date": "2026-06-16T06:24:07.943Z"
   },
@@ -286,6 +342,8 @@
     "authors": "Olaf Sporns、Giulio Tononi、Rolf Kötter",
     "institutions": "印第安纳大学心理与脑科学系 · 威斯康星大学精神病学系 · 杜塞尔多夫海因里希·海涅大学（Vogt 脑研究所）",
     "source": "PLoS Computational Biology · 2005 年 · 第 1 卷第 4 期 · e42",
+    "year": 2005,
+    "topic": "computation",
     "path": "/brain-bytes/human-connectome/",
     "date": "2026-06-16T06:24:07.942Z"
   },
@@ -296,6 +354,8 @@
     "authors": "Patricia K. Kuhl",
     "institutions": "学习与脑科学研究所 & 言语与听觉科学系，华盛顿大学（University of Washington）",
     "source": "Nature Reviews Neuroscience · 2004 年 11 月 · 第 5 卷 · 831–843 页（综述）",
+    "year": 2004,
+    "topic": "perception",
     "path": "/brain-bytes/infant-speech-perception/",
     "date": "2026-06-16T06:24:07.942Z"
   },
@@ -306,6 +366,8 @@
     "authors": "Giulio Tononi（朱利奥·托诺尼）",
     "institutions": "Department of Psychiatry, University of Wisconsin, Madison（威斯康星大学麦迪逊分校 精神病学系）",
     "source": "BMC Neuroscience（《BMC 神经科学》），2004 年，5:42 · 开放获取",
+    "year": 2004,
+    "topic": "consciousness",
     "path": "/brain-bytes/integrated-information-theory/",
     "date": "2026-06-16T06:24:07.942Z"
   },
@@ -316,6 +378,8 @@
     "authors": "Anil K. Seth（安尼尔·赛斯）",
     "institutions": "Sackler Centre for Consciousness Science & School of Engineering and Informatics, University of Sussex（萨塞克斯大学萨克勒意识科学中心）",
     "source": "Trends in Cognitive Sciences（《认知科学趋势》）· 2013 年 11 月 · 第 17 卷第 11 期 · 565–573 页 · Opinion 综述",
+    "year": 2013,
+    "topic": "prediction",
     "path": "/brain-bytes/interoceptive-inference-self/",
     "date": "2026-06-16T06:24:07.942Z"
   },
@@ -326,6 +390,8 @@
     "authors": "J. O'Keefe &amp; J. Dostrovsky",
     "institutions": "M.R.C. 大脑功能研究组 · 解剖学系 · 伦敦大学学院（University College London）",
     "source": "Brain Research · 第 34 卷 · 171–175 页 · 1971 年（Short Communications 简报）",
+    "year": 1971,
+    "topic": "memory",
     "path": "/brain-bytes/hippocampal-place-cells/",
     "date": "2026-06-16T06:24:07.941Z"
   },
@@ -336,6 +402,8 @@
     "authors": "J. J. Hopfield",
     "institutions": "California Institute of Technology（化学与生物学部）· Bell Laboratories（贝尔实验室）",
     "source": "PNAS（美国国家科学院院刊）79(8): 2554–2558 · 1982 年 4 月",
+    "year": 1982,
+    "topic": "computation",
     "path": "/brain-bytes/hopfield-associative-memory/",
     "date": "2026-06-16T06:24:07.941Z"
   },
@@ -346,6 +414,8 @@
     "authors": "D. H. Hubel &amp; T. N. Wiesel",
     "institutions": "Neurophysiology Laboratory, Department of Pharmacology, Harvard Medical School, Boston",
     "source": "The Journal of Physiology, 160(1), 106–154 · 1962（投稿 1961-07-31）",
+    "year": 1962,
+    "topic": "perception",
     "path": "/brain-bytes/hubel-wiesel-receptive-fields/",
     "date": "2026-06-16T06:24:07.941Z"
   },
@@ -356,6 +426,8 @@
     "authors": "Nancy Kanwisher、Josh McDermott、Marvin M. Chun",
     "institutions": "哈佛大学心理系 · 麻省总医院 NMR 中心 · 耶鲁大学心理系",
     "source": "The Journal of Neuroscience（《神经科学杂志》）· 1997 · 17(11):4302–4311",
+    "year": 1997,
+    "topic": "perception",
     "path": "/brain-bytes/fusiform-face-area/",
     "date": "2026-06-16T06:24:07.940Z"
   },
@@ -366,6 +438,8 @@
     "authors": "David J. Chalmers（大卫·查尔默斯）",
     "institutions": "澳大利亚国立大学 哲学项目·社会科学研究学院（Australian National University）",
     "source": "Journal of Consciousness Studies（《意识研究杂志》）, 2(3):200–219 · 1995",
+    "year": 1995,
+    "topic": "consciousness",
     "path": "/brain-bytes/hard-problem-of-consciousness/",
     "date": "2026-06-16T06:24:07.940Z"
   },
@@ -376,6 +450,8 @@
     "authors": "Peter Dayan、Geoffrey E. Hinton、Radford M. Neal、Richard S. Zemel",
     "institutions": "多伦多大学计算机系；The Salk Institute 计算神经生物学实验室（CNL，Computational Neurobiology Laboratory）",
     "source": "Neural Computation, 7(5), 889–904 · 1995（手稿日期 1994 年 12 月）",
+    "year": 1995,
+    "topic": "computation",
     "path": "/brain-bytes/helmholtz-machine/",
     "date": "2026-06-16T06:24:07.940Z"
   },
@@ -386,6 +462,8 @@
     "authors": "Hakwan Lau（刘晓欢）&amp; David Rosenthal",
     "institutions": "哥伦比亚大学心理学系 · 内梅亨 Donders 研究所 · 纽约市立大学研究生中心哲学与认知科学",
     "source": "Trends in Cognitive Sciences（认知科学趋势）· 2011 年 · 第 15 卷第 8 期 · 第 365–373 页",
+    "year": 2011,
+    "topic": "consciousness",
     "path": "/brain-bytes/higher-order-theories-consciousness/",
     "date": "2026-06-16T06:24:07.940Z"
   },
@@ -396,6 +474,8 @@
     "authors": "Paul M. Churchland（保罗·丘奇兰）",
     "institutions": "University of Manitoba（曼尼托巴大学，加拿大）",
     "source": "The Journal of Philosophy, 78(2): 67–90 · 1981 年 2 月",
+    "year": 1981,
+    "topic": "consciousness",
     "path": "/brain-bytes/eliminative-materialism/",
     "date": "2026-06-16T06:24:07.939Z"
   },
@@ -406,6 +486,8 @@
     "authors": "Karl Friston",
     "institutions": "惠康神经影像中心，伦敦大学学院（The Wellcome Trust Centre for Neuroimaging, University College London）",
     "source": "Nature Reviews Neuroscience · 2010 年 2 月 · 卷 11 · 页 127–138 · doi:10.1038/nrn2787",
+    "year": 2010,
+    "topic": "prediction",
     "path": "/brain-bytes/free-energy-principle/",
     "date": "2026-06-16T06:24:07.939Z"
   },
@@ -416,6 +498,8 @@
     "authors": "Daniel L. K. Yamins, Ha Hong, Charles F. Cadieu, Ethan A. Solomon, Darren Seibert, James J. DiCarlo",
     "institutions": "麻省理工学院 McGovern 脑研究所 · 脑与认知科学系 ＆ 哈佛-麻省理工健康科学与技术部",
     "source": "PNAS（美国科学院院刊） · 2014 · vol. 111, no. 23, 8619–8624",
+    "year": 2014,
+    "topic": "perception",
     "path": "/brain-bytes/deep-nets-visual-cortex/",
     "date": "2026-06-16T06:24:07.938Z"
   },
@@ -426,6 +510,8 @@
     "authors": "M.-Marsel Mesulam（梅苏拉姆）",
     "institutions": "Bullard and Denny-Brown Laboratories · 哈佛神经病学系 · Beth Israel 医院 · 波士顿",
     "source": "Annals of Neurology（《神经病学年鉴》）· 1981 年 · 第 10 卷 · 309–325 页",
+    "year": 1981,
+    "topic": "decision",
     "path": "/brain-bytes/directed-attention-network/",
     "date": "2026-06-16T06:24:07.938Z"
   },
@@ -436,6 +522,8 @@
     "authors": "Wolfram Schultz, Peter Dayan, P. Read Montague",
     "institutions": "弗里堡大学生理研究所（瑞士）· 麻省理工理论神经科学中心 · 贝勒医学院神经科学部（休斯顿）",
     "source": "Science 275(5306): 1593–1599 · 1997 年 3 月 14 日",
+    "year": 1997,
+    "topic": "prediction",
     "path": "/brain-bytes/dopamine-reward-prediction-error/",
     "date": "2026-06-16T06:24:07.938Z"
   },
@@ -446,6 +534,8 @@
     "authors": "Stanislas Dehaene, Jean-Pierre Changeux, Lionel Naccache, Jérôme Sackur, Claire Sergent",
     "institutions": "法国国家健康与医学研究院—原子能委员会认知神经影像组（INSERM-CEA，Orsay）·法兰西公学院（Collège de France）·巴斯德研究所国家科学研究中心受体与认知组（CNRS，Centre National de la Recherche Scientifique）",
     "source": "Trends in Cognitive Sciences（认知科学趋势）· 2006",
+    "year": 2006,
+    "topic": "consciousness",
     "path": "/brain-bytes/conscious-preconscious-subliminal/",
     "date": "2026-06-16T06:24:07.937Z"
   },
@@ -456,6 +546,8 @@
     "authors": "Giulio Tononi &amp; Christof Koch",
     "institutions": "威斯康星大学精神病学系 · 艾伦脑科学研究所（Allen Institute for Brain Science）",
     "source": "Philosophical Transactions of the Royal Society B（英国皇家学会哲学会刊 B 辑）· 2015 · 370:20140167",
+    "year": 2015,
+    "topic": "consciousness",
     "path": "/brain-bytes/consciousness-here-there-everywhere/",
     "date": "2026-06-16T06:24:07.937Z"
   },
@@ -466,6 +558,8 @@
     "authors": "David Marr &amp; Tomaso Poggio",
     "institutions": "麻省理工学院（MIT）人工智能实验室 · 马普生物控制论研究所（Tübingen，德国图宾根）",
     "source": "Science, Vol. 194, No. 4262, pp. 283–287 · 1976 年 10 月 15 日",
+    "year": 1976,
+    "topic": "perception",
     "path": "/brain-bytes/cooperative-stereo-vision/",
     "date": "2026-06-16T06:24:07.937Z"
   },
@@ -476,6 +570,8 @@
     "authors": "Daniel J. Felleman & David C. Van Essen",
     "institutions": "德州大学医学院（休斯顿）神经生物学与解剖学系 · 加州理工学院生物学部",
     "source": "Cerebral Cortex（《大脑皮层》）· 1991 年创刊号 · 第 1 卷第 1 期 · 1–47 页",
+    "year": 1991,
+    "topic": "perception",
     "path": "/brain-bytes/cortical-processing-hierarchy/",
     "date": "2026-06-16T06:24:07.937Z"
   },
@@ -486,6 +582,8 @@
     "authors": "David E. Rumelhart, Geoffrey E. Hinton &amp; Ronald J. Williams",
     "institutions": "加州大学圣地亚哥分校认知科学研究所（UCSD, University of California San Diego）／卡内基—梅隆大学计算机系（CMU, Carnegie-Mellon University）",
     "source": "Nature · 第 323 卷 · 1986 年 10 月 9 日 · 第 533–536 页",
+    "year": 1986,
+    "topic": "computation",
     "path": "/brain-bytes/backpropagation-learning/",
     "date": "2026-06-16T06:24:07.936Z"
   },
@@ -496,6 +594,8 @@
     "authors": "Adrian M. Owen、Martin R. Coleman、Melanie Boly、Matthew H. Davis、Steven Laureys、John D. Pickard",
     "institutions": "英国医学研究理事会认知与脑科学研究所（剑桥）· 学术神经外科部 / 沃尔夫森脑成像中心（剑桥 Addenbrooke 医院）· 回旋加速器研究中心与神经病学系（比利时列日大学）",
     "source": "Science（《科学》）· 2006 年 9 月 8 日 · 第 313 卷第 5792 期 · 第 1402 页（Brevia 短报告）",
+    "year": 2006,
+    "topic": "consciousness",
     "path": "/brain-bytes/awareness-in-vegetative-state/",
     "date": "2026-06-16T06:24:07.935Z"
   },
@@ -506,6 +606,8 @@
     "authors": "Timothy P. Lillicrap、Adam Santoro、Luke Marris、Colin J. Akerman、Geoffrey Hinton",
     "institutions": "DeepMind · 伦敦大学学院（UCL, University College London） · 牛津大学 · 多伦多大学 · Google Brain",
     "source": "Nature Reviews Neuroscience · 2020（综述 / Perspective）",
+    "year": 2020,
+    "topic": "computation",
     "path": "/brain-bytes/backpropagation-and-the-brain/",
     "date": "2026-06-16T06:24:07.935Z"
   },
@@ -516,6 +618,8 @@
     "authors": "Xiao-Jing Wang（王晓京）",
     "institutions": "Volen Center for Complex Systems, Brandeis University（布兰戴斯大学）",
     "source": "Neuron, Vol. 36, 955–968 · 2002 年 12 月",
+    "year": 2002,
+    "topic": "decision",
     "path": "/brain-bytes/attractor-decision-dynamics/",
     "date": "2026-06-16T06:24:07.934Z"
   },
@@ -526,6 +630,8 @@
     "authors": "Thomas M. Biba, Alexandra Decker, Björn Herrmann, Keisuke Fukuda, Chaim Katz, Taufik A. Valiante, Katherine Duncan",
     "institutions": "University of Toronto · MIT · Washington University · Krembil Brain Institute",
     "source": "OSF Preprint · 2026",
+    "year": 2026,
+    "topic": "memory",
     "path": "/brain-bytes/theta-rhythms-in-memory/",
     "date": "2026-05-31T10:48:49.137Z"
   },
@@ -536,6 +642,8 @@
     "authors": "Tingting Zhou*, Yi-Yun Ho*, Ray X. Lee, Amanda B. Fath, Kathleen He, Jonathan Scott, Navdeep Bajwa, Nolan D. Hartley, Jonathan Wilde, Xian Gao, Cui Li, Evan Hong, Matthew R. Nassar, Ralf D. Wimmer, Tarjinder Singh, Michael M. Halassa#, Guoping Feng#",
     "institutions": "MIT McGovern Institute · MIT Brain and Cognitive Sciences · Broad Institute / Harvard · Tufts University · Brown University",
     "source": "bioRxiv 预印本 · 2024",
+    "year": 2024,
+    "topic": "decision",
     "path": "/brain-bytes/md-thalamus-belief-updating/",
     "date": "2026-05-31T10:48:49.129Z"
   },
@@ -546,6 +654,8 @@
     "authors": "Clément Pouget, Noémie Morier, Nathan Treiber, Marta Fernández García, Romain Mazza, Ruixuan Zhang, Amelia M.B. Reeves, Sophia Winston, Marshall Brimble, Christina K. Kim, Gisella Vetere",
     "institutions": "ESPCI Paris / PSL University / CNRS · UC Davis · St Jude Children's Research Hospital",
     "source": "bioRxiv 预印本 · 2024",
+    "year": 2024,
+    "topic": "memory",
     "path": "/brain-bytes/engram-deconstruction/",
     "date": "2026-05-31T10:48:49.128Z"
   },
@@ -556,6 +666,8 @@
     "authors": "Daniel Kersten, Pascal Mamassian, Alan Yuille",
     "institutions": "University of Minnesota · University of Glasgow · UCLA",
     "source": "Annual Review of Psychology · 2004",
+    "year": 2004,
+    "topic": "prediction",
     "path": "/brain-bytes/bayesian-object-perception/",
     "date": "2026-05-31T10:48:49.126Z"
   }
