@@ -12,7 +12,7 @@ body {
   color: #1a1a1a;
   line-height: 1.8;
   padding: 48px 24px;
-  max-width: 720px;
+  max-width: 1080px;
   margin: 0 auto;
 }
 
@@ -194,6 +194,22 @@ code {
   padding: 1px 5px;
   border-radius: 2px;
 }
+
+/* —— 补：双栏 sticky 目录（与其余论文一致）—— */
+html{scroll-behavior:smooth;}
+.layout{display:grid;grid-template-columns:220px 1fr;gap:48px;align-items:start;margin-top:32px;}
+.toc{position:sticky;top:24px;align-self:start;font-size:0.9rem;max-height:calc(100vh - 48px);overflow-y:auto;}
+.toc h3{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:#9aa1ab;margin:0 0 12px;font-weight:700;}
+.toc ul{list-style:none;margin:0;padding:0;}
+.toc li{margin:0;}
+.toc a{display:block;padding:6px 12px;color:#3a4048;text-decoration:none;border-left:2px solid #e6e8eb;transition:all .15s ease;line-height:1.45;}
+.toc a:hover{color:#c0392b;border-left-color:#c0392b;background:#fdecea;}
+.main-content{min-width:0;}
+.section-head{scroll-margin-top:24px;}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;gap:0;}
+  .toc{position:static;max-height:none;margin-bottom:28px;padding:16px;background:#fff;border:1px solid #e6e8eb;border-radius:8px;}
+}
 </style>
 </head>
 <body>
@@ -213,7 +229,22 @@ code {
 
 <!-- ═══════════════ 为什么值得深读 ═══════════════ -->
 
-<div class="rec">
+<div class="layout">
+<nav class="toc"><h3>目录</h3><ul>
+<li><a href="#sec-why">为什么值得深读</a></li>
+<li><a href="#sec-1">概念工具箱</a></li>
+<li><a href="#sec-2">核心发现</a></li>
+<li><a href="#sec-3">记忆节律 ≠ 注意力节律</a></li>
+<li><a href="#sec-4">乙酰胆碱</a></li>
+<li><a href="#sec-5">方法论的精妙与严谨</a></li>
+<li><a href="#sec-6">与已有研究的关系</a></li>
+<li><a href="#sec-7">跨领域的启示</a></li>
+<li><a href="#sec-8">边界和未解问题</a></li>
+<li><a href="#sec-9">判断</a></li>
+<li><a href="#sec-summary">一句话总结</a></li>
+</ul></nav>
+<div class="main-content">
+<div class="rec" id="sec-why">
   <h3>为什么这篇论文值得深读</h3>
   <p>什么时候是学东西的「最佳时刻」？你的直觉可能会说：喝完咖啡之后、睡了好觉的早晨。但大脑的节奏指向一个快到你根本意识不到的时间尺度——<strong>每秒钟七次</strong>。</p>
   <p>海马体的 theta 振荡（3-10 Hz）是记忆研究的老朋友了。啮齿动物的研究早就表明，神经可塑性、神经抑制、感知输入都随 theta 相位起伏。一个有影响力的计算模型——SPEAR 模型——据此预测：人类形成记忆的能力应该也以 theta 节律波动，每秒闪烁数次。</p>
@@ -227,7 +258,7 @@ code {
 
 <!-- ═══════════════ 概念工具箱 ═══════════════ -->
 
-<div class="section-head">概念工具箱</div>
+<div class="section-head" id="sec-1">概念工具箱</div>
 
 <p>这篇论文横跨认知心理学、神经振荡和精密心理物理学。在进入正文之前，先把所有承重术语翻译成人话。</p>
 
@@ -279,7 +310,7 @@ code {
 
 <!-- ═══════════════ 核心发现 ═══════════════ -->
 
-<div class="section-head">核心发现：记忆编码以 theta 节律波动</div>
+<div class="section-head" id="sec-2">核心发现：记忆编码以 theta 节律波动</div>
 
 <div class="section-head-sub">实验设计——行为中的「虚拟脑电」</div>
 
@@ -678,7 +709,7 @@ code {
 
 <!-- ═══════════════ 不是注意力的副产品 ═══════════════ -->
 
-<div class="section-head">记忆节律 ≠ 注意力节律</div>
+<div class="section-head" id="sec-3">记忆节律 ≠ 注意力节律</div>
 
 <p>这是论文最关键的控制分析。注意力也有 theta 节律性——之前的 dense sampling 研究已经充分证明了这一点。而记忆编码依赖注意力。那么一个天然的怀疑就是：你看到的记忆节律，只不过是注意力节律的倒影？</p>
 
@@ -702,7 +733,7 @@ code {
 
 <!-- ═══════════════ 乙酰胆碱调制 ═══════════════ -->
 
-<div class="section-head">乙酰胆碱：记忆节律的化学调节器</div>
+<div class="section-head" id="sec-4">乙酰胆碱：记忆节律的化学调节器</div>
 
 <p>SPEAR 模型的一个核心预测是：theta 节律在记忆中的作用应该受乙酰胆碱（ACh）调制。ACh 在海马体中调控 theta 振荡的幅度和一致性——这在啮齿动物和人类中都有大量证据。论文从两个角度检验了这个预测。</p>
 
@@ -727,7 +758,7 @@ code {
 
 <!-- ═══════════════ 实验方法的精妙之处 ═══════════════ -->
 
-<div class="section-head">方法论的精妙与严谨</div>
+<div class="section-head" id="sec-5">方法论的精妙与严谨</div>
 
 <p>这篇论文在方法上的用心程度值得专门拆解。</p>
 
@@ -766,7 +797,7 @@ code {
 
 <!-- ═══════════════ 与已有框架的关系 ═══════════════ -->
 
-<div class="section-head">与已有研究的关系</div>
+<div class="section-head" id="sec-6">与已有研究的关系</div>
 
 <div class="section-head-sub">vs SPEAR 模型——直接的行为支持</div>
 
@@ -790,7 +821,7 @@ code {
 
 <!-- ═══════════════ 跨领域启示 ═══════════════ -->
 
-<div class="section-head">跨领域的启示</div>
+<div class="section-head" id="sec-7">跨领域的启示</div>
 
 <h4>教育与学习</h4>
 <p>如果记忆编码确实在亚秒级别闪烁，那么信息呈现的精确时间可能比我们以为的更重要。不是说要把课件调成 7 Hz 的节拍（那太粗暴了），而是说：连续不间断的信息流可能不是最优的编码条件。短暂的停顿、节奏感、注意力的自然重置——这些可能在无意中帮助大脑找到了 theta 的「窗口」。</p>
@@ -808,7 +839,7 @@ code {
 
 <!-- ═══════════════ 边界和未解问题 ═══════════════ -->
 
-<div class="section-head">边界和未解问题</div>
+<div class="section-head" id="sec-8">边界和未解问题</div>
 
 <div class="section-head-sub">它做到了什么</div>
 
@@ -836,7 +867,7 @@ code {
 
 <!-- ═══════════════ 判断 ═══════════════ -->
 
-<div class="section-head">判断</div>
+<div class="section-head" id="sec-9">判断</div>
 
 <p>这篇论文有两个层次的价值：</p>
 
@@ -848,7 +879,7 @@ code {
 
 <p>总体判断：这是一篇设计精巧、分析严谨、结论克制的好论文。它没有过度宣称，每一步推断都清楚标注了是确认性还是探索性、效应量多大、替代解释是什么。在当前「可重复性危机」的背景下，这种研究风格值得肯定。核心发现——记忆编码在 theta 频率波动——大概率经得起重复。</p>
 
-<div class="rec">
+<div class="rec" id="sec-summary">
   <h3>一句话总结</h3>
   <p>你的大脑每秒打开记忆的「写入窗口」约七次。这篇论文第一次用纯行为方法捕捉到了这个闪烁——它不是注意力在闪，是记忆本身在闪，而且闪的强度受乙酰胆碱调控。</p>
 </div>
@@ -857,5 +888,7 @@ code {
   论文：Biba, T. M., Decker, A., Herrmann, B., Fukuda, K., Katz, C., Valiante, T. A., &amp; Duncan, K. Episodic memory encoding fluctuates at a theta rhythm from 3-10 Hz. OSF Preprint.
 </div>
 
+</div>
+</div>
 </body>
 </html>

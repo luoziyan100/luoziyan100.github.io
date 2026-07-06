@@ -12,7 +12,7 @@ body {
   color: #1a1a1a;
   line-height: 1.8;
   padding: 48px 24px;
-  max-width: 720px;
+  max-width: 1080px;
   margin: 0 auto;
 }
 h1 {
@@ -187,6 +187,22 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
   color: #888;
   margin: 0 0 14px;
 }
+
+/* —— 补：双栏 sticky 目录（与其余论文一致）—— */
+html{scroll-behavior:smooth;}
+.layout{display:grid;grid-template-columns:220px 1fr;gap:48px;align-items:start;margin-top:32px;}
+.toc{position:sticky;top:24px;align-self:start;font-size:0.9rem;max-height:calc(100vh - 48px);overflow-y:auto;}
+.toc h3{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:#9aa1ab;margin:0 0 12px;font-weight:700;}
+.toc ul{list-style:none;margin:0;padding:0;}
+.toc li{margin:0;}
+.toc a{display:block;padding:6px 12px;color:#3a4048;text-decoration:none;border-left:2px solid #e6e8eb;transition:all .15s ease;line-height:1.45;}
+.toc a:hover{color:#c0392b;border-left-color:#c0392b;background:#fdecea;}
+.main-content{min-width:0;}
+.section-head{scroll-margin-top:24px;}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;gap:0;}
+  .toc{position:static;max-height:none;margin-bottom:28px;padding:16px;background:#fff;border:1px solid #e6e8eb;border-radius:8px;}
+}
 </style>
 </head>
 <body>
@@ -206,7 +222,21 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 为什么值得深读 ═══════════════ -->
 
-<div class="rec">
+<div class="layout">
+<nav class="toc"><h3>目录</h3><ul>
+<li><a href="#sec-why">为什么值得深读</a></li>
+<li><a href="#sec-1">概念工具箱</a></li>
+<li><a href="#sec-2">核心发现</a></li>
+<li><a href="#sec-3">关键控制实验</a></li>
+<li><a href="#sec-4">方法论的精妙与严谨</a></li>
+<li><a href="#sec-5">与已有研究的关系</a></li>
+<li><a href="#sec-6">跨领域的启示</a></li>
+<li><a href="#sec-7">边界和未解问题</a></li>
+<li><a href="#sec-8">判断</a></li>
+<li><a href="#sec-summary">一句话总结</a></li>
+</ul></nav>
+<div class="main-content">
+<div class="rec" id="sec-why">
   <h3>为什么这篇论文值得深读</h3>
   <p>自从 2012 年 Tonegawa 实验室用光遗传学「点亮」记忆印迹（engram）细胞以来，领域的默认假设一直是：一次学习 → 一群细胞被激活 → 这群细胞就是这段记忆的物理载体。但这篇论文问了一个更尖锐的问题：<strong>这群细胞真的是「一群」吗？还是说，学习过程中不同时刻激活的神经元，其实各有各的功能？</strong></p>
   <p>答案令人惊讶：利用一种高时间分辨率的光遗传标记工具 f-FLiCRE（快速-荧光光依赖钙重组酶），研究者把恐惧条件化过程中仅 40 秒窗口内活跃的神经元分别标记出来，发现这些「子集群」几乎完全不重叠——而且只有在电击时刻和恐惧冻结时刻活跃的细胞才是记忆的核心载体。这意味着传统印迹研究把一整段学习期间激活的细胞笼统地叫做「印迹」，实际上掩盖了内部精细的功能分化。</p>
@@ -216,7 +246,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 概念工具箱 ═══════════════ -->
 
-<div class="section-head">概念工具箱</div>
+<div class="section-head" id="sec-1">概念工具箱</div>
 
 <p>在深入细节之前，先搞清楚几个关键概念。</p>
 
@@ -271,7 +301,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 核心发现 ═══════════════ -->
 
-<div class="section-head">核心发现</div>
+<div class="section-head" id="sec-2">核心发现</div>
 
 <div class="section-head-sub">发现一：f-FLiCRE 可以作为印迹标记工具</div>
 
@@ -357,7 +387,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 关键控制实验 ═══════════════ -->
 
-<div class="section-head">关键控制实验</div>
+<div class="section-head" id="sec-3">关键控制实验</div>
 
 <div class="section-head-sub">即时电击控制（Immediate Shock）</div>
 
@@ -375,7 +405,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 方法论 ═══════════════ -->
 
-<div class="section-head">方法论的精妙与严谨</div>
+<div class="section-head" id="sec-4">方法论的精妙与严谨</div>
 
 <table>
   <tr>
@@ -416,7 +446,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 与已有研究的关系 ═══════════════ -->
 
-<div class="section-head">与已有研究的关系</div>
+<div class="section-head" id="sec-5">与已有研究的关系</div>
 
 <div class="section-head-sub">vs 经典印迹理论（Josselyn & Tonegawa, 2020）</div>
 
@@ -434,7 +464,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 跨领域启示 ═══════════════ -->
 
-<div class="section-head">跨领域的启示</div>
+<div class="section-head" id="sec-6">跨领域的启示</div>
 
 <h4>神经工程与脑机接口（BCI，Brain-Computer Interface）</h4>
 <p>如果记忆印迹内部存在功能分化，那么用于记忆修复的神经假体（Neural Prosthesis）就不能简单地「重放一整段活动模式」——可能需要区分哪些神经元编码了关联信息（shock 细胞），哪些编码了行为输出（freezing 细胞），分别调控。</p>
@@ -449,7 +479,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 边界和未解问题 ═══════════════ -->
 
-<div class="section-head">边界和未解问题</div>
+<div class="section-head" id="sec-7">边界和未解问题</div>
 
 <div class="section-head-sub">它做到了什么</div>
 <ul>
@@ -473,7 +503,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 
 <!-- ═══════════════ 判断 ═══════════════ -->
 
-<div class="section-head">判断</div>
+<div class="section-head" id="sec-8">判断</div>
 
 <h4>技术创新（★★★★☆）</h4>
 <p>f-FLiCRE + 行为闭环 + 光遗传操控的组合是优雅的。40 秒标记窗口相比 c-Fos/TRAP 是数量级的提升，这使得在单次学习内做「时间切片」成为可能。扣一颗星是因为 f-FLiCRE 的标记效率（10-20% 的感染细胞被标记）和特异性验证可以更系统——比如标记的细胞中有多少是「真阳性」（确实在指定窗口内活跃的），论文没有给出定量估计。</p>
@@ -487,7 +517,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
 <h4>领域影响力（★★★★☆）</h4>
 <p>如果结论经得住后续验证，这将改变领域对「印迹」这个基本概念的理解——从「一群细胞」变成「一组功能分化的子集群」。这种精细化的视角会催生大量后续研究：不同脑区的子集群结构、不同学习范式中的子集群、子集群间的信息流、子集群在记忆消退/再巩固中的差异化角色等等。</p>
 
-<div class="rec">
+<div class="rec" id="sec-summary">
   <h3>一句话总结</h3>
   <p>记忆印迹不是「一整群被激活的细胞」，而是由学习过程中不同时刻招募的、功能各异的子集群拼装而成——其中只有在关键事件（电击）和恐惧反应（冻结）期间活跃的细胞，才是记忆回忆的核心驱动力。</p>
 </div>
@@ -498,5 +528,7 @@ figcaption { font-size: 12px; color: #888; margin-top: 6px; }
   论文：Pouget, C., Morier, N., Treiber, N., Fernández García, M., Mazza, R., Zhang, R., Reeves, A.M.B., Winston, S., Brimble, M., Kim, C.K., & Vetere, G. (2024). Deconstruction of a memory engram reveals distinct ensembles recruited at learning. bioRxiv. https://doi.org/10.1101/2024.12.11.627894
 </div>
 
+</div>
+</div>
 </body>
 </html>

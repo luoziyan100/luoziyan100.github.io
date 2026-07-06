@@ -12,7 +12,7 @@ body {
   color: #1a1a1a;
   line-height: 1.8;
   padding: 48px 24px;
-  max-width: 720px;
+  max-width: 1080px;
   margin: 0 auto;
 }
 h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; color: #1a1a1a; }
@@ -48,6 +48,22 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 .interactive-widget { margin: 28px 0; padding: 24px; background: #fff; border: 2px solid #c0392b; border-radius: 6px; }
 .interactive-widget h4 { color: #c0392b; margin: 0 0 6px; font-size: 15px; }
 .interactive-widget .widget-note { font-size: 12px; color: #888; margin: 0 0 14px; }
+
+/* —— 补：双栏 sticky 目录（与其余论文一致）—— */
+html{scroll-behavior:smooth;}
+.layout{display:grid;grid-template-columns:220px 1fr;gap:48px;align-items:start;margin-top:32px;}
+.toc{position:sticky;top:24px;align-self:start;font-size:0.9rem;max-height:calc(100vh - 48px);overflow-y:auto;}
+.toc h3{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:#9aa1ab;margin:0 0 12px;font-weight:700;}
+.toc ul{list-style:none;margin:0;padding:0;}
+.toc li{margin:0;}
+.toc a{display:block;padding:6px 12px;color:#3a4048;text-decoration:none;border-left:2px solid #e6e8eb;transition:all .15s ease;line-height:1.45;}
+.toc a:hover{color:#c0392b;border-left-color:#c0392b;background:#fdecea;}
+.main-content{min-width:0;}
+.section-head{scroll-margin-top:24px;}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr;gap:0;}
+  .toc{position:static;max-height:none;margin-bottom:28px;padding:16px;background:#fff;border:1px solid #e6e8eb;border-radius:8px;}
+}
 </style>
 </head>
 <body>
@@ -67,7 +83,20 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 
 <!-- ═══════════════ 为什么值得深读 ═══════════════ -->
 
-<div class="rec">
+<div class="layout">
+<nav class="toc"><h3>目录</h3><ul>
+<li><a href="#sec-why">为什么值得深读</a></li>
+<li><a href="#sec-1">概念工具箱</a></li>
+<li><a href="#sec-2">核心发现</a></li>
+<li><a href="#sec-3">方法论的精妙与严谨</a></li>
+<li><a href="#sec-4">与已有研究的关系</a></li>
+<li><a href="#sec-5">跨领域的启示</a></li>
+<li><a href="#sec-6">边界和未解问题</a></li>
+<li><a href="#sec-7">判断</a></li>
+<li><a href="#sec-summary">一句话总结</a></li>
+</ul></nav>
+<div class="main-content">
+<div class="rec" id="sec-why">
   <h3>为什么这篇论文值得深读</h3>
   <p>精神分裂症（Schizophrenia）的妄想症状，长期以来被视为一种「信念更新异常」——患者面对新证据时无法恰当地修正自己的信念。但这个理论虽然优雅，却缺乏动物模型的神经环路验证。这篇论文同时做了两件难事：第一，用 SCHEMA 联盟发现的高风险基因 Grin2a 的患者突变造了一只精准的小鼠模型；第二，设计了一个能让小鼠不断面对「该不该改主意」的决策任务，用贝叶斯计算模型量化信念更新速率。</p>
   <p>结果指向了一个意想不到的关键节点——<strong>丘脑背内侧核（MD，Mediodorsal Thalamus）</strong>。这个常被忽视的「中继站」实际上在编码环境变化、维持行为状态方面起着核心作用。更重要的是，激活 MD 能拯救突变小鼠的认知缺陷——这为精神分裂症的治疗指出了一个全新的靶点。</p>
@@ -77,7 +106,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 
 <!-- ═══════════════ 概念工具箱 ═══════════════ -->
 
-<div class="section-head">概念工具箱</div>
+<div class="section-head" id="sec-1">概念工具箱</div>
 
 <p>这篇论文横跨遗传学、行为学、计算建模、脑成像和光遗传学，术语密度很高。先过一遍核心概念。</p>
 
@@ -127,7 +156,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 
 <!-- ═══════════════ 核心发现 ═══════════════ -->
 
-<div class="section-head">核心发现</div>
+<div class="section-head" id="sec-2">核心发现</div>
 
 <div class="section-head-sub">发现一：Grin2a 突变小鼠信念更新更慢、行为状态更不稳定</div>
 
@@ -534,7 +563,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 
 <!-- ═══════════════ 方法论 ═══════════════ -->
 
-<div class="section-head">方法论的精妙与严谨</div>
+<div class="section-head" id="sec-3">方法论的精妙与严谨</div>
 
 <table>
   <tr>
@@ -571,7 +600,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 
 <!-- ═══════════════ 与已有研究 ═══════════════ -->
 
-<div class="section-head">与已有研究的关系</div>
+<div class="section-head" id="sec-4">与已有研究的关系</div>
 
 <div class="section-head-sub">vs 谷氨酸假说（Glutamate Hypothesis of Schizophrenia）</div>
 
@@ -589,7 +618,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 
 <!-- ═══════════════ 跨领域启示 ═══════════════ -->
 
-<div class="section-head">跨领域的启示</div>
+<div class="section-head" id="sec-5">跨领域的启示</div>
 
 <h4>精神分裂症药物开发</h4>
 <p>现有抗精神病药主要靶向多巴胺 D2 受体，对认知症状几乎无效（40% 的患者完全治疗抵抗）。本文提示 MD 丘脑可能是一个有前景的治疗靶点——如果能通过药物或神经调控（如 DBS，深部脑刺激，Deep Brain Stimulation）增强 MD 活性，可能改善认知灵活性。</p>
@@ -604,7 +633,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 
 <!-- ═══════════════ 边界和未解问题 ═══════════════ -->
 
-<div class="section-head">边界和未解问题</div>
+<div class="section-head" id="sec-6">边界和未解问题</div>
 
 <div class="section-head-sub">它做到了什么</div>
 <ul>
@@ -627,7 +656,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 
 <!-- ═══════════════ 判断 ═══════════════ -->
 
-<div class="section-head">判断</div>
+<div class="section-head" id="sec-7">判断</div>
 
 <h4>研究框架（★★★★★）</h4>
 <p>从患者基因变异出发建模 → 设计计算可追踪的行为范式 → 全脑成像定位 → 单神经元记录验证 → 光遗传双向因果验证。这条逻辑链几乎是转化精神病学的教科书式路径。每一步都为下一步提供理据，没有跳跃。</p>
@@ -641,7 +670,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
 <h4>临床转化潜力（★★★☆☆）</h4>
 <p>MD 作为治疗靶点是很有吸引力的概念，但从光遗传激活到实际的药物或 DBS 方案还有很长的路。更重要的是，论文只测试了一个基因、一种认知维度、一种行为范式——泛化性是未知数。</p>
 
-<div class="rec">
+<div class="rec" id="sec-summary">
   <h3>一句话总结</h3>
   <p>精神分裂症风险基因 Grin2a 的患者突变导致小鼠在动态环境中「不会改主意」，而这个缺陷的神经环路瓶颈不在前额叶皮层，而在长期被低估的丘脑背内侧核——激活它就能拯救认知灵活性。</p>
 </div>
@@ -652,5 +681,7 @@ code { font-family: "SF Mono", "Fira Code", "Menlo", monospace; font-size: 13px;
   论文：Zhou, T.*, Ho, Y.-Y.*, Lee, R.X., Fath, A.B., He, K., Scott, J., Bajwa, N., Hartley, N.D., Wilde, J., Gao, X., Li, C., Hong, E., Nassar, M.R., Wimmer, R.D., Singh, T., Halassa, M.M.#, & Feng, G.# (2024). Enhancement of mediodorsal thalamus rescues aberrant belief dynamics in a mouse model with schizophrenia-associated mutation. bioRxiv. https://doi.org/10.1101/2024.01.08.574745
 </div>
 
+</div>
+</div>
 </body>
 </html>
