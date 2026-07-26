@@ -1,13 +1,13 @@
 /**
  * [INPUT]: 目标 canvas 元素；无外部依赖
- * [OUTPUT]: createShoalField(canvas) → { start, stop, resize }，在画布上渲染六重雪花 + 七鱼（原式公式）
+ * [OUTPUT]: createShoalField(canvas) → { start, stop, resize }，在画布上渲染六重雪花 + 十鱼（原式公式）
  * [POS]: pages/brain-bytes-os 的生成式世界背景引擎，被 BrainBytesField.jsx 消费；Field Lab 的 G 方案同源逻辑
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
 const TAU = Math.PI * 2
-/** 七条鱼：parity 单层点云；整幅贴图，避免固定方框把游动中的身体裁成「黑色缺口」 */
-const FISH_COUNT = 7
+/** 大屏用 10 条：parity 单层点云；整幅贴图，避免固定方框裁出「黑色缺口」 */
+const FISH_COUNT = 10
 /** 原式画布 400×400；不再内裁，变形时尾巴/身体不被矩形窗切掉 */
 const FISH_CROP = { x: 0, y: 0, size: 400 }
 
@@ -109,9 +109,10 @@ function fishHomeAt(index, width, height) {
   const cx = width * 0.5
   const cy = height * 0.5
   const { rx, ry } = fishOrbitRadii(width, height)
-  const a = ((index + 1) / 8) * TAU + index * 0.11
+  // 均匀铺满椭圆一周
+  const a = (index / FISH_COUNT) * TAU + index * 0.05
   // 分层：内环贴雪花外缘，外环靠近画面边缘
-  const ring = 0.58 + (index % 4) * 0.13
+  const ring = 0.56 + (index % 5) * 0.1
   return {
     homeX: cx + Math.cos(a) * rx * ring,
     homeY: cy + Math.sin(a) * ry * ring,

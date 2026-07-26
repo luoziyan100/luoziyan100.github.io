@@ -555,9 +555,10 @@ function createShoalFish() {
   const cx = w * 0.5
   const cy = h * 0.5
   const n = (createShoalFish._n = (createShoalFish._n || 0) + 1)
+  const count = 10
   // 椭圆环按视口宽高铺开，避免只挤在中心
-  const a = (n / 8) * TAU + n * 0.11
-  const ring = 0.58 + ((n - 1) % 4) * 0.13
+  const a = ((n - 1) / count) * TAU + (n - 1) * 0.05
+  const ring = 0.56 + ((n - 1) % 5) * 0.1
   const rx = Math.max(w * 0.44, 120) * ring
   const ry = Math.max(h * 0.40, 100) * ring
   return {
@@ -579,7 +580,7 @@ function createShoal() {
   const fishCanvas = document.createElement('canvas')
   fishCanvas.width = 400
   fishCanvas.height = 400
-  const fishes = Array.from({ length: 7 }, () => createShoalFish())
+  const fishes = Array.from({ length: 10 }, () => createShoalFish())
   for (const fish of fishes) {
     fish.homeX = fish.x
     fish.homeY = fish.y
