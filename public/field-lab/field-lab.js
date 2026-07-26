@@ -550,22 +550,25 @@ function stepFlake(s) {
  */
 
 function createShoalFish() {
-  const side = Math.min(width || 800, height || 600)
-  const cx = (width || 800) * 0.5
-  const cy = (height || 600) * 0.5
-  // 七个锚点散开布置，之后几乎固定；「游」交给公式 t
-  const a = (createShoalFish._n = (createShoalFish._n || 0) + 1) / 8 * TAU + Math.random() * 0.4
-  const r = side * (0.26 + Math.random() * 0.12)
+  const w = width || 800
+  const h = height || 600
+  const cx = w * 0.5
+  const cy = h * 0.5
+  const n = (createShoalFish._n = (createShoalFish._n || 0) + 1)
+  // 椭圆环按视口宽高铺开，避免只挤在中心
+  const a = (n / 8) * TAU + n * 0.11
+  const ring = 0.58 + ((n - 1) % 4) * 0.13
+  const rx = Math.max(w * 0.44, 120) * ring
+  const ry = Math.max(h * 0.40, 100) * ring
   return {
-    x: cx + Math.cos(a) * r,
-    y: cy + Math.sin(a) * r,
+    x: cx + Math.cos(a) * rx,
+    y: cy + Math.sin(a) * ry,
     // 原作：每帧只推进 t，形体连续变形 = 游
     time: Math.random() * 80,
     timeStep: Math.PI / 30,
-    // 极慢漂移（每帧远小于 1px），只为避免七条完全静止叠味
     driftPhase: Math.random() * TAU,
-    driftSpeed: 0.004 + Math.random() * 0.003,
-    driftRadius: 6 + Math.random() * 10,
+    driftSpeed: 0.0035 + Math.random() * 0.003,
+    driftRadius: 28 + Math.random() * 36,
     homeX: 0,
     homeY: 0,
   }
