@@ -1,7 +1,7 @@
 /**
  * [INPUT]: fetch /brain-bytes/index.json（含 year/topic 字段），引入 brain-bytes.css，react-router-dom Link 回主站
  * [OUTPUT]: BrainBytesPage 页面组件（/brain-bytes 站中站列表首页），提供「时间线 / 主题」双视图
- * [POS]: pages/ 的 Brain & Bytes（知觉档案）专栏首页，红色学术风；文章为自包含静态 HTML（原生 <a> 整页跳转）
+ * [POS]: pages/ 的 Brain & Bytes 专栏首页，红色学术风；文章为自包含静态 HTML（原生 <a> 整页跳转）
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -105,7 +105,6 @@ export function BrainBytesPage() {
         {/* 品牌头 */}
         <header className="bb-brand">
           <h1>Brain <span>&amp;</span> Bytes</h1>
-          <div className="bb-cn">知觉档案</div>
           <p className="bb-tag">A deep-reading archive on AI, cognition, and neuroscience.</p>
         </header>
 
@@ -168,7 +167,7 @@ export function BrainBytesPage() {
         )}
 
         <footer className="bb-footer">
-          Brain &amp; Bytes · 知觉档案 — 一篇一篇地，把论文读厚再读薄
+          Brain &amp; Bytes — 一篇一篇地，把论文读厚再读薄
         </footer>
       </div>
     </div>

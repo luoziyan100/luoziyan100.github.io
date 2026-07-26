@@ -1,0 +1,27 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/blog/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/brain-bytes-os",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/brain-bytes-demo",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/brain-bytes-showcase",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/design-system",
+      "destination": "/index.html"
+    }
+  ]
+}

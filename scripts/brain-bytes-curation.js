@@ -1,12 +1,12 @@
 /**
  * [INPUT]: 无（纯策展数据），由 generate-bytes-index.js import
- * [OUTPUT]: 导出 TOPICS（7 主题元数据：中文名/色/排序）与 SLUG_TOPICS（56 篇 slug→主题 映射）
+ * [OUTPUT]: 导出 TOPICS（主题元数据：中文名/色/排序）与 SLUG_TOPICS（56 篇 slug→主题 映射）
  * [POS]: Brain & Bytes 站中站的「策展层」。主题分类是站点级策展决策（非文章自身属性），
  *        故集中在此维护，不写进 56 个自包含 HTML；索引器构建时据此给每篇打 topic 标签。
  * [PROTOCOL]: 新增文章时在 SLUG_TOPICS 补一行；主题增删改此文件与 TOPICS，然后检查 CLAUDE.md
  */
 
-// 7 个主题（key → 展示元数据）。color 为低饱和「学术图谱」分类色，与红色主调同处暖/沉稳色域，
+// 主题（key → 展示元数据）。color 为低饱和「学术图谱」分类色，与红色主调同处暖/沉稳色域，
 // 刻意避开高饱和霓虹/彩虹，保持站中站的书卷气。order 决定主题视图分区顺序（大致按学科脉络）。
 export const TOPICS = {
   electrophysiology: { name: '电生理 · 离子通道', short: '电生理', color: '#c0392b', order: 1 },

@@ -34,6 +34,7 @@
     "tailwind-merge": "^3.5.0",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.2.0",
+    "three": "^0.185.1",
     "vite": "^7.3.1"
   },
   "devDependencies": {

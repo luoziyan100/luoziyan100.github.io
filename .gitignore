@@ -28,3 +28,4 @@ prompt/
 *.njsproj
 *.sln
 *.sw?
+.vercel

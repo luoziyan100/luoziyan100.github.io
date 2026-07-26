@@ -1,0 +1,578 @@
+/*
+ * [INPUT]: 被 BrainBytesShowcasePage.jsx 引入
+ * [OUTPUT]: Brain & Bytes 七方案实验室样式：侧边方案切换、共享舞台、七种信息架构原型
+ * [POS]: pages/ 的设计探索样式，用真实数据比较展示隐喻，不影响正式 BrainBytesPage
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+
+.bbs-root {
+  --bg: #eceff0;
+  --panel: #f8f7f2;
+  --ink: #22272b;
+  --muted: color-mix(in srgb, var(--ink) 58%, transparent);
+  --faint: color-mix(in srgb, var(--ink) 18%, transparent);
+  --line: color-mix(in srgb, var(--ink) 14%, transparent);
+  --seal: #a8452f;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 82% 12%, rgba(58, 94, 112, 0.14), transparent 28rem),
+    radial-gradient(circle at 22% 80%, rgba(168, 69, 47, 0.08), transparent 24rem),
+    var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+.bbs-root * {
+  box-sizing: border-box;
+}
+
+.bbs-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bbs-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.bbs-wordmark {
+  color: var(--seal);
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.bbs-top div {
+  display: flex;
+  gap: 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bbs-sidebar {
+  position: fixed;
+  top: 78px;
+  left: 20px;
+  bottom: 20px;
+  z-index: 10;
+  width: 236px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 86%, transparent);
+  box-shadow: 0 20px 70px rgba(24, 30, 34, 0.1);
+  overflow: auto;
+}
+
+.bbs-sidebar p {
+  margin: 2px 4px 12px;
+  color: var(--seal);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+}
+
+.bbs-sidebar button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding: 13px 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.bbs-sidebar button span {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+}
+
+.bbs-sidebar button:hover,
+.bbs-sidebar button.active {
+  border-color: var(--line);
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.bbs-sidebar button.active {
+  box-shadow: inset 3px 0 0 var(--seal);
+}
+
+.bbs-stage {
+  width: min(1180px, calc(100vw - 300px));
+  margin-left: 280px;
+  padding: 56px 28px 90px;
+}
+
+.bbs-hero {
+  max-width: 880px;
+  margin-bottom: 28px;
+}
+
+.bbs-hero span,
+.bbs-demo-head span {
+  display: block;
+  color: var(--seal);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.bbs-hero h1 {
+  margin: 14px 0 0;
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: clamp(44px, 7vw, 92px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-wrap: pretty;
+}
+
+.bbs-hero p,
+.bbs-demo-head p {
+  max-width: 760px;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+.bbs-demo {
+  min-height: 640px;
+  padding: clamp(24px, 4vw, 42px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 90%, white);
+  box-shadow: 0 28px 90px rgba(24, 30, 34, 0.12);
+  overflow: hidden;
+}
+
+.bbs-demo-head {
+  margin-bottom: 28px;
+}
+
+.bbs-demo-head h2 {
+  margin: 12px 0 0;
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: clamp(34px, 5vw, 64px);
+  line-height: 1.05;
+}
+
+.bbs-loading {
+  padding: 80px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.bbs-paper {
+  display: block;
+  min-width: 0;
+  padding: 14px 15px;
+  border: 1px solid color-mix(in srgb, var(--topic) 34%, var(--line));
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--topic) 5%, #fff);
+  color: var(--ink);
+}
+
+.bbs-paper span {
+  display: block;
+  color: var(--topic);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}
+
+.bbs-paper strong {
+  display: block;
+  margin-top: 4px;
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.bbs-paper em {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1.5;
+}
+
+.bbs-paper.dense {
+  padding: 10px 12px;
+}
+
+.bbs-paper.dense strong {
+  font-size: 14px;
+}
+
+/* 01 River */
+.river-map {
+  display: grid;
+  gap: 18px;
+  padding: 22px 0 10px;
+}
+
+.river-row {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+}
+
+.river-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-family: "Songti SC", "STSong", Georgia, serif;
+}
+
+.river-label span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  color: #fff;
+  background: var(--topic);
+}
+
+.river-line {
+  position: relative;
+  height: 42px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--topic) 42%, transparent), transparent);
+}
+
+.river-node {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--topic);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--topic) 15%, transparent);
+  transform: translate(-50%, -50%);
+}
+
+/* 02 Museum */
+.museum-hall {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.museum-room {
+  min-height: 250px;
+  padding: 24px;
+  background: #fff;
+}
+
+.room-mark {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  color: #fff;
+  background: var(--topic);
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  transform: rotate(-4deg);
+}
+
+.museum-room h3 {
+  margin: 28px 0 6px;
+  font-family: Georgia, serif;
+  font-size: 27px;
+  line-height: 1;
+}
+
+.museum-room p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* 03 Quest */
+.quest-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.quest-path {
+  padding: 22px;
+  border: 1px solid color-mix(in srgb, var(--topic) 34%, var(--line));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--topic) 7%, #fff);
+}
+
+.quest-num {
+  color: var(--topic);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.quest-path h3 {
+  min-height: 68px;
+  margin: 10px 0 18px;
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: 25px;
+  line-height: 1.35;
+}
+
+.quest-steps {
+  display: grid;
+  gap: 10px;
+}
+
+/* 04 Star */
+.star-demo {
+  color: #f5f1e8;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(255, 247, 214, 0.12), transparent 18rem),
+    linear-gradient(160deg, #080a10, #17110f 58%, #07080b);
+}
+
+.star-demo .bbs-demo-head p {
+  color: rgba(245, 241, 232, 0.62);
+}
+
+.star-field {
+  position: relative;
+  height: 470px;
+  border: 1px solid rgba(255, 246, 215, 0.14);
+  border-radius: 8px;
+  overflow: hidden;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.12) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.16) 0 1px, transparent 2px);
+  background-size: 120px 90px, 170px 130px;
+}
+
+.star-cluster,
+.star {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+}
+
+.star-cluster {
+  color: var(--topic);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+
+.star-cluster::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 7px;
+  width: 18px;
+  height: 1px;
+  background: var(--topic);
+}
+
+.star {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--topic);
+  box-shadow: 0 0 22px var(--topic);
+}
+
+/* 05 Book */
+.book-spread {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 22px;
+  min-height: 470px;
+}
+
+.book-spread aside {
+  padding: 30px 24px;
+  border-radius: 7px;
+  color: #f8f7f2;
+  background: var(--ink);
+}
+
+.book-spread aside span {
+  color: rgba(248, 247, 242, 0.58);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+
+.book-spread aside strong {
+  display: block;
+  margin-top: 18px;
+  font-family: Georgia, serif;
+  font-size: 36px;
+  line-height: 1.05;
+}
+
+.book-pages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.book-pages article {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+}
+
+.book-pages article > span {
+  color: var(--topic);
+  font-size: 12px;
+}
+
+.book-pages h3 {
+  margin: 10px 0 16px;
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: 24px;
+}
+
+/* 06 Arena */
+.arena-list {
+  display: grid;
+  gap: 16px;
+}
+
+.arena-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.arena-pair > strong {
+  display: grid;
+  min-height: 86px;
+  place-items: center;
+  padding: 12px;
+  border-radius: 999px;
+  color: var(--seal);
+  background: color-mix(in srgb, var(--seal) 9%, transparent);
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  text-align: center;
+}
+
+/* 07 Lab */
+.lab-bench {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.lab-station {
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--topic) 32%, var(--line));
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--topic) 8%, white), #fff);
+}
+
+.lab-scope {
+  position: relative;
+  height: 130px;
+  border: 1px solid color-mix(in srgb, var(--topic) 28%, var(--line));
+  border-radius: 7px;
+  background:
+    linear-gradient(90deg, transparent 49%, color-mix(in srgb, var(--topic) 35%, transparent) 50%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, color-mix(in srgb, var(--topic) 35%, transparent) 50%, transparent 51%),
+    color-mix(in srgb, var(--topic) 6%, #fff);
+  overflow: hidden;
+}
+
+.lab-scope i {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: 50%;
+  height: 2px;
+  background: var(--topic);
+  transform-origin: 50% 50%;
+}
+
+.lab-scope i:nth-child(1) { transform: rotate(8deg); }
+.lab-scope i:nth-child(2) { transform: rotate(-13deg); opacity: 0.6; }
+.lab-scope i:nth-child(3) { transform: rotate(26deg); opacity: 0.35; }
+
+.lab-station h3 {
+  margin: 0;
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: 23px;
+}
+
+@media (max-width: 980px) {
+  .bbs-sidebar {
+    position: static;
+    width: auto;
+    margin: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bbs-sidebar p {
+    grid-column: 1 / -1;
+  }
+
+  .bbs-stage {
+    width: auto;
+    margin: 0;
+    padding: 28px 18px 70px;
+  }
+
+  .quest-board,
+  .book-spread,
+  .book-pages,
+  .lab-bench,
+  .arena-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .river-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .bbs-top,
+  .bbs-top div {
+    flex-direction: column;
+  }
+
+  .bbs-sidebar {
+    grid-template-columns: 1fr;
+  }
+}

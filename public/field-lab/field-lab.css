@@ -1,0 +1,196 @@
+/**
+ * [INPUT]: 被 field-lab/index.html 引入
+ * [OUTPUT]: Field Lab 实验页布局（顶栏切换 + 全屏 canvas + 模拟书本）
+ * [POS]: public/field-lab 的样式，不进入正式 BrainBytesOSPage
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+
+:root {
+  color-scheme: dark;
+  --lab-ink: #e8edf8;
+  --lab-muted: rgba(232, 237, 248, .62);
+  --lab-line: rgba(232, 237, 248, .14);
+  --lab-panel: rgba(8, 10, 22, .78);
+  --lab-bg: #050510;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--lab-bg);
+  color: var(--lab-ink);
+  font: 14px/1.4 "IBM Plex Sans", "Noto Sans SC", system-ui, sans-serif;
+}
+
+.lab-root {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.lab-bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(180px, auto);
+  gap: 12px 18px;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, rgba(5, 6, 16, .92), rgba(5, 6, 16, .35) 70%, transparent);
+  pointer-events: none;
+}
+
+.lab-bar > * { pointer-events: auto; }
+
+.lab-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lab-brand strong {
+  font: 700 16px/1.2 "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing: .02em;
+}
+
+.lab-brand span {
+  color: var(--lab-muted);
+  font-size: 12px;
+}
+
+.lab-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.lab-tabs button {
+  appearance: none;
+  border: 1px solid var(--lab-line);
+  background: rgba(12, 14, 28, .72);
+  color: var(--lab-muted);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: 600 12px/1 "IBM Plex Sans", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.lab-tabs button:hover {
+  color: var(--lab-ink);
+  border-color: rgba(232, 237, 248, .28);
+}
+
+.lab-tabs button.is-active {
+  color: #081018;
+  background: #d7e4ff;
+  border-color: #d7e4ff;
+}
+
+.lab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+  align-items: center;
+  color: var(--lab-muted);
+  font-size: 12px;
+}
+
+.lab-controls label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.lab-link {
+  color: #9fd0ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.lab-link:hover { text-decoration: underline; }
+
+.lab-stage {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  background: #050510;
+}
+
+#field {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lab-books {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.lab-books[hidden] { display: none; }
+
+.lab-books i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 58px;
+  height: 78px;
+  translate: -50% -50%;
+  border-radius: 6px 10px 10px 6px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, .35), transparent 18%),
+    linear-gradient(160deg, color-mix(in srgb, var(--c) 78%, white), color-mix(in srgb, var(--c) 55%, black));
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, .45),
+    inset 0 1px 0 rgba(255, 255, 255, .28);
+  color: transparent;
+  font-style: normal;
+}
+
+.lab-books i::after {
+  content: attr(style);
+  display: none;
+}
+
+.lab-note {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 12;
+  max-width: min(420px, calc(100vw - 36px));
+  padding: 12px 14px;
+  border: 1px solid var(--lab-line);
+  border-radius: 14px;
+  background: var(--lab-panel);
+  color: var(--lab-muted);
+  font-size: 12px;
+  line-height: 1.55;
+  backdrop-filter: none;
+}
+
+.lab-note strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--lab-ink);
+  font: 700 13px/1.3 "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@media (max-width: 900px) {
+  .lab-bar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .lab-tabs,
+  .lab-controls {
+    justify-content: flex-start;
+  }
+}

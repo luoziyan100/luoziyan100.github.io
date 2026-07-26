@@ -82,7 +82,7 @@ export function LandingPage() {
               <span className="go">读博客 →</span>
             </Link>
             <Link className="lp-col" to="/brain-bytes">
-              <div className="lp-col-name">Brain &amp; Bytes · 知觉档案</div>
+              <div className="lp-col-name">Brain &amp; Bytes</div>
               <p>56 篇神经科学经典论文的深度精读，按时间与主题可查。</p>
               <span className="go">进档案 →</span>
             </Link>

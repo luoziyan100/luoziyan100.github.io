@@ -20,8 +20,9 @@ const OUTPUT_FILE = path.join(BYTES_DIR, 'index.json')
 const NAV_MARKER = '<!--bb-nav-->'
 const NAV_HTML = `${NAV_MARKER}
 <div style="margin-bottom:28px;font-size:13px;">
-  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes · 知觉档案</a>
+  <a href="/brain-bytes/" style="color:#c0392b;text-decoration:none;font-weight:600;">← Brain &amp; Bytes</a>
 </div>`
+const NAV_BLOCK_RE = /<!--bb-nav-->\s*<div style="margin-bottom:28px;font-size:13px;">[\s\S]*?<\/div>/
 
 // ============================
 //  从 HTML 文本中提取单个字段
@@ -80,10 +81,11 @@ function parseArticle(slug, html) {
 //  幂等注入返回导航条
 // ============================
 function ensureNav(filePath, html) {
-  if (html.includes(NAV_MARKER)) return html
-  const injected = html.replace(/<body[^>]*>/i, match => `${match}\n${NAV_HTML}`)
-  fs.writeFileSync(filePath, injected)
-  return injected
+  const nextHtml = html.includes(NAV_MARKER)
+    ? html.replace(NAV_BLOCK_RE, NAV_HTML)
+    : html.replace(/<body[^>]*>/i, match => `${match}\n${NAV_HTML}`)
+  if (nextHtml !== html) fs.writeFileSync(filePath, nextHtml)
+  return nextHtml
 }
 
 // ============================

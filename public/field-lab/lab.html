@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brain & Bytes · Field Lab</title>
+    <link rel="stylesheet" href="./field-lab.css" />
+  </head>
+  <body>
+    <div class="lab-root">
+      <header class="lab-bar">
+        <div class="lab-brand">
+          <strong>Field Lab</strong>
+          <span>生成式背景实验 · 不替换正式 OS</span>
+        </div>
+        <nav class="lab-tabs" role="tablist" aria-label="背景方案">
+          <button type="button" class="is-active" data-variant="orbital" role="tab" aria-selected="true">A · 多引力井轨道</button>
+          <button type="button" data-variant="flow" role="tab" aria-selected="false">B · 噪声流场</button>
+          <button type="button" data-variant="attractor" role="tab" aria-selected="false">C · 有机吸引子</button>
+          <button type="button" data-variant="hybrid" role="tab" aria-selected="false">D · 分层混合</button>
+          <button type="button" data-variant="flake" role="tab" aria-selected="false">E · 六重雪花</button>
+          <button type="button" data-variant="bloom" role="tab" aria-selected="false">F · 涌现插花</button>
+          <button type="button" data-variant="shoal" role="tab" aria-selected="false">G · 雪花七鱼</button>
+        </nav>
+        <div class="lab-controls">
+          <label><input type="checkbox" id="mock-books" checked /> 模拟主题书</label>
+          <label><input type="checkbox" id="pause" /> 暂停</label>
+          <a class="lab-link" href="/brain-bytes-os">回正式 OS</a>
+        </div>
+      </header>
+
+      <main class="lab-stage">
+        <canvas id="field" aria-label="生成式背景预览"></canvas>
+        <div class="lab-books" id="books" aria-hidden="true">
+          <i style="--x:72%;--y:14%;--c:#f5cf65">Computation</i>
+          <i style="--x:84%;--y:14%;--c:#4fd6ff">Perception</i>
+          <i style="--x:94%;--y:14%;--c:#a7eb7c">Prediction</i>
+          <i style="--x:72%;--y:32%;--c:#ef8a60">Memory</i>
+          <i style="--x:84%;--y:32%;--c:#42d17a">Decision</i>
+          <i style="--x:94%;--y:32%;--c:#74e8ff">Consciousness</i>
+          <i style="--x:84%;--y:50%;--c:#ff9f7e">Electrophysiology</i>
+        </div>
+        <aside class="lab-note" id="note"></aside>
+      </main>
+    </div>
+    <script type="module" src="./field-lab.js"></script>
+  </body>
+</html>

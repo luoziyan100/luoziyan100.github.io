@@ -1,0 +1,635 @@
+/*
+ * [INPUT]: 叠加 BrainBytesShowcasePage.jsx 的七个场景 DOM，覆盖基础 showcase 样式
+ * [OUTPUT]: 七个可感知 Demo 场景：河流、博物馆、任务树、星空、书、辩论场、实验台
+ * [POS]: pages/ 的展示隐喻增强层，把结构草图升级为可评价的视觉 Demo
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+
+/* ---------- 01 七条问题之河 ---------- */
+.river-scene {
+  position: relative;
+  min-height: 620px;
+  padding: 78px 28px 42px;
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 0.9), transparent 18rem),
+    linear-gradient(180deg, #dce8e8 0%, #eef1eb 44%, #d2ddd8 100%);
+}
+
+.river-sky {
+  position: absolute;
+  inset: 20px 30px auto;
+  display: flex;
+  justify-content: space-between;
+  color: rgba(34, 39, 43, 0.45);
+  font-family: Georgia, serif;
+  font-size: 34px;
+}
+
+.river-delta {
+  position: absolute;
+  right: -120px;
+  bottom: -70px;
+  width: 380px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(58, 94, 112, 0.16), transparent 72%);
+}
+
+.river-delta i {
+  position: absolute;
+  left: 40px;
+  top: 120px;
+  width: 260px;
+  height: 2px;
+  background: rgba(58, 94, 112, 0.28);
+  transform-origin: 100% 50%;
+}
+
+.river-delta i:nth-child(1) { transform: rotate(-22deg); }
+.river-delta i:nth-child(2) { transform: rotate(4deg); }
+.river-delta i:nth-child(3) { transform: rotate(28deg); }
+
+.river-years {
+  position: absolute;
+  left: 180px;
+  right: 32px;
+  top: 74px;
+  display: flex;
+  justify-content: space-between;
+  color: rgba(34, 39, 43, 0.42);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}
+
+.river-stream {
+  position: relative;
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+  min-height: 62px;
+  margin-bottom: 8px;
+}
+
+.river-water {
+  position: relative;
+  height: calc(22px + var(--count) * 1px);
+  min-height: 30px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--topic) 44%, transparent) 14%, color-mix(in srgb, var(--topic) 58%, transparent) 70%, transparent 100%),
+    repeating-linear-gradient(90deg, transparent 0 34px, rgba(255, 255, 255, 0.32) 34px 38px);
+  box-shadow:
+    inset 0 8px 18px rgba(255, 255, 255, 0.35),
+    inset 0 -7px 16px color-mix(in srgb, var(--topic) 16%, transparent),
+    0 12px 28px color-mix(in srgb, var(--topic) 12%, transparent);
+}
+
+.river-current {
+  position: absolute;
+  inset: 40% 8% auto;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  animation: river-flow 3.8s linear infinite;
+}
+
+@keyframes river-flow {
+  from { transform: translateX(-18%); opacity: 0.25; }
+  50% { opacity: 0.8; }
+  to { transform: translateX(18%); opacity: 0.25; }
+}
+
+.river-bank {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--topic) 34%, transparent);
+}
+
+.river-bank.top { top: -5px; }
+.river-bank.bottom { bottom: -5px; }
+
+.river-node {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0;
+}
+
+.river-node span {
+  position: absolute;
+  top: -28px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  color: var(--topic);
+  background: rgba(255, 255, 255, 0.8);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.river-node:hover span {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- 02 心智博物馆 ---------- */
+.museum-scene {
+  position: relative;
+  min-height: 650px;
+  padding: 86px 28px 50px;
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, #f4efe5 0 48%, #ddd3c2 48% 100%);
+  perspective: 1100px;
+}
+
+.museum-ceiling {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 120px;
+  background:
+    linear-gradient(90deg, transparent 0 12%, rgba(90, 74, 54, 0.16) 12% 13%, transparent 13% 28%, rgba(90, 74, 54, 0.16) 28% 29%, transparent 29%),
+    linear-gradient(180deg, #e4dac9, transparent);
+}
+
+.museum-ceiling i {
+  position: absolute;
+  top: 30px;
+  width: 90px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 240, 0.9), rgba(255, 244, 198, 0.08) 72%);
+}
+
+.museum-ceiling i:nth-child(1) { left: 18%; }
+.museum-ceiling i:nth-child(2) { left: 48%; }
+.museum-ceiling i:nth-child(3) { left: 78%; }
+
+.museum-floor {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -120px;
+  height: 300px;
+  background:
+    linear-gradient(90deg, rgba(72, 54, 36, 0.08) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(72, 54, 36, 0.08) 1px, transparent 1px),
+    #d3c5b1;
+  background-size: 70px 70px;
+  transform: rotateX(62deg);
+  transform-origin: 50% 0;
+}
+
+.museum-corridor {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(170px, 1fr));
+  gap: 18px;
+  min-width: 1120px;
+}
+
+.museum-gallery {
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  border: 1px solid rgba(74, 54, 34, 0.22);
+  border-radius: 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(248, 244, 235, 0.84));
+  box-shadow: 0 28px 70px rgba(74, 54, 34, 0.16);
+}
+
+.gallery-door {
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border: 10px solid color-mix(in srgb, var(--topic) 36%, #d7ccb9);
+  border-bottom-width: 18px;
+  padding: 14px;
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--topic) 12%, white), #f9f5ed 70%);
+}
+
+.gallery-door h3 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.gallery-plinth {
+  padding: 14px 0 0;
+}
+
+/* ---------- 03 问题任务树 ---------- */
+.quest-tree {
+  position: relative;
+  min-height: 720px;
+  padding: 48px 28px;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(47, 107, 78, 0.14), transparent 24rem),
+    linear-gradient(180deg, #eef4ee, #dbe7dd);
+}
+
+.quest-tree::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 112px;
+  bottom: 70px;
+  width: 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #5f4b35, #2f6b4e);
+  transform: translateX(-50%);
+  box-shadow: inset 5px 0 12px rgba(255, 255, 255, 0.22);
+}
+
+.quest-trunk {
+  position: absolute;
+  left: 50%;
+  top: 42px;
+  z-index: 2;
+  width: 150px;
+  height: 150px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: radial-gradient(circle, #3a5e70, #2f4a38);
+  transform: translateX(-50%);
+  text-align: center;
+  box-shadow: 0 22px 60px rgba(47, 74, 56, 0.28);
+}
+
+.quest-trunk span,
+.quest-trunk strong {
+  grid-area: 1 / 1;
+}
+
+.quest-trunk span {
+  margin-top: -32px;
+  font-family: Georgia, serif;
+  font-size: 34px;
+}
+
+.quest-trunk strong {
+  margin-top: 34px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+
+.quest-branch {
+  position: relative;
+  z-index: 1;
+  width: min(42%, 420px);
+  margin: 0 0 28px;
+  padding: 22px;
+  border: 1px solid color-mix(in srgb, var(--topic) 38%, transparent);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 20px 60px rgba(36, 48, 40, 0.12);
+  transform: translateX(calc((var(--side) + 1) * 0px));
+}
+
+.quest-branch:nth-of-type(odd) {
+  margin-left: auto;
+}
+
+.quest-branch::before {
+  content: '';
+  position: absolute;
+  top: 44px;
+  width: 140px;
+  height: 40px;
+  border-top: 4px solid color-mix(in srgb, var(--topic) 60%, #5f4b35);
+}
+
+.quest-branch:nth-of-type(odd)::before {
+  right: 100%;
+  border-left: 4px solid color-mix(in srgb, var(--topic) 60%, #5f4b35);
+  border-radius: 40px 0 0;
+}
+
+.quest-branch:nth-of-type(even)::before {
+  left: 100%;
+  border-right: 4px solid color-mix(in srgb, var(--topic) 60%, #5f4b35);
+  border-radius: 0 40px 0 0;
+}
+
+/* ---------- 04 思想星图 ---------- */
+.star-field {
+  min-height: 620px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(248, 240, 219, 0.18), transparent 18rem),
+    radial-gradient(circle at 16% 24%, rgba(91, 75, 138, 0.24), transparent 14rem),
+    radial-gradient(circle at 82% 28%, rgba(44, 110, 156, 0.2), transparent 13rem),
+    linear-gradient(180deg, #03050d 0%, #09101d 56%, #160d0a 100%);
+}
+
+.star-nebula {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 120deg, transparent, rgba(91, 75, 138, 0.22), transparent, rgba(44, 110, 156, 0.2), transparent);
+  filter: blur(20px);
+  opacity: 0.7;
+  animation: star-drift 18s linear infinite;
+}
+
+@keyframes star-drift {
+  to { transform: rotate(1turn); }
+}
+
+.star-horizon {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -70px;
+  height: 180px;
+  border-radius: 50% 50% 0 0;
+  background: radial-gradient(ellipse at 50% 0, rgba(248, 240, 219, 0.16), rgba(8, 8, 10, 0.92) 58%);
+}
+
+.star-cluster {
+  z-index: 2;
+  min-width: 90px;
+  min-height: 60px;
+}
+
+.star-cluster i {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--topic);
+  box-shadow: 0 0 18px var(--topic);
+}
+
+.star-cluster i:nth-child(2) { left: 14px; top: 24px; }
+.star-cluster i:nth-child(3) { left: 52px; top: 12px; }
+.star-cluster i:nth-child(4) { left: 70px; top: 38px; }
+
+.star {
+  z-index: 3;
+  width: var(--s);
+  height: var(--s);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  animation: star-pulse 3.4s ease-in-out infinite;
+}
+
+@keyframes star-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.72; }
+  50% { transform: scale(1.45); opacity: 1; }
+}
+
+/* ---------- 05 会动的思想书 ---------- */
+.book-scene {
+  position: relative;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 26px;
+  min-height: 620px;
+  padding: 38px;
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse at 50% 80%, rgba(42, 30, 20, 0.22), transparent 32rem),
+    linear-gradient(135deg, #d8d0c4, #f1ece1);
+  perspective: 1200px;
+}
+
+.book-shadow {
+  position: absolute;
+  left: 24%;
+  right: 7%;
+  bottom: 28px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(50, 35, 20, 0.24);
+  filter: blur(18px);
+}
+
+.book-cover {
+  position: relative;
+  z-index: 1;
+  min-height: 460px;
+  padding: 34px 24px;
+  border-radius: 8px 16px 16px 8px;
+  color: #f8f1df;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.24), transparent 20%),
+    linear-gradient(135deg, #243139, #6a2e24);
+  box-shadow: 18px 28px 70px rgba(50, 35, 20, 0.28);
+  transform: rotateY(-8deg);
+}
+
+.book-cover em {
+  position: absolute;
+  bottom: 28px;
+  left: 24px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  opacity: 0.66;
+}
+
+.book-spread {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 16px 1.25fr;
+  gap: 0;
+  min-height: 500px;
+  border-radius: 10px;
+  box-shadow: 24px 30px 90px rgba(50, 35, 20, 0.22);
+  transform: rotateY(4deg);
+}
+
+.book-spine {
+  background: linear-gradient(90deg, rgba(80, 55, 30, 0.26), rgba(255, 255, 255, 0.4), rgba(80, 55, 30, 0.2));
+}
+
+.book-page {
+  padding: 30px;
+  background:
+    linear-gradient(90deg, rgba(150, 120, 80, 0.08), transparent 12%),
+    #fff9ec;
+}
+
+.book-page.left {
+  border-radius: 10px 0 0 10px;
+}
+
+.book-page.right {
+  max-height: 500px;
+  overflow: auto;
+  border-radius: 0 10px 10px 0;
+  background:
+    linear-gradient(270deg, rgba(150, 120, 80, 0.08), transparent 12%),
+    #fffaf0;
+}
+
+.book-page.left a {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(90, 66, 36, 0.16);
+  color: rgba(34, 39, 43, 0.76);
+}
+
+.book-page.right article {
+  margin-bottom: 14px;
+}
+
+/* ---------- 06 辩论场 ---------- */
+.arena-scene {
+  position: relative;
+  display: grid;
+  gap: 20px;
+  min-height: 620px;
+  padding: 120px 28px 42px;
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(168, 69, 47, 0.18), transparent 22rem),
+    linear-gradient(180deg, #2b2420 0 38%, #d8cbb8 38% 100%);
+}
+
+.arena-stands {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 26px;
+  height: 180px;
+  border-radius: 50% 50% 0 0;
+  background:
+    repeating-radial-gradient(ellipse at 50% 100%, rgba(255, 244, 220, 0.2) 0 18px, rgba(255, 244, 220, 0.05) 18px 34px);
+}
+
+.arena-stands i {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 1px;
+  height: 160px;
+  background: rgba(255, 244, 220, 0.18);
+  transform-origin: 50% 100%;
+}
+
+.arena-stands i:nth-child(1) { transform: rotate(-38deg); }
+.arena-stands i:nth-child(2) { transform: rotate(0deg); }
+.arena-stands i:nth-child(3) { transform: rotate(38deg); }
+
+.arena-pair {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  background: rgba(255, 250, 240, 0.88);
+  box-shadow: 0 18px 60px rgba(43, 36, 32, 0.18);
+}
+
+.arena-podium {
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #efe3d1, #c9b69a);
+  box-shadow: inset 0 -10px 18px rgba(90, 60, 35, 0.12);
+}
+
+/* ---------- 07 实验台 ---------- */
+.lab-room {
+  position: relative;
+  min-height: 620px;
+  padding: 108px 26px 36px;
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(58, 94, 112, 0.08) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(58, 94, 112, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, #e8eeee, #cdd8d8);
+  background-size: 34px 34px, 34px 34px, auto;
+}
+
+.lab-shelf {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  top: 34px;
+  height: 46px;
+  border-bottom: 8px solid #6d5a46;
+}
+
+.lab-shelf i {
+  display: inline-block;
+  width: 34px;
+  height: 42px;
+  margin-right: 14px;
+  border-radius: 7px 7px 3px 3px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(58, 94, 112, 0.22));
+  border: 1px solid rgba(58, 94, 112, 0.26);
+}
+
+.lab-bench {
+  position: relative;
+  z-index: 1;
+  padding: 24px;
+  border-radius: 18px 18px 8px 8px;
+  background:
+    linear-gradient(180deg, #8b735c, #5f4d3e 28px, #efe9dd 28px);
+  box-shadow: 0 24px 70px rgba(60, 50, 40, 0.22);
+}
+
+.lab-scope b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--topic);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--topic) 34%, transparent);
+}
+
+@media (max-width: 980px) {
+  .museum-scene,
+  .river-scene,
+  .quest-tree,
+  .book-scene,
+  .arena-scene,
+  .lab-room {
+    min-height: auto;
+    overflow-x: auto;
+  }
+
+  .book-scene {
+    grid-template-columns: 1fr;
+  }
+
+  .book-spread {
+    grid-template-columns: 1fr;
+  }
+
+  .book-spine {
+    display: none;
+  }
+
+  .quest-branch {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .quest-tree::before,
+  .quest-branch::before {
+    display: none;
+  }
+}
