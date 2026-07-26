@@ -97,17 +97,32 @@ function paintFlake(ctx, flake, width, height, dpr, {
   ctx.restore()
 }
 
-function createFish(index, width, height) {
-  const side = Math.min(width, height)
+/** 椭圆环半径：按视口宽高铺开，避免只围在正方形中心 */
+function fishOrbitRadii(width, height) {
+  return {
+    rx: Math.max(width * 0.44, 120),
+    ry: Math.max(height * 0.40, 100),
+  }
+}
+
+function fishHomeAt(index, width, height) {
   const cx = width * 0.5
   const cy = height * 0.5
-  const a = ((index + 1) / 8) * TAU + Math.random() * 0.35
-  const r = side * (0.26 + Math.random() * 0.12)
+  const { rx, ry } = fishOrbitRadii(width, height)
+  const a = ((index + 1) / 8) * TAU + index * 0.11
+  // 分层：内环贴雪花外缘，外环靠近画面边缘
+  const ring = 0.58 + (index % 4) * 0.13
+  return {
+    homeX: cx + Math.cos(a) * rx * ring,
+    homeY: cy + Math.sin(a) * ry * ring,
+  }
+}
+
+function createFish(index, width, height) {
   const canvas = document.createElement('canvas')
   canvas.width = 400
   canvas.height = 400
-  const homeX = cx + Math.cos(a) * r
-  const homeY = cy + Math.sin(a) * r
+  const { homeX, homeY } = fishHomeAt(index, width, height)
   return {
     canvas,
     ctx: canvas.getContext('2d', { alpha: true }),
@@ -121,8 +136,9 @@ function createFish(index, width, height) {
     time: Math.random() * 80,
     timeStep: Math.PI / 30,
     driftPhase: Math.random() * TAU,
-    driftSpeed: 0.004 + Math.random() * 0.003,
-    driftRadius: 6 + Math.random() * 10,
+    driftSpeed: 0.0035 + Math.random() * 0.003,
+    // 更大蠕动半径，让边缘区域也会被游到
+    driftRadius: 28 + Math.random() * 36,
     ready: false,
   }
 }
@@ -149,17 +165,13 @@ export function createShoalField(canvas) {
   let fishes = []
 
   function layoutFishHomes() {
-    const side = Math.min(width, height)
-    const cx = width * 0.5
-    const cy = height * 0.5
     for (let i = 0; i < fishes.length; i += 1) {
       const fish = fishes[i]
-      const a = ((i + 1) / 8) * TAU + i * 0.11
-      const r = side * (0.26 + (i % 3) * 0.04)
-      fish.homeX = cx + Math.cos(a) * r
-      fish.homeY = cy + Math.sin(a) * r
-      fish.x = fish.homeX
-      fish.y = fish.homeY
+      const { homeX, homeY } = fishHomeAt(i, width, height)
+      fish.homeX = homeX
+      fish.homeY = homeY
+      fish.x = homeX
+      fish.y = homeY
     }
   }
 
