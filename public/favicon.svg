@@ -1,7 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Brain & Bytes">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Brain and Bytes">
   <rect width="32" height="32" rx="8" fill="#090909"/>
   <g fill="none" stroke="#f4f1ea" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">
-    <!-- mÍùðê±¨¶ -->
     <g transform="translate(16 16)">
       <g>
         <path d="M0-11.2 V11.2"/>
