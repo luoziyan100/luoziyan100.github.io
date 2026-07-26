@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "npm run posts:index && npm run bytes:index && vite",
     "build": "npm run posts:index && npm run bytes:index && vite build && cp dist/index.html dist/404.html && cp dist/index.html dist/brain-bytes/index.html",
+    "build:os": "VITE_BRAIN_BYTES_OS_STANDALONE=1 npm run build",
     "preview": "vite preview",
     "posts:index": "node scripts/generate-posts-index.js",
     "bytes:index": "node scripts/generate-bytes-index.js"

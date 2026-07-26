@@ -351,15 +351,17 @@
   background: #090909;
 }
 
-/* field 世界：减弱旧视频用的紫雾叠层，让雪花七鱼更干净 */
-.bbos-space:has(.bbos-world-field)::before {
-  background:
-    radial-gradient(circle at 50% 48%, rgba(40, 48, 72, .08), transparent 34%),
-    linear-gradient(90deg, rgba(5, 5, 17, .42), rgba(5, 5, 17, .08) 30%, rgba(5, 5, 17, .08) 70%, rgba(5, 5, 17, .42));
+/* field 世界：关掉旧视频用的暗角/紫雾叠层，避免鱼游到中间被黑色遮挡 */
+.bbos-space:has(.bbos-world-field)::before,
+.bbos-space:has(.bbos-world-field)::after {
+  content: none;
+  display: none;
+  background: none;
+  animation: none;
 }
 
 .bbos-space:has(.bbos-world-field) .bbos-cosmos {
-  opacity: .12;
+  opacity: .08;
 }
 
 .bbos-space::before,

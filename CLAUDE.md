@@ -196,7 +196,7 @@ npm run build → posts:index + bytes:index → vite build (生产构建)
 ```
 
 ### 7. 部署流程
-Vercel 按纯前端静态站部署：`vercel.json` 指定 `buildCommand` 为 `npm run build`、`outputDirectory` 为 `dist`。客户端路由只精准 rewrite `/blog/:path*`、`/brain-bytes-os`、`/brain-bytes-demo`、`/brain-bytes-showcase` 与 `/design-system` 到 `/index.html`；真实静态论文页 `/brain-bytes/<slug>/index.html` 保持文件系统直出，不被 catch-all 覆盖。独立展示 Brain & Bytes OS 时使用 `VITE_BRAIN_BYTES_OS_STANDALONE=1` 构建，根路径 `/` 直接渲染 BrainBytesOSPage，原 myweb 构建保持 LandingPage 首页。
+Vercel 按纯前端静态站部署：`vercel.json` 指定 `buildCommand` 为 `npm run build`、`outputDirectory` 为 `dist`。客户端路由只精准 rewrite `/blog/:path*`、`/brain-bytes-os`、`/brain-bytes-demo`、`/brain-bytes-showcase` 与 `/design-system` 到 `/index.html`；真实静态论文页 `/brain-bytes/<slug>/index.html` 保持文件系统直出，不被 catch-all 覆盖。独立 OS 站域名为 `brain-bytes-os.vercel.app`（App 按 hostname 把根路径接到 BrainBytesOSPage；也可 `npm run build:os` / `VITE_BRAIN_BYTES_OS_STANDALONE=1`）；`myweb` 项目以后再接，普通构建仍保持 LandingPage 首页。
 
 ## 开发规范
 
