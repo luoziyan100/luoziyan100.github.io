@@ -339,7 +339,7 @@
 .bbos-world-field {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   display: block;
@@ -351,7 +351,7 @@
   background: #090909;
 }
 
-/* field 世界：关掉旧视频用的暗角/紫雾叠层，避免鱼游到中间被黑色遮挡 */
+/* field 世界：只保留一张全屏 canvas，关掉视频时代的暗角/星尘叠层 */
 .bbos-space:has(.bbos-world-field)::before,
 .bbos-space:has(.bbos-world-field)::after {
   content: none;
@@ -361,7 +361,11 @@
 }
 
 .bbos-space:has(.bbos-world-field) .bbos-cosmos {
-  opacity: .08;
+  display: none;
+}
+
+.bbos-space:has(.bbos-world-field) {
+  background: #090909;
 }
 
 .bbos-space::before,

@@ -587,7 +587,7 @@ function createShoal() {
     fishCtx: fishCanvas.getContext('2d', { alpha: true }),
     fishes,
     // 与 OS 一致：裁切主体，避免每份点云看起来像一整群
-    fishCrop: { x: 40, y: 30, size: 320 },
+    fishCrop: { x: 0, y: 0, size: 400 },
   }
 }
 
@@ -649,7 +649,7 @@ function stepShoal(s) {
   })
 
   const crop = s.fishCrop
-  const fishScale = (side * 0.22) / crop.size
+  const fishScale = (side * 0.18) / crop.size
 
   for (let f = 0; f < s.fishes.length; f += 1) {
     const fish = s.fishes[f]

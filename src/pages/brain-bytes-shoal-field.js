@@ -6,10 +6,10 @@
  */
 
 const TAU = Math.PI * 2
-/** 七条鱼：每份原式点云只裁切主体，避免一整幅「鱼群」叠成十几条 */
+/** 七条鱼：parity 单层点云；整幅贴图，避免固定方框把游动中的身体裁成「黑色缺口」 */
 const FISH_COUNT = 7
-/** 单层鱼形态占幅更大，裁切略放宽 */
-const FISH_CROP = { x: 40, y: 30, size: 320 }
+/** 原式画布 400×400；不再内裁，变形时尾巴/身体不被矩形窗切掉 */
+const FISH_CROP = { x: 0, y: 0, size: 400 }
 
 function createFlakeBuffers() {
   const size = 400
@@ -55,6 +55,7 @@ function rasterizeFish(fishCtx, time, imageData, parity = 0) {
     data[idx + 3] = data[idx + 3] + bump > 255 ? 255 : data[idx + 3] + bump
   }
 
+  fishCtx.clearRect(0, 0, size, size)
   fishCtx.putImageData(imageData, 0, 0)
 }
 
@@ -194,8 +195,8 @@ export function createShoalField(canvas) {
     })
 
     const side = Math.min(width, height)
-    // 按裁切窗口映射到屏幕，使每槽位读成「一条」而非一整群
-    const fishScale = (side * 0.22) / FISH_CROP.size
+    // 整幅 400 贴到屏幕；略缩小，避免七条鱼视觉挤在一起
+    const fishScale = (side * 0.18) / FISH_CROP.size
 
     // 轮询刷新一条鱼的光栅，控制主线程成本
     if (!frozen && fishes.length) {
