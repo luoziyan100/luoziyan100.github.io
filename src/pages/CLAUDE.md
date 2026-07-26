@@ -19,7 +19,7 @@
 
 **BrainBytesField.jsx**: 默认生成式背景组件，全屏 canvas 挂载雪花七鱼引擎
 
-**brain-bytes-shoal-field.js**: 雪花七鱼 Canvas2D 引擎（六重雪花 + 原式七鱼），每帧轮询重绘一条鱼
+**brain-bytes-shoal-field.js**: 雪花鱼群 Canvas2D 引擎（六重雪花 + 原式十鱼），每帧轮询重绘一条鱼
 
 **BrainBytesGlobe.jsx**: 可回退 Three.js 行星场景，仅 WORLD_VARIANT='planet' 时进入 chunk
 

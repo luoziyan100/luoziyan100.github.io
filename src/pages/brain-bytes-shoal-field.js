@@ -128,7 +128,7 @@ function createFish(index, width, height) {
     canvas,
     ctx: canvas.getContext('2d', { alpha: true }),
     imageData: null,
-    // 七条都用同一 parity 层，形态一致；靠 t / 位置区分
+    // 同 parity 层，形态一致；靠 t / 位置区分
     parity: 0,
     x: homeX,
     y: homeY,
@@ -208,7 +208,7 @@ export function createShoalField(canvas) {
     })
 
     const side = Math.min(width, height)
-    // 整幅 400 贴到屏幕；略缩小，避免七条鱼视觉挤在一起
+    // 整幅 400 贴到屏幕；略缩小，避免多鱼视觉挤在一起
     const fishScale = (side * 0.18) / FISH_CROP.size
 
     // 轮询刷新一条鱼的光栅，控制主线程成本
@@ -260,7 +260,7 @@ export function createShoalField(canvas) {
     if (running) return
     running = true
     resize()
-    // 首帧把七条鱼都烤一遍，避免空白
+    // 首帧把每条鱼都烤一遍，避免空白
     for (const fish of fishes) {
       ensureFishImageData(fish)
       rasterizeFish(fish.ctx, fish.time, fish.imageData, fish.parity)
