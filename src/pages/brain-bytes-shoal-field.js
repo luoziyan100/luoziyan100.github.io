@@ -135,11 +135,12 @@ function createFish(index, width, height) {
     homeX,
     homeY,
     time: Math.random() * 80,
-    timeStep: Math.PI / 30,
+    // 「游」靠公式 t 推进形体；每条略不同步，避免齐刷刷
+    timeStep: (Math.PI / 30) * (0.85 + Math.random() * 0.35),
     driftPhase: Math.random() * TAU,
-    driftSpeed: 0.0035 + Math.random() * 0.003,
-    // 更大蠕动半径，让边缘区域也会被游到
-    driftRadius: 28 + Math.random() * 36,
+    driftSpeed: 0.0018 + Math.random() * 0.0012,
+    // 锚点只做亚像素级微晃，大位移会读成「飘」而不是游
+    driftRadius: 2.5 + Math.random() * 3.5,
     ready: false,
   }
 }
@@ -212,13 +213,14 @@ export function createShoalField(canvas) {
     // 整幅 400 贴到屏幕；略缩小，避免多鱼视觉挤在一起
     const fishScale = (side * 0.18) / FISH_CROP.size
 
-    // 轮询刷新一条鱼的光栅，控制主线程成本
+    // 每帧刷新两条鱼的光栅：形体变形更连续，读成「游」而不是卡顿飘移
     if (!frozen && fishes.length) {
-      const idx = frame % fishes.length
-      const dirty = fishes[idx]
-      ensureFishImageData(dirty)
-      rasterizeFish(dirty.ctx, dirty.time, dirty.imageData, dirty.parity)
-      dirty.ready = true
+      for (let n = 0; n < 2; n += 1) {
+        const dirty = fishes[(frame * 2 + n) % fishes.length]
+        ensureFishImageData(dirty)
+        rasterizeFish(dirty.ctx, dirty.time, dirty.imageData, dirty.parity)
+        dirty.ready = true
+      }
     }
 
     for (let i = 0; i < fishes.length; i += 1) {

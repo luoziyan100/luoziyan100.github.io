@@ -566,10 +566,10 @@ function createShoalFish() {
     y: cy + Math.sin(a) * ry,
     // 原作：每帧只推进 t，形体连续变形 = 游
     time: Math.random() * 80,
-    timeStep: Math.PI / 30,
+    timeStep: (Math.PI / 30) * (0.85 + Math.random() * 0.35),
     driftPhase: Math.random() * TAU,
-    driftSpeed: 0.0035 + Math.random() * 0.003,
-    driftRadius: 28 + Math.random() * 36,
+    driftSpeed: 0.0018 + Math.random() * 0.0012,
+    driftRadius: 2.5 + Math.random() * 3.5,
     homeX: 0,
     homeY: 0,
   }
