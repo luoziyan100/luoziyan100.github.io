@@ -1,7 +1,7 @@
 /*
  * [INPUT]: 依赖 BrainBytesOSPage.jsx 的 .bbos-* 结构、逐字终端行、field canvas / 视频世界、光束转场、主题书素材与可回退 Three.js canvas
- * [OUTPUT]: 对外提供 Brain & Bytes OS 的 16:9 终端入口、光束载入、field/video 世界底、右上角书本阵列、选中与拖拽反馈
- * [POS]: src/pages 的站中站实验样式，全部 scoped 于 .bbos-root；默认 field 雪花七鱼，视频/行星可回退
+ * [OUTPUT]: 对外提供 Brain & Bytes OS 的 16:9 终端入口、光束载入、field/video 世界底、右上角书本阵列、左下角 Connect 触发器、选中与拖拽反馈
+ * [POS]: src/pages 的站中站实验样式，全部 scoped 于 .bbos-root；默认 field 雪花鱼群，视频/行星可回退
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -380,6 +380,29 @@
     radial-gradient(circle, rgba(247, 204, 96, .5) 0 1.4px, transparent 2.2px) 0 0/132px 118px,
     radial-gradient(circle, rgba(63, 190, 176, .38) 0 1.2px, transparent 2px) 0 0/86px 78px;
   animation: bbos-stars-drift 62s linear infinite;
+}
+
+.bbos-connect-trigger {
+  position: absolute;
+  left: clamp(18px, 3vw, 28px);
+  bottom: clamp(16px, 3vh, 28px);
+  z-index: 28;
+  border: 0;
+  padding: 0;
+  color: rgba(236, 242, 255, .72);
+  background: transparent;
+  cursor: pointer;
+  font: 800 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: color .16s ease, opacity .16s ease;
+}
+
+.bbos-connect-trigger:hover,
+.bbos-connect-trigger:focus-visible,
+.bbos-connect-trigger.is-open {
+  outline: 0;
+  color: rgba(255, 252, 245, .96);
 }
 
 .bbos-space-top {

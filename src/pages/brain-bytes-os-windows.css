@@ -1,6 +1,6 @@
 /*
- * [INPUT]: 依赖 BrainBytesOSPage.jsx 的 TopicArchiveWindow、ArticleReaderWindow、HtmlFileIcon 与 /brain-bytes/index.json 文章元数据
- * [OUTPUT]: 对外提供 Brain & Bytes OS 的 OS 风格主题 HTML 列表窗口、真实静态文章 iframe 阅读窗口、窗口按钮与移动端窗口约束
+ * [INPUT]: 依赖 BrainBytesOSPage.jsx 的 TopicArchiveWindow、ArticleReaderWindow、ConnectWindow、HtmlFileIcon 与 /brain-bytes/index.json 文章元数据
+ * [OUTPUT]: 对外提供 Brain & Bytes OS 的 OS 风格主题 HTML 列表窗口、真实静态文章 iframe 阅读窗口、Connect 联系窗、窗口按钮与移动端窗口约束
  * [POS]: src/pages 的 BrainBytesOSPage 窗口样式层，与 brain-bytes-os.css 的空间/书本样式分离，避免单文件职责过重
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -283,6 +283,81 @@
   background: #fffdf7;
 }
 
+.bbos-connect-window {
+  left: clamp(18px, 3vw, 28px);
+  bottom: clamp(52px, 8vh, 78px);
+  top: auto;
+  width: min(340px, calc(100vw - 36px));
+  z-index: 38;
+}
+
+.bbos-connect-window-body {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.bbos-connect-window-lead {
+  margin: 0;
+  color: rgba(23, 24, 39, .56);
+  font: 800 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.bbos-connect-list {
+  display: grid;
+  gap: 8px;
+}
+
+.bbos-connect-row {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(29, 31, 42, .08);
+  border-radius: 12px;
+  padding: 11px 12px;
+  color: inherit;
+  background: rgba(255,255,255,.66);
+  text-decoration: none;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+
+.bbos-connect-row:hover,
+.bbos-connect-row:focus-visible {
+  outline: 0;
+  border-color: rgba(48, 120, 216, .24);
+  background: rgba(245, 250, 255, .9);
+  box-shadow: 0 10px 26px rgba(16, 33, 62, .1);
+  transform: translateY(-1px);
+}
+
+.bbos-connect-row-copy {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.bbos-connect-row-copy strong {
+  color: #171827;
+  font: 900 14px/1.15 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.bbos-connect-row-copy span {
+  overflow: hidden;
+  color: rgba(23, 24, 39, .55);
+  font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bbos-connect-row svg {
+  flex: 0 0 auto;
+  color: rgba(26, 28, 40, .45);
+}
+
 @media (max-width: 640px) {
   .bbos-topic-window {
     left: 12px;
@@ -290,6 +365,13 @@
     top: 62px;
     width: auto;
     max-height: min(530px, calc(100dvh - 92px));
+  }
+
+  .bbos-connect-window {
+    left: 12px;
+    right: 12px;
+    bottom: 56px;
+    width: auto;
   }
 
   .bbos-topic-window-body { padding: 13px; }

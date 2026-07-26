@@ -1,6 +1,6 @@
 /**
- * [INPUT]: 懒加载 BrainBytesField.jsx 雪花七鱼背景（默认）与 BrainBytesGlobe.jsx 可回退行星，依赖 brain-bytes-terminal.js、/brain-bytes/index.json、brain-bytes-os.css、brain-bytes-os-windows.css、光束转场视频与像素书素材；视频世界保留可回退
- * [OUTPUT]: BrainBytesOSPage 页面组件（/brain-bytes-os），提供逐字打出的终端启动、光束载入、生成式雪花七鱼世界（可回退视频/行星）、会话内可拖拽主题书、主题文章列表窗口与真实 HTML 文章窗口
+ * [INPUT]: 懒加载 BrainBytesField.jsx 雪花鱼群背景（默认）与 BrainBytesGlobe.jsx 可回退行星，依赖 brain-bytes-terminal.js、/brain-bytes/index.json、brain-bytes-os.css、brain-bytes-os-windows.css、光束转场视频与像素书素材；视频世界保留可回退
+ * [OUTPUT]: BrainBytesOSPage 页面组件（/brain-bytes-os），提供逐字打出的终端启动、光束载入、生成式雪花鱼群世界（可回退视频/行星）、会话内可拖拽主题书、主题/文章窗口与左下角 Connect 联系窗
  * [POS]: pages/ 的 Brain & Bytes 主体叙事入口，用 typewriter terminal -> booting -> world 的状态机承载生成式档案世界，视频与 Three 行星保留为 WORLD_VARIANT 回退
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -26,6 +26,27 @@ const LAUNCH_VIDEO_POSTER = '/brain-bytes-os/assets/transitions/orbital-light-bu
 const LAUNCH_DURATION_MS = 2400
 const InteractiveGlobe = lazy(() => import('./BrainBytesGlobe'))
 const GenerativeField = lazy(() => import('./BrainBytesField'))
+
+const CONNECT_LINKS = [
+  {
+    id: 'github',
+    label: 'GitHub',
+    detail: 'luoziyan100',
+    href: 'https://github.com/luoziyan100',
+  },
+  {
+    id: 'woshipm',
+    label: '人人都是产品经理',
+    detail: 'woshipm.com/u/1615096',
+    href: 'https://www.woshipm.com/u/1615096',
+  },
+  {
+    id: 'email',
+    label: 'Email',
+    detail: 'zluo5820@gmail.com',
+    href: 'mailto:zluo5820@gmail.com',
+  },
+]
 
 const TOPICS = [
   {
@@ -331,6 +352,40 @@ function ArticleReaderWindow({ article, onClose }) {
   )
 }
 
+function ConnectWindow({ open, onClose }) {
+  if (!open) return null
+
+  return (
+    <aside id="bbos-connect-window" className="bbos-window bbos-connect-window" aria-label="Connect">
+      <div className="bbos-window-bar">
+        <WindowDots onClose={onClose} closeLabel="关闭 Connect" />
+        <strong>connect.txt</strong>
+      </div>
+      <div className="bbos-connect-window-body">
+        <p className="bbos-connect-window-lead">找到我</p>
+        <div className="bbos-connect-list" role="list">
+          {CONNECT_LINKS.map((link) => (
+            <a
+              className="bbos-connect-row"
+              key={link.id}
+              role="listitem"
+              href={link.href}
+              target={link.href.startsWith('mailto:') ? undefined : '_blank'}
+              rel={link.href.startsWith('mailto:') ? undefined : 'noreferrer'}
+            >
+              <span className="bbos-connect-row-copy">
+                <strong>{link.label}</strong>
+                <span>{link.detail}</span>
+              </span>
+              <ExternalLink size={14} strokeWidth={2.2} aria-hidden="true" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </aside>
+  )
+}
+
 function ThoughtSpace({
   activeTopic,
   openedTopic,
@@ -340,6 +395,9 @@ function ThoughtSpace({
   topicArticles,
   dragging,
   dragOffsets,
+  connectOpen,
+  onToggleConnect,
+  onCloseConnect,
   onBookPointerDown,
   onOpenTopic,
   onCloseTopic,
@@ -393,6 +451,16 @@ function ThoughtSpace({
           ))}
         </div>
       </div>
+      <button
+        className={`bbos-connect-trigger ${connectOpen ? 'is-open' : ''}`}
+        type="button"
+        onClick={onToggleConnect}
+        aria-expanded={connectOpen}
+        aria-controls="bbos-connect-window"
+      >
+        Connect
+      </button>
+      <ConnectWindow open={connectOpen} onClose={onCloseConnect} />
       <TopicArchiveWindow
         topic={TOPICS.find((topic) => topic.id === openedTopic)}
         articles={topicArticles[openedTopic] || []}
@@ -414,6 +482,7 @@ export function BrainBytesOSPage() {
   const [articleIndexStatus, setArticleIndexStatus] = useState('idle')
   const [articleIndexError, setArticleIndexError] = useState('')
   const [phase, setPhase] = useState('terminal')
+  const [connectOpen, setConnectOpen] = useState(false)
   const [dragging, setDragging] = useState(null)
   const [dragOffsets, setDragOffsets] = useState(createDragOffsets)
   const dragMovedRef = useRef(false)
@@ -518,11 +587,15 @@ export function BrainBytesOSPage() {
         setSelectedArticle(null)
         return
       }
-      if (openedTopic) setOpenedTopic(null)
+      if (openedTopic) {
+        setOpenedTopic(null)
+        return
+      }
+      if (connectOpen) setConnectOpen(false)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [openedTopic, phase, selectedArticle])
+  }, [connectOpen, openedTopic, phase, selectedArticle])
 
   const startBookDrag = (event, topicId) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return
@@ -563,6 +636,9 @@ export function BrainBytesOSPage() {
           topicArticles={topicArticles}
           dragging={dragging}
           dragOffsets={dragOffsets}
+          connectOpen={connectOpen}
+          onToggleConnect={() => setConnectOpen((open) => !open)}
+          onCloseConnect={() => setConnectOpen(false)}
           onBookPointerDown={startBookDrag}
           onOpenTopic={openTopic}
           onCloseTopic={() => setOpenedTopic(null)}

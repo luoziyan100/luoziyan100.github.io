@@ -13,7 +13,7 @@
 
 **BrainBytesPage.jsx**: Brain & Bytes 站中站列表首页，路由 /brain-bytes，fetch /brain-bytes/index.json，文章为自包含静态 HTML（原生 `<a>` 整页跳转）。视觉为红色学术风，样式见同目录 brain-bytes.css
 
-**BrainBytesOSPage.jsx**: Brain & Bytes 主体叙事入口，路由 /brain-bytes-os；terminal -> booting -> world；默认 WORLD_VARIANT='field' 雪花七鱼背景，video/planet 可回退；主题书可拖拽，fetch index 打开列表与文章 iframe
+**BrainBytesOSPage.jsx**: Brain & Bytes 主体叙事入口，路由 /brain-bytes-os；terminal -> booting -> world；默认 WORLD_VARIANT='field' 雪花鱼群背景，video/planet 可回退；主题书可拖拽，fetch index 打开列表与文章 iframe；世界页左下角 Connect 打开联系窗（GitHub / 人人都是产品经理 / Email）
 
 **brain-bytes-terminal.js**: BrainBytesOSPage 的终端逐行启动纯逻辑，提供终端文案序列、行步进速度、总行数与按进度显隐行的函数，供页面组件与 Node 回归测试共享
 
@@ -29,7 +29,7 @@
 
 **brain-bytes-os.css**: BrainBytesOSPage 专属空间样式，全部 scoped 于 .bbos-root，提供终端入口、光束载入、field/video 世界底、书本阵列与拖拽反馈
 
-**brain-bytes-os-windows.css**: BrainBytesOSPage 专属窗口样式，全部 scoped 于 .bbos-root/.bbos-*，提供 OS 风格主题 HTML 列表窗口、真实文章 iframe 阅读窗口、窗口按钮与移动端窗口约束
+**brain-bytes-os-windows.css**: BrainBytesOSPage 专属窗口样式，全部 scoped 于 .bbos-root/.bbos-*，提供 OS 风格主题 HTML 列表窗口、真实文章 iframe 阅读窗口、Connect 联系窗、窗口按钮与移动端窗口约束
 
 **BrainBytesDemoPage.jsx**: Brain & Bytes 新叙事首页 Demo，路由 /brain-bytes-demo，fetch /brain-bytes/index.json，把论文组织为「时间长卷 + 七条谱系 + 精选路径」，验证从文章陈列到知识地图的改造方向
 
