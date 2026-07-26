@@ -646,7 +646,7 @@ function stepShoal(s) {
 
   paintFlake(s.flake, {
     clearBg: false,
-    cover: 0.44,
+    cover: 0.66,
     cx,
     cy,
     alpha: 0.9,

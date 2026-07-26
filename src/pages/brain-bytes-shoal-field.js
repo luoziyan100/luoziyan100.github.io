@@ -201,7 +201,8 @@ export function createShoalField(canvas) {
     ctx.fillRect(0, 0, width, height)
 
     paintFlake(ctx, flake, width, height, dpr, {
-      cover: 0.44,
+      // 放大中心雪花，让六重细节在大屏上可读
+      cover: 0.66,
       cx: width * 0.5,
       cy: height * 0.5,
       alpha: 0.9,
