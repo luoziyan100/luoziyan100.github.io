@@ -138,9 +138,9 @@ function createFish(index, width, height) {
     // 「游」靠公式 t 推进形体；每条略不同步，避免齐刷刷
     timeStep: (Math.PI / 30) * (0.85 + Math.random() * 0.35),
     driftPhase: Math.random() * TAU,
-    driftSpeed: 0.0018 + Math.random() * 0.0012,
-    // 锚点只做亚像素级微晃，大位移会读成「飘」而不是游
-    driftRadius: 2.5 + Math.random() * 3.5,
+    driftSpeed: 0.004 + Math.random() * 0.003,
+    // 漂移幅度保持原式量级，不随意加大/收紧
+    driftRadius: 6 + Math.random() * 10,
     ready: false,
   }
 }

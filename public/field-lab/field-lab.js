@@ -568,8 +568,8 @@ function createShoalFish() {
     time: Math.random() * 80,
     timeStep: (Math.PI / 30) * (0.85 + Math.random() * 0.35),
     driftPhase: Math.random() * TAU,
-    driftSpeed: 0.0018 + Math.random() * 0.0012,
-    driftRadius: 2.5 + Math.random() * 3.5,
+    driftSpeed: 0.004 + Math.random() * 0.003,
+    driftRadius: 6 + Math.random() * 10,
     homeX: 0,
     homeY: 0,
   }
