@@ -168,24 +168,6 @@
 .bbos-terminal-lines b { color: #f2d56e; }
 .bbos-terminal-lines .out { color: #c8d9e2; padding-left: 22px; }
 
-.bbos-boot-lines {
-  display: grid;
-  gap: inherit;
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  animation: bbos-boot-lines 1.08s cubic-bezier(.2, .8, .2, 1) .18s forwards;
-}
-
-.bbos-boot-lines p {
-  opacity: 0;
-  transform: translateY(5px);
-  animation: bbos-boot-line 1s cubic-bezier(.2, .8, .2, 1) forwards;
-}
-
-.bbos-boot-lines p:nth-child(2) { animation-delay: .18s; }
-.bbos-boot-lines p:nth-child(3) { animation-delay: .34s; }
-
 .terminal-cursor {
   display: inline-block;
   width: 10px;
@@ -243,34 +225,18 @@
   outline-offset: 8px;
 }
 
-/* 进入世界：纸色底与终端立刻让位给光束层，避免半透明视频透出终端残影 */
+/* 进入世界：终端瞬间卸掉，只留光束转场，不做淡出 */
 .bbos-root.phase-booting {
   background: #060614;
 }
 
 .bbos-terminal-gate.is-launching::before,
 .bbos-terminal-gate.is-launching::after {
-  opacity: 0;
-  transition: opacity .12s linear;
+  display: none;
 }
 
 .bbos-terminal-gate.is-launching .bbos-laptop {
-  pointer-events: none;
-  z-index: 1;
-  animation: bbos-terminal-handoff 2.4s cubic-bezier(.2, .74, .2, 1) forwards;
-}
-
-.bbos-terminal-gate.is-launching .bbos-laptop-screen {
-  box-shadow: none;
-}
-
-.bbos-terminal-gate.is-launching .bbos-laptop-screen::after {
-  animation: bbos-screen-core 1.1s cubic-bezier(.16, .92, .24, 1) forwards;
-}
-
-.bbos-terminal-gate.is-launching .bbos-laptop-base {
-  opacity: 0;
-  transition: opacity .12s linear;
+  display: none !important;
 }
 
 .bbos-launch-field {
@@ -279,8 +245,7 @@
   z-index: 9;
   pointer-events: none;
   overflow: hidden;
-  opacity: 0;
-  /* 实色底：光束视频未铺满/半透明时也不透出终端 */
+  opacity: 1;
   background: #060614;
   animation: bbos-launch-reveal 2.4s cubic-bezier(.16, .86, .2, 1) forwards;
 }
@@ -661,62 +626,8 @@
 
 @keyframes bbos-blink { 50% { opacity: 0; } }
 
-@keyframes bbos-boot-lines {
-  100% {
-    max-height: 150px;
-    opacity: 1;
-  }
-}
-
-@keyframes bbos-boot-line {
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bbos-screen-core {
-  0% {
-    opacity: 0;
-    transform: scale(.58);
-  }
-  32% {
-    opacity: .92;
-  }
-  100% {
-    opacity: 1;
-    transform: scale(2.4);
-  }
-}
-
-@keyframes bbos-terminal-handoff {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-    visibility: visible;
-  }
-  /* 前段迅速完全消失，后半程保持隐藏，避免光束里若隐若现 */
-  16% {
-    opacity: 0;
-    transform: scale(1.03);
-    visibility: hidden;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.06);
-    visibility: hidden;
-  }
-}
-
 @keyframes bbos-launch-reveal {
-  0% {
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  /* 保持盖住直到切到 world，勿在结尾淡出露出终端底 */
-  100% {
+  0%, 100% {
     opacity: 1;
   }
 }

@@ -27,12 +27,6 @@ const LAUNCH_DURATION_MS = 2400
 const InteractiveGlobe = lazy(() => import('./BrainBytesGlobe'))
 const GenerativeField = lazy(() => import('./BrainBytesField'))
 
-const BOOT_LINES = [
-  '> aligning archive vectors',
-  '> opening light cone',
-  '> entering orbital archive',
-]
-
 const TOPICS = [
   {
     id: 'computation',
@@ -174,31 +168,7 @@ function BootTerminal({ onLaunch, launching, terminalRows }) {
       aria-label="Brain & Bytes terminal launcher"
       aria-busy={launching}
     >
-      <button
-        className="bbos-laptop"
-        type="button"
-        onClick={onLaunch}
-        disabled={launching}
-        aria-label="进入 Brain & Bytes OS"
-      >
-        <div className="bbos-laptop-screen">
-          <div className="bbos-termbar">
-            <i /><i /><i />
-            <span>brain@bytes - zsh</span>
-          </div>
-          <div className="bbos-terminal-lines">
-            {terminalRows.map((row, index) => (
-              <TerminalLine row={row} key={`${row.kind}-${index}`} />
-            ))}
-            {launching ? (
-              <div className="bbos-boot-lines" aria-hidden="true">
-                {BOOT_LINES.map((line) => <p className="out" key={line}>{line}</p>)}
-              </div>
-            ) : null}
-          </div>
-        </div>
-        <div className="bbos-laptop-base" />
-      </button>
+      {/* 转场阶段直接卸掉终端，不做淡出，避免光束里透出残影 */}
       {launching ? (
         <div className="bbos-launch-field" aria-hidden="true">
           <video
@@ -210,7 +180,27 @@ function BootTerminal({ onLaunch, launching, terminalRows }) {
             preload="auto"
           />
         </div>
-      ) : null}
+      ) : (
+        <button
+          className="bbos-laptop"
+          type="button"
+          onClick={onLaunch}
+          aria-label="进入 Brain & Bytes OS"
+        >
+          <div className="bbos-laptop-screen">
+            <div className="bbos-termbar">
+              <i /><i /><i />
+              <span>brain@bytes - zsh</span>
+            </div>
+            <div className="bbos-terminal-lines">
+              {terminalRows.map((row, index) => (
+                <TerminalLine row={row} key={`${row.kind}-${index}`} />
+              ))}
+            </div>
+          </div>
+          <div className="bbos-laptop-base" />
+        </button>
+      )}
     </section>
   )
 }
