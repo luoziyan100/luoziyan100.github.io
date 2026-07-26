@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Brain & Bytes">
+  <rect width="32" height="32" rx="8" fill="#090909"/>
+  <g fill="none" stroke="#f4f1ea" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">
+    <!-- mÍùðê±¨¶ -->
+    <g transform="translate(16 16)">
+      <g>
+        <path d="M0-11.2 V11.2"/>
+        <path d="M0-7.2 l-2.4-2.1 M0-7.2 l2.4-2.1"/>
+        <path d="M0-3.6 l-2.1-1.7 M0-3.6 l2.1-1.7"/>
+        <path d="M0 3.6 l-2.1 1.7 M0 3.6 l2.1 1.7"/>
+        <path d="M0 7.2 l-2.4 2.1 M0 7.2 l2.4 2.1"/>
+      </g>
+      <g transform="rotate(60)">
+        <path d="M0-11.2 V11.2"/>
+        <path d="M0-7.2 l-2.4-2.1 M0-7.2 l2.4-2.1"/>
+        <path d="M0-3.6 l-2.1-1.7 M0-3.6 l2.1-1.7"/>
+        <path d="M0 3.6 l-2.1 1.7 M0 3.6 l2.1 1.7"/>
+        <path d="M0 7.2 l-2.4 2.1 M0 7.2 l2.4 2.1"/>
+      </g>
+      <g transform="rotate(120)">
+        <path d="M0-11.2 V11.2"/>
+        <path d="M0-7.2 l-2.4-2.1 M0-7.2 l2.4-2.1"/>
+        <path d="M0-3.6 l-2.1-1.7 M0-3.6 l2.1-1.7"/>
+        <path d="M0 3.6 l-2.1 1.7 M0 3.6 l2.1 1.7"/>
+        <path d="M0 7.2 l-2.4 2.1 M0 7.2 l2.4 2.1"/>
+      </g>
+    </g>
+  </g>
+  <circle cx="16" cy="16" r="1.55" fill="#f4f1ea"/>
+</svg>
