@@ -1,0 +1,2243 @@
+{
+  "generatedAt": "2026-07-30T18:25:29.792Z",
+  "method": {
+    "embed": "hash-fallback",
+    "project": "umap-js"
+  },
+  "yearRange": {
+    "min": 1943,
+    "max": 2026
+  },
+  "nodes": [
+    {
+      "id": "working-memory-model",
+      "slug": "working-memory-model",
+      "title": "Working Memory × 大脑里那块\"草稿纸\"是怎么搭起来的",
+      "paper": "Working Memory: Looking Back and Looking Forward",
+      "topic": "memory",
+      "year": 2003,
+      "path": "/brain-bytes/working-memory-model/",
+      "x": -0.39948,
+      "y": 0.22614,
+      "z": 0.8001
+    },
+    {
+      "id": "voltage-clamp-squid-axon",
+      "slug": "voltage-clamp-squid-axon",
+      "title": "Voltage Clamp × 把会乱跑的膜电位「钉死」，第一次直接看见离子电流",
+      "paper": "Measurement of Current-Voltage Relations in the Membrane of the Giant Axon of Loligo",
+      "topic": "electrophysiology",
+      "year": 1952,
+      "path": "/brain-bytes/voltage-clamp-squid-axon/",
+      "x": 0.30095,
+      "y": 0.821,
+      "z": 0.65522
+    },
+    {
+      "id": "what-is-it-like-to-be-a-bat",
+      "slug": "what-is-it-like-to-be-a-bat",
+      "title": "What Is It Like to Be a Bat? × 客观科学永远抓不住\"当那只蝙蝠是什么滋味\"",
+      "paper": "What Is It Like to Be a Bat?（成为一只蝙蝠是什么感觉？）",
+      "topic": "consciousness",
+      "year": 1974,
+      "path": "/brain-bytes/what-is-it-like-to-be-a-bat/",
+      "x": 0.70633,
+      "y": -0.1594,
+      "z": 0.65968
+    },
+    {
+      "id": "theta-rhythms-in-memory",
+      "slug": "theta-rhythms-in-memory",
+      "title": "Theta Rhythms in Memory × 你的记忆力每秒闪烁七次",
+      "paper": "Episodic memory encoding fluctuates at a theta rhythm from 3-10 Hz",
+      "topic": "memory",
+      "year": 2026,
+      "path": "/brain-bytes/theta-rhythms-in-memory/",
+      "x": -0.61719,
+      "y": 0.12993,
+      "z": 0.70916
+    },
+    {
+      "id": "unconscious-determinants-of-decisions",
+      "slug": "unconscious-determinants-of-decisions",
+      "title": "Free Will, 7 Seconds Early × 在你\"决定\"按哪只手之前 10 秒，大脑已经泄了底",
+      "paper": "Unconscious determinants of free decisions in the human brain（人脑中自由决策的无意识决定因素）",
+      "topic": "decision",
+      "year": 2008,
+      "path": "/brain-bytes/unconscious-determinants-of-decisions/",
+      "x": 0.08528,
+      "y": 0.58558,
+      "z": 0.84041
+    },
+    {
+      "id": "taxi-driver-hippocampus",
+      "slug": "taxi-driver-hippocampus",
+      "title": "Taxi Drivers' Hippocampi × 把整座伦敦记进脑子，海马真的会长大",
+      "paper": "Navigation-related structural change in the hippocampi of taxi drivers",
+      "topic": "memory",
+      "year": 2000,
+      "path": "/brain-bytes/taxi-driver-hippocampus/",
+      "x": -0.48534,
+      "y": -0.08682,
+      "z": 0.81769
+    },
+    {
+      "id": "sodium-conductance-inactivation",
+      "slug": "sodium-conductance-inactivation",
+      "title": "Dual Effect × 同一个去极化，既打开钠通道又把它关上",
+      "paper": "The Dual Effect of Membrane Potential on Sodium Conductance in the Giant Axon of Loligo",
+      "topic": "electrophysiology",
+      "year": 1952,
+      "path": "/brain-bytes/sodium-conductance-inactivation/",
+      "x": 0.41288,
+      "y": 0.9,
+      "z": 0.47505
+    },
+    {
+      "id": "sodium-potassium-currents",
+      "slug": "sodium-potassium-currents",
+      "title": "Separating INa &amp; IK × 用一招「换钠」把一团膜电流拆成两条干净的曲线",
+      "paper": "Currents carried by sodium and potassium ions through the membrane of the giant axon of Loligo",
+      "topic": "electrophysiology",
+      "year": 1952,
+      "path": "/brain-bytes/sodium-potassium-currents/",
+      "x": 0.26606,
+      "y": 0.8952,
+      "z": 0.61944
+    },
+    {
+      "id": "prefrontal-cognitive-control",
+      "slug": "prefrontal-cognitive-control",
+      "title": "Guided Activation × 前额叶不亲自干活，只在大脑里\"扳道岔\"",
+      "paper": "An Integrative Theory of Prefrontal Cortex Function",
+      "topic": "decision",
+      "year": 2001,
+      "path": "/brain-bytes/prefrontal-cognitive-control/",
+      "x": 0.01031,
+      "y": 0.84996,
+      "z": 0.77772
+    },
+    {
+      "id": "representational-similarity-analysis",
+      "slug": "representational-similarity-analysis",
+      "title": "RSA × 给大脑、模型、行为找一种共同的「相似性几何」语言",
+      "paper": "Representational similarity analysis – connecting the branches of systems neuroscience",
+      "topic": "computation",
+      "year": 2008,
+      "path": "/brain-bytes/representational-similarity-analysis/",
+      "x": -0.48987,
+      "y": -0.68886,
+      "z": 0.70412
+    },
+    {
+      "id": "short-term-memory-dissociation",
+      "slug": "short-term-memory-dissociation",
+      "title": "Patient KF × 一个记不住三个数字、却学得会十个单词的人",
+      "paper": "The Selective Impairment of Auditory Verbal Short-Term Memory",
+      "topic": "memory",
+      "year": 1969,
+      "path": "/brain-bytes/short-term-memory-dissociation/",
+      "x": -0.30239,
+      "y": 0.20647,
+      "z": 0.78138
+    },
+    {
+      "id": "predictive-coding-visual-cortex",
+      "slug": "predictive-coding-visual-cortex",
+      "title": "Predictive Coding × 大脑只把「没猜中的部分」往上传",
+      "paper": "Predictive coding in the visual cortex: a functional interpretation of some extra-classical receptive-field effects",
+      "topic": "prediction",
+      "year": 1999,
+      "path": "/brain-bytes/predictive-coding-visual-cortex/",
+      "x": 0.25365,
+      "y": 0.48678,
+      "z": 0.7134
+    },
+    {
+      "id": "predictive-processing-clark",
+      "slug": "predictive-processing-clark",
+      "title": "Predictive Brain × 大脑不是被动接收世界，而是不停地\"猜\"世界",
+      "paper": "Whatever next? Predictive brains, situated agents, and the future of cognitive science",
+      "topic": "prediction",
+      "year": 2013,
+      "path": "/brain-bytes/predictive-processing-clark/",
+      "x": 0.37964,
+      "y": 0.33052,
+      "z": 0.64375
+    },
+    {
+      "id": "neurophenomenology",
+      "slug": "neurophenomenology",
+      "title": "Neurophenomenology × 想破解意识难题，缺的不是新理论，而是一门测量\"体验\"的手艺",
+      "paper": "Neurophenomenology: A Methodological Remedy for the Hard Problem",
+      "topic": "consciousness",
+      "year": 1996,
+      "path": "/brain-bytes/neurophenomenology/",
+      "x": 0.51496,
+      "y": -0.06979,
+      "z": 0.72392
+    },
+    {
+      "id": "neuroscience-of-volition",
+      "slug": "neuroscience-of-volition",
+      "title": "Human Volition × 你的大脑在你\"决定\"之前，已经先动了手",
+      "paper": "Human volition: towards a neuroscience of will",
+      "topic": "decision",
+      "year": 2008,
+      "path": "/brain-bytes/neuroscience-of-volition/",
+      "x": -0.29922,
+      "y": 0.66535,
+      "z": 0.67722
+    },
+    {
+      "id": "patient-hm-hippocampus",
+      "slug": "patient-hm-hippocampus",
+      "title": "H.M. &amp; Hippocampus × 切掉两侧海马，他的「现在」从此再也存不进昨天",
+      "paper": "Loss of Recent Memory After Bilateral Hippocampal Lesions",
+      "topic": "memory",
+      "year": 1957,
+      "path": "/brain-bytes/patient-hm-hippocampus/",
+      "x": -0.38086,
+      "y": 0.10132,
+      "z": 0.85014
+    },
+    {
+      "id": "neuron-doctrine-to-networks",
+      "slug": "neuron-doctrine-to-networks",
+      "title": "Neuron Doctrine → Neural Networks × 把\"理解大脑的最小单位\"从单个神经元搬到神经元集群",
+      "paper": "From the neuron doctrine to neural networks",
+      "topic": "computation",
+      "year": 2015,
+      "path": "/brain-bytes/neuron-doctrine-to-networks/",
+      "x": -0.09005,
+      "y": -0.9,
+      "z": 0.7215
+    },
+    {
+      "id": "neuronal-degeneracy-homeostasis",
+      "slug": "neuronal-degeneracy-homeostasis",
+      "title": "Degeneracy × 长得完全不同的神经元，跑出几乎一样的节律",
+      "paper": "Variability, compensation and homeostasis in neuron and network function",
+      "topic": "computation",
+      "year": 2006,
+      "path": "/brain-bytes/neuronal-degeneracy-homeostasis/",
+      "x": -0.05209,
+      "y": -0.75365,
+      "z": 0.81053
+    },
+    {
+      "id": "motor-population-vector",
+      "slug": "motor-population-vector",
+      "title": "Population Vector × 一群「近视」的神经元如何投票投出精确的运动方向",
+      "paper": "Neuronal Population Coding of Movement Direction",
+      "topic": "computation",
+      "year": 1986,
+      "path": "/brain-bytes/motor-population-vector/",
+      "x": -0.46261,
+      "y": -0.79166,
+      "z": 0.70872
+    },
+    {
+      "id": "neural-basis-of-decision",
+      "slug": "neural-basis-of-decision",
+      "title": "Decision Variable × 大脑如何把摇摆的证据攒成一个「我决定了」",
+      "paper": "The Neural Basis of Decision Making",
+      "topic": "decision",
+      "year": 2007,
+      "path": "/brain-bytes/neural-basis-of-decision/",
+      "x": -0.08677,
+      "y": 0.84267,
+      "z": 0.7745
+    },
+    {
+      "id": "md-thalamus-belief-updating",
+      "slug": "md-thalamus-belief-updating",
+      "title": "Mediodorsal Thalamus × 精神分裂症小鼠「不会改主意」，激活丘脑就好了",
+      "paper": "Enhancement of mediodorsal thalamus rescues aberrant belief dynamics in a mouse model with schizophrenia-associated mutation",
+      "topic": "decision",
+      "year": 2024,
+      "path": "/brain-bytes/md-thalamus-belief-updating/",
+      "x": -0.04597,
+      "y": 0.5811,
+      "z": 0.87587
+    },
+    {
+      "id": "medial-temporal-memory-system",
+      "slug": "medial-temporal-memory-system",
+      "title": "Medial Temporal Lobe × 记忆不是一个系统，而是一个分工的联盟",
+      "paper": "The Medial Temporal Lobe",
+      "topic": "memory",
+      "year": 2004,
+      "path": "/brain-bytes/medial-temporal-memory-system/",
+      "x": -0.26908,
+      "y": 0.00763,
+      "z": 0.66798
+    },
+    {
+      "id": "membrane-conductance-components",
+      "slug": "membrane-conductance-components",
+      "title": "Membrane Conductance × 把一条电流拆成两扇会自己开关的\"门\"：钠门猛开速关，钾门慢开常驻",
+      "paper": "The Components of Membrane Conductance in the Giant Axon of Loligo",
+      "topic": "electrophysiology",
+      "year": 1952,
+      "path": "/brain-bytes/membrane-conductance-components/",
+      "x": 0.3361,
+      "y": 0.80831,
+      "z": 0.62363
+    },
+    {
+      "id": "mcculloch-pitts-neuron",
+      "slug": "mcculloch-pitts-neuron",
+      "title": "Formal Neuron × 把\"神经元开火\"翻译成\"一句话为真\"，于是大脑成了一台逻辑机器",
+      "paper": "A Logical Calculus of the Ideas Immanent in Nervous Activity",
+      "topic": "computation",
+      "year": 1943,
+      "path": "/brain-bytes/mcculloch-pitts-neuron/",
+      "x": -0.34568,
+      "y": -0.86305,
+      "z": 0.80714
+    },
+    {
+      "id": "marys-room-knowledge-argument",
+      "slug": "marys-room-knowledge-argument",
+      "title": "Mary's Room × 物理知识穷尽不了「红色的滋味」",
+      "paper": "Epiphenomenal Qualia（附带现象的感受质）",
+      "topic": "consciousness",
+      "year": 1982,
+      "path": "/brain-bytes/marys-room-knowledge-argument/",
+      "x": 0.70541,
+      "y": -0.30532,
+      "z": 0.71921
+    },
+    {
+      "id": "large-scale-neuronal-recording",
+      "slug": "large-scale-neuronal-recording",
+      "title": "Neuronal Ensembles × 别再只听一件乐器，去录下整支乐队的合奏",
+      "paper": "Large-scale recording of neuronal ensembles",
+      "topic": "computation",
+      "year": 2004,
+      "path": "/brain-bytes/large-scale-neuronal-recording/",
+      "x": -0.07287,
+      "y": -0.59645,
+      "z": 0.7531
+    },
+    {
+      "id": "libet-readiness-potential",
+      "slug": "libet-readiness-potential",
+      "title": "Libet 1983 × 当你\"决定\"动手时，大脑早在半秒前就已经动身了",
+      "paper": "Time of Conscious Intention to Act in Relation to Onset of Cerebral Activity (Readiness-Potential): The Unconscious Initiation of a Freely Voluntary Act",
+      "topic": "decision",
+      "year": 1983,
+      "path": "/brain-bytes/libet-readiness-potential/",
+      "x": -0.23043,
+      "y": 0.5222,
+      "z": 0.75785
+    },
+    {
+      "id": "long-term-potentiation",
+      "slug": "long-term-potentiation",
+      "title": "Long-Term Potentiation × 一串高频电脉冲，让突触「记住」好几个小时",
+      "paper": "Long-lasting potentiation of synaptic transmission in the dentate area of the anaesthetized rabbit following stimulation of the perforant path",
+      "topic": "memory",
+      "year": 1973,
+      "path": "/brain-bytes/long-term-potentiation/",
+      "x": -0.15735,
+      "y": 0.27565,
+      "z": 0.66675
+    },
+    {
+      "id": "iowa-gambling-task",
+      "slug": "iowa-gambling-task",
+      "title": "Iowa Gambling Task × 当大脑「对未来失明」：在赌桌上看见情绪如何替理性做决定",
+      "paper": "Insensitivity to future consequences following damage to human prefrontal cortex",
+      "topic": "decision",
+      "year": 1994,
+      "path": "/brain-bytes/iowa-gambling-task/",
+      "x": -0.22576,
+      "y": 0.71938,
+      "z": 0.77729
+    },
+    {
+      "id": "izhikevich-spiking-neuron",
+      "slug": "izhikevich-spiking-neuron",
+      "title": "Two Equations × 两条方程演尽一座神经元动物园",
+      "paper": "Simple Model of Spiking Neurons",
+      "topic": "computation",
+      "year": 2003,
+      "path": "/brain-bytes/izhikevich-spiking-neuron/",
+      "x": -0.29336,
+      "y": -0.72004,
+      "z": 0.9767
+    },
+    {
+      "id": "infant-speech-perception",
+      "slug": "infant-speech-perception",
+      "title": "Cracking the Speech Code × 婴儿如何在一岁内统计出母语、并把大脑\"焊死\"在母语上",
+      "paper": "Early Language Acquisition: Cracking the Speech Code",
+      "topic": "perception",
+      "year": 2004,
+      "path": "/brain-bytes/infant-speech-perception/",
+      "x": 0.24452,
+      "y": -0.12371,
+      "z": 0.5299
+    },
+    {
+      "id": "integrated-information-theory",
+      "slug": "integrated-information-theory",
+      "title": "Information Integration Theory × 意识就是一个系统\"把信息拧成一团\"的能力，可以用一个数 Φ 量出来",
+      "paper": "An Information Integration Theory of Consciousness（意识的信息整合理论）",
+      "topic": "consciousness",
+      "year": 2004,
+      "path": "/brain-bytes/integrated-information-theory/",
+      "x": 0.66178,
+      "y": -0.44278,
+      "z": 0.68364
+    },
+    {
+      "id": "interoceptive-inference-self",
+      "slug": "interoceptive-inference-self",
+      "title": "Interoceptive Inference × 情绪与自我，是大脑对身体内部状态的一场\"预测\"",
+      "paper": "Interoceptive inference, emotion, and the embodied self",
+      "topic": "prediction",
+      "year": 2013,
+      "path": "/brain-bytes/interoceptive-inference-self/",
+      "x": 0.45565,
+      "y": 0.15467,
+      "z": 0.6315
+    },
+    {
+      "id": "hubel-wiesel-receptive-fields",
+      "slug": "hubel-wiesel-receptive-fields",
+      "title": "Receptive Fields &amp; Cortical Columns × 大脑用来「看见线条」的第一块积木",
+      "paper": "Receptive fields, binocular interaction and functional architecture in the cat's visual cortex",
+      "topic": "perception",
+      "year": 1962,
+      "path": "/brain-bytes/hubel-wiesel-receptive-fields/",
+      "x": -0.70633,
+      "y": -0.11196,
+      "z": 0.66796
+    },
+    {
+      "id": "human-connectome",
+      "slug": "human-connectome",
+      "title": "The Human Connectome × 给大脑画一张完整的\"接线图\"",
+      "paper": "The Human Connectome: A Structural Description of the Human Brain",
+      "topic": "computation",
+      "year": 2005,
+      "path": "/brain-bytes/human-connectome/",
+      "x": -0.20434,
+      "y": -0.49003,
+      "z": 0.69134
+    },
+    {
+      "id": "hippocampal-place-cells",
+      "slug": "hippocampal-place-cells",
+      "title": "Place Cells × 大脑里藏着一张「我在哪儿」的地图",
+      "paper": "The hippocampus as a spatial map. Preliminary evidence from unit activity in the freely-moving rat",
+      "topic": "memory",
+      "year": 1971,
+      "path": "/brain-bytes/hippocampal-place-cells/",
+      "x": -0.56343,
+      "y": 0.06379,
+      "z": 0.82765
+    },
+    {
+      "id": "hopfield-associative-memory",
+      "slug": "hopfield-associative-memory",
+      "title": "Content-Addressable Memory × 当一堆\"傻\"神经元自己学会了\"凭一角想起全貌\"",
+      "paper": "Neural networks and physical systems with emergent collective computational abilities",
+      "topic": "computation",
+      "year": 1982,
+      "path": "/brain-bytes/hopfield-associative-memory/",
+      "x": -0.21967,
+      "y": -0.67731,
+      "z": 0.97688
+    },
+    {
+      "id": "helmholtz-machine",
+      "slug": "helmholtz-machine",
+      "title": "Wake-Sleep × 让神经网络白天认东西、晚上做梦，醒梦互相教学就学会了世界",
+      "paper": "The Helmholtz Machine",
+      "topic": "computation",
+      "year": 1995,
+      "path": "/brain-bytes/helmholtz-machine/",
+      "x": -0.25686,
+      "y": -0.85315,
+      "z": 0.89382
+    },
+    {
+      "id": "higher-order-theories-consciousness",
+      "slug": "higher-order-theories-consciousness",
+      "title": "Higher-Order Theory × 一个状态要\"被你知道在其中\"，才算有意识",
+      "paper": "Empirical support for higher-order theories of conscious awareness（意识觉知的高阶理论的经验支持）",
+      "topic": "consciousness",
+      "year": 2011,
+      "path": "/brain-bytes/higher-order-theories-consciousness/",
+      "x": 0.59437,
+      "y": -0.55047,
+      "z": 0.56441
+    },
+    {
+      "id": "fusiform-face-area",
+      "slug": "fusiform-face-area",
+      "title": "Fusiform Face Area × 大脑里真有一块\"专门看脸\"的硬件",
+      "paper": "The Fusiform Face Area: A Module in Human Extrastriate Cortex Specialized for Face Perception",
+      "topic": "perception",
+      "year": 1997,
+      "path": "/brain-bytes/fusiform-face-area/",
+      "x": -0.64001,
+      "y": -0.332,
+      "z": 0.62756
+    },
+    {
+      "id": "hard-problem-of-consciousness",
+      "slug": "hard-problem-of-consciousness",
+      "title": "The Hard Problem × 为什么大脑里的信息处理不是\"在黑暗中\"进行的？",
+      "paper": "Facing Up to the Problem of Consciousness（直面意识难题）",
+      "topic": "consciousness",
+      "year": 1995,
+      "path": "/brain-bytes/hard-problem-of-consciousness/",
+      "x": 0.65976,
+      "y": -0.1308,
+      "z": 0.69228
+    },
+    {
+      "id": "engram-deconstruction",
+      "slug": "engram-deconstruction",
+      "title": "Memory Engram × 记忆印迹不是铁板一块，而是由不同时刻招募的「子集群」拼成的",
+      "paper": "Deconstruction of a memory engram reveals distinct ensembles recruited at learning",
+      "topic": "memory",
+      "year": 2024,
+      "path": "/brain-bytes/engram-deconstruction/",
+      "x": -0.49053,
+      "y": 0.17275,
+      "z": 0.81493
+    },
+    {
+      "id": "free-energy-principle",
+      "slug": "free-energy-principle",
+      "title": "Free Energy × 大脑为何要不停地\"猜\"，才能活下去",
+      "paper": "The free-energy principle: a unified brain theory?",
+      "topic": "prediction",
+      "year": 2010,
+      "path": "/brain-bytes/free-energy-principle/",
+      "x": 0.25656,
+      "y": 0.33711,
+      "z": 0.69744
+    },
+    {
+      "id": "eliminative-materialism",
+      "slug": "eliminative-materialism",
+      "title": "Eliminative Materialism × 你的\"信念\"和\"欲望\"，可能根本不存在",
+      "paper": "Eliminative Materialism and the Propositional Attitudes",
+      "topic": "consciousness",
+      "year": 1981,
+      "path": "/brain-bytes/eliminative-materialism/",
+      "x": 0.5472,
+      "y": -0.51474,
+      "z": 0.62003
+    },
+    {
+      "id": "dopamine-reward-prediction-error",
+      "slug": "dopamine-reward-prediction-error",
+      "title": "Reward Prediction Error × 多巴胺神经元发的不是「快乐」，而是「比预期好多少」",
+      "paper": "A Neural Substrate of Prediction and Reward",
+      "topic": "prediction",
+      "year": 1997,
+      "path": "/brain-bytes/dopamine-reward-prediction-error/",
+      "x": 0.36465,
+      "y": 0.11099,
+      "z": 0.66586
+    },
+    {
+      "id": "directed-attention-network",
+      "slug": "directed-attention-network",
+      "title": "Cortical Network for Attention × 注意力不是一个点，而是一张网",
+      "paper": "A Cortical Network for Directed Attention and Unilateral Neglect",
+      "topic": "decision",
+      "year": 1981,
+      "path": "/brain-bytes/directed-attention-network/",
+      "x": -0.1498,
+      "y": 0.79236,
+      "z": 0.80326
+    },
+    {
+      "id": "cortical-processing-hierarchy",
+      "slug": "cortical-processing-hierarchy",
+      "title": "Cortical Hierarchy × 用「连线落在第几层」给大脑视觉皮层排出 10 级处理金字塔",
+      "paper": "Distributed Hierarchical Processing in the Primate Cerebral Cortex",
+      "topic": "perception",
+      "year": 1991,
+      "path": "/brain-bytes/cortical-processing-hierarchy/",
+      "x": -0.57776,
+      "y": -0.2309,
+      "z": 0.72739
+    },
+    {
+      "id": "deep-nets-visual-cortex",
+      "slug": "deep-nets-visual-cortex",
+      "title": "Performance-Optimized Models × 不拿神经数据训练，却养出了迄今最像视觉皮层的网络",
+      "paper": "Performance-optimized hierarchical models predict neural responses in higher visual cortex",
+      "topic": "perception",
+      "year": 2014,
+      "path": "/brain-bytes/deep-nets-visual-cortex/",
+      "x": -0.70271,
+      "y": -0.21245,
+      "z": 0.64361
+    },
+    {
+      "id": "consciousness-here-there-everywhere",
+      "slug": "consciousness-here-there-everywhere",
+      "title": "Here, There &amp; Everywhere × 把意识当公理倒推，意识=不可分割的整合信息 Φ",
+      "paper": "Consciousness: here, there and everywhere?",
+      "topic": "consciousness",
+      "year": 2015,
+      "path": "/brain-bytes/consciousness-here-there-everywhere/",
+      "x": 0.62401,
+      "y": -0.31783,
+      "z": 0.79969
+    },
+    {
+      "id": "cooperative-stereo-vision",
+      "slug": "cooperative-stereo-vision",
+      "title": "Cooperative Computation × 两条物理约束 + 一张会\"互相打架\"的神经网格，凭空把随机噪点看出立体",
+      "paper": "Cooperative Computation of Stereo Disparity",
+      "topic": "perception",
+      "year": 1976,
+      "path": "/brain-bytes/cooperative-stereo-vision/",
+      "x": -0.60442,
+      "y": -0.49668,
+      "z": 0.55952
+    },
+    {
+      "id": "bayesian-object-perception",
+      "slug": "bayesian-object-perception",
+      "title": "Bayesian Perception × 你的大脑是一台贝叶斯推理机",
+      "paper": "Object Perception as Bayesian Inference",
+      "topic": "prediction",
+      "year": 2004,
+      "path": "/brain-bytes/bayesian-object-perception/",
+      "x": 0.27733,
+      "y": 0.29385,
+      "z": 0.68951
+    },
+    {
+      "id": "conscious-preconscious-subliminal",
+      "slug": "conscious-preconscious-subliminal",
+      "title": "Conscious · Preconscious · Subliminal × 三态意识：把「看不见」拆成两种完全不同的看不见",
+      "paper": "Conscious, preconscious, and subliminal processing: a testable taxonomy",
+      "topic": "consciousness",
+      "year": 2006,
+      "path": "/brain-bytes/conscious-preconscious-subliminal/",
+      "x": 0.42624,
+      "y": -0.34815,
+      "z": 0.71017
+    },
+    {
+      "id": "backpropagation-learning",
+      "slug": "backpropagation-learning",
+      "title": "Back-Propagation × 让多层网络学会「自己长出概念」的那条链式法则",
+      "paper": "Learning representations by back-propagating errors",
+      "topic": "computation",
+      "year": 1986,
+      "path": "/brain-bytes/backpropagation-learning/",
+      "x": -0.16898,
+      "y": -0.66601,
+      "z": 0.94375
+    },
+    {
+      "id": "backpropagation-and-the-brain",
+      "slug": "backpropagation-and-the-brain",
+      "title": "Backpropagation × 大脑能不能\"反向传播\"？一个被平反的禁忌假说",
+      "paper": "Backpropagation and the brain",
+      "topic": "computation",
+      "year": 2020,
+      "path": "/brain-bytes/backpropagation-and-the-brain/",
+      "x": -0.10155,
+      "y": -0.87132,
+      "z": 0.78516
+    },
+    {
+      "id": "awareness-in-vegetative-state",
+      "slug": "awareness-in-vegetative-state",
+      "title": "Tennis in the Mind × 用一场\"想象的网球\"，敲开植物人沉默的意识之门",
+      "paper": "Detecting Awareness in the Vegetative State（检测植物状态中的意识）",
+      "topic": "consciousness",
+      "year": 2006,
+      "path": "/brain-bytes/awareness-in-vegetative-state/",
+      "x": 0.27767,
+      "y": -0.28932,
+      "z": 0.54593
+    },
+    {
+      "id": "attractor-decision-dynamics",
+      "slug": "attractor-decision-dynamics",
+      "title": "Slow Reverberation × 大脑如何「慢慢拿主意」：一张脉冲网络把犹豫、累积证据和最后拍板写成了同一套动力学",
+      "paper": "Probabilistic Decision Making by Slow Reverberation in Cortical Circuits",
+      "topic": "decision",
+      "year": 2002,
+      "path": "/brain-bytes/attractor-decision-dynamics/",
+      "x": -0.08976,
+      "y": 0.72523,
+      "z": 0.89785
+    }
+  ],
+  "contours": [
+    {
+      "level": 0.2222,
+      "points": [
+        {
+          "x": 0.68254,
+          "y": -0.71623,
+          "z": 0.2222
+        },
+        {
+          "x": 0.71429,
+          "y": -0.72777,
+          "z": 0.2222
+        },
+        {
+          "x": 0.75052,
+          "y": -0.71429,
+          "z": 0.2222
+        },
+        {
+          "x": 0.77778,
+          "y": -0.69903,
+          "z": 0.2222
+        },
+        {
+          "x": 0.79824,
+          "y": -0.68254,
+          "z": 0.2222
+        },
+        {
+          "x": 0.80952,
+          "y": -0.65965,
+          "z": 0.2222
+        },
+        {
+          "x": 0.83449,
+          "y": -0.65079,
+          "z": 0.2222
+        },
+        {
+          "x": 0.84127,
+          "y": -0.62583,
+          "z": 0.2222
+        },
+        {
+          "x": 0.86366,
+          "y": -0.61905,
+          "z": 0.2222
+        },
+        {
+          "x": 0.87302,
+          "y": -0.59909,
+          "z": 0.2222
+        },
+        {
+          "x": 0.88784,
+          "y": -0.5873,
+          "z": 0.2222
+        },
+        {
+          "x": 0.90789,
+          "y": -0.55556,
+          "z": 0.2222
+        },
+        {
+          "x": 0.9251,
+          "y": -0.52381,
+          "z": 0.2222
+        },
+        {
+          "x": 0.9392,
+          "y": -0.49206,
+          "z": 0.2222
+        },
+        {
+          "x": 0.95139,
+          "y": -0.46032,
+          "z": 0.2222
+        },
+        {
+          "x": 0.96098,
+          "y": -0.42857,
+          "z": 0.2222
+        },
+        {
+          "x": 0.96833,
+          "y": -0.39683,
+          "z": 0.2222
+        },
+        {
+          "x": 0.97435,
+          "y": -0.36508,
+          "z": 0.2222
+        },
+        {
+          "x": 0.9783,
+          "y": -0.33333,
+          "z": 0.2222
+        },
+        {
+          "x": 0.9803,
+          "y": -0.30159,
+          "z": 0.2222
+        },
+        {
+          "x": 0.98039,
+          "y": -0.26984,
+          "z": 0.2222
+        },
+        {
+          "x": 0.97855,
+          "y": -0.2381,
+          "z": 0.2222
+        },
+        {
+          "x": 0.97467,
+          "y": -0.20635,
+          "z": 0.2222
+        },
+        {
+          "x": 0.99966,
+          "y": -0.1746,
+          "z": 0.2222
+        }
+      ]
+    },
+    {
+      "level": 0.2222,
+      "points": [
+        {
+          "x": -0.96196,
+          "y": -0.30159,
+          "z": 0.2222
+        },
+        {
+          "x": -0.93448,
+          "y": -0.33333,
+          "z": 0.2222
+        },
+        {
+          "x": -0.9428,
+          "y": -0.30159,
+          "z": 0.2222
+        },
+        {
+          "x": -0.94939,
+          "y": -0.26984,
+          "z": 0.2222
+        },
+        {
+          "x": -0.95415,
+          "y": -0.2381,
+          "z": 0.2222
+        },
+        {
+          "x": -0.95718,
+          "y": -0.20635,
+          "z": 0.2222
+        },
+        {
+          "x": -0.95854,
+          "y": -0.1746,
+          "z": 0.2222
+        },
+        {
+          "x": -0.95829,
+          "y": -0.14286,
+          "z": 0.2222
+        },
+        {
+          "x": -0.95648,
+          "y": -0.11111,
+          "z": 0.2222
+        },
+        {
+          "x": -0.95313,
+          "y": -0.07937,
+          "z": 0.2222
+        },
+        {
+          "x": -0.94823,
+          "y": -0.04762,
+          "z": 0.2222
+        },
+        {
+          "x": -0.96304,
+          "y": -0.01587,
+          "z": 0.2222
+        }
+      ]
+    },
+    {
+      "level": 0.2222,
+      "points": [
+        {
+          "x": 0.36508,
+          "y": -0.74828,
+          "z": 0.2222
+        },
+        {
+          "x": 0.33333,
+          "y": -0.76992,
+          "z": 0.2222
+        },
+        {
+          "x": 0.30159,
+          "y": -0.75472,
+          "z": 0.2222
+        },
+        {
+          "x": 0.29164,
+          "y": -0.77778,
+          "z": 0.2222
+        },
+        {
+          "x": 0.26984,
+          "y": -0.78747,
+          "z": 0.2222
+        },
+        {
+          "x": 0.26328,
+          "y": -0.80952,
+          "z": 0.2222
+        },
+        {
+          "x": 0.24294,
+          "y": -0.84127,
+          "z": 0.2222
+        },
+        {
+          "x": 0.2256,
+          "y": -0.87302,
+          "z": 0.2222
+        },
+        {
+          "x": 0.20779,
+          "y": -0.90476,
+          "z": 0.2222
+        },
+        {
+          "x": 0.19019,
+          "y": -0.93651,
+          "z": 0.2222
+        },
+        {
+          "x": 0.1746,
+          "y": -0.94389,
+          "z": 0.2222
+        },
+        {
+          "x": 0.17003,
+          "y": -0.96825,
+          "z": 0.2222
+        }
+      ]
+    },
+    {
+      "level": 0.2222,
+      "points": [
+        {
+          "x": 0.59152,
+          "y": 0.52381,
+          "z": 0.2222
+        },
+        {
+          "x": 0.6218,
+          "y": 0.49206,
+          "z": 0.2222
+        },
+        {
+          "x": 0.61483,
+          "y": 0.52381,
+          "z": 0.2222
+        },
+        {
+          "x": 0.60994,
+          "y": 0.55556,
+          "z": 0.2222
+        },
+        {
+          "x": 0.607,
+          "y": 0.5873,
+          "z": 0.2222
+        },
+        {
+          "x": 0.60593,
+          "y": 0.61905,
+          "z": 0.2222
+        },
+        {
+          "x": 0.60642,
+          "y": 0.65079,
+          "z": 0.2222
+        },
+        {
+          "x": 0.608,
+          "y": 0.68254,
+          "z": 0.2222
+        },
+        {
+          "x": 0.61007,
+          "y": 0.71429,
+          "z": 0.2222
+        },
+        {
+          "x": 0.61204,
+          "y": 0.74603,
+          "z": 0.2222
+        },
+        {
+          "x": 0.59305,
+          "y": 0.77778,
+          "z": 0.2222
+        }
+      ]
+    },
+    {
+      "level": 0.2222,
+      "points": [
+        {
+          "x": 0.42857,
+          "y": -0.7726,
+          "z": 0.2222
+        },
+        {
+          "x": 0.46032,
+          "y": -0.76866,
+          "z": 0.2222
+        },
+        {
+          "x": 0.49206,
+          "y": -0.76492,
+          "z": 0.2222
+        },
+        {
+          "x": 0.52381,
+          "y": -0.76219,
+          "z": 0.2222
+        },
+        {
+          "x": 0.55556,
+          "y": -0.76104,
+          "z": 0.2222
+        },
+        {
+          "x": 0.5873,
+          "y": -0.76186,
+          "z": 0.2222
+        },
+        {
+          "x": 0.61905,
+          "y": -0.76502,
+          "z": 0.2222
+        },
+        {
+          "x": 0.65079,
+          "y": -0.77089,
+          "z": 0.2222
+        },
+        {
+          "x": 0.67525,
+          "y": -0.74603,
+          "z": 0.2222
+        },
+        {
+          "x": 0.68254,
+          "y": -0.74409,
+          "z": 0.2222
+        }
+      ]
+    },
+    {
+      "level": 0.3333,
+      "points": [
+        {
+          "x": -0.90051,
+          "y": -0.26984,
+          "z": 0.3333
+        },
+        {
+          "x": -0.86933,
+          "y": -0.30159,
+          "z": 0.3333
+        },
+        {
+          "x": -0.87727,
+          "y": -0.26984,
+          "z": 0.3333
+        },
+        {
+          "x": -0.88329,
+          "y": -0.2381,
+          "z": 0.3333
+        },
+        {
+          "x": -0.88731,
+          "y": -0.20635,
+          "z": 0.3333
+        },
+        {
+          "x": -0.8894,
+          "y": -0.1746,
+          "z": 0.3333
+        },
+        {
+          "x": -0.88965,
+          "y": -0.14286,
+          "z": 0.3333
+        },
+        {
+          "x": -0.88812,
+          "y": -0.11111,
+          "z": 0.3333
+        },
+        {
+          "x": -0.88487,
+          "y": -0.07937,
+          "z": 0.3333
+        },
+        {
+          "x": -0.87993,
+          "y": -0.04762,
+          "z": 0.3333
+        },
+        {
+          "x": -0.9045,
+          "y": -0.01587,
+          "z": 0.3333
+        }
+      ]
+    },
+    {
+      "level": 0.4444,
+      "points": [
+        {
+          "x": -0.70176,
+          "y": 0.2381,
+          "z": 0.4444
+        },
+        {
+          "x": -0.69507,
+          "y": 0.2381,
+          "z": 0.4444
+        },
+        {
+          "x": -0.68254,
+          "y": 0.25419,
+          "z": 0.4444
+        },
+        {
+          "x": -0.66901,
+          "y": 0.26984,
+          "z": 0.4444
+        },
+        {
+          "x": -0.65079,
+          "y": 0.28127,
+          "z": 0.4444
+        },
+        {
+          "x": -0.63996,
+          "y": 0.30159,
+          "z": 0.4444
+        },
+        {
+          "x": -0.61905,
+          "y": 0.31195,
+          "z": 0.4444
+        },
+        {
+          "x": -0.60837,
+          "y": 0.33333,
+          "z": 0.4444
+        },
+        {
+          "x": -0.5873,
+          "y": 0.3445,
+          "z": 0.4444
+        },
+        {
+          "x": -0.57541,
+          "y": 0.36508,
+          "z": 0.4444
+        },
+        {
+          "x": -0.55556,
+          "y": 0.37718,
+          "z": 0.4444
+        },
+        {
+          "x": -0.54311,
+          "y": 0.39683,
+          "z": 0.4444
+        },
+        {
+          "x": -0.52381,
+          "y": 0.40773,
+          "z": 0.4444
+        },
+        {
+          "x": -0.51382,
+          "y": 0.42857,
+          "z": 0.4444
+        },
+        {
+          "x": -0.48931,
+          "y": 0.46032,
+          "z": 0.4444
+        },
+        {
+          "x": -0.47013,
+          "y": 0.49206,
+          "z": 0.4444
+        },
+        {
+          "x": -0.45567,
+          "y": 0.52381,
+          "z": 0.4444
+        },
+        {
+          "x": -0.44498,
+          "y": 0.55556,
+          "z": 0.4444
+        },
+        {
+          "x": -0.43669,
+          "y": 0.5873,
+          "z": 0.4444
+        },
+        {
+          "x": -0.45923,
+          "y": 0.61905,
+          "z": 0.4444
+        }
+      ]
+    },
+    {
+      "level": 0.4444,
+      "points": [
+        {
+          "x": 0.05555,
+          "y": 0.07937,
+          "z": 0.4444
+        },
+        {
+          "x": 0.07143,
+          "y": 0.07937,
+          "z": 0.4444
+        },
+        {
+          "x": 0.04762,
+          "y": 0.09893,
+          "z": 0.4444
+        },
+        {
+          "x": 0.01587,
+          "y": 0.09451,
+          "z": 0.4444
+        },
+        {
+          "x": -0.01587,
+          "y": 0.10208,
+          "z": 0.4444
+        },
+        {
+          "x": -0.03064,
+          "y": 0.07937,
+          "z": 0.4444
+        },
+        {
+          "x": -0.04762,
+          "y": 0.05811,
+          "z": 0.4444
+        },
+        {
+          "x": -0.06977,
+          "y": 0.04762,
+          "z": 0.4444
+        },
+        {
+          "x": -0.07937,
+          "y": 0.02493,
+          "z": 0.4444
+        },
+        {
+          "x": -0.0978,
+          "y": 0.01587,
+          "z": 0.4444
+        },
+        {
+          "x": -0.11111,
+          "y": -0.00003,
+          "z": 0.4444
+        },
+        {
+          "x": -0.11111,
+          "y": 0.00003,
+          "z": 0.4444
+        }
+      ]
+    },
+    {
+      "level": 0.4444,
+      "points": [
+        {
+          "x": 0.84127,
+          "y": -0.19741,
+          "z": 0.4444
+        },
+        {
+          "x": 0.84736,
+          "y": -0.20635,
+          "z": 0.4444
+        },
+        {
+          "x": 0.85306,
+          "y": -0.2381,
+          "z": 0.4444
+        },
+        {
+          "x": 0.85605,
+          "y": -0.26984,
+          "z": 0.4444
+        },
+        {
+          "x": 0.8564,
+          "y": -0.30159,
+          "z": 0.4444
+        },
+        {
+          "x": 0.85413,
+          "y": -0.33333,
+          "z": 0.4444
+        },
+        {
+          "x": 0.84919,
+          "y": -0.36508,
+          "z": 0.4444
+        },
+        {
+          "x": 0.84144,
+          "y": -0.39683,
+          "z": 0.4444
+        },
+        {
+          "x": 0.8307,
+          "y": -0.42857,
+          "z": 0.4444
+        },
+        {
+          "x": 0.8166,
+          "y": -0.46032,
+          "z": 0.4444
+        },
+        {
+          "x": 0.80952,
+          "y": -0.47913,
+          "z": 0.4444
+        },
+        {
+          "x": 0.80952,
+          "y": -0.47326,
+          "z": 0.4444
+        }
+      ]
+    },
+    {
+      "level": 0.4444,
+      "points": [
+        {
+          "x": -0.14286,
+          "y": 0.97484,
+          "z": 0.4444
+        },
+        {
+          "x": -0.13426,
+          "y": 1,
+          "z": 0.4444
+        },
+        {
+          "x": -0.1746,
+          "y": 0.9863,
+          "z": 0.4444
+        },
+        {
+          "x": -0.20473,
+          "y": 0.96825,
+          "z": 0.4444
+        },
+        {
+          "x": -0.2381,
+          "y": 0.95507,
+          "z": 0.4444
+        },
+        {
+          "x": -0.25758,
+          "y": 0.93651,
+          "z": 0.4444
+        },
+        {
+          "x": -0.26984,
+          "y": 0.91372,
+          "z": 0.4444
+        },
+        {
+          "x": -0.29658,
+          "y": 0.90476,
+          "z": 0.4444
+        },
+        {
+          "x": -0.32671,
+          "y": 0.87302,
+          "z": 0.4444
+        },
+        {
+          "x": -0.33333,
+          "y": 0.84954,
+          "z": 0.4444
+        },
+        {
+          "x": -0.33333,
+          "y": 0.86474,
+          "z": 0.4444
+        }
+      ]
+    },
+    {
+      "level": 0.4444,
+      "points": [
+        {
+          "x": -0.83872,
+          "y": -0.26984,
+          "z": 0.4444
+        },
+        {
+          "x": -0.81208,
+          "y": -0.26984,
+          "z": 0.4444
+        },
+        {
+          "x": -0.81976,
+          "y": -0.2381,
+          "z": 0.4444
+        },
+        {
+          "x": -0.82516,
+          "y": -0.20635,
+          "z": 0.4444
+        },
+        {
+          "x": -0.82836,
+          "y": -0.1746,
+          "z": 0.4444
+        },
+        {
+          "x": -0.82944,
+          "y": -0.14286,
+          "z": 0.4444
+        },
+        {
+          "x": -0.82851,
+          "y": -0.11111,
+          "z": 0.4444
+        },
+        {
+          "x": -0.82568,
+          "y": -0.07937,
+          "z": 0.4444
+        },
+        {
+          "x": -0.82102,
+          "y": -0.04762,
+          "z": 0.4444
+        },
+        {
+          "x": -0.83622,
+          "y": -0.01587,
+          "z": 0.4444
+        }
+      ]
+    },
+    {
+      "level": 0.4444,
+      "points": [
+        {
+          "x": 0.11111,
+          "y": -0.55171,
+          "z": 0.4444
+        },
+        {
+          "x": 0.12207,
+          "y": -0.55556,
+          "z": 0.4444
+        },
+        {
+          "x": 0.12892,
+          "y": -0.5873,
+          "z": 0.4444
+        },
+        {
+          "x": 0.13236,
+          "y": -0.61905,
+          "z": 0.4444
+        },
+        {
+          "x": 0.13345,
+          "y": -0.65079,
+          "z": 0.4444
+        },
+        {
+          "x": 0.13262,
+          "y": -0.68254,
+          "z": 0.4444
+        },
+        {
+          "x": 0.13,
+          "y": -0.71429,
+          "z": 0.4444
+        },
+        {
+          "x": 0.12554,
+          "y": -0.74603,
+          "z": 0.4444
+        },
+        {
+          "x": 0.11906,
+          "y": -0.77778,
+          "z": 0.4444
+        },
+        {
+          "x": 0.11111,
+          "y": -0.78088,
+          "z": 0.4444
+        }
+      ]
+    },
+    {
+      "level": 0.5556,
+      "points": [
+        {
+          "x": 0.61905,
+          "y": -0.52705,
+          "z": 0.5556
+        },
+        {
+          "x": 0.65079,
+          "y": -0.53715,
+          "z": 0.5556
+        },
+        {
+          "x": 0.68575,
+          "y": -0.52381,
+          "z": 0.5556
+        },
+        {
+          "x": 0.71429,
+          "y": -0.51439,
+          "z": 0.5556
+        },
+        {
+          "x": 0.72374,
+          "y": -0.49206,
+          "z": 0.5556
+        },
+        {
+          "x": 0.74996,
+          "y": -0.46032,
+          "z": 0.5556
+        },
+        {
+          "x": 0.76862,
+          "y": -0.42857,
+          "z": 0.5556
+        },
+        {
+          "x": 0.78246,
+          "y": -0.39683,
+          "z": 0.5556
+        },
+        {
+          "x": 0.79191,
+          "y": -0.36508,
+          "z": 0.5556
+        },
+        {
+          "x": 0.79787,
+          "y": -0.33333,
+          "z": 0.5556
+        },
+        {
+          "x": 0.80051,
+          "y": -0.30159,
+          "z": 0.5556
+        },
+        {
+          "x": 0.79992,
+          "y": -0.26984,
+          "z": 0.5556
+        },
+        {
+          "x": 0.79611,
+          "y": -0.2381,
+          "z": 0.5556
+        },
+        {
+          "x": 0.78903,
+          "y": -0.20635,
+          "z": 0.5556
+        },
+        {
+          "x": 0.80865,
+          "y": -0.1746,
+          "z": 0.5556
+        }
+      ]
+    },
+    {
+      "level": 0.5556,
+      "points": [
+        {
+          "x": -0.76933,
+          "y": -0.2381,
+          "z": 0.5556
+        },
+        {
+          "x": -0.74359,
+          "y": -0.26984,
+          "z": 0.5556
+        },
+        {
+          "x": -0.75448,
+          "y": -0.2381,
+          "z": 0.5556
+        },
+        {
+          "x": -0.76242,
+          "y": -0.20635,
+          "z": 0.5556
+        },
+        {
+          "x": -0.76767,
+          "y": -0.1746,
+          "z": 0.5556
+        },
+        {
+          "x": -0.77033,
+          "y": -0.14286,
+          "z": 0.5556
+        },
+        {
+          "x": -0.77056,
+          "y": -0.11111,
+          "z": 0.5556
+        },
+        {
+          "x": -0.76854,
+          "y": -0.07937,
+          "z": 0.5556
+        },
+        {
+          "x": -0.76444,
+          "y": -0.04762,
+          "z": 0.5556
+        },
+        {
+          "x": -0.75837,
+          "y": -0.01587,
+          "z": 0.5556
+        },
+        {
+          "x": -0.77344,
+          "y": 0.01587,
+          "z": 0.5556
+        }
+      ]
+    },
+    {
+      "level": 0.5556,
+      "points": [
+        {
+          "x": 0.04762,
+          "y": -0.61718,
+          "z": 0.5556
+        },
+        {
+          "x": 0.05917,
+          "y": -0.61905,
+          "z": 0.5556
+        },
+        {
+          "x": 0.06689,
+          "y": -0.65079,
+          "z": 0.5556
+        },
+        {
+          "x": 0.07095,
+          "y": -0.68254,
+          "z": 0.5556
+        },
+        {
+          "x": 0.07188,
+          "y": -0.71429,
+          "z": 0.5556
+        },
+        {
+          "x": 0.06987,
+          "y": -0.74603,
+          "z": 0.5556
+        },
+        {
+          "x": 0.0649,
+          "y": -0.77778,
+          "z": 0.5556
+        },
+        {
+          "x": 0.05674,
+          "y": -0.80952,
+          "z": 0.5556
+        },
+        {
+          "x": 0.04762,
+          "y": -0.81645,
+          "z": 0.5556
+        },
+        {
+          "x": 0.04503,
+          "y": -0.84127,
+          "z": 0.5556
+        }
+      ]
+    },
+    {
+      "level": 0.6667,
+      "points": [
+        {
+          "x": -0.52381,
+          "y": 0.26411,
+          "z": 0.6667
+        },
+        {
+          "x": -0.55556,
+          "y": 0.23696,
+          "z": 0.6667
+        },
+        {
+          "x": -0.5873,
+          "y": 0.20515,
+          "z": 0.6667
+        },
+        {
+          "x": -0.61905,
+          "y": 0.1662,
+          "z": 0.6667
+        },
+        {
+          "x": -0.61905,
+          "y": 0.15126,
+          "z": 0.6667
+        },
+        {
+          "x": -0.5873,
+          "y": 0.1758,
+          "z": 0.6667
+        },
+        {
+          "x": -0.55556,
+          "y": 0.20749,
+          "z": 0.6667
+        },
+        {
+          "x": -0.52381,
+          "y": 0.24382,
+          "z": 0.6667
+        },
+        {
+          "x": -0.51629,
+          "y": 0.26984,
+          "z": 0.6667
+        },
+        {
+          "x": -0.49206,
+          "y": 0.28311,
+          "z": 0.6667
+        },
+        {
+          "x": -0.47285,
+          "y": 0.30159,
+          "z": 0.6667
+        },
+        {
+          "x": -0.46032,
+          "y": 0.32418,
+          "z": 0.6667
+        },
+        {
+          "x": -0.42683,
+          "y": 0.33333,
+          "z": 0.6667
+        },
+        {
+          "x": -0.39683,
+          "y": 0.34363,
+          "z": 0.6667
+        },
+        {
+          "x": -0.38219,
+          "y": 0.36508,
+          "z": 0.6667
+        },
+        {
+          "x": -0.36508,
+          "y": 0.38091,
+          "z": 0.6667
+        },
+        {
+          "x": -0.34854,
+          "y": 0.39683,
+          "z": 0.6667
+        },
+        {
+          "x": -0.32822,
+          "y": 0.42857,
+          "z": 0.6667
+        },
+        {
+          "x": -0.31725,
+          "y": 0.46032,
+          "z": 0.6667
+        },
+        {
+          "x": -0.31267,
+          "y": 0.49206,
+          "z": 0.6667
+        },
+        {
+          "x": -0.31122,
+          "y": 0.52381,
+          "z": 0.6667
+        },
+        {
+          "x": -0.31104,
+          "y": 0.55556,
+          "z": 0.6667
+        },
+        {
+          "x": -0.3109,
+          "y": 0.5873,
+          "z": 0.6667
+        },
+        {
+          "x": -0.30989,
+          "y": 0.61905,
+          "z": 0.6667
+        },
+        {
+          "x": -0.32764,
+          "y": 0.65079,
+          "z": 0.6667
+        }
+      ]
+    },
+    {
+      "level": 0.6667,
+      "points": [
+        {
+          "x": 0.25598,
+          "y": 0.2381,
+          "z": 0.6667
+        },
+        {
+          "x": 0.26984,
+          "y": 0.22587,
+          "z": 0.6667
+        },
+        {
+          "x": 0.28804,
+          "y": 0.20635,
+          "z": 0.6667
+        },
+        {
+          "x": 0.30159,
+          "y": 0.1952,
+          "z": 0.6667
+        },
+        {
+          "x": 0.31938,
+          "y": 0.1746,
+          "z": 0.6667
+        },
+        {
+          "x": 0.33333,
+          "y": 0.16385,
+          "z": 0.6667
+        },
+        {
+          "x": 0.34788,
+          "y": 0.14286,
+          "z": 0.6667
+        },
+        {
+          "x": 0.36508,
+          "y": 0.13412,
+          "z": 0.6667
+        },
+        {
+          "x": 0.37948,
+          "y": 0.14286,
+          "z": 0.6667
+        },
+        {
+          "x": 0.37964,
+          "y": 0.1746,
+          "z": 0.6667
+        },
+        {
+          "x": 0.37715,
+          "y": 0.20635,
+          "z": 0.6667
+        },
+        {
+          "x": 0.373,
+          "y": 0.2381,
+          "z": 0.6667
+        },
+        {
+          "x": 0.39442,
+          "y": 0.26984,
+          "z": 0.6667
+        }
+      ]
+    },
+    {
+      "level": 0.6667,
+      "points": [
+        {
+          "x": -0.70933,
+          "y": -0.20635,
+          "z": 0.6667
+        },
+        {
+          "x": -0.6875,
+          "y": -0.20635,
+          "z": 0.6667
+        },
+        {
+          "x": -0.69767,
+          "y": -0.1746,
+          "z": 0.6667
+        },
+        {
+          "x": -0.70418,
+          "y": -0.14286,
+          "z": 0.6667
+        },
+        {
+          "x": -0.70726,
+          "y": -0.11111,
+          "z": 0.6667
+        },
+        {
+          "x": -0.70726,
+          "y": -0.07937,
+          "z": 0.6667
+        },
+        {
+          "x": -0.70452,
+          "y": -0.04762,
+          "z": 0.6667
+        },
+        {
+          "x": -0.69932,
+          "y": -0.01587,
+          "z": 0.6667
+        },
+        {
+          "x": -0.69183,
+          "y": 0.01587,
+          "z": 0.6667
+        },
+        {
+          "x": -0.68204,
+          "y": 0.04762,
+          "z": 0.6667
+        },
+        {
+          "x": -0.66916,
+          "y": 0.07937,
+          "z": 0.6667
+        },
+        {
+          "x": -0.67939,
+          "y": 0.11111,
+          "z": 0.6667
+        }
+      ]
+    },
+    {
+      "level": 0.6667,
+      "points": [
+        {
+          "x": 0.71429,
+          "y": -0.19873,
+          "z": 0.6667
+        },
+        {
+          "x": 0.72447,
+          "y": -0.20635,
+          "z": 0.6667
+        },
+        {
+          "x": 0.73388,
+          "y": -0.2381,
+          "z": 0.6667
+        },
+        {
+          "x": 0.73909,
+          "y": -0.26984,
+          "z": 0.6667
+        },
+        {
+          "x": 0.73996,
+          "y": -0.30159,
+          "z": 0.6667
+        },
+        {
+          "x": 0.73637,
+          "y": -0.33333,
+          "z": 0.6667
+        },
+        {
+          "x": 0.72816,
+          "y": -0.36508,
+          "z": 0.6667
+        },
+        {
+          "x": 0.71506,
+          "y": -0.39683,
+          "z": 0.6667
+        },
+        {
+          "x": 0.69322,
+          "y": -0.42857,
+          "z": 0.6667
+        },
+        {
+          "x": 0.68254,
+          "y": -0.44832,
+          "z": 0.6667
+        },
+        {
+          "x": 0.65863,
+          "y": -0.46032,
+          "z": 0.6667
+        },
+        {
+          "x": 0.65079,
+          "y": -0.48668,
+          "z": 0.6667
+        }
+      ]
+    },
+    {
+      "level": 0.6667,
+      "points": [
+        {
+          "x": -0.51476,
+          "y": -0.74603,
+          "z": 0.6667
+        },
+        {
+          "x": -0.49091,
+          "y": -0.77778,
+          "z": 0.6667
+        },
+        {
+          "x": -0.50111,
+          "y": -0.74603,
+          "z": 0.6667
+        },
+        {
+          "x": -0.50788,
+          "y": -0.71429,
+          "z": 0.6667
+        },
+        {
+          "x": -0.51158,
+          "y": -0.68254,
+          "z": 0.6667
+        },
+        {
+          "x": -0.51246,
+          "y": -0.65079,
+          "z": 0.6667
+        },
+        {
+          "x": -0.51061,
+          "y": -0.61905,
+          "z": 0.6667
+        },
+        {
+          "x": -0.50595,
+          "y": -0.5873,
+          "z": 0.6667
+        },
+        {
+          "x": -0.49815,
+          "y": -0.55556,
+          "z": 0.6667
+        },
+        {
+          "x": -0.49206,
+          "y": -0.53742,
+          "z": 0.6667
+        }
+      ]
+    },
+    {
+      "level": 0.8889,
+      "points": [
+        {
+          "x": -0.1746,
+          "y": -0.59251,
+          "z": 0.8889
+        },
+        {
+          "x": -0.16519,
+          "y": -0.61905,
+          "z": 0.8889
+        },
+        {
+          "x": -0.20635,
+          "y": -0.60333,
+          "z": 0.8889
+        },
+        {
+          "x": -0.2381,
+          "y": -0.60781,
+          "z": 0.8889
+        },
+        {
+          "x": -0.26984,
+          "y": -0.60608,
+          "z": 0.8889
+        },
+        {
+          "x": -0.30159,
+          "y": -0.59766,
+          "z": 0.8889
+        },
+        {
+          "x": -0.32213,
+          "y": -0.61905,
+          "z": 0.8889
+        },
+        {
+          "x": -0.33333,
+          "y": -0.64307,
+          "z": 0.8889
+        },
+        {
+          "x": -0.35612,
+          "y": -0.65079,
+          "z": 0.8889
+        },
+        {
+          "x": -0.34229,
+          "y": -0.65079,
+          "z": 0.8889
+        }
+      ]
+    }
+  ],
+  "peaks": [
+    {
+      "id": "electrophysiology",
+      "topic": "electrophysiology",
+      "label": "电生理",
+      "name": "电生理 · 离子通道",
+      "color": "#c0392b",
+      "order": 1,
+      "count": 4,
+      "x": 0.3289975,
+      "y": 0.8561275,
+      "z": 0.73522
+    },
+    {
+      "id": "perception",
+      "topic": "perception",
+      "label": "感知",
+      "name": "感知 · 视觉",
+      "color": "#b9770e",
+      "order": 2,
+      "count": 6,
+      "x": -0.4977850000000001,
+      "y": -0.25128333333333336,
+      "z": 0.8073899999999999
+    },
+    {
+      "id": "computation",
+      "topic": "computation",
+      "label": "计算",
+      "name": "计算 · 网络 · 学习",
+      "color": "#8a6d3b",
+      "order": 3,
+      "count": 12,
+      "x": -0.2298275,
+      "y": -0.7392941666666668,
+      "z": 1
+    },
+    {
+      "id": "memory",
+      "topic": "memory",
+      "label": "记忆",
+      "name": "记忆 · 海马",
+      "color": "#1f6f54",
+      "order": 4,
+      "count": 9,
+      "x": -0.4072944444444444,
+      "y": 0.12187333333333333,
+      "z": 0.93014
+    },
+    {
+      "id": "decision",
+      "topic": "decision",
+      "label": "决策",
+      "name": "决策 · 前额叶 · 意志",
+      "color": "#a0522d",
+      "order": 5,
+      "count": 9,
+      "x": -0.11467999999999999,
+      "y": 0.6982033333333333,
+      "z": 0.97785
+    },
+    {
+      "id": "prediction",
+      "topic": "prediction",
+      "label": "预测",
+      "name": "预测 · 贝叶斯脑",
+      "color": "#2c6e9c",
+      "order": 6,
+      "count": 6,
+      "x": 0.33124666666666663,
+      "y": 0.28565333333333326,
+      "z": 0.7934
+    },
+    {
+      "id": "consciousness",
+      "topic": "consciousness",
+      "label": "意识",
+      "name": "意识 · 主观经验",
+      "color": "#5b4b8a",
+      "order": 7,
+      "count": 10,
+      "x": 0.571773,
+      "y": -0.31286,
+      "z": 0.87969
+    }
+  ]
+}

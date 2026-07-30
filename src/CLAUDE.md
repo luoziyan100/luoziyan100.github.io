@@ -3,7 +3,7 @@
 
 ## 成员清单
 
-**App.jsx**: React 应用根组件，组合 BrowserRouter、AnimatePresence、MotionConfig，并通过 React.lazy/Suspense 对所有页面做路由级代码分割；`brain-bytes-os.vercel.app` 或 `VITE_BRAIN_BYTES_OS_STANDALONE=1` 时根路径直接渲染 BrainBytesOSPage，myweb 普通构建仍显示 LandingPage
+**App.jsx**: React 应用根组件，组合 BrowserRouter、AnimatePresence、MotionConfig，并通过 React.lazy/Suspense 对所有页面做路由级代码分割；含 Brain & Bytes OS/Demo/Showcase/Map；`brain-bytes-os.vercel.app` 或 `VITE_BRAIN_BYTES_OS_STANDALONE=1` 时根路径直接渲染 BrainBytesOSPage，myweb 普通构建仍显示 LandingPage
 
 **main.jsx**: React DOM 挂载入口，把 App 渲染到 `#root` 并加载全局样式
 

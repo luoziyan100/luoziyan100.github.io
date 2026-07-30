@@ -173,6 +173,7 @@ import { Card } from '@/components/ui/card'
 - `/brain-bytes-os` - Brain & Bytes 主体叙事入口（BrainBytesOSPage，16:9 逐字打字终端启动 + 光束载入 + 默认雪花七鱼生成式背景 + 右上角可拖拽主题书；点击书本按 `/brain-bytes/index.json` 打开主题列表与文章 iframe；地球视频与 Three 行星可经 WORLD_VARIANT 回退）
 - `/brain-bytes-demo` - Brain & Bytes 新叙事首页 Demo（BrainBytesDemoPage，时间长卷 + 七条谱系 + 精选路径，用于验证知识地图改造方向）
 - `/brain-bytes-showcase` - Brain & Bytes 七方案实验室（BrainBytesShowcasePage，用同一批论文比较 7 种信息架构 Demo）
+- `/brain-bytes-map` - Brain & Bytes 认知地图（BrainBytesMapPage，论文向量投影 + Three.js 等高线山峰 + 年份时间轴）
 - `/brain-bytes/<slug>/` - 论文精读文章（自包含静态 HTML，位于 public/brain-bytes/，整页跳转）
 - `/design-system` - 设计系统展示（DesignSystemPage）
 
@@ -191,12 +192,12 @@ import { Card } from '@/components/ui/card'
 
 ### 6. 构建流程
 ```bash
-npm run dev → posts:index + bytes:index (生成索引) → vite (启动开发服务器)
-npm run build → posts:index + bytes:index → vite build (生产构建)
+npm run dev → posts:index + bytes:index + map:index (生成索引/认知地图) → vite (启动开发服务器)
+npm run build → posts:index + bytes:index + map:index → vite build (生产构建)
 ```
 
 ### 7. 部署流程
-Vercel 按纯前端静态站部署：`vercel.json` 指定 `buildCommand` 为 `npm run build`、`outputDirectory` 为 `dist`。客户端路由只精准 rewrite `/blog/:path*`、`/brain-bytes-os`、`/brain-bytes-demo`、`/brain-bytes-showcase` 与 `/design-system` 到 `/index.html`；真实静态论文页 `/brain-bytes/<slug>/index.html` 保持文件系统直出，不被 catch-all 覆盖。独立 OS 站域名为 `brain-bytes-os.vercel.app`（App 按 hostname 把根路径接到 BrainBytesOSPage；也可 `npm run build:os` / `VITE_BRAIN_BYTES_OS_STANDALONE=1`）；`myweb` 项目以后再接，普通构建仍保持 LandingPage 首页。
+Vercel 按纯前端静态站部署：`vercel.json` 指定 `buildCommand` 为 `npm run build`、`outputDirectory` 为 `dist`。客户端路由只精准 rewrite `/blog/:path*`、`/brain-bytes-os`、`/brain-bytes-demo`、`/brain-bytes-showcase`、`/brain-bytes-map` 与 `/design-system` 到 `/index.html`；真实静态论文页 `/brain-bytes/<slug>/index.html` 保持文件系统直出，不被 catch-all 覆盖。独立 OS 站域名为 `brain-bytes-os.vercel.app`（App 按 hostname 把根路径接到 BrainBytesOSPage；也可 `npm run build:os` / `VITE_BRAIN_BYTES_OS_STANDALONE=1`）；`myweb` 项目以后再接，普通构建仍保持 LandingPage 首页。认知地图数据由 `npm run map:index` 预计算为 `public/brain-bytes/cognitive-map.json`。
 
 ## 开发规范
 

@@ -20,6 +20,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/brain-bytes-map",
+      "destination": "/index.html"
+    },
+    {
       "source": "/design-system",
       "destination": "/index.html"
     }

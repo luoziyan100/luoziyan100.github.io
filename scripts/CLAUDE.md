@@ -11,6 +11,8 @@
 
 **test-brain-bytes-terminal.js**: Brain & Bytes OS 终端逐行启动、浏览器标题与论文档案叙事的轻量 Node 断言测试，验证入口终端按行逐步显现且文案只服务论文展示
 
+**generate-cognitive-map.js**: 认知地图离线管线，读取 index.json + HTML 文本，嵌入（可选 @xenova/transformers，否则 hash）→ UMAP/MDS → KDE 等高线 → 写出 `public/brain-bytes/cognitive-map.json`
+
 ---
 
 法则: 成员完整·一行一文件·父级链接·技术词前置
