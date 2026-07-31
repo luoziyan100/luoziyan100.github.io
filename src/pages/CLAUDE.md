@@ -35,12 +35,6 @@
 
 **BrainBytesShowcasePage.jsx**: Brain & Bytes 七方案实验室，路由 /brain-bytes-showcase，fetch /brain-bytes/index.json，用同一批 56 篇论文横向比较「问题之河 / 心智博物馆 / 问题任务树 / 思想星图 / 思想书 / 辩论场 / 实验台」七种信息架构，DOM 提供场景级隐喻元素
 
-**BrainBytesMapPage.jsx**: Flomo 风格认知地图页，路由 /brain-bytes-map；fetch cognitive-map.json，Three.js 山峰/等高线/点选 + 年份时间轴
-
-**brain-bytes-cognitive-map.js**: 认知地图 WebGL 引擎（OrbitControls、点云、等高线、峰光、年份过滤）
-
-**brain-bytes-map.css**: BrainBytesMapPage 专属深色舞台与时间轴样式
-
 **brain-bytes-demo.css**: BrainBytesDemoPage 专属样式，全部 scoped 于 .bbd-root，融合冷纸底、水墨长卷、朱印章和主题色节点，保持 Demo 与旧版页面并行
 
 **brain-bytes-showcase.css**: BrainBytesShowcasePage 专属样式，全部 scoped 于 .bbs-root，提供侧边方案切换和七种差异化原型视觉
